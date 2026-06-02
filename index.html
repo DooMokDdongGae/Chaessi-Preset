@@ -1,0 +1,376 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Chaessi Preset / Payload Manager</title>
+    <link rel="stylesheet" href="/styles.css" />
+  </head>
+  <body>
+    <header class="app-header">
+      <div class="brand">
+        <img class="brand-symbol" src="/assets/branding/chaessi-symbol.png" alt="" />
+        <div>
+          <h1>Chaessi Preset</h1>
+          <p>Local Preset Workshop</p>
+        </div>
+      </div>
+      <div class="header-tools">
+        <div class="health">NovelAI Diffusion V4.5 Full</div>
+        <div class="health" id="healthStatus">checking</div>
+        <button id="apiSettingsButton" type="button">API Settings</button>
+      </div>
+    </header>
+
+    <main class="workspace">
+      <section class="current-strip" id="currentPresetSummary">
+        <div><strong>Preset</strong><span id="summaryName">Untitled</span></div>
+        <div><strong>Model</strong><span id="summaryModel">nai-diffusion-4-5-full</span></div>
+        <div><strong>Base</strong><span id="summaryBase">0 chars</span></div>
+        <div><strong>Undesired</strong><span id="summaryUndesired">0 chars</span></div>
+        <div><strong>Characters</strong><span id="summaryCharacters">0 enabled</span></div>
+        <div><strong>Size</strong><span id="summarySize">832 x 1216</span></div>
+        <div><strong>Sampler</strong><span id="summarySampler">k_euler_ancestral</span></div>
+        <div><strong>Seed</strong><span id="summarySeed">random</span></div>
+        <div><strong>Import</strong><span id="summaryImport">none</span></div>
+        <div class="thumb-slot"><img id="summaryThumb" alt="" /></div>
+      </section>
+
+      <div class="workbench-grid">
+        <div class="workbench-main">
+          <section class="panel workbench-section" id="panel-preset">
+            <div class="panel-heading">
+              <div>
+                <h2>Current Preset</h2>
+                <p>Edit the prompt, characters, and settings used for generation.</p>
+              </div>
+              <div class="actions preset-file-actions">
+                <button id="savePresetButton">Save</button>
+                <button id="saveAsPresetButton">Save As</button>
+                <button id="openPresetLoadButton">Load</button>
+              </div>
+            </div>
+            <div class="preset-editor-grid">
+              <section class="tool-surface preset-prompt-surface">
+                <h3>Prompt</h3>
+                <label>Name <input id="presetName" type="text" /></label>
+                <label>Base prompt <textarea id="basePrompt"></textarea></label>
+                <label>Undesired <textarea id="undesiredPrompt"></textarea></label>
+              </section>
+              <section class="tool-surface params-grid preset-params-surface">
+                <h3>Generation Settings</h3>
+                <label>Width <input id="paramWidth" type="number" min="64" step="64" /></label>
+                <label>Height <input id="paramHeight" type="number" min="64" step="64" /></label>
+                <label>Steps <input id="paramSteps" type="number" min="1" /></label>
+                <label>Scale <input id="paramScale" type="number" step="0.1" /></label>
+                <label>CFG rescale <input id="paramCfgRescale" type="number" step="0.01" /></label>
+                <label>Sampler <input id="paramSampler" type="text" /></label>
+                <label>Seed <input id="paramSeed" type="number" /></label>
+                <label>Noise schedule <input id="paramNoiseSchedule" type="text" /></label>
+                <label>UC preset <input id="paramUcPreset" type="number" /></label>
+                <label class="inline"><input id="paramQualityToggle" type="checkbox" /> Quality tags</label>
+                <label class="inline"><input id="paramSm" type="checkbox" /> SM</label>
+                <label class="inline"><input id="paramSmDyn" type="checkbox" /> Dynamic SM</label>
+                <label class="inline"><input id="paramDynamicThresholding" type="checkbox" /> Dynamic threshold</label>
+              </section>
+            </div>
+            <section class="tool-surface preset-character-surface">
+              <div class="section-row">
+                <h3>Character Prompts</h3>
+                <button id="addCharacterButton">Add Character</button>
+              </div>
+              <div class="character-card-list" id="characterCards"></div>
+              <textarea id="charactersJson" spellcheck="false" hidden></textarea>
+            </section>
+            <section class="tool-surface" hidden>
+              <h3>Section Libraries</h3>
+              <div class="library-grid">
+                <div>
+                  <h4>Base Prompt</h4>
+                  <div class="actions">
+                    <button id="saveBasePromptButton">Save</button>
+                    <button id="loadBasePromptListButton">List</button>
+                    <button id="applyBasePromptPresetButton">Apply</button>
+                    <button id="deleteBasePromptPresetButton">Delete</button>
+                  </div>
+                  <select id="basePromptList" size="4"></select>
+                </div>
+                <div>
+                  <h4>Undesired</h4>
+                  <div class="actions">
+                    <button id="saveUndesiredButton">Save</button>
+                    <button id="loadUndesiredListButton">List</button>
+                    <button id="applyUndesiredPresetButton">Apply</button>
+                    <button id="deleteUndesiredPresetButton">Delete</button>
+                  </div>
+                  <select id="undesiredList" size="4"></select>
+                </div>
+                <div>
+                  <h4>Params</h4>
+                  <div class="actions">
+                    <button id="saveParamsButton">Save</button>
+                    <button id="loadParamsListButton">List</button>
+                    <button id="applyParamsPresetButton">Apply</button>
+                    <button id="deleteParamsPresetButton">Delete</button>
+                  </div>
+                  <select id="paramsPresetList" size="4"></select>
+                </div>
+                <div>
+                  <h4>Character</h4>
+                  <label>Slot <input id="characterSlotInput" type="number" min="1" value="1" /></label>
+                  <div class="actions">
+                    <button id="saveCharacterButton">Save Slot</button>
+                    <button id="loadCharacterListButton">List</button>
+                    <button id="applyCharacterPresetButton">Apply to Slot</button>
+                    <button id="deleteCharacterPresetButton">Delete</button>
+                  </div>
+                  <select id="characterPresetList" size="4"></select>
+                </div>
+              </div>
+            </section>
+            <section class="tool-surface api-settings-surface">
+              <h3>NovelAI API Settings</h3>
+              <div class="summary" id="tokenStatus">Checking NovelAI token status...</div>
+              <label>NovelAI Token <input id="tokenInput" type="password" autocomplete="off" placeholder="Paste token to save securely" /></label>
+              <div class="actions">
+                <button id="refreshTokenStatusButton">Refresh Token Status</button>
+                <button id="saveTokenButton">Save Token</button>
+                <button id="clearTokenButton">Clear Saved Token</button>
+              </div>
+            </section>
+          </section>
+        </div>
+
+        <aside class="workbench-side">
+          <section class="panel workbench-section" id="panel-import">
+            <div class="panel-heading">
+              <div>
+                <h2>Import Metadata</h2>
+                <p>Bring prompt, characters, and settings into the current preset.</p>
+              </div>
+            </div>
+            <div class="grid import-source-grid">
+              <section class="tool-surface">
+                <h3>Image Metadata</h3>
+                <div class="drop-zone" id="dropZone">
+                  <img id="imageImportPreview" class="image-import-preview" alt="Imported image preview" hidden />
+                  <strong id="imageImportTitle">Drop PNG/WebP here</strong>
+                  <span id="imageImportHint">or paste an image anywhere in the app</span>
+                </div>
+                <input id="imageInput" type="file" accept="image/png,image/webp,image/jpeg" />
+                <button id="importImageButton">Choose Image</button>
+              </section>
+              <section class="tool-surface" hidden>
+                <h3>Text Paste</h3>
+                <textarea id="plainTextInput" spellcheck="false" placeholder="Paste prompt text here"></textarea>
+                <div class="actions">
+                  <button id="pushTextBaseButton">Use as Base</button>
+                  <button id="pushTextUndesiredButton">Use as Undesired</button>
+                </div>
+              </section>
+            </div>
+            <details class="tool-surface">
+              <summary>Advanced / Debug Raw JSON Import</summary>
+              <div class="details-body">
+                <textarea id="rawJsonInput" spellcheck="false" placeholder="Paste NovelAI raw parameters JSON"></textarea>
+                <div class="summary" id="rawJsonImportStatus">Paste valid raw JSON to import automatically.</div>
+                <button id="importRawButton" hidden>Import Raw JSON</button>
+              </div>
+            </details>
+            <section class="tool-surface">
+              <div class="section-row">
+                <h3>Import Result</h3>
+                <button id="applyImportButton" hidden>Apply to Current Preset</button>
+              </div>
+              <div class="summary import-summary" id="importSummary">No import yet.</div>
+              <div class="checks" hidden>
+                <label><input id="applyBasePrompt" type="checkbox" checked /> Base prompt</label>
+                <label><input id="applyUndesired" type="checkbox" checked /> Undesired</label>
+                <label><input id="applyCharacters" type="checkbox" checked /> Characters</label>
+                <label><input id="applyParams" type="checkbox" checked /> Params</label>
+              </div>
+              <details class="import-preview" hidden>
+                <summary>Preview imported data</summary>
+                <div class="details-body">
+                  <div class="grid two">
+                    <label>Base Prompt <textarea id="importBasePrompt"></textarea></label>
+                    <label>Undesired <textarea id="importUndesired"></textarea></label>
+                  </div>
+                  <div class="section-row">
+                    <h3>Imported Character Prompts</h3>
+                  </div>
+                  <div class="character-card-list" id="importCharacterCards"></div>
+                  <details>
+                    <summary>Character JSON</summary>
+                    <textarea id="importCharactersJson" spellcheck="false"></textarea>
+                  </details>
+                  <section class="mini-param-grid">
+                    <label>Width <input id="importWidth" type="number" /></label>
+                    <label>Height <input id="importHeight" type="number" /></label>
+                    <label>Steps <input id="importSteps" type="number" /></label>
+                    <label>Scale <input id="importScale" type="number" step="0.1" /></label>
+                    <label>CFG rescale <input id="importCfgRescale" type="number" step="0.01" /></label>
+                    <label>Sampler <input id="importSampler" type="text" /></label>
+                    <label>Seed <input id="importSeed" type="number" /></label>
+                    <label>Noise <input id="importNoiseSchedule" type="text" /></label>
+                  </section>
+                </div>
+              </details>
+            </section>
+          </section>
+
+          <section class="panel workbench-section generate-panel" id="panel-generate">
+            <div class="panel-heading">
+              <div>
+                <h2>Generate</h2>
+                <p>Create one image from the current preset.</p>
+              </div>
+            </div>
+            <section class="tool-surface generate-surface">
+              <div class="generate-command-row">
+                <button id="generateButton" class="primary-generate-button">Generate One Image</button>
+                <div class="summary" id="generateStatus">Idle.</div>
+              </div>
+              <div class="generation-layout">
+                <div class="result-preview-frame">
+                  <img id="generatedImage" alt="" />
+                  <div class="result-action-row" id="latestResultActions" hidden>
+                    <button id="viewLatestButton">View Large</button>
+                    <button id="downloadLatestButton">Save</button>
+                    <button id="deleteLatestButton">Delete</button>
+                  </div>
+                </div>
+                <div class="result-list" id="generationSummary"></div>
+              </div>
+            </section>
+          </section>
+
+          <section class="panel workbench-section" id="panel-history">
+            <div class="panel-heading">
+              <div>
+                <h2>History</h2>
+                <p>Local generation records saved by the server.</p>
+              </div>
+              <button id="loadHistoryButton">Load History</button>
+            </div>
+            <div class="history-layout">
+              <div id="historyList" class="history-list"></div>
+              <img id="historyImage" alt="" />
+            </div>
+          </section>
+        </aside>
+      </div>
+    </main>
+
+    <dialog class="image-viewer-dialog" id="imageViewerDialog">
+      <form method="dialog">
+        <header class="dialog-header">
+          <div>
+            <h2 id="imageViewerTitle">Generation Preview</h2>
+            <p id="imageViewerMeta">No image selected.</p>
+          </div>
+          <button>Close</button>
+        </header>
+        <div class="result-action-row image-viewer-actions">
+          <button type="button" id="imageViewerSaveButton">Save</button>
+          <button type="button" id="imageViewerDeleteButton">Delete</button>
+        </div>
+        <img id="imageViewerImage" class="image-viewer-image" alt="" />
+        <div class="viewer-meta-line" id="imageViewerSummary"></div>
+      </form>
+    </dialog>
+
+    <dialog class="preset-dialog" id="presetSaveDialog">
+      <form method="dialog">
+        <header class="dialog-header">
+          <div>
+            <h2 id="presetSaveDialogTitle">Save Preset</h2>
+            <p>Save the current prompt, characters, params, and thumbnail.</p>
+          </div>
+          <button value="cancel">Close</button>
+        </header>
+        <label>Preset name <input id="presetSaveNameInput" type="text" autocomplete="off" /></label>
+        <div class="preset-thumb-picker">
+          <div class="preset-thumb-preview" id="presetThumbnailPreview">No thumbnail</div>
+          <div class="preset-thumb-copy">
+            <strong>Thumbnail</strong>
+            <span>Use the latest generated image or choose an image file.</span>
+            <div class="actions">
+              <button type="button" id="presetUseCurrentImageButton">Use Current Image</button>
+              <button type="button" id="presetChooseThumbnailButton">Choose File</button>
+              <button type="button" id="presetClearThumbnailButton">Clear</button>
+            </div>
+          </div>
+        </div>
+        <div class="actions">
+          <button type="button" id="confirmSavePresetButton">Save</button>
+        </div>
+        <div class="summary" id="presetSaveStatus">Ready.</div>
+      </form>
+    </dialog>
+
+    <dialog class="preset-dialog" id="presetLoadDialog">
+      <form method="dialog">
+        <header class="dialog-header">
+          <div>
+            <h2>Load Preset</h2>
+            <p>Choose a saved preset to replace the current preset.</p>
+          </div>
+          <button value="cancel">Close</button>
+        </header>
+        <div class="preset-card-list" id="presetLoadList"></div>
+        <div class="summary" id="presetLoadStatus">No presets loaded.</div>
+      </form>
+    </dialog>
+
+    <dialog class="character-preset-dialog" id="characterPresetDialog">
+      <form method="dialog">
+        <header class="dialog-header">
+          <div>
+            <h2>Character Prompt Preset</h2>
+            <p id="characterPresetContext">Character slot</p>
+          </div>
+          <button id="closeCharacterPresetDialog" value="cancel">Close</button>
+        </header>
+        <label>Preset name <input id="characterPresetNameInput" type="text" autocomplete="off" /></label>
+        <div class="preset-thumb-picker character-thumb-picker">
+          <div class="preset-thumb-preview" id="characterPresetThumbnailPreview">No thumbnail</div>
+          <div class="preset-thumb-copy">
+            <strong>Thumbnail</strong>
+            <span>Use the latest generated image or choose an image file.</span>
+            <div class="actions">
+              <button type="button" id="characterUseCurrentImageButton">Use Current Image</button>
+              <button type="button" id="characterChooseThumbnailButton">Choose File</button>
+              <button type="button" id="characterClearThumbnailButton">Clear</button>
+            </div>
+          </div>
+        </div>
+        <div class="dialog-preview">
+          <section>
+            <h3>Prompt</h3>
+            <p id="characterPresetPromptPreview"></p>
+          </section>
+          <section>
+            <h3>Undesired Content</h3>
+            <p id="characterPresetUndesiredPreview"></p>
+          </section>
+        </div>
+        <div class="actions">
+          <button type="button" id="dialogSaveCharacterPresetButton">Save</button>
+          <button type="button" id="dialogSaveAsCharacterPresetButton">Save As</button>
+          <button type="button" id="dialogRefreshCharacterPresetButton">Refresh List</button>
+          <button type="button" id="dialogApplyCharacterPresetButton">Load into Slot</button>
+          <button type="button" id="dialogDeleteCharacterPresetButton">Delete Selected</button>
+        </div>
+        <select id="dialogCharacterPresetList" size="8" hidden></select>
+        <div class="character-preset-card-list" id="dialogCharacterPresetCards"></div>
+        <div class="summary" id="characterPresetDialogStatus">No preset selected.</div>
+      </form>
+    </dialog>
+
+    <input id="presetThumbnailInput" type="file" accept="image/png,image/jpeg,image/webp" hidden />
+    <input id="characterThumbnailInput" type="file" accept="image/png,image/jpeg,image/webp" hidden />
+    <div class="toast" id="toast" role="status" aria-live="polite"></div>
+    <script type="module" src="/src/app.js"></script>
+  </body>
+</html>

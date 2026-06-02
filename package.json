@@ -1,0 +1,60 @@
+{
+  "name": "chaessi-preset",
+  "productName": "Chaessi Preset",
+  "version": "1.0.0",
+  "description": "Local preset and payload manager for NovelAI V4.5 Full text-to-image generation.",
+  "author": "Chaessi Preset",
+  "license": "MIT",
+  "main": "electron/main.mjs",
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "start": "node server.mjs",
+    "electron:dev": "electron .",
+    "electron:pack": "electron-builder --dir",
+    "electron:dist": "electron-builder --win portable"
+  },
+  "devDependencies": {
+    "electron": "^42.3.0",
+    "electron-builder": "^26.8.1"
+  },
+  "build": {
+    "appId": "app.chaessi.preset",
+    "productName": "Chaessi Preset",
+    "icon": "assets/branding/chaessi-preset.ico",
+    "asar": false,
+    "directories": {
+      "output": "dist"
+    },
+    "files": [
+      "index.html",
+      "styles.css",
+      "server.mjs",
+      "package.json",
+      "electron/**/*",
+      "src/**/*",
+      "assets/**/*",
+      "!**/.env",
+      "!**/.env.*",
+      "!secrets/**",
+      "!data/secrets/**",
+      "!logs/**",
+      "!tmp/**",
+      "!data/tmp/**",
+      "!data/**",
+      "!docs/**",
+      "!test_*.js",
+      "!*.py",
+      "!*.txt",
+      "!rebuild_blueprint.md"
+    ],
+    "win": {
+      "icon": "assets/branding/chaessi-preset.ico",
+      "target": [
+        "dir",
+        "portable"
+      ],
+      "artifactName": "Chaessi-Preset-${version}-${arch}.${ext}"
+    }
+  }
+}

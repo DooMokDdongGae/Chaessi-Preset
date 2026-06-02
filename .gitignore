@@ -1,0 +1,71 @@
+﻿# Environment / secrets
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.token
+
+# Dependencies
+node_modules/
+
+# Build outputs
+dist/
+build/
+out/
+release/
+.cache/
+.vite/
+
+# App private/runtime data
+data/
+presets/
+generations/
+history/
+outputs/
+thumbnails/
+test_images/
+
+# Logs
+*.log
+logs/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Generated / test artifacts
+1.png
+*.png
+*.jpg
+*.jpeg
+*.webp
+*.gif
+*.bmp
+*.tiff
+adapter_test_*.json
+adapter_smoke_*.json
+adapter_smoke_image.png
+image.json
+image.png
+adapter_smoke_test.js
+test_*.js
+rebuild_blueprint.md
+nai_v45_full_poc.py
+*.txt
+
+# Private research / planning archive
+archive/
+docs/
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+venv/
+
+# OS / editor
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
