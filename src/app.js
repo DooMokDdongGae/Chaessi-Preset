@@ -2,6 +2,17 @@ import { deleteJson, getJson, postForm, postImage, postJson } from "./api/client
 
 const $ = (id) => document.getElementById(id);
 let rawJsonImportTimer = null;
+const DEFAULT_CHARACTER_PRESET_CATEGORY = "기타";
+const CHARACTER_PRESET_CATEGORIES = [
+  "여성 캐릭터",
+  "남성 캐릭터",
+  "여성 아웃핏",
+  "남성 아웃핏",
+  "구도·카메라",
+  "배경·소품",
+  "조명",
+  "기타",
+];
 const state = {
   currentPreset: null,
   importResult: null,
@@ -22,6 +33,7 @@ const state = {
   characterThumbnailCleared: false,
   imageImportPreviewUrl: "",
   selectedDialogCharacterPresetId: "",
+  dialogCharacterCategoryFilter: "",
 };
 
 const fields = {
@@ -108,6 +120,14 @@ function bindActions() {
   $("dialogRefreshCharacterPresetButton").addEventListener("click", () => loadCharacterList({ dialog: true }));
   $("dialogApplyCharacterPresetButton").addEventListener("click", () => applyCharacterPreset({ dialog: true }));
   $("dialogDeleteCharacterPresetButton").addEventListener("click", () => deleteCharacterPreset({ dialog: true }));
+  $("dialogCharacterCategoryFilter").addEventListener("change", () => {
+    state.dialogCharacterCategoryFilter = $("dialogCharacterCategoryFilter").value;
+    const filtered = getFilteredDialogCharacterPresets();
+    if (state.selectedDialogCharacterPresetId && !filtered.some((item) => item.id === state.selectedDialogCharacterPresetId)) {
+      state.selectedDialogCharacterPresetId = "";
+    }
+    renderDialogCharacterPresetCards(getFilteredDialogCharacterPresets());
+  });
   $("characterUseCurrentImageButton").addEventListener("click", useCurrentImageAsCharacterThumbnail);
   $("characterChooseThumbnailButton").addEventListener("click", () => $("characterThumbnailInput").click());
   $("characterClearThumbnailButton").addEventListener("click", clearCharacterThumbnail);
@@ -598,6 +618,7 @@ async function saveCharacterSlot() {
   if (!character) return showToast("No character in that slot.", true);
   const response = await saveCharacterPresetRequest({
     name: character.name || `Character ${index + 1}`,
+    category: DEFAULT_CHARACTER_PRESET_CATEGORY,
     enabled: character.enabled !== false,
     prompt: character.prompt || "",
     undesired: character.undesired || "",
@@ -639,6 +660,7 @@ async function saveCharacterSlotFromDialogBase({ forceNew }) {
   const response = await saveCharacterPresetRequest({
     id: forceNew ? undefined : state.selectedDialogCharacterPresetId,
     name: name || character.name || `Character ${state.characterPresetContextIndex + 1}`,
+    category: $("characterPresetCategoryInput").value || DEFAULT_CHARACTER_PRESET_CATEGORY,
     enabled: character.enabled !== false,
     prompt: character.prompt || "",
     undesired: character.undesired || "",
@@ -663,6 +685,7 @@ async function saveCharacterPresetRequest(preset, { includeThumbnail = true } = 
 
 async function openCharacterPresetDialog(index) {
   syncPresetFromForm();
+  initializeCharacterPresetCategoryControls();
   state.characterPresetContextIndex = index;
   state.selectedDialogCharacterPresetId = "";
   clearCharacterThumbnailPreview({ markCleared: false });
@@ -677,6 +700,7 @@ function updateCharacterPresetDialog() {
   if (!character) return;
   $("characterPresetContext").textContent = `Character ${index + 1} / ${character.name || "Untitled"}`;
   $("characterPresetNameInput").value = character.name || `Character ${index + 1}`;
+  if (!$("characterPresetCategoryInput").value) $("characterPresetCategoryInput").value = DEFAULT_CHARACTER_PRESET_CATEGORY;
   $("characterPresetPromptPreview").textContent = character.prompt || "(empty)";
   $("characterPresetUndesiredPreview").textContent = character.undesired || "(empty)";
   setSummary($("characterPresetDialogStatus"), "Choose a saved character preset to load, or use Save As to create a new one.", false);
@@ -735,11 +759,14 @@ async function loadCharacterList({ dialog = false } = {}) {
   renderSelect($("characterPresetList"), response.items || []);
   renderSelect($("dialogCharacterPresetList"), response.items || []);
   if (dialog) {
-    renderDialogCharacterPresetCards(response.items || []);
+    syncCharacterCategoryFilterOptions(response.items || []);
+    renderDialogCharacterPresetCards(getFilteredDialogCharacterPresets());
     const selectedCopy = state.selectedDialogCharacterPresetId
       ? " Select a card to load it, or Save to overwrite the selected preset."
       : " Select a card to load it, or use Save As to create a new preset.";
-    setSummary($("characterPresetDialogStatus"), `${response.items?.length || 0} character presets loaded.${selectedCopy}`, true);
+    const filteredCount = getFilteredDialogCharacterPresets().length;
+    const filterCopy = state.dialogCharacterCategoryFilter ? ` ${filteredCount} shown in ${state.dialogCharacterCategoryFilter}.` : "";
+    setSummary($("characterPresetDialogStatus"), `${response.items?.length || 0} character presets loaded.${filterCopy}${selectedCopy}`, true);
   }
 }
 
@@ -1460,10 +1487,44 @@ function renderSelect(select, items) {
     .join("");
 }
 
+function initializeCharacterPresetCategoryControls() {
+  const options = CHARACTER_PRESET_CATEGORIES
+    .map((category) => `<option value="${escapeHtml(category)}">${escapeHtml(category)}</option>`)
+    .join("");
+  $("characterPresetCategoryInput").innerHTML = options;
+  $("characterPresetCategoryInput").value = DEFAULT_CHARACTER_PRESET_CATEGORY;
+  syncCharacterCategoryFilterOptions(state.characterPresets);
+}
+
+function syncCharacterCategoryFilterOptions(items) {
+  const categories = [...CHARACTER_PRESET_CATEGORIES];
+  for (const item of items || []) {
+    const category = normalizeCharacterPresetCategory(item.category);
+    if (!categories.includes(category)) categories.push(category);
+  }
+  $("dialogCharacterCategoryFilter").innerHTML = [
+    `<option value="">All categories</option>`,
+    ...categories.map((category) => `<option value="${escapeHtml(category)}">${escapeHtml(category)}</option>`),
+  ].join("");
+  if (!categories.includes(state.dialogCharacterCategoryFilter)) state.dialogCharacterCategoryFilter = "";
+  $("dialogCharacterCategoryFilter").value = state.dialogCharacterCategoryFilter;
+}
+
+function getFilteredDialogCharacterPresets() {
+  const category = state.dialogCharacterCategoryFilter;
+  if (!category) return state.characterPresets;
+  return state.characterPresets.filter((item) => normalizeCharacterPresetCategory(item.category) === category);
+}
+
+function normalizeCharacterPresetCategory(value) {
+  const category = String(value || "").trim();
+  return category || DEFAULT_CHARACTER_PRESET_CATEGORY;
+}
+
 function renderDialogCharacterPresetCards(items) {
   const selectedId = state.selectedDialogCharacterPresetId || "";
   $("dialogCharacterPresetCards").innerHTML = items.map((item) => renderDialogCharacterPresetCard(item, selectedId)).join("")
-    || "<div class=\"summary\">No character presets saved yet.</div>";
+    || "<div class=\"summary\">No character presets in this category.</div>";
   if (selectedId) {
     selectDialogCharacterPreset(selectedId, { silent: true });
   } else {
@@ -1493,11 +1554,13 @@ function renderDialogCharacterPresetCard(item, selectedId) {
     ? `<img src="${escapeHtml(toBrowserPath(item.thumbnail_path))}?v=${encodeURIComponent(item.updated_at || "")}" alt="" />`
     : "Slot";
   const name = item.name || item.id;
+  const category = normalizeCharacterPresetCategory(item.category);
   return `
     <article class="character-preset-card ${item.id === selectedId ? "is-selected" : ""}" data-dialog-character-preset-id="${escapeHtml(item.id)}">
       <div class="character-preset-thumb">${thumb}</div>
       <div>
         <strong>${escapeHtml(name)}</strong>
+        <span class="character-preset-category">${escapeHtml(category)}</span>
         <small>Updated ${escapeHtml(item.updated_at || "unknown")}</small>
         <small>${escapeHtml(item.id || "")}</small>
         <div class="actions">
@@ -1522,6 +1585,8 @@ function selectDialogCharacterPreset(id, { silent = false } = {}) {
   } else if (id) {
     clearCharacterThumbnailPreview({ markCleared: false });
   }
+  if (item?.category) $("characterPresetCategoryInput").value = normalizeCharacterPresetCategory(item.category);
+  if (item?.name) $("characterPresetNameInput").value = item.name;
   if (!silent && id) setSummary($("characterPresetDialogStatus"), "Character preset selected. Save will overwrite it; Save As creates a new preset.", true);
 }
 

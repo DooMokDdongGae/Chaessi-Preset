@@ -1,5 +1,5 @@
 export const APP_NAME = "chaessi-payload-manager";
-export const APP_VERSION = "0.1.0";
+export const APP_VERSION = "1.1.0";
 
 export const NOVELAI_V45_FULL_MODEL = "nai-diffusion-4-5-full";
 export const NOVELAI_GENERATE_ENDPOINT = "https://image.novelai.net/ai/generate-image";
@@ -37,4 +37,3 @@ export const DEFAULT_PARAMS = Object.freeze({
   sm_dyn: false,
   dynamic_thresholding: false,
 });
-

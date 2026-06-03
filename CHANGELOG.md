@@ -1,5 +1,38 @@
 # Changelog
 
+## v1.1.0
+
+Chaessi Preset v1.1.0 adds category-based organization for Character Prompt Presets while keeping Character Slots independent and unrestricted.
+
+### Added
+
+- Preset Category System for Character Prompt Presets.
+- Category selector when saving Character Prompt Presets.
+- Category filter in the Character Preset modal.
+- Default preset categories:
+  - 여성 캐릭터
+  - 남성 캐릭터
+  - 여성 아웃핏
+  - 남성 아웃핏
+  - 구도·카메라
+  - 배경·소품
+  - 조명
+  - 기타
+- Legacy uncategorized preset fallback to `기타`.
+
+### Improved
+
+- Large preset library browsing.
+- Preset organization workflow.
+- Character Prompt Preset cards now show category labels.
+
+### Notes
+
+- Categories are only for organization and filtering.
+- Categories are not connected to Character Slot numbers.
+- Every Character Slot can freely load presets from every category.
+- Character Slot structure and NovelAI generation payload mapping are unchanged.
+
 ## v1.0.0
 
 Chaessi Preset v1.0.0 is the first public desktop release for local NovelAI V4.5 Full preset and payload management.

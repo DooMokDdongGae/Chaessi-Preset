@@ -940,6 +940,15 @@ pre {
   overflow: auto;
 }
 
+.character-preset-filter-row {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.character-preset-filter-row label {
+  width: min(280px, 100%);
+}
+
 .character-preset-card {
   display: grid;
   grid-template-columns: 64px minmax(0, 1fr);
@@ -981,6 +990,17 @@ pre {
 
 .character-preset-card small {
   color: var(--muted);
+}
+
+.character-preset-category {
+  display: inline-flex;
+  width: fit-content;
+  margin: 4px 0;
+  padding: 3px 7px;
+  border: 1px solid rgba(103, 232, 249, 0.35);
+  border-radius: 999px;
+  color: var(--cyan);
+  font-size: 12px;
 }
 
 .character-preset-card .actions {

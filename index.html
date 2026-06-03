@@ -332,7 +332,12 @@
           </div>
           <button id="closeCharacterPresetDialog" value="cancel">Close</button>
         </header>
-        <label>Preset name <input id="characterPresetNameInput" type="text" autocomplete="off" /></label>
+        <div class="grid two">
+          <label>Category
+            <select id="characterPresetCategoryInput"></select>
+          </label>
+          <label>Preset name <input id="characterPresetNameInput" type="text" autocomplete="off" /></label>
+        </div>
         <div class="preset-thumb-picker character-thumb-picker">
           <div class="preset-thumb-preview" id="characterPresetThumbnailPreview">No thumbnail</div>
           <div class="preset-thumb-copy">
@@ -361,6 +366,11 @@
           <button type="button" id="dialogRefreshCharacterPresetButton">Refresh List</button>
           <button type="button" id="dialogApplyCharacterPresetButton">Load into Slot</button>
           <button type="button" id="dialogDeleteCharacterPresetButton">Delete Selected</button>
+        </div>
+        <div class="character-preset-filter-row">
+          <label>Category filter
+            <select id="dialogCharacterCategoryFilter"></select>
+          </label>
         </div>
         <select id="dialogCharacterPresetList" size="8" hidden></select>
         <div class="character-preset-card-list" id="dialogCharacterPresetCards"></div>

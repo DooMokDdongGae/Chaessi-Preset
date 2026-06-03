@@ -14,6 +14,7 @@ import {
 import { normalizeCenters } from "../state/preset-schema.js";
 
 const CHARACTER_PRESET_SCHEMA = "chaessi-character-preset/v1";
+const DEFAULT_CHARACTER_PRESET_CATEGORY = "기타";
 
 export function createCharacterPresetStore({ rootDir }) {
   const characterPresetsDir = path.join(rootDir, "data", "character-presets");
@@ -39,7 +40,7 @@ export function createCharacterPresetStore({ rootDir }) {
       const presetId = sanitizeStoreId(id);
       const filePath = path.join(characterPresetsDir, presetId, "character-preset.json");
       try {
-        return await readJsonFile(filePath);
+        return normalizeCharacterPreset(await readJsonFile(filePath));
       } catch {
         throw storeError(404, "character_preset_not_found", "Character preset not found.");
       }
@@ -131,6 +132,7 @@ export function normalizeCharacterPreset(input) {
     schema: CHARACTER_PRESET_SCHEMA,
     id: sanitizeStoreId(input.id),
     name: String(input.name || "Untitled Character"),
+    category: normalizeCharacterPresetCategory(input.category),
     enabled: input.enabled !== false,
     prompt: String(input.prompt || ""),
     undesired: String(input.undesired || ""),
@@ -145,8 +147,14 @@ function toCharacterPresetSummary(preset) {
   return {
     id: preset.id,
     name: preset.name,
+    category: normalizeCharacterPresetCategory(preset.category),
     created_at: preset.created_at,
     updated_at: preset.updated_at,
     thumbnail_path: preset.thumbnail_path ?? null,
   };
+}
+
+function normalizeCharacterPresetCategory(value) {
+  const category = String(value || "").trim();
+  return category || DEFAULT_CHARACTER_PRESET_CATEGORY;
 }

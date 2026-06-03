@@ -20,9 +20,9 @@ The app keeps this flow stable:
 UI -> Internal Preset Schema -> Adapter -> NovelAI Payload -> NovelAI
 ```
 
-Raw payload direct generation, inpaint, reference images, vibe transfer, precise reference, scene composition, video features, and multi-model support are intentionally not included in v1.0.
+Raw payload direct generation, inpaint, reference images, vibe transfer, precise reference, scene composition, video features, and multi-model support are intentionally not included in v1.1.
 
-Raw payload 직접 생성, inpaint, reference image, vibe transfer, precise reference, scene composition, video 기능, multi-model 지원은 v1.0에 의도적으로 포함하지 않았습니다.
+Raw payload 직접 생성, inpaint, reference image, vibe transfer, precise reference, scene composition, video 기능, multi-model 지원은 v1.1에 의도적으로 포함하지 않았습니다.
 
 ## Quick Start
 
@@ -55,7 +55,7 @@ Current release build:
 현재 릴리즈 빌드:
 
 ```text
-dist/Chaessi-Preset-1.0.0-x64.exe
+dist/Chaessi-Preset-v1.1.0-x64.exe
 ```
 
 The EXE is portable. You can move it to another folder and run it from there. User presets, character presets, token storage, and generation history are stored separately from the EXE, so replacing the EXE does not remove saved app data.
@@ -147,6 +147,7 @@ Existing project-local user data is copied into userData on first Electron use w
 - Raw JSON metadata import
 - Full preset Save / Save As / Load
 - Character prompt presets with Save / Save As / Load / Delete
+- Character prompt preset categories and category filtering
 - Character preset thumbnails
 - Generation result preview and history
 - Local result image save/delete
@@ -160,11 +161,35 @@ Existing project-local user data is copied into userData on first Electron use w
 - Raw JSON metadata import
 - 전체 프리셋 Save / Save As / Load
 - 캐릭터 프롬프트 프리셋 Save / Save As / Load / Delete
+- 캐릭터 프롬프트 프리셋 분류와 분류 필터
 - 캐릭터 프리셋 썸네일
 - 생성 결과 preview와 history
 - 로컬 결과 이미지 저장/삭제
 - 데스크톱 앱용 Electron safeStorage 토큰 저장
 - 사용자 프리셋과 생성 기록을 Electron userData를 통해 앱 번들 밖에 저장
+
+## Character Prompt Preset Categories
+
+Character Prompt Presets support categories for organizing a large module-style preset library. Categories are only for organization and filtering. They are not connected to Character Slot numbers, and every Character Slot can freely load presets from every category.
+
+Character Prompt Preset은 큰 모듈형 프리셋 라이브러리를 정리하기 위한 분류(Category)를 지원합니다. 분류는 정리와 필터링 용도일 뿐입니다. 분류는 Character Slot 번호와 연결되지 않으며, 모든 Character Slot은 모든 분류의 프리셋을 자유롭게 불러올 수 있습니다.
+
+Default categories:
+
+기본 분류:
+
+- 여성 캐릭터
+- 남성 캐릭터
+- 여성 아웃핏
+- 남성 아웃핏
+- 구도·카메라
+- 배경·소품
+- 조명
+- 기타
+
+Existing character prompt presets without category data are shown as `기타`.
+
+분류 정보가 없는 기존 캐릭터 프롬프트 프리셋은 자동으로 `기타`로 표시됩니다.
 
 ## Security Rules
 
@@ -198,9 +223,9 @@ This is safer than plaintext `.env` storage for normal desktop use, but it is no
 
 ## Limitations
 
-Chaessi Preset v1.0 does not include raw payload direct generation, inpaint, reference images, vibe transfer, precise reference, scene composition, video features, multi-model support, installer, code signing, or auto-update.
+Chaessi Preset v1.1 does not include raw payload direct generation, inpaint, reference images, vibe transfer, precise reference, scene composition, video features, multi-model support, installer, code signing, or auto-update.
 
-Chaessi Preset v1.0에는 raw payload 직접 생성, inpaint, reference image, vibe transfer, precise reference, scene composition, video 기능, multi-model 지원, installer, code signing, auto-update가 포함되어 있지 않습니다.
+Chaessi Preset v1.1에는 raw payload 직접 생성, inpaint, reference image, vibe transfer, precise reference, scene composition, video 기능, multi-model 지원, installer, code signing, auto-update가 포함되어 있지 않습니다.
 
 ## For Developers
 
