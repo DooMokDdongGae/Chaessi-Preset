@@ -3,15 +3,30 @@ import { deleteJson, getJson, postForm, postImage, postJson } from "./api/client
 const $ = (id) => document.getElementById(id);
 let rawJsonImportTimer = null;
 const DEFAULT_CHARACTER_PRESET_CATEGORY = "기타";
+const FEMALE_CLOTHING_CATEGORY = "여성 의상";
 const CHARACTER_PRESET_CATEGORIES = [
   "여성 캐릭터",
   "남성 캐릭터",
-  "여성 아웃핏",
-  "남성 아웃핏",
+  FEMALE_CLOTHING_CATEGORY,
+  "남성 의상",
   "구도·카메라",
   "배경·소품",
   "조명",
   "기타",
+];
+const CHARACTER_CATEGORY_ALIASES = new Map([
+  ["여성 아웃핏", FEMALE_CLOTHING_CATEGORY],
+  ["남성 아웃핏", "남성 의상"],
+]);
+const FEMALE_CLOTHING_SUBCATEGORIES = [
+  "Casual / 캐주얼",
+  "Street / 스트리트",
+  "Sporty / 스포티",
+  "Office / 오피스",
+  "Girly / 걸리",
+  "Glam / 글램",
+  "Boudoir / 부두아르",
+  "Uniform / 유니폼",
 ];
 const state = {
   currentPreset: null,
@@ -34,6 +49,7 @@ const state = {
   imageImportPreviewUrl: "",
   selectedDialogCharacterPresetId: "",
   dialogCharacterCategoryFilter: "",
+  dialogCharacterSubCategoryFilter: "",
 };
 
 const fields = {
@@ -122,12 +138,23 @@ function bindActions() {
   $("dialogDeleteCharacterPresetButton").addEventListener("click", () => deleteCharacterPreset({ dialog: true }));
   $("dialogCharacterCategoryFilter").addEventListener("change", () => {
     state.dialogCharacterCategoryFilter = $("dialogCharacterCategoryFilter").value;
+    if (state.dialogCharacterCategoryFilter !== FEMALE_CLOTHING_CATEGORY) state.dialogCharacterSubCategoryFilter = "";
+    syncCharacterSubCategoryFilter();
     const filtered = getFilteredDialogCharacterPresets();
     if (state.selectedDialogCharacterPresetId && !filtered.some((item) => item.id === state.selectedDialogCharacterPresetId)) {
       state.selectedDialogCharacterPresetId = "";
     }
     renderDialogCharacterPresetCards(getFilteredDialogCharacterPresets());
   });
+  $("dialogCharacterSubCategoryFilter").addEventListener("change", () => {
+    state.dialogCharacterSubCategoryFilter = $("dialogCharacterSubCategoryFilter").value;
+    const filtered = getFilteredDialogCharacterPresets();
+    if (state.selectedDialogCharacterPresetId && !filtered.some((item) => item.id === state.selectedDialogCharacterPresetId)) {
+      state.selectedDialogCharacterPresetId = "";
+    }
+    renderDialogCharacterPresetCards(filtered);
+  });
+  $("characterPresetCategoryInput").addEventListener("change", () => syncCharacterSubCategoryInput());
   $("characterUseCurrentImageButton").addEventListener("click", useCurrentImageAsCharacterThumbnail);
   $("characterChooseThumbnailButton").addEventListener("click", () => $("characterThumbnailInput").click());
   $("characterClearThumbnailButton").addEventListener("click", clearCharacterThumbnail);
@@ -637,6 +664,7 @@ async function saveCharacterSlotFromDialog() {
   const response = await saveCharacterSlotFromDialogBase({ forceNew: false });
   if (!response) return;
   setSummary($("characterPresetDialogStatus"), `${response.preset.name} saved.`, true);
+  $("characterPresetDialog").close();
   showToast(`${response.preset.name} saved.`);
 }
 
@@ -645,6 +673,7 @@ async function saveCharacterSlotAsFromDialog() {
   const response = await saveCharacterSlotFromDialogBase({ forceNew: true });
   if (!response) return;
   setSummary($("characterPresetDialogStatus"), `${response.preset.name} saved as a new character preset.`, true);
+  $("characterPresetDialog").close();
   showToast(`${response.preset.name} saved as new.`);
 }
 
@@ -661,6 +690,7 @@ async function saveCharacterSlotFromDialogBase({ forceNew }) {
     id: forceNew ? undefined : state.selectedDialogCharacterPresetId,
     name: name || character.name || `Character ${state.characterPresetContextIndex + 1}`,
     category: $("characterPresetCategoryInput").value || DEFAULT_CHARACTER_PRESET_CATEGORY,
+    subCategory: getCharacterPresetSubCategoryInputValue(),
     enabled: character.enabled !== false,
     prompt: character.prompt || "",
     undesired: character.undesired || "",
@@ -701,6 +731,7 @@ function updateCharacterPresetDialog() {
   $("characterPresetContext").textContent = `Character ${index + 1} / ${character.name || "Untitled"}`;
   $("characterPresetNameInput").value = character.name || `Character ${index + 1}`;
   if (!$("characterPresetCategoryInput").value) $("characterPresetCategoryInput").value = DEFAULT_CHARACTER_PRESET_CATEGORY;
+  syncCharacterSubCategoryInput();
   $("characterPresetPromptPreview").textContent = character.prompt || "(empty)";
   $("characterPresetUndesiredPreview").textContent = character.undesired || "(empty)";
   setSummary($("characterPresetDialogStatus"), "Choose a saved character preset to load, or use Save As to create a new one.", false);
@@ -794,7 +825,10 @@ async function applyCharacterPreset({ dialog = false } = {}) {
   };
   state.currentPreset.prompt_parts.characters = characters;
   renderPresetForm();
-  if (dialog) updateCharacterPresetDialog();
+  if (dialog) {
+    updateCharacterPresetDialog();
+    $("characterPresetDialog").close();
+  }
   showToast("Character preset applied.");
 }
 
@@ -1492,7 +1526,13 @@ function initializeCharacterPresetCategoryControls() {
     .map((category) => `<option value="${escapeHtml(category)}">${escapeHtml(category)}</option>`)
     .join("");
   $("characterPresetCategoryInput").innerHTML = options;
+  $("characterPresetSubCategoryInput").innerHTML = [
+    `<option value="">None</option>`,
+    ...FEMALE_CLOTHING_SUBCATEGORIES.map((category) => `<option value="${escapeHtml(category)}">${escapeHtml(category)}</option>`),
+  ].join("");
   $("characterPresetCategoryInput").value = DEFAULT_CHARACTER_PRESET_CATEGORY;
+  $("characterPresetSubCategoryInput").value = "";
+  syncCharacterSubCategoryInput();
   syncCharacterCategoryFilterOptions(state.characterPresets);
 }
 
@@ -1508,17 +1548,52 @@ function syncCharacterCategoryFilterOptions(items) {
   ].join("");
   if (!categories.includes(state.dialogCharacterCategoryFilter)) state.dialogCharacterCategoryFilter = "";
   $("dialogCharacterCategoryFilter").value = state.dialogCharacterCategoryFilter;
+  syncCharacterSubCategoryFilter();
+}
+
+function syncCharacterSubCategoryInput() {
+  const isFemaleClothing = $("characterPresetCategoryInput").value === FEMALE_CLOTHING_CATEGORY;
+  $("characterPresetSubCategoryLabel").hidden = !isFemaleClothing;
+  $("characterPresetSubCategoryInput").disabled = !isFemaleClothing;
+  if (!isFemaleClothing) $("characterPresetSubCategoryInput").value = "";
+}
+
+function syncCharacterSubCategoryFilter() {
+  const isFemaleClothing = state.dialogCharacterCategoryFilter === FEMALE_CLOTHING_CATEGORY;
+  $("dialogCharacterSubCategoryFilterLabel").hidden = !isFemaleClothing;
+  $("dialogCharacterSubCategoryFilter").disabled = !isFemaleClothing;
+  $("dialogCharacterSubCategoryFilter").innerHTML = [
+    `<option value="">All subcategories</option>`,
+    ...FEMALE_CLOTHING_SUBCATEGORIES.map((category) => `<option value="${escapeHtml(category)}">${escapeHtml(category)}</option>`),
+  ].join("");
+  if (!isFemaleClothing) state.dialogCharacterSubCategoryFilter = "";
+  if (!FEMALE_CLOTHING_SUBCATEGORIES.includes(state.dialogCharacterSubCategoryFilter)) state.dialogCharacterSubCategoryFilter = "";
+  $("dialogCharacterSubCategoryFilter").value = state.dialogCharacterSubCategoryFilter;
+}
+
+function getCharacterPresetSubCategoryInputValue() {
+  if ($("characterPresetCategoryInput").value !== FEMALE_CLOTHING_CATEGORY) return "";
+  return $("characterPresetSubCategoryInput").value || "";
 }
 
 function getFilteredDialogCharacterPresets() {
   const category = state.dialogCharacterCategoryFilter;
-  if (!category) return state.characterPresets;
-  return state.characterPresets.filter((item) => normalizeCharacterPresetCategory(item.category) === category);
+  let items = state.characterPresets;
+  if (category) items = items.filter((item) => normalizeCharacterPresetCategory(item.category) === category);
+  if (category === FEMALE_CLOTHING_CATEGORY && state.dialogCharacterSubCategoryFilter) {
+    items = items.filter((item) => normalizeCharacterPresetSubCategory(item) === state.dialogCharacterSubCategoryFilter);
+  }
+  return items;
 }
 
 function normalizeCharacterPresetCategory(value) {
   const category = String(value || "").trim();
-  return category || DEFAULT_CHARACTER_PRESET_CATEGORY;
+  return CHARACTER_CATEGORY_ALIASES.get(category) || category || DEFAULT_CHARACTER_PRESET_CATEGORY;
+}
+
+function normalizeCharacterPresetSubCategory(item) {
+  if (normalizeCharacterPresetCategory(item?.category) !== FEMALE_CLOTHING_CATEGORY) return "";
+  return String(item?.subCategory || item?.subcategory || "").trim();
 }
 
 function renderDialogCharacterPresetCards(items) {
@@ -1555,12 +1630,14 @@ function renderDialogCharacterPresetCard(item, selectedId) {
     : "Slot";
   const name = item.name || item.id;
   const category = normalizeCharacterPresetCategory(item.category);
+  const subCategory = normalizeCharacterPresetSubCategory(item);
+  const categoryLabel = subCategory ? `${category} / ${subCategory}` : category;
   return `
     <article class="character-preset-card ${item.id === selectedId ? "is-selected" : ""}" data-dialog-character-preset-id="${escapeHtml(item.id)}">
       <div class="character-preset-thumb">${thumb}</div>
       <div>
         <strong>${escapeHtml(name)}</strong>
-        <span class="character-preset-category">${escapeHtml(category)}</span>
+        <span class="character-preset-category">${escapeHtml(categoryLabel)}</span>
         <small>Updated ${escapeHtml(item.updated_at || "unknown")}</small>
         <small>${escapeHtml(item.id || "")}</small>
         <div class="actions">
@@ -1586,6 +1663,8 @@ function selectDialogCharacterPreset(id, { silent = false } = {}) {
     clearCharacterThumbnailPreview({ markCleared: false });
   }
   if (item?.category) $("characterPresetCategoryInput").value = normalizeCharacterPresetCategory(item.category);
+  syncCharacterSubCategoryInput();
+  $("characterPresetSubCategoryInput").value = normalizeCharacterPresetSubCategory(item);
   if (item?.name) $("characterPresetNameInput").value = item.name;
   if (!silent && id) setSummary($("characterPresetDialogStatus"), "Character preset selected. Save will overwrite it; Save As creates a new preset.", true);
 }

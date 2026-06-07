@@ -15,6 +15,11 @@ import { normalizeCenters } from "../state/preset-schema.js";
 
 const CHARACTER_PRESET_SCHEMA = "chaessi-character-preset/v1";
 const DEFAULT_CHARACTER_PRESET_CATEGORY = "기타";
+const FEMALE_CLOTHING_CATEGORY = "여성 의상";
+const CATEGORY_ALIASES = new Map([
+  ["여성 아웃핏", FEMALE_CLOTHING_CATEGORY],
+  ["남성 아웃핏", "남성 의상"],
+]);
 
 export function createCharacterPresetStore({ rootDir }) {
   const characterPresetsDir = path.join(rootDir, "data", "character-presets");
@@ -128,11 +133,13 @@ export function normalizeCharacterPreset(input) {
     throw storeError(400, "invalid_character_preset", "Character undesired must be a string.");
   }
 
+  const category = normalizeCharacterPresetCategory(input.category);
   return {
     schema: CHARACTER_PRESET_SCHEMA,
     id: sanitizeStoreId(input.id),
     name: String(input.name || "Untitled Character"),
-    category: normalizeCharacterPresetCategory(input.category),
+    category,
+    subCategory: normalizeCharacterPresetSubCategory(category, input.subCategory ?? input.subcategory),
     enabled: input.enabled !== false,
     prompt: String(input.prompt || ""),
     undesired: String(input.undesired || ""),
@@ -144,10 +151,12 @@ export function normalizeCharacterPreset(input) {
 }
 
 function toCharacterPresetSummary(preset) {
+  const category = normalizeCharacterPresetCategory(preset.category);
   return {
     id: preset.id,
     name: preset.name,
-    category: normalizeCharacterPresetCategory(preset.category),
+    category,
+    subCategory: normalizeCharacterPresetSubCategory(category, preset.subCategory ?? preset.subcategory),
     created_at: preset.created_at,
     updated_at: preset.updated_at,
     thumbnail_path: preset.thumbnail_path ?? null,
@@ -156,5 +165,10 @@ function toCharacterPresetSummary(preset) {
 
 function normalizeCharacterPresetCategory(value) {
   const category = String(value || "").trim();
-  return category || DEFAULT_CHARACTER_PRESET_CATEGORY;
+  return CATEGORY_ALIASES.get(category) || category || DEFAULT_CHARACTER_PRESET_CATEGORY;
+}
+
+function normalizeCharacterPresetSubCategory(category, value) {
+  if (category !== FEMALE_CLOTHING_CATEGORY) return "";
+  return String(value || "").trim();
 }

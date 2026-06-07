@@ -55,7 +55,7 @@ Current release build:
 현재 릴리즈 빌드:
 
 ```text
-dist/Chaessi-Preset-v1.1.0-x64.exe
+dist/Chaessi-Preset-v1.2.0-x64.exe
 ```
 
 The EXE is portable. You can move it to another folder and run it from there. User presets, character presets, token storage, and generation history are stored separately from the EXE, so replacing the EXE does not remove saved app data.
@@ -180,8 +180,8 @@ Default categories:
 
 - 여성 캐릭터
 - 남성 캐릭터
-- 여성 아웃핏
-- 남성 아웃핏
+- 여성 의상
+- 남성 의상
 - 구도·카메라
 - 배경·소품
 - 조명
@@ -190,6 +190,27 @@ Default categories:
 Existing character prompt presets without category data are shown as `기타`.
 
 분류 정보가 없는 기존 캐릭터 프롬프트 프리셋은 자동으로 `기타`로 표시됩니다.
+
+The old `여성 아웃핏` category is displayed as `여성 의상`, and the old `남성 아웃핏` category is displayed as `남성 의상` for compatibility.
+
+기존 `여성 아웃핏` 분류는 호환성을 위해 `여성 의상`으로 표시되고, 기존 `남성 아웃핏` 분류는 `남성 의상`으로 표시됩니다.
+
+`여성 의상` supports optional subcategories:
+
+`여성 의상`은 선택형 하위 카테고리를 지원합니다.
+
+- Casual / 캐주얼
+- Street / 스트리트
+- Sporty / 스포티
+- Office / 오피스
+- Girly / 걸리
+- Glam / 글램
+- Boudoir / 부두아르
+- Uniform / 유니폼
+
+`남성 의상` does not have subcategories in this release.
+
+`남성 의상`에는 이번 릴리즈에서 하위 카테고리를 만들지 않았습니다.
 
 ## Security Rules
 

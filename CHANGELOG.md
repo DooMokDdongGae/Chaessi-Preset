@@ -1,5 +1,54 @@
 # Changelog
 
+## v1.2.0
+
+Chaessi Preset v1.2.0 improves the Character Prompt Preset category system with female clothing subcategories and category name cleanup.
+
+### Added
+
+- Optional `subCategory` support for Character Prompt Presets.
+- Female clothing subcategory selector in the Character Prompt Preset save modal.
+- Female clothing subcategory filter in the Character Prompt Preset list modal.
+- Female clothing subcategories:
+  - Casual / 캐주얼
+  - Street / 스트리트
+  - Sporty / 스포티
+  - Office / 오피스
+  - Girly / 걸리
+  - Glam / 글램
+  - Boudoir / 부두아르
+  - Uniform / 유니폼
+
+### Changed
+
+- Renamed `여성 아웃핏` to `여성 의상`.
+- Renamed `남성 아웃핏` to `남성 의상`.
+- Character Preset cards now show `여성 의상 / subCategory` when a female clothing subcategory exists.
+
+### Compatibility
+
+- Existing `여성 아웃핏` character presets are displayed as `여성 의상`.
+- Existing `남성 아웃핏` character presets are displayed as `남성 의상`.
+- Existing uncategorized presets still fall back to `기타`.
+- Subcategory data is optional, so legacy presets remain valid.
+- Character Slot structure and NovelAI payload mapping are unchanged.
+
+## v1.1.1
+
+Chaessi Preset v1.1.1 improves preset dialog flow by closing dialogs automatically after successful save and load actions.
+
+### Fixed
+
+- Character Prompt Preset dialog now closes after successful Save.
+- Character Prompt Preset dialog now closes after successful Save As.
+- Character Prompt Preset dialog now closes after successful Load into Slot.
+
+### Notes
+
+- Full Preset Save, Save As, and Load already closed their dialogs after successful actions.
+- Dialogs remain open when validation fails, saving/loading fails, or no preset is selected.
+- Preset schemas, Character Slot structure, Character Prompt Preset categories, and NovelAI payload mapping are unchanged.
+
 ## v1.1.0
 
 Chaessi Preset v1.1.0 adds category-based organization for Character Prompt Presets while keeping Character Slots independent and unrestricted.
