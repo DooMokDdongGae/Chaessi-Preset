@@ -48,6 +48,7 @@ const state = {
   characterThumbnailCleared: false,
   imageImportPreviewUrl: "",
   selectedDialogCharacterPresetId: "",
+  dialogCharacterLoadTarget: "base",
   dialogCharacterCategoryFilter: "",
   dialogCharacterSubCategoryFilter: "",
 };
@@ -136,6 +137,10 @@ function bindActions() {
   $("dialogRefreshCharacterPresetButton").addEventListener("click", () => loadCharacterList({ dialog: true }));
   $("dialogApplyCharacterPresetButton").addEventListener("click", () => applyCharacterPreset({ dialog: true }));
   $("dialogDeleteCharacterPresetButton").addEventListener("click", () => deleteCharacterPreset({ dialog: true }));
+  $("dialogCharacterLoadTarget").addEventListener("change", () => {
+    state.dialogCharacterLoadTarget = $("dialogCharacterLoadTarget").value || "base";
+    updateCharacterPresetDialogStatusCopy();
+  });
   $("dialogCharacterCategoryFilter").addEventListener("change", () => {
     state.dialogCharacterCategoryFilter = $("dialogCharacterCategoryFilter").value;
     if (state.dialogCharacterCategoryFilter !== FEMALE_CLOTHING_CATEGORY) state.dialogCharacterSubCategoryFilter = "";
@@ -717,6 +722,8 @@ async function openCharacterPresetDialog(index) {
   syncPresetFromForm();
   initializeCharacterPresetCategoryControls();
   state.characterPresetContextIndex = index;
+  state.dialogCharacterLoadTarget = `slot:${index}`;
+  syncCharacterLoadTargetOptions();
   state.selectedDialogCharacterPresetId = "";
   clearCharacterThumbnailPreview({ markCleared: false });
   updateCharacterPresetDialog();
@@ -734,7 +741,7 @@ function updateCharacterPresetDialog() {
   syncCharacterSubCategoryInput();
   $("characterPresetPromptPreview").textContent = character.prompt || "(empty)";
   $("characterPresetUndesiredPreview").textContent = character.undesired || "(empty)";
-  setSummary($("characterPresetDialogStatus"), "Choose a saved character preset to load, or use Save As to create a new one.", false);
+  updateCharacterPresetDialogStatusCopy();
 }
 
 async function useCurrentImageAsCharacterThumbnail() {
@@ -793,8 +800,8 @@ async function loadCharacterList({ dialog = false } = {}) {
     syncCharacterCategoryFilterOptions(response.items || []);
     renderDialogCharacterPresetCards(getFilteredDialogCharacterPresets());
     const selectedCopy = state.selectedDialogCharacterPresetId
-      ? " Select a card to load it, or Save to overwrite the selected preset."
-      : " Select a card to load it, or use Save As to create a new preset.";
+      ? ` Select a card to load it into ${formatCharacterLoadTarget(state.dialogCharacterLoadTarget)}, or Save to overwrite the selected preset.`
+      : ` Select a card to load it into ${formatCharacterLoadTarget(state.dialogCharacterLoadTarget)}, or use Save As to create a new preset.`;
     const filteredCount = getFilteredDialogCharacterPresets().length;
     const filterCopy = state.dialogCharacterCategoryFilter ? ` ${filteredCount} shown in ${state.dialogCharacterCategoryFilter}.` : "";
     setSummary($("characterPresetDialogStatus"), `${response.items?.length || 0} character presets loaded.${filterCopy}${selectedCopy}`, true);
@@ -805,11 +812,34 @@ async function applyCharacterPreset({ dialog = false } = {}) {
   const list = dialog ? $("dialogCharacterPresetList") : $("characterPresetList");
   const id = dialog ? state.selectedDialogCharacterPresetId || list.value : list.value;
   if (!id) return showToast("Select a character preset first.", true);
+  const response = await getJson(`/api/character-presets/${encodeURIComponent(id)}`);
+  if (dialog && state.dialogCharacterLoadTarget === "base") {
+    applyCharacterPresetToBasePrompt(response.preset);
+    $("characterPresetDialog").close();
+    showToast("Character preset loaded into Base Prompt.");
+    return;
+  }
   const index = dialog
-    ? state.characterPresetContextIndex
+    ? getDialogCharacterSlotTargetIndex()
     : Math.max(0, numberValue($("characterSlotInput").value, 1) - 1);
   if (index === null || index === undefined) return showToast("No character slot selected.", true);
-  const response = await getJson(`/api/character-presets/${encodeURIComponent(id)}`);
+  applyCharacterPresetToSlot(response.preset, index);
+  if (dialog) {
+    updateCharacterPresetDialog();
+    $("characterPresetDialog").close();
+  }
+  showToast("Character preset applied.");
+}
+
+function applyCharacterPresetToBasePrompt(preset) {
+  syncPresetFromForm();
+  state.currentPreset.prompt_parts.base = preset.prompt || "";
+  state.currentPreset.prompt_parts.undesired = preset.undesired || "";
+  renderPresetForm();
+  updateCurrentSummary();
+}
+
+function applyCharacterPresetToSlot(preset, index) {
   syncPresetFromForm();
   const characters = [...(state.currentPreset.prompt_parts.characters || [])];
   while (characters.length <= index) {
@@ -817,19 +847,21 @@ async function applyCharacterPreset({ dialog = false } = {}) {
   }
   characters[index] = {
     id: characters[index].id || `character_${index + 1}`,
-    name: response.preset.name || `Character ${index + 1}`,
-    enabled: response.preset.enabled !== false,
-    prompt: response.preset.prompt || "",
-    undesired: response.preset.undesired || "",
-    centers: response.preset.centers || [{ x: 0.5, y: 0.5 }],
+    name: preset.name || `Character ${index + 1}`,
+    enabled: preset.enabled !== false,
+    prompt: preset.prompt || "",
+    undesired: preset.undesired || "",
+    centers: preset.centers || [{ x: 0.5, y: 0.5 }],
   };
   state.currentPreset.prompt_parts.characters = characters;
   renderPresetForm();
-  if (dialog) {
-    updateCharacterPresetDialog();
-    $("characterPresetDialog").close();
-  }
-  showToast("Character preset applied.");
+  updateCurrentSummary();
+}
+
+function getDialogCharacterSlotTargetIndex() {
+  const match = /^slot:(\d+)$/.exec(String(state.dialogCharacterLoadTarget || ""));
+  if (match) return Number(match[1]);
+  return state.characterPresetContextIndex;
 }
 
 async function deleteCharacterPreset({ dialog = false } = {}) {
@@ -1536,6 +1568,36 @@ function initializeCharacterPresetCategoryControls() {
   syncCharacterCategoryFilterOptions(state.characterPresets);
 }
 
+function syncCharacterLoadTargetOptions() {
+  const slotOptions = Array.from({ length: 6 }, (_, index) =>
+    `<option value="slot:${index}">Slot ${index + 1}</option>`
+  ).join("");
+  $("dialogCharacterLoadTarget").innerHTML = [
+    `<option value="base">Base Prompt</option>`,
+    slotOptions,
+  ].join("");
+  if (!/^slot:[0-5]$/.test(state.dialogCharacterLoadTarget) && state.dialogCharacterLoadTarget !== "base") {
+    state.dialogCharacterLoadTarget = "base";
+  }
+  $("dialogCharacterLoadTarget").value = state.dialogCharacterLoadTarget;
+}
+
+function updateCharacterPresetDialogStatusCopy() {
+  const target = formatCharacterLoadTarget(state.dialogCharacterLoadTarget);
+  setSummary(
+    $("characterPresetDialogStatus"),
+    `Choose a saved character preset to load into ${target}, or use Save As to create a new one.`,
+    false,
+  );
+}
+
+function formatCharacterLoadTarget(target) {
+  if (target === "base") return "Base Prompt";
+  const match = /^slot:(\d+)$/.exec(String(target || ""));
+  if (match) return `Slot ${Number(match[1]) + 1}`;
+  return "the selected target";
+}
+
 function syncCharacterCategoryFilterOptions(items) {
   const categories = [...CHARACTER_PRESET_CATEGORIES];
   for (const item of items || []) {
@@ -1666,7 +1728,13 @@ function selectDialogCharacterPreset(id, { silent = false } = {}) {
   syncCharacterSubCategoryInput();
   $("characterPresetSubCategoryInput").value = normalizeCharacterPresetSubCategory(item);
   if (item?.name) $("characterPresetNameInput").value = item.name;
-  if (!silent && id) setSummary($("characterPresetDialogStatus"), "Character preset selected. Save will overwrite it; Save As creates a new preset.", true);
+  if (!silent && id) {
+    setSummary(
+      $("characterPresetDialogStatus"),
+      `Character preset selected. Load will replace ${formatCharacterLoadTarget(state.dialogCharacterLoadTarget)}; Save overwrites the preset.`,
+      true,
+    );
+  }
 }
 
 function downloadPath(path, filename) {

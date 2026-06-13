@@ -1,5 +1,36 @@
 # Changelog
 
+## v1.3.0
+
+Chaessi Preset v1.3.0 allows saved Character Prompt Presets to be loaded into the Base Prompt area as reusable prompt modules.
+
+### Added
+
+- Character Prompt Presets can now be loaded into Base Prompt.
+- Character Prompt Preset dialog now has a load target selector:
+  - Base Prompt
+  - Slot 1
+  - Slot 2
+  - Slot 3
+  - Slot 4
+  - Slot 5
+  - Slot 6
+
+### Behavior
+
+- Loading into Base Prompt replaces the current Base Prompt and Undesired values with the selected preset's prompt and undesired content.
+- Loading into Character Slots keeps the existing v1.2.0 slot behavior.
+- The dialog still closes automatically after a successful load.
+- Failed loads, missing selections, and validation errors keep the dialog open.
+
+### Compatibility
+
+- Full Preset Save / Save As / Load remains unchanged.
+- Character Prompt Preset storage remains unchanged.
+- Character Slot structure is unchanged.
+- NovelAI payload mapping is unchanged.
+- Internal preset schema and NovelAI adapter are unchanged.
+
 ## v1.2.0
 
 Chaessi Preset v1.2.0 improves the Character Prompt Preset category system with female clothing subcategories and category name cleanup.
