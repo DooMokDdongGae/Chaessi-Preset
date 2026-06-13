@@ -39,6 +39,7 @@ const state = {
   generations: [],
   characterPresets: [],
   characterUiState: [],
+  characterPresetContextType: "slot",
   characterPresetContextIndex: null,
   presetSaveForceNew: false,
   presetThumbnailBlob: null,
@@ -48,7 +49,6 @@ const state = {
   characterThumbnailCleared: false,
   imageImportPreviewUrl: "",
   selectedDialogCharacterPresetId: "",
-  dialogCharacterLoadTarget: "base",
   dialogCharacterCategoryFilter: "",
   dialogCharacterSubCategoryFilter: "",
 };
@@ -132,15 +132,12 @@ function bindActions() {
   $("loadCharacterListButton").addEventListener("click", loadCharacterList);
   $("applyCharacterPresetButton").addEventListener("click", applyCharacterPreset);
   $("deleteCharacterPresetButton").addEventListener("click", deleteCharacterPreset);
+  $("basePromptPresetButton").addEventListener("click", openBasePromptPresetDialog);
   $("dialogSaveCharacterPresetButton").addEventListener("click", saveCharacterSlotFromDialog);
   $("dialogSaveAsCharacterPresetButton").addEventListener("click", saveCharacterSlotAsFromDialog);
   $("dialogRefreshCharacterPresetButton").addEventListener("click", () => loadCharacterList({ dialog: true }));
   $("dialogApplyCharacterPresetButton").addEventListener("click", () => applyCharacterPreset({ dialog: true }));
   $("dialogDeleteCharacterPresetButton").addEventListener("click", () => deleteCharacterPreset({ dialog: true }));
-  $("dialogCharacterLoadTarget").addEventListener("change", () => {
-    state.dialogCharacterLoadTarget = $("dialogCharacterLoadTarget").value || "base";
-    updateCharacterPresetDialogStatusCopy();
-  });
   $("dialogCharacterCategoryFilter").addEventListener("change", () => {
     state.dialogCharacterCategoryFilter = $("dialogCharacterCategoryFilter").value;
     if (state.dialogCharacterCategoryFilter !== FEMALE_CLOTHING_CATEGORY) state.dialogCharacterSubCategoryFilter = "";
@@ -661,7 +658,7 @@ async function saveCharacterSlot() {
 }
 
 async function saveCharacterSlotFromDialog() {
-  if (state.characterPresetContextIndex === null) return showToast("No character slot selected.", true);
+  if (!hasCharacterPresetDialogContext()) return showToast("No preset context selected.", true);
   if (!state.selectedDialogCharacterPresetId) {
     setSummary($("characterPresetDialogStatus"), "Select a saved preset to overwrite, or use Save As to create a new one.", true);
     return showToast("Select a character preset or use Save As.", true);
@@ -674,7 +671,7 @@ async function saveCharacterSlotFromDialog() {
 }
 
 async function saveCharacterSlotAsFromDialog() {
-  if (state.characterPresetContextIndex === null) return showToast("No character slot selected.", true);
+  if (!hasCharacterPresetDialogContext()) return showToast("No preset context selected.", true);
   const response = await saveCharacterSlotFromDialogBase({ forceNew: true });
   if (!response) return;
   setSummary($("characterPresetDialogStatus"), `${response.preset.name} saved as a new character preset.`, true);
@@ -684,22 +681,17 @@ async function saveCharacterSlotAsFromDialog() {
 
 async function saveCharacterSlotFromDialogBase({ forceNew }) {
   const name = $("characterPresetNameInput").value.trim();
-  $("characterSlotInput").value = String(state.characterPresetContextIndex + 1);
-  syncPresetFromForm();
-  const character = state.currentPreset.prompt_parts.characters[state.characterPresetContextIndex];
-  if (!character) {
-    showToast("No character in that slot.", true);
-    return null;
-  }
+  const source = getCharacterPresetDialogSource();
+  if (!source) return null;
   const response = await saveCharacterPresetRequest({
     id: forceNew ? undefined : state.selectedDialogCharacterPresetId,
-    name: name || character.name || `Character ${state.characterPresetContextIndex + 1}`,
+    name: name || source.name,
     category: $("characterPresetCategoryInput").value || DEFAULT_CHARACTER_PRESET_CATEGORY,
     subCategory: getCharacterPresetSubCategoryInputValue(),
-    enabled: character.enabled !== false,
-    prompt: character.prompt || "",
-    undesired: character.undesired || "",
-    centers: character.centers,
+    enabled: source.enabled,
+    prompt: source.prompt,
+    undesired: source.undesired,
+    centers: source.centers,
   }, { includeThumbnail: true });
   await loadCharacterList({ dialog: true });
   selectDialogCharacterPreset(response.preset.id);
@@ -718,12 +710,23 @@ async function saveCharacterPresetRequest(preset, { includeThumbnail = true } = 
   return await postForm("/api/character-presets", form);
 }
 
+async function openBasePromptPresetDialog() {
+  syncPresetFromForm();
+  initializeCharacterPresetCategoryControls();
+  state.characterPresetContextType = "base";
+  state.characterPresetContextIndex = null;
+  state.selectedDialogCharacterPresetId = "";
+  clearCharacterThumbnailPreview({ markCleared: false });
+  updateCharacterPresetDialog();
+  $("characterPresetDialog").showModal();
+  await loadCharacterList({ dialog: true });
+}
+
 async function openCharacterPresetDialog(index) {
   syncPresetFromForm();
   initializeCharacterPresetCategoryControls();
+  state.characterPresetContextType = "slot";
   state.characterPresetContextIndex = index;
-  state.dialogCharacterLoadTarget = `slot:${index}`;
-  syncCharacterLoadTargetOptions();
   state.selectedDialogCharacterPresetId = "";
   clearCharacterThumbnailPreview({ markCleared: false });
   updateCharacterPresetDialog();
@@ -732,16 +735,48 @@ async function openCharacterPresetDialog(index) {
 }
 
 function updateCharacterPresetDialog() {
-  const index = state.characterPresetContextIndex;
-  const character = state.currentPreset.prompt_parts.characters[index];
-  if (!character) return;
-  $("characterPresetContext").textContent = `Character ${index + 1} / ${character.name || "Untitled"}`;
-  $("characterPresetNameInput").value = character.name || `Character ${index + 1}`;
+  const source = getCharacterPresetDialogSource({ quiet: true });
+  if (!source) return;
+  $("characterPresetContext").textContent = source.label;
+  $("characterPresetNameInput").value = source.name;
   if (!$("characterPresetCategoryInput").value) $("characterPresetCategoryInput").value = DEFAULT_CHARACTER_PRESET_CATEGORY;
   syncCharacterSubCategoryInput();
-  $("characterPresetPromptPreview").textContent = character.prompt || "(empty)";
-  $("characterPresetUndesiredPreview").textContent = character.undesired || "(empty)";
+  $("characterPresetPromptPreview").textContent = source.prompt || "(empty)";
+  $("characterPresetUndesiredPreview").textContent = source.undesired || "(empty)";
   updateCharacterPresetDialogStatusCopy();
+}
+
+function hasCharacterPresetDialogContext() {
+  return state.characterPresetContextType === "base"
+    || (state.characterPresetContextType === "slot" && state.characterPresetContextIndex !== null);
+}
+
+function getCharacterPresetDialogSource({ quiet = false } = {}) {
+  syncPresetFromForm();
+  if (state.characterPresetContextType === "base") {
+    return {
+      label: "Base Prompt",
+      name: fields.presetName.value.trim() || "Base Prompt",
+      enabled: true,
+      prompt: fields.basePrompt.value || "",
+      undesired: fields.undesiredPrompt.value || "",
+      centers: [{ x: 0.5, y: 0.5 }],
+    };
+  }
+  const index = state.characterPresetContextIndex;
+  const character = state.currentPreset.prompt_parts.characters[index];
+  if (!character) {
+    if (!quiet) showToast("No character in that slot.", true);
+    return null;
+  }
+  return {
+    label: `Character ${index + 1} / ${character.name || "Untitled"}`,
+    name: character.name || `Character ${index + 1}`,
+    enabled: character.enabled !== false,
+    prompt: character.prompt || "",
+    undesired: character.undesired || "",
+    centers: character.centers,
+  };
 }
 
 async function useCurrentImageAsCharacterThumbnail() {
@@ -800,8 +835,8 @@ async function loadCharacterList({ dialog = false } = {}) {
     syncCharacterCategoryFilterOptions(response.items || []);
     renderDialogCharacterPresetCards(getFilteredDialogCharacterPresets());
     const selectedCopy = state.selectedDialogCharacterPresetId
-      ? ` Select a card to load it into ${formatCharacterLoadTarget(state.dialogCharacterLoadTarget)}, or Save to overwrite the selected preset.`
-      : ` Select a card to load it into ${formatCharacterLoadTarget(state.dialogCharacterLoadTarget)}, or use Save As to create a new preset.`;
+      ? ` Select a card to load it into ${getCharacterPresetDialogTargetLabel()}, or Save to overwrite the selected preset.`
+      : ` Select a card to load it into ${getCharacterPresetDialogTargetLabel()}, or use Save As to create a new preset.`;
     const filteredCount = getFilteredDialogCharacterPresets().length;
     const filterCopy = state.dialogCharacterCategoryFilter ? ` ${filteredCount} shown in ${state.dialogCharacterCategoryFilter}.` : "";
     setSummary($("characterPresetDialogStatus"), `${response.items?.length || 0} character presets loaded.${filterCopy}${selectedCopy}`, true);
@@ -813,14 +848,14 @@ async function applyCharacterPreset({ dialog = false } = {}) {
   const id = dialog ? state.selectedDialogCharacterPresetId || list.value : list.value;
   if (!id) return showToast("Select a character preset first.", true);
   const response = await getJson(`/api/character-presets/${encodeURIComponent(id)}`);
-  if (dialog && state.dialogCharacterLoadTarget === "base") {
+  if (dialog && state.characterPresetContextType === "base") {
     applyCharacterPresetToBasePrompt(response.preset);
     $("characterPresetDialog").close();
     showToast("Character preset loaded into Base Prompt.");
     return;
   }
   const index = dialog
-    ? getDialogCharacterSlotTargetIndex()
+    ? state.characterPresetContextIndex
     : Math.max(0, numberValue($("characterSlotInput").value, 1) - 1);
   if (index === null || index === undefined) return showToast("No character slot selected.", true);
   applyCharacterPresetToSlot(response.preset, index);
@@ -856,12 +891,6 @@ function applyCharacterPresetToSlot(preset, index) {
   state.currentPreset.prompt_parts.characters = characters;
   renderPresetForm();
   updateCurrentSummary();
-}
-
-function getDialogCharacterSlotTargetIndex() {
-  const match = /^slot:(\d+)$/.exec(String(state.dialogCharacterLoadTarget || ""));
-  if (match) return Number(match[1]);
-  return state.characterPresetContextIndex;
 }
 
 async function deleteCharacterPreset({ dialog = false } = {}) {
@@ -1568,33 +1597,17 @@ function initializeCharacterPresetCategoryControls() {
   syncCharacterCategoryFilterOptions(state.characterPresets);
 }
 
-function syncCharacterLoadTargetOptions() {
-  const slotOptions = Array.from({ length: 6 }, (_, index) =>
-    `<option value="slot:${index}">Slot ${index + 1}</option>`
-  ).join("");
-  $("dialogCharacterLoadTarget").innerHTML = [
-    `<option value="base">Base Prompt</option>`,
-    slotOptions,
-  ].join("");
-  if (!/^slot:[0-5]$/.test(state.dialogCharacterLoadTarget) && state.dialogCharacterLoadTarget !== "base") {
-    state.dialogCharacterLoadTarget = "base";
-  }
-  $("dialogCharacterLoadTarget").value = state.dialogCharacterLoadTarget;
-}
-
 function updateCharacterPresetDialogStatusCopy() {
-  const target = formatCharacterLoadTarget(state.dialogCharacterLoadTarget);
   setSummary(
     $("characterPresetDialogStatus"),
-    `Choose a saved character preset to load into ${target}, or use Save As to create a new one.`,
+    `Choose a saved character preset to load into ${getCharacterPresetDialogTargetLabel()}, or use Save As to create a new one.`,
     false,
   );
 }
 
-function formatCharacterLoadTarget(target) {
-  if (target === "base") return "Base Prompt";
-  const match = /^slot:(\d+)$/.exec(String(target || ""));
-  if (match) return `Slot ${Number(match[1]) + 1}`;
+function getCharacterPresetDialogTargetLabel() {
+  if (state.characterPresetContextType === "base") return "Base Prompt";
+  if (state.characterPresetContextIndex !== null) return `Slot ${state.characterPresetContextIndex + 1}`;
   return "the selected target";
 }
 
@@ -1731,7 +1744,7 @@ function selectDialogCharacterPreset(id, { silent = false } = {}) {
   if (!silent && id) {
     setSummary(
       $("characterPresetDialogStatus"),
-      `Character preset selected. Load will replace ${formatCharacterLoadTarget(state.dialogCharacterLoadTarget)}; Save overwrites the preset.`,
+      `Character preset selected. Load will replace ${getCharacterPresetDialogTargetLabel()}; Save overwrites the preset.`,
       true,
     );
   }

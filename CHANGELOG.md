@@ -1,5 +1,32 @@
 # Changelog
 
+## v1.4.0
+
+Chaessi Preset v1.4.0 makes Base Prompt feel like "Character Prompt 0" for preset management, without changing the actual Character Slot structure or NovelAI payload mapping.
+
+### Added
+
+- Preset button in the Base Prompt area.
+- Base Prompt can open the existing Character Prompt Preset dialog directly.
+- Saving from Base Prompt stores the current Base Prompt as `prompt` and current Undesired as `undesired` in the existing Character Prompt Preset store.
+- Loading from Base Prompt replaces the current Base Prompt and Undesired fields with the selected preset values.
+
+### Changed
+
+- Removed the v1.3.0 Load target dropdown from the Character Prompt Preset dialog.
+- Character Prompt Preset load target is now determined by where the dialog was opened:
+  - Base Prompt Preset button loads into Base Prompt.
+  - Character Slot Preset button loads into that slot.
+
+### Compatibility
+
+- Full Preset Save / Save As / Load remains unchanged.
+- Character Prompt Preset storage remains unchanged.
+- Character Slot 1-6 structure is unchanged.
+- Category and subCategory behavior is unchanged.
+- Internal preset schema and NovelAI adapter are unchanged.
+- NovelAI payload mapping is unchanged.
+
 ## v1.3.0
 
 Chaessi Preset v1.3.0 allows saved Character Prompt Presets to be loaded into the Base Prompt area as reusable prompt modules.

@@ -20,9 +20,9 @@ The app keeps this flow stable:
 UI -> Internal Preset Schema -> Adapter -> NovelAI Payload -> NovelAI
 ```
 
-Raw payload direct generation, inpaint, reference images, vibe transfer, precise reference, scene composition, video features, and multi-model support are intentionally not included in v1.3.
+Raw payload direct generation, inpaint, reference images, vibe transfer, precise reference, scene composition, video features, and multi-model support are intentionally not included in v1.4.
 
-Raw payload 직접 생성, inpaint, reference image, vibe transfer, precise reference, scene composition, video 기능, multi-model 지원은 v1.3에 의도적으로 포함하지 않았습니다.
+Raw payload 직접 생성, inpaint, reference image, vibe transfer, precise reference, scene composition, video 기능, multi-model 지원은 v1.4에 의도적으로 포함하지 않았습니다.
 
 ## Quick Start
 
@@ -55,7 +55,7 @@ Current release build:
 현재 릴리즈 빌드:
 
 ```text
-dist/Chaessi-Preset-v1.3.0-x64.exe
+dist/Chaessi-Preset-v1.4.0-x64.exe
 ```
 
 The EXE is portable. You can move it to another folder and run it from there. User presets, character presets, token storage, and generation history are stored separately from the EXE, so replacing the EXE does not remove saved app data.
@@ -148,7 +148,8 @@ Existing project-local user data is copied into userData on first Electron use w
 - Full preset Save / Save As / Load
 - Character prompt presets with Save / Save As / Load / Delete
 - Character prompt preset categories and category filtering
-- Character Prompt Presets can be loaded into Base Prompt or Character Slots
+- Base Prompt has a Preset button and can use the existing Character Prompt Preset library
+- Character Prompt Presets can be loaded into Base Prompt or Character Slots from their own Preset buttons
 - Character preset thumbnails
 - Generation result preview and history
 - Local result image save/delete
@@ -163,7 +164,8 @@ Existing project-local user data is copied into userData on first Electron use w
 - 전체 프리셋 Save / Save As / Load
 - 캐릭터 프롬프트 프리셋 Save / Save As / Load / Delete
 - 캐릭터 프롬프트 프리셋 분류와 분류 필터
-- Character Prompt Preset을 Base Prompt 또는 Character Slot에 로드 가능
+- Base Prompt에 Preset 버튼이 있으며 기존 Character Prompt Preset 라이브러리를 사용할 수 있음
+- 각 영역의 Preset 버튼에서 Character Prompt Preset을 Base Prompt 또는 Character Slot에 로드 가능
 - 캐릭터 프리셋 썸네일
 - 생성 결과 preview와 history
 - 로컬 결과 이미지 저장/삭제
@@ -176,9 +178,13 @@ Character Prompt Presets support categories for organizing a large module-style 
 
 Character Prompt Preset은 큰 모듈형 프리셋 라이브러리를 정리하기 위한 분류(Category)를 지원합니다. 분류는 정리와 필터링 용도일 뿐입니다. 분류는 Character Slot 번호와 연결되지 않으며, 모든 Character Slot은 모든 분류의 프리셋을 자유롭게 불러올 수 있습니다.
 
-Saved Character Prompt Presets can also be loaded into Base Prompt. Loading into Base Prompt uses replace behavior: the current Base Prompt and Undesired fields are replaced with the selected preset's prompt and undesired content. Append, merge, tag sorting, and duplicate removal are not performed.
+Saved Character Prompt Presets can also be loaded into Base Prompt through the Preset button in the Base Prompt area. Loading into Base Prompt uses replace behavior: the current Base Prompt and Undesired fields are replaced with the selected preset's prompt and undesired content. Append, merge, tag sorting, and duplicate removal are not performed.
 
-저장된 Character Prompt Preset은 Base Prompt에도 로드할 수 있습니다. Base Prompt로 로드할 때는 Replace 방식으로 동작합니다. 현재 Base Prompt와 Undesired 입력값이 선택한 프리셋의 prompt 및 undesired content로 교체됩니다. Append, merge, 태그 정렬, 중복 제거는 수행하지 않습니다.
+저장된 Character Prompt Preset은 Base Prompt 영역의 Preset 버튼을 통해 Base Prompt에도 로드할 수 있습니다. Base Prompt로 로드할 때는 Replace 방식으로 동작합니다. 현재 Base Prompt와 Undesired 입력값이 선택한 프리셋의 prompt 및 undesired content로 교체됩니다. Append, merge, 태그 정렬, 중복 제거는 수행하지 않습니다.
+
+The Character Prompt Preset dialog no longer uses a Load target dropdown. The target is decided by the button that opened the dialog: Base Prompt's Preset button loads into Base Prompt, and each Character Slot's Preset button loads into that slot.
+
+Character Prompt Preset dialog는 더 이상 Load target 드롭다운을 사용하지 않습니다. 로드 대상은 dialog를 연 버튼으로 결정됩니다. Base Prompt의 Preset 버튼은 Base Prompt로 로드하고, 각 Character Slot의 Preset 버튼은 해당 슬롯으로 로드합니다.
 
 Full Preset Save / Save As / Load is still the full workbench snapshot flow. Character Prompt Preset loading into Base Prompt does not replace or reduce Full Preset behavior.
 
@@ -254,9 +260,9 @@ This is safer than plaintext `.env` storage for normal desktop use, but it is no
 
 ## Limitations
 
-Chaessi Preset v1.3 does not include raw payload direct generation, inpaint, reference images, vibe transfer, precise reference, scene composition, video features, multi-model support, installer, code signing, or auto-update.
+Chaessi Preset v1.4 does not include raw payload direct generation, inpaint, reference images, vibe transfer, precise reference, scene composition, video features, multi-model support, installer, code signing, or auto-update.
 
-Chaessi Preset v1.3에는 raw payload 직접 생성, inpaint, reference image, vibe transfer, precise reference, scene composition, video 기능, multi-model 지원, installer, code signing, auto-update가 포함되어 있지 않습니다.
+Chaessi Preset v1.4에는 raw payload 직접 생성, inpaint, reference image, vibe transfer, precise reference, scene composition, video 기능, multi-model 지원, installer, code signing, auto-update가 포함되어 있지 않습니다.
 
 ## For Developers
 

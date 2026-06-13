@@ -52,7 +52,10 @@
             </div>
             <div class="preset-editor-grid">
               <section class="tool-surface preset-prompt-surface">
-                <h3>Prompt</h3>
+                <div class="section-row">
+                  <h3>Prompt</h3>
+                  <button type="button" id="basePromptPresetButton">Preset</button>
+                </div>
                 <label>Name <input id="presetName" type="text" /></label>
                 <label>Base prompt <textarea id="basePrompt"></textarea></label>
                 <label>Undesired <textarea id="undesiredPrompt"></textarea></label>
@@ -371,9 +374,6 @@
           <button type="button" id="dialogDeleteCharacterPresetButton">Delete Selected</button>
         </div>
         <div class="character-preset-filter-row">
-          <label>Load target
-            <select id="dialogCharacterLoadTarget"></select>
-          </label>
           <label>Category filter
             <select id="dialogCharacterCategoryFilter"></select>
           </label>
