@@ -20,9 +20,9 @@ The app keeps this flow stable:
 UI -> Internal Preset Schema -> Adapter -> NovelAI Payload -> NovelAI
 ```
 
-Raw payload direct generation, inpaint, reference images, vibe transfer, precise reference, scene composition, video features, and multi-model support are intentionally not included in v1.4.
+Raw payload direct generation, inpaint, reference images, vibe transfer, precise reference, scene composition, video features, and multi-model support are intentionally not included in v1.4.1.
 
-Raw payload 직접 생성, inpaint, reference image, vibe transfer, precise reference, scene composition, video 기능, multi-model 지원은 v1.4에 의도적으로 포함하지 않았습니다.
+Raw payload 직접 생성, inpaint, reference image, vibe transfer, precise reference, scene composition, video 기능, multi-model 지원은 v1.4.1에 의도적으로 포함하지 않았습니다.
 
 ## Quick Start
 
@@ -55,7 +55,7 @@ Current release build:
 현재 릴리즈 빌드:
 
 ```text
-dist/Chaessi-Preset-v1.4.0-x64.exe
+dist/Chaessi-Preset-v1.4.1-x64.exe
 ```
 
 The EXE is portable. You can move it to another folder and run it from there. User presets, character presets, token storage, and generation history are stored separately from the EXE, so replacing the EXE does not remove saved app data.
@@ -201,6 +201,8 @@ Default categories:
 - 구도·카메라
 - 배경·소품
 - 조명
+- 그림체
+- 품질
 - 기타
 
 Existing character prompt presets without category data are shown as `기타`.

@@ -1,5 +1,20 @@
 # Changelog
 
+## v1.4.1
+
+Chaessi Preset v1.4.1 expands the Character Prompt Preset category list without changing preset storage, Character Slot behavior, or NovelAI payload mapping.
+
+### Added
+
+- Added `그림체` category.
+- Added `품질` category.
+
+### Compatibility
+
+- Existing categories remain unchanged.
+- Existing uncategorized presets still fall back to `기타`.
+- Female clothing subCategory behavior is unchanged.
+
 ## v1.4.0
 
 Chaessi Preset v1.4.0 makes Base Prompt feel like "Character Prompt 0" for preset management, without changing the actual Character Slot structure or NovelAI payload mapping.

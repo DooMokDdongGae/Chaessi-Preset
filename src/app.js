@@ -12,6 +12,8 @@ const CHARACTER_PRESET_CATEGORIES = [
   "구도·카메라",
   "배경·소품",
   "조명",
+  "그림체",
+  "품질",
   "기타",
 ];
 const CHARACTER_CATEGORY_ALIASES = new Map([
