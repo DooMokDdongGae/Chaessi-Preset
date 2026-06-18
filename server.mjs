@@ -28,13 +28,14 @@ import {
   assertNoSecretMaterial,
   storeError,
 } from "./src/services/file-store-utils.js";
+import { resolvePresetRandomPrompts } from "./src/services/prompt-random-resolver.js";
 import { parseRawJsonImport } from "./src/importers/raw-json-import.js";
 import { applyImportToPreset } from "./src/importers/import-to-preset.js";
 import { parseNovelAiPngMetadata } from "./src/importers/nai-metadata.js";
 import { parseImageMetadata } from "./src/importers/image-metadata.js";
 
 const HEALTH_APP_NAME = "Chaessi Preset";
-const APP_VERSION = "1.4.1";
+const APP_VERSION = "1.5.0";
 const PORT = Number(process.env.PORT || 4174);
 const ROOT = path.dirname(fileURLToPath(import.meta.url));
 const DATA_ROOT = path.resolve(process.env.CHAESSI_USER_DATA_DIR || ROOT);
@@ -416,7 +417,8 @@ async function handleGenerate(body) {
     throw httpError(400, "unsupported_preset_fields", "Preset contains unsupported fields.", presetValidation.warnings.join("; "));
   }
 
-  const payload = buildGeneratePayload(preset);
+  const resolvedPreset = resolvePresetRandomPrompts(preset);
+  const payload = buildGeneratePayload(resolvedPreset);
   const payloadSafety = validatePayloadSafety(payload);
   if (!payloadSafety.ok) {
     throw httpError(400, "unsafe_payload", "Payload safety validation failed.", payloadSafety.errors.join("; "));
@@ -436,7 +438,7 @@ async function handleGenerate(body) {
   const extracted = extractFirstImageFromZip(naiResponse.body);
   const createdAt = new Date();
   const saved = await generationStore.saveGeneration({
-    preset,
+    preset: resolvedPreset,
     payload,
     imageBytes: extracted.imageBytes,
     responseInfo: {

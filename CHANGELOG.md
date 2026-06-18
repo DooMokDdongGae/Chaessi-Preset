@@ -1,5 +1,23 @@
 # Changelog
 
+## v1.5.0
+
+Chaessi Preset v1.5.0 resolves random prompt blocks immediately before generation, while keeping saved presets unchanged.
+
+### Added
+
+- Added Generate-time random prompt block resolution for `||red|blue|black||` syntax.
+- Random blocks are resolved before the NovelAI payload is built.
+- Resolved values apply to Base Prompt, Undesired, and Character Slot prompt/undesired fields.
+
+### Compatibility
+
+- Saved preset data remains unchanged.
+- Internal preset schema is unchanged.
+- Character Slot structure is unchanged.
+- NovelAI adapter and payload mapping are unchanged.
+- NovelAI image metadata receives the resolved prompt because the resolved payload is sent to NovelAI.
+
 ## v1.4.1
 
 Chaessi Preset v1.4.1 expands the Character Prompt Preset category list without changing preset storage, Character Slot behavior, or NovelAI payload mapping.

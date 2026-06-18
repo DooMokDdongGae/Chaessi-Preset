@@ -20,9 +20,9 @@ The app keeps this flow stable:
 UI -> Internal Preset Schema -> Adapter -> NovelAI Payload -> NovelAI
 ```
 
-Raw payload direct generation, inpaint, reference images, vibe transfer, precise reference, scene composition, video features, and multi-model support are intentionally not included in v1.4.1.
+Raw payload direct generation, inpaint, reference images, vibe transfer, precise reference, scene composition, video features, and multi-model support are intentionally not included in v1.5.0.
 
-Raw payload 직접 생성, inpaint, reference image, vibe transfer, precise reference, scene composition, video 기능, multi-model 지원은 v1.4.1에 의도적으로 포함하지 않았습니다.
+Raw payload 직접 생성, inpaint, reference image, vibe transfer, precise reference, scene composition, video 기능, multi-model 지원은 v1.5.0에 의도적으로 포함하지 않았습니다.
 
 ## Quick Start
 
@@ -55,7 +55,7 @@ Current release build:
 현재 릴리즈 빌드:
 
 ```text
-dist/Chaessi-Preset-v1.4.1-x64.exe
+dist/Chaessi-Preset-v1.5.0-x64.exe
 ```
 
 The EXE is portable. You can move it to another folder and run it from there. User presets, character presets, token storage, and generation history are stored separately from the EXE, so replacing the EXE does not remove saved app data.
@@ -143,6 +143,7 @@ Existing project-local user data is copied into userData on first Electron use w
 - Integrated local workbench UI
 - NovelAI V4.5 Full text-to-image generation
 - Internal preset schema and NovelAI payload adapter
+- Random prompt resolver (`||a|b|c||` syntax resolved at generation time)
 - Image metadata import for supported PNG/WebP NovelAI metadata
 - Raw JSON metadata import
 - Full preset Save / Save As / Load
@@ -159,6 +160,7 @@ Existing project-local user data is copied into userData on first Electron use w
 - 통합 로컬 작업대 UI
 - NovelAI V4.5 Full text-to-image 생성
 - internal preset schema와 NovelAI payload adapter
+- 랜덤 프롬프트 resolver (`||a|b|c||` 문법을 Generate 시점에 확정)
 - 지원되는 PNG/WebP NovelAI metadata 이미지 import
 - Raw JSON metadata import
 - 전체 프리셋 Save / Save As / Load
@@ -171,6 +173,10 @@ Existing project-local user data is copied into userData on first Electron use w
 - 로컬 결과 이미지 저장/삭제
 - 데스크톱 앱용 Electron safeStorage 토큰 저장
 - 사용자 프리셋과 생성 기록을 Electron userData를 통해 앱 번들 밖에 저장
+
+Random prompt blocks are resolved at generation time before sending payload to NovelAI. Multiple random blocks within a single prompt field are supported.
+
+랜덤 프롬프트 블록은 NovelAI로 payload를 보내기 전 Generate 시점에 확정됩니다. 하나의 프롬프트 입력란에 여러 랜덤 블록을 함께 사용할 수 있습니다.
 
 ## Character Prompt Preset Categories
 
@@ -262,9 +268,13 @@ This is safer than plaintext `.env` storage for normal desktop use, but it is no
 
 ## Limitations
 
-Chaessi Preset v1.4 does not include raw payload direct generation, inpaint, reference images, vibe transfer, precise reference, scene composition, video features, multi-model support, installer, code signing, or auto-update.
+Random prompt resolution occurs only at generation time. Saved presets always retain original unresolved syntax.
 
-Chaessi Preset v1.4에는 raw payload 직접 생성, inpaint, reference image, vibe transfer, precise reference, scene composition, video 기능, multi-model 지원, installer, code signing, auto-update가 포함되어 있지 않습니다.
+랜덤 프롬프트는 Generate 시점에만 확정됩니다. 저장된 프리셋에는 확정 전의 원본 문법이 항상 그대로 유지됩니다.
+
+Chaessi Preset v1.5.0 does not include raw payload direct generation, inpaint, reference images, vibe transfer, precise reference, scene composition, video features, multi-model support, installer, code signing, or auto-update.
+
+Chaessi Preset v1.5.0에는 raw payload 직접 생성, inpaint, reference image, vibe transfer, precise reference, scene composition, video 기능, multi-model 지원, installer, code signing, auto-update가 포함되어 있지 않습니다.
 
 ## For Developers
 
