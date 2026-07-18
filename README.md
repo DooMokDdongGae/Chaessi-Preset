@@ -20,9 +20,9 @@ The app keeps this flow stable:
 UI -> Internal Preset Schema -> Adapter -> NovelAI Payload -> NovelAI
 ```
 
-Raw payload direct generation, inpaint, reference images, vibe transfer, precise reference, scene composition, video features, and multi-model support are intentionally not included in v1.5.0.
+Raw payload direct generation, inpaint, reference images, vibe transfer, precise reference, scene composition, video features, and multi-model support are intentionally not included in v1.5.1.
 
-Raw payload 직접 생성, inpaint, reference image, vibe transfer, precise reference, scene composition, video 기능, multi-model 지원은 v1.5.0에 의도적으로 포함하지 않았습니다.
+Raw payload 직접 생성, inpaint, reference image, vibe transfer, precise reference, scene composition, video 기능, multi-model 지원은 v1.5.1에 의도적으로 포함하지 않았습니다.
 
 ## Quick Start
 
@@ -55,7 +55,7 @@ Current release build:
 현재 릴리즈 빌드:
 
 ```text
-dist/Chaessi-Preset-v1.5.0-x64.exe
+dist/Chaessi-Preset-v1.5.1-x64.exe
 ```
 
 The EXE is portable. You can move it to another folder and run it from there. User presets, character presets, token storage, and generation history are stored separately from the EXE, so replacing the EXE does not remove saved app data.
@@ -232,9 +232,18 @@ The old `여성 아웃핏` category is displayed as `여성 의상`, and the old
 - Boudoir / 부두아르
 - Uniform / 유니폼
 
-`남성 의상` does not have subcategories in this release.
+`남성 의상` supports the same optional clothing subcategory flow, using `Dandy / 댄디` in place of the female clothing `Girly / 걸리` category:
 
-`남성 의상`에는 이번 릴리즈에서 하위 카테고리를 만들지 않았습니다.
+`남성 의상`도 동일한 선택형 의상 하위 카테고리 흐름을 지원하며, 여성 의상의 `Girly / 걸리` 대신 `Dandy / 댄디`를 사용합니다.
+
+- Casual / 캐주얼
+- Street / 스트리트
+- Sporty / 스포티
+- Office / 오피스
+- Dandy / 댄디
+- Glam / 글램
+- Boudoir / 부두아르
+- Uniform / 유니폼
 
 ## Security Rules
 
@@ -272,9 +281,9 @@ Random prompt resolution occurs only at generation time. Saved presets always re
 
 랜덤 프롬프트는 Generate 시점에만 확정됩니다. 저장된 프리셋에는 확정 전의 원본 문법이 항상 그대로 유지됩니다.
 
-Chaessi Preset v1.5.0 does not include raw payload direct generation, inpaint, reference images, vibe transfer, precise reference, scene composition, video features, multi-model support, installer, code signing, or auto-update.
+Chaessi Preset v1.5.1 does not include raw payload direct generation, inpaint, reference images, vibe transfer, precise reference, scene composition, video features, multi-model support, installer, code signing, or auto-update.
 
-Chaessi Preset v1.5.0에는 raw payload 직접 생성, inpaint, reference image, vibe transfer, precise reference, scene composition, video 기능, multi-model 지원, installer, code signing, auto-update가 포함되어 있지 않습니다.
+Chaessi Preset v1.5.1에는 raw payload 직접 생성, inpaint, reference image, vibe transfer, precise reference, scene composition, video 기능, multi-model 지원, installer, code signing, auto-update가 포함되어 있지 않습니다.
 
 ## For Developers
 

@@ -16,9 +16,11 @@ import { normalizeCenters } from "../state/preset-schema.js";
 const CHARACTER_PRESET_SCHEMA = "chaessi-character-preset/v1";
 const DEFAULT_CHARACTER_PRESET_CATEGORY = "기타";
 const FEMALE_CLOTHING_CATEGORY = "여성 의상";
+const MALE_CLOTHING_CATEGORY = "남성 의상";
+const CLOTHING_CATEGORIES = new Set([FEMALE_CLOTHING_CATEGORY, MALE_CLOTHING_CATEGORY]);
 const CATEGORY_ALIASES = new Map([
   ["여성 아웃핏", FEMALE_CLOTHING_CATEGORY],
-  ["남성 아웃핏", "남성 의상"],
+  ["남성 아웃핏", MALE_CLOTHING_CATEGORY],
 ]);
 
 export function createCharacterPresetStore({ rootDir }) {
@@ -169,6 +171,6 @@ function normalizeCharacterPresetCategory(value) {
 }
 
 function normalizeCharacterPresetSubCategory(category, value) {
-  if (category !== FEMALE_CLOTHING_CATEGORY) return "";
+  if (!CLOTHING_CATEGORIES.has(category)) return "";
   return String(value || "").trim();
 }

@@ -1,5 +1,20 @@
 # Changelog
 
+## v1.5.1
+
+Chaessi Preset v1.5.1 adds optional subcategories for `남성 의상` Character Prompt Presets by extending the existing clothing preset workflow.
+
+### Added
+
+- Added male clothing subcategory selection and filtering.
+- Added `Dandy / 댄디` while retaining the seven shared clothing subcategories.
+
+### Compatibility
+
+- Existing male clothing presets without a subcategory remain valid and load normally.
+- Female clothing subcategories and existing preset storage format are unchanged.
+- Character Slot structure, preset schema, NovelAI adapter, and payload mapping are unchanged.
+
 ## v1.5.0
 
 Chaessi Preset v1.5.0 resolves random prompt blocks immediately before generation, while keeping saved presets unchanged.

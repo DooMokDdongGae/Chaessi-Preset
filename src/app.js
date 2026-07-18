@@ -4,11 +4,12 @@ const $ = (id) => document.getElementById(id);
 let rawJsonImportTimer = null;
 const DEFAULT_CHARACTER_PRESET_CATEGORY = "기타";
 const FEMALE_CLOTHING_CATEGORY = "여성 의상";
+const MALE_CLOTHING_CATEGORY = "남성 의상";
 const CHARACTER_PRESET_CATEGORIES = [
   "여성 캐릭터",
   "남성 캐릭터",
   FEMALE_CLOTHING_CATEGORY,
-  "남성 의상",
+  MALE_CLOTHING_CATEGORY,
   "구도·카메라",
   "배경·소품",
   "조명",
@@ -30,6 +31,20 @@ const FEMALE_CLOTHING_SUBCATEGORIES = [
   "Boudoir / 부두아르",
   "Uniform / 유니폼",
 ];
+const MALE_CLOTHING_SUBCATEGORIES = [
+  "Casual / 캐주얼",
+  "Street / 스트리트",
+  "Sporty / 스포티",
+  "Office / 오피스",
+  "Dandy / 댄디",
+  "Glam / 글램",
+  "Boudoir / 부두아르",
+  "Uniform / 유니폼",
+];
+const CLOTHING_SUBCATEGORIES = new Map([
+  [FEMALE_CLOTHING_CATEGORY, FEMALE_CLOTHING_SUBCATEGORIES],
+  [MALE_CLOTHING_CATEGORY, MALE_CLOTHING_SUBCATEGORIES],
+]);
 const state = {
   currentPreset: null,
   importResult: null,
@@ -142,7 +157,7 @@ function bindActions() {
   $("dialogDeleteCharacterPresetButton").addEventListener("click", () => deleteCharacterPreset({ dialog: true }));
   $("dialogCharacterCategoryFilter").addEventListener("change", () => {
     state.dialogCharacterCategoryFilter = $("dialogCharacterCategoryFilter").value;
-    if (state.dialogCharacterCategoryFilter !== FEMALE_CLOTHING_CATEGORY) state.dialogCharacterSubCategoryFilter = "";
+    if (!getClothingSubcategories(state.dialogCharacterCategoryFilter).length) state.dialogCharacterSubCategoryFilter = "";
     syncCharacterSubCategoryFilter();
     const filtered = getFilteredDialogCharacterPresets();
     if (state.selectedDialogCharacterPresetId && !filtered.some((item) => item.id === state.selectedDialogCharacterPresetId)) {
@@ -1589,10 +1604,7 @@ function initializeCharacterPresetCategoryControls() {
     .map((category) => `<option value="${escapeHtml(category)}">${escapeHtml(category)}</option>`)
     .join("");
   $("characterPresetCategoryInput").innerHTML = options;
-  $("characterPresetSubCategoryInput").innerHTML = [
-    `<option value="">None</option>`,
-    ...FEMALE_CLOTHING_SUBCATEGORIES.map((category) => `<option value="${escapeHtml(category)}">${escapeHtml(category)}</option>`),
-  ].join("");
+  $("characterPresetSubCategoryInput").innerHTML = `<option value="">None</option>`;
   $("characterPresetCategoryInput").value = DEFAULT_CHARACTER_PRESET_CATEGORY;
   $("characterPresetSubCategoryInput").value = "";
   syncCharacterSubCategoryInput();
@@ -1629,27 +1641,32 @@ function syncCharacterCategoryFilterOptions(items) {
 }
 
 function syncCharacterSubCategoryInput() {
-  const isFemaleClothing = $("characterPresetCategoryInput").value === FEMALE_CLOTHING_CATEGORY;
-  $("characterPresetSubCategoryLabel").hidden = !isFemaleClothing;
-  $("characterPresetSubCategoryInput").disabled = !isFemaleClothing;
-  if (!isFemaleClothing) $("characterPresetSubCategoryInput").value = "";
+  const input = $("characterPresetSubCategoryInput");
+  const subcategories = getClothingSubcategories($("characterPresetCategoryInput").value);
+  const selected = input.value;
+  $("characterPresetSubCategoryLabel").hidden = !subcategories.length;
+  input.disabled = !subcategories.length;
+  input.innerHTML = [
+    `<option value="">None</option>`,
+    ...subcategories.map((category) => `<option value="${escapeHtml(category)}">${escapeHtml(category)}</option>`),
+  ].join("");
+  input.value = subcategories.includes(selected) ? selected : "";
 }
 
 function syncCharacterSubCategoryFilter() {
-  const isFemaleClothing = state.dialogCharacterCategoryFilter === FEMALE_CLOTHING_CATEGORY;
-  $("dialogCharacterSubCategoryFilterLabel").hidden = !isFemaleClothing;
-  $("dialogCharacterSubCategoryFilter").disabled = !isFemaleClothing;
+  const subcategories = getClothingSubcategories(state.dialogCharacterCategoryFilter);
+  $("dialogCharacterSubCategoryFilterLabel").hidden = !subcategories.length;
+  $("dialogCharacterSubCategoryFilter").disabled = !subcategories.length;
   $("dialogCharacterSubCategoryFilter").innerHTML = [
     `<option value="">All subcategories</option>`,
-    ...FEMALE_CLOTHING_SUBCATEGORIES.map((category) => `<option value="${escapeHtml(category)}">${escapeHtml(category)}</option>`),
+    ...subcategories.map((category) => `<option value="${escapeHtml(category)}">${escapeHtml(category)}</option>`),
   ].join("");
-  if (!isFemaleClothing) state.dialogCharacterSubCategoryFilter = "";
-  if (!FEMALE_CLOTHING_SUBCATEGORIES.includes(state.dialogCharacterSubCategoryFilter)) state.dialogCharacterSubCategoryFilter = "";
+  if (!subcategories.includes(state.dialogCharacterSubCategoryFilter)) state.dialogCharacterSubCategoryFilter = "";
   $("dialogCharacterSubCategoryFilter").value = state.dialogCharacterSubCategoryFilter;
 }
 
 function getCharacterPresetSubCategoryInputValue() {
-  if ($("characterPresetCategoryInput").value !== FEMALE_CLOTHING_CATEGORY) return "";
+  if (!getClothingSubcategories($("characterPresetCategoryInput").value).length) return "";
   return $("characterPresetSubCategoryInput").value || "";
 }
 
@@ -1657,7 +1674,7 @@ function getFilteredDialogCharacterPresets() {
   const category = state.dialogCharacterCategoryFilter;
   let items = state.characterPresets;
   if (category) items = items.filter((item) => normalizeCharacterPresetCategory(item.category) === category);
-  if (category === FEMALE_CLOTHING_CATEGORY && state.dialogCharacterSubCategoryFilter) {
+  if (getClothingSubcategories(category).length && state.dialogCharacterSubCategoryFilter) {
     items = items.filter((item) => normalizeCharacterPresetSubCategory(item) === state.dialogCharacterSubCategoryFilter);
   }
   return items;
@@ -1669,8 +1686,12 @@ function normalizeCharacterPresetCategory(value) {
 }
 
 function normalizeCharacterPresetSubCategory(item) {
-  if (normalizeCharacterPresetCategory(item?.category) !== FEMALE_CLOTHING_CATEGORY) return "";
+  if (!getClothingSubcategories(normalizeCharacterPresetCategory(item?.category)).length) return "";
   return String(item?.subCategory || item?.subcategory || "").trim();
+}
+
+function getClothingSubcategories(category) {
+  return CLOTHING_SUBCATEGORIES.get(normalizeCharacterPresetCategory(category)) || [];
 }
 
 function renderDialogCharacterPresetCards(items) {
