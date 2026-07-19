@@ -1,8 +1,8 @@
 {
   "name": "chaessi-preset",
   "productName": "Chaessi Preset",
-  "version": "1.5.1",
-  "description": "Local preset and payload manager for NovelAI V4.5 Full text-to-image generation.",
+  "version": "2.0.0",
+  "description": "Local preset and payload manager for NovelAI V4.5 Full generation workflows.",
   "author": "Chaessi Preset",
   "license": "MIT",
   "main": "electron/main.mjs",

@@ -12,6 +12,12 @@ import {
   validatePreset,
 } from "./src/adapters/novelai-v45-full.js";
 import {
+  buildModeGeneratePayload,
+  GENERATION_MODES,
+  normalizeGenerationMode,
+  validateModeGeneratePayload,
+} from "./src/adapters/novelai-v45-generation-modes.js";
+import {
   APP_NAME,
   NOVELAI_GENERATE_ENDPOINT,
 } from "./src/state/defaults.js";
@@ -29,17 +35,27 @@ import {
   storeError,
 } from "./src/services/file-store-utils.js";
 import { resolvePresetRandomPrompts } from "./src/services/prompt-random-resolver.js";
+import {
+  assertMaskHasPaintedPixels,
+  assertMatchingDimensions,
+  decodeBase64Png,
+  normalizePngToRgb,
+} from "./src/services/generation-image-utils.js";
+import {
+  createInpaintGenerationMask,
+  normalizeInpaintGenerationPadding,
+} from "./src/services/inpaint-composite-utils.js";
 import { parseRawJsonImport } from "./src/importers/raw-json-import.js";
 import { applyImportToPreset } from "./src/importers/import-to-preset.js";
 import { parseNovelAiPngMetadata } from "./src/importers/nai-metadata.js";
 import { parseImageMetadata } from "./src/importers/image-metadata.js";
 
 const HEALTH_APP_NAME = "Chaessi Preset";
-const APP_VERSION = "1.5.1";
+const APP_VERSION = "2.0.0";
 const PORT = Number(process.env.PORT || 4174);
 const ROOT = path.dirname(fileURLToPath(import.meta.url));
 const DATA_ROOT = path.resolve(process.env.CHAESSI_USER_DATA_DIR || ROOT);
-const REQUEST_LIMIT_BYTES = 20 * 1024 * 1024;
+const REQUEST_LIMIT_BYTES = 64 * 1024 * 1024;
 const TIMEOUT_MS = 180_000;
 const MIGRATABLE_DATA_DIRS = [
   "presets",
@@ -417,11 +433,37 @@ async function handleGenerate(body) {
     throw httpError(400, "unsupported_preset_fields", "Preset contains unsupported fields.", presetValidation.warnings.join("; "));
   }
 
+  const mode = normalizeGenerationMode(body?.mode);
+  const modeState = mode === GENERATION_MODES.TEXT_TO_IMAGE
+    ? { mode }
+    : { ...(body?.mode_state || {}), mode };
   const resolvedPreset = resolvePresetRandomPrompts(preset);
-  const payload = buildGeneratePayload(resolvedPreset);
-  const payloadSafety = validatePayloadSafety(payload);
+  const payload = buildModeGeneratePayload(resolvedPreset, modeState);
+  const payloadSafety = mode === GENERATION_MODES.TEXT_TO_IMAGE
+    ? validatePayloadSafety(payload)
+    : validateModeGeneratePayload(payload, modeState);
   if (!payloadSafety.ok) {
     throw httpError(400, "unsafe_payload", "Payload safety validation failed.", payloadSafety.errors.join("; "));
+  }
+
+  let source = null;
+  let mask = null;
+  let generationMask = null;
+  const generationPadding = mode === GENERATION_MODES.INPAINT
+    ? normalizeInpaintGenerationPadding(modeState.generation_padding ?? 16)
+    : undefined;
+  if (mode !== GENERATION_MODES.TEXT_TO_IMAGE) {
+    source = decodeBase64Png(modeState.source_image_base64, "source image");
+    source.bytes = normalizePngToRgb(source.bytes, "source image");
+    payload.parameters.image = source.bytes.toString("base64");
+    if (mode === GENERATION_MODES.INPAINT) {
+      mask = decodeBase64Png(modeState.mask_image_base64, "selection mask image");
+      assertMaskHasPaintedPixels(mask.bytes);
+      mask.bytes = normalizePngToRgb(mask.bytes, "selection mask image");
+      generationMask = createInpaintGenerationMask(mask.bytes, generationPadding);
+      payload.parameters.mask = generationMask.toString("base64");
+    }
+    assertMatchingDimensions(source, mask, payload.parameters.width, payload.parameters.height);
   }
 
   const token = tokenProvider.getToken("novelai");
@@ -436,17 +478,35 @@ async function handleGenerate(body) {
   }
 
   const extracted = extractFirstImageFromZip(naiResponse.body);
+  const finalImageBytes = extracted.imageBytes;
   const createdAt = new Date();
+  const strength = mode === GENERATION_MODES.INPAINT
+    ? payload.parameters.inpaintImg2ImgStrength
+    : payload.parameters.strength;
+  const noise = mode === GENERATION_MODES.IMAGE_TO_IMAGE ? payload.parameters.noise : 0;
   const saved = await generationStore.saveGeneration({
     preset: resolvedPreset,
     payload,
-    imageBytes: extracted.imageBytes,
+    imageBytes: finalImageBytes,
+    mode,
+    modeSettings: {
+      strength,
+      noise,
+      source_info: sanitizeSourceInfo(modeState.source_info, source),
+      add_original_image: mode === GENERATION_MODES.INPAINT ? payload.parameters.add_original_image : undefined,
+      generation_padding: generationPadding,
+    },
+    sourceAssets: {
+      sourceBytes: source?.bytes,
+      maskBytes: mask?.bytes,
+      generationMaskBytes: generationMask,
+    },
     responseInfo: {
-    created_at: createdAt.toISOString(),
-    response_container: "zip",
-    response_image_entry: extracted.entryName,
-    response_content_type: naiResponse.headers.get("content-type") || "",
-    content_disposition: naiResponse.headers.get("content-disposition") || "",
+      created_at: createdAt.toISOString(),
+      response_container: "zip",
+      response_image_entry: extracted.entryName,
+      response_content_type: naiResponse.headers.get("content-type") || "",
+      content_disposition: naiResponse.headers.get("content-disposition") || "",
     },
   });
 
@@ -459,6 +519,7 @@ async function handleGenerate(body) {
       payload_path: saved.payload_path,
     },
     summary: {
+      mode,
       model: payload.model,
       width: payload.parameters.width,
       height: payload.parameters.height,
@@ -469,10 +530,24 @@ async function handleGenerate(body) {
       noise_schedule: payload.parameters.noise_schedule,
       qualityToggle: payload.parameters.qualityToggle,
       seed: payload.parameters.seed,
+      strength,
+      noise,
+      add_original_image: mode === GENERATION_MODES.INPAINT ? payload.parameters.add_original_image : undefined,
+      generation_padding: generationPadding,
     },
   };
 }
 
+function sanitizeSourceInfo(value, source) {
+  const fileName = path.basename(String(value?.file_name || "source-image")).replace(/[\u0000-\u001f]/g, "").slice(0, 180);
+  return {
+    file_name: fileName,
+    original_width: Number(value?.original_width) || source?.width || null,
+    original_height: Number(value?.original_height) || source?.height || null,
+    transmitted_width: source?.width || null,
+    transmitted_height: source?.height || null,
+  };
+}
 function stripPresetUiState(preset) {
   if (!preset || typeof preset !== "object" || Array.isArray(preset)) return preset;
   const characters = Array.isArray(preset.prompt_parts?.characters)

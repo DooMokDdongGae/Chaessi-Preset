@@ -1,7 +1,9 @@
 import { deleteJson, getJson, postForm, postImage, postJson } from "./api/client.js";
+import { createGenerationModeController } from "./ui/generation-mode-controller.js";
 
 const $ = (id) => document.getElementById(id);
 let rawJsonImportTimer = null;
+let generationModeController = null;
 const DEFAULT_CHARACTER_PRESET_CATEGORY = "기타";
 const FEMALE_CLOTHING_CATEGORY = "여성 의상";
 const MALE_CLOTHING_CATEGORY = "남성 의상";
@@ -107,6 +109,13 @@ const importFields = {
 init().catch((error) => showToast(error.message, true));
 
 async function init() {
+  generationModeController = createGenerationModeController({
+    showToast,
+    getLatestImagePath: () => state.lastGenerationResponse?.generation?.image_path
+      ? toBrowserPath(state.lastGenerationResponse.generation.image_path)
+      : "",
+  });
+  generationModeController.bind();
   bindActions();
   bindDropAndPaste();
   await refreshHealth();
@@ -924,7 +933,11 @@ async function generateImage() {
   return withButton($("generateButton"), "Generating", async () => {
     syncPresetFromForm();
     setSummary($("generateStatus"), "Generating one image...", false);
-    const response = await postJson("/api/novelai/generate", { preset: state.currentPreset });
+    const modeRequest = generationModeController.getGenerateRequest();
+    const requestBody = modeRequest.mode === "text-to-image"
+      ? { preset: state.currentPreset }
+      : { preset: state.currentPreset, ...modeRequest };
+    const response = await postJson("/api/novelai/generate", requestBody);
     setSummary($("generateStatus"), "Generation saved.", true);
     $("generationSummary").innerHTML = renderGenerationSummary(response);
     $("generatedImage").src = toBrowserPath(response.generation.image_path);
@@ -970,6 +983,16 @@ async function loadHistory(showMessage = true) {
       event.stopPropagation();
       const item = state.generations.find((generation) => generation.id === button.dataset.downloadGeneration);
       if (item) downloadPath(toBrowserPath(item.image_path), `${item.id}.png`);
+    });
+  });
+  document.querySelectorAll("[data-use-generation-source]").forEach((button) => {
+    button.addEventListener("click", async (event) => {
+      event.stopPropagation();
+      const item = state.generations.find((generation) => generation.id === button.dataset.useGenerationSource);
+      if (!item) return;
+      await generationModeController.loadSourceFromUrl(toBrowserPath(item.image_path), `${item.id}.png`);
+      document.querySelector('[data-generation-mode="image-to-image"]')?.click();
+      document.getElementById("panel-generate")?.scrollIntoView({ behavior: "smooth", block: "start" });
     });
   });
   document.querySelectorAll("[data-delete-generation]").forEach((button) => {
@@ -1430,6 +1453,7 @@ function renderHistoryItem(item) {
     <article class="history-card" data-generation-id="${escapeHtml(item.id)}">
       <img src="${escapeHtml(toBrowserPath(item.image_path))}" alt="" data-view-generation="${escapeHtml(item.id)}" />
       <div>
+        <span class="history-mode">${escapeHtml(formatGenerationMode(item.mode))}</span>
         <strong>Seed ${escapeHtml(item.seed ?? "unknown")}</strong>
         <small>${escapeHtml(size)} · ${escapeHtml(item.model || "")}</small>
         <small>${escapeHtml(formatDateTime(item.created_at))}</small>
@@ -1444,6 +1468,7 @@ function renderHistoryItem(item) {
             <button data-apply-generation-preset="${escapeHtml(item.id)}">Apply Preset</button>
             <button data-apply-generation-seed="${escapeHtml(item.id)}">Apply Seed</button>
             <button data-apply-generation-params="${escapeHtml(item.id)}">Apply Params</button>
+            <button data-use-generation-source="${escapeHtml(item.id)}">Use as Source</button>
           </div>
         </details>
       </div>
@@ -1510,6 +1535,7 @@ async function deleteViewedGeneration() {
 
 function formatGenerationMeta(source) {
   return [
+    source.mode ? formatGenerationMode(source.mode) : "",
     source.model,
     source.width && source.height ? `${source.width}x${source.height}` : "",
     source.steps !== undefined ? `${source.steps} steps` : "",
@@ -1518,7 +1544,20 @@ function formatGenerationMeta(source) {
     source.sampler,
     source.noise_schedule,
     source.seed !== undefined ? `seed ${source.seed}` : "",
+    source.strength !== undefined ? `strength ${source.strength}` : "",
+    source.mode === "image-to-image" && source.noise !== undefined ? `noise ${source.noise}` : "",
+    source.mode === "inpaint" && source.feather !== undefined ? `feather ${source.feather}%` : "",
+    source.mode === "inpaint" && source.generation_padding !== undefined ? `padding ${source.generation_padding}px` : "",
+    source.mode === "inpaint" && source.add_original_image !== undefined
+      ? `original ${source.add_original_image ? "on" : "off"}`
+      : "",
   ].filter(Boolean).join(" · ");
+}
+
+function formatGenerationMode(mode) {
+  if (mode === "image-to-image") return "Image to Image";
+  if (mode === "inpaint") return "Inpaint";
+  return "Text to Image";
 }
 
 function formatDateTime(value) {

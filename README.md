@@ -1,15 +1,23 @@
 # Chaessi Preset
 
-Chaessi Preset is a local preset and payload manager for NovelAI V4.5 Full text-to-image generation.
+Chaessi Preset is a local preset and payload manager for NovelAI V4.5 Full text-to-image, image-to-image, and inpaint generation.
 
-Chaessi Preset은 NovelAI V4.5 Full text-to-image 생성을 위한 로컬 프리셋 / 페이로드 매니저입니다.
+Chaessi Preset은 NovelAI V4.5 Full text-to-image, image-to-image, inpaint 생성을 위한 로컬 프리셋 / 페이로드 매니저입니다.
 
-Current model:
+Text to Image and Image to Image model:
 
-현재 고정 모델:
+Text to Image와 Image to Image 모델:
 
 ```text
 nai-diffusion-4-5-full
+```
+
+Inpaint mode automatically uses the matching inpainting model internally; it is not a user-selectable multi-model feature.
+
+Inpaint 모드는 내부적으로 대응 inpainting 모델을 자동 사용하며, 사용자가 모델을 선택하는 multi-model 기능은 아닙니다.
+
+```text
+nai-diffusion-4-5-full-inpainting
 ```
 
 The app keeps this flow stable:
@@ -20,9 +28,13 @@ The app keeps this flow stable:
 UI -> Internal Preset Schema -> Adapter -> NovelAI Payload -> NovelAI
 ```
 
-Raw payload direct generation, inpaint, reference images, vibe transfer, precise reference, scene composition, video features, and multi-model support are intentionally not included in v1.5.1.
+Chaessi Preset v2.0.0 expands the desktop workflow from preset management and Text to Image generation to integrated Text to Image, Image to Image, and Inpaint tools. This major version does not break the existing preset schema, Character Slot structure, saved data, or History compatibility.
 
-Raw payload 직접 생성, inpaint, reference image, vibe transfer, precise reference, scene composition, video 기능, multi-model 지원은 v1.5.1에 의도적으로 포함하지 않았습니다.
+Chaessi Preset v2.0.0은 프리셋 관리와 Text to Image 중심이던 데스크톱 작업 흐름을 Text to Image, Image to Image, Inpaint 통합 도구로 확장합니다. 이번 major 버전에서도 기존 preset schema, Character Slot 구조, 저장 데이터 및 History 호환성은 유지됩니다.
+
+Raw payload direct generation, reference images, vibe transfer, precise reference, scene composition, video features, and user-selectable multi-model support are intentionally not included in v2.0.0.
+
+Raw payload 직접 생성, reference image, vibe transfer, precise reference, scene composition, video 기능, 사용자 선택형 multi-model 지원은 v2.0.0에 의도적으로 포함하지 않았습니다.
 
 ## Quick Start
 
@@ -55,7 +67,7 @@ Current release build:
 현재 릴리즈 빌드:
 
 ```text
-dist/Chaessi-Preset-v1.5.1-x64.exe
+dist/Chaessi-Preset-v2.0.0-x64.exe
 ```
 
 The EXE is portable. You can move it to another folder and run it from there. User presets, character presets, token storage, and generation history are stored separately from the EXE, so replacing the EXE does not remove saved app data.
@@ -141,7 +153,7 @@ Existing project-local user data is copied into userData on first Electron use w
 ## Features
 
 - Integrated local workbench UI
-- NovelAI V4.5 Full text-to-image generation
+- NovelAI V4.5 Full Text to Image / Image to Image / Inpaint generation
 - Internal preset schema and NovelAI payload adapter
 - Random prompt resolver (`||a|b|c||` syntax resolved at generation time)
 - Image metadata import for supported PNG/WebP NovelAI metadata
@@ -158,7 +170,7 @@ Existing project-local user data is copied into userData on first Electron use w
 - User presets and generations stored outside the app bundle through Electron userData
 
 - 통합 로컬 작업대 UI
-- NovelAI V4.5 Full text-to-image 생성
+- NovelAI V4.5 Full Text to Image / Image to Image / Inpaint 생성
 - internal preset schema와 NovelAI payload adapter
 - 랜덤 프롬프트 resolver (`||a|b|c||` 문법을 Generate 시점에 확정)
 - 지원되는 PNG/WebP NovelAI metadata 이미지 import
@@ -178,6 +190,31 @@ Random prompt blocks are resolved at generation time before sending payload to N
 
 랜덤 프롬프트 블록은 NovelAI로 payload를 보내기 전 Generate 시점에 확정됩니다. 하나의 프롬프트 입력란에 여러 랜덤 블록을 함께 사용할 수 있습니다.
 
+## Generation Modes
+
+**Text to Image** keeps the existing v1.5.1 generation flow and remains the default mode.
+
+**Text to Image**는 기존 v1.5.1 생성 흐름을 그대로 유지하며 기본 모드입니다.
+
+**Image to Image** accepts PNG, WebP, or JPEG source images. Use **Strength** to control how strongly the result departs from the source and **Noise** to control added variation. The source image is transmitted at its original dimensions without stretching.
+
+**Image to Image**는 PNG, WebP, JPEG source image를 지원합니다. **Strength**로 원본에서 얼마나 변화할지 조절하고, **Noise**로 추가 변화를 조절합니다. Source image는 비율을 왜곡하지 않고 원본 크기로 전송됩니다.
+
+**Inpaint** uses the source image as a canvas. Paint the region to regenerate with **Brush**, remove mask pixels with **Eraser**, and use **Undo**, **Redo**, or **Clear Mask** as needed. Source and mask dimensions must match, and an empty mask cannot be generated.
+
+**Generation Padding** expands the selection sent to NovelAI from 0 to 32 pixels, with a verified default of 16px. After padding, the full-resolution generation mask is aligned to uniform 8x8 binary blocks. White pixels regenerate and black pixels preserve.
+
+**Generation Padding**은 NovelAI로 보내는 선택 영역을 0~32px 확장하며, 검증된 기본값은 16px입니다. Padding 적용 후 전체 해상도의 generation mask를 균일한 8x8 이진 블록으로 정렬합니다. 흰색 픽셀은 재생성하고 검정 픽셀은 보존합니다.
+
+**Inpaint**는 source image를 작업 캔버스로 사용합니다. 다시 생성할 영역을 **Brush**로 칠하고, **Eraser**로 마스크를 지우며, 필요하면 **Undo**, **Redo**, **Clear Mask**를 사용합니다. Source와 mask 크기는 같아야 하며 빈 mask로는 생성할 수 없습니다.
+
+NovelAI's raw Inpaint PNG is used directly as the final image and History result. No local feather/composite pass is applied. Source, selection mask, and transmitted generation mask remain separate generation-time assets; payload and sidecar JSON do not contain full image Base64 data.
+
+NovelAI의 raw Inpaint PNG를 최종 이미지와 History 결과로 그대로 사용합니다. 로컬 Feather/Composite 처리는 적용하지 않습니다. Source, selection mask, 실제 전송 generation mask는 생성 시점의 별도 자산으로 보관되며 payload와 sidecar JSON에는 전체 이미지 Base64 데이터가 들어가지 않습니다.
+
+Advanced Crop -> Generate -> Composite is not included in v2.0.0.
+
+고급 Crop -> Generate -> Composite는 v2.0.0에 포함되지 않습니다.
 ## Character Prompt Preset Categories
 
 Character Prompt Presets support categories for organizing a large module-style preset library. Categories are only for organization and filtering. They are not connected to Character Slot numbers, and every Character Slot can freely load presets from every category.
@@ -281,9 +318,9 @@ Random prompt resolution occurs only at generation time. Saved presets always re
 
 랜덤 프롬프트는 Generate 시점에만 확정됩니다. 저장된 프리셋에는 확정 전의 원본 문법이 항상 그대로 유지됩니다.
 
-Chaessi Preset v1.5.1 does not include raw payload direct generation, inpaint, reference images, vibe transfer, precise reference, scene composition, video features, multi-model support, installer, code signing, or auto-update.
+Chaessi Preset v2.0.0 does not include raw payload direct generation, reference images, vibe transfer, precise reference, advanced crop/composite, scene composition, video features, user-selectable multi-model support, installer, code signing, or auto-update.
 
-Chaessi Preset v1.5.1에는 raw payload 직접 생성, inpaint, reference image, vibe transfer, precise reference, scene composition, video 기능, multi-model 지원, installer, code signing, auto-update가 포함되어 있지 않습니다.
+Chaessi Preset v2.0.0에는 raw payload 직접 생성, reference image, vibe transfer, precise reference, 고급 crop/composite, scene composition, video 기능, 사용자 선택형 multi-model 지원, installer, code signing, auto-update가 포함되어 있지 않습니다.
 
 ## For Developers
 

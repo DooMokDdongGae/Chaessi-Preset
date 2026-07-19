@@ -1,5 +1,118 @@
 # Changelog
 
+## v2.0.0
+
+Chaessi Preset v2.0.0 expands the local NovelAI V4.5 Full workflow to integrated Text to Image, Image to Image, and Inpaint generation while preserving existing user data compatibility.
+
+### Added
+
+- Integrated Text to Image, Image to Image, and Inpaint workflows.
+- PNG, WebP, and JPEG source image support.
+- Image to Image Strength and Noise controls with original source resolution preservation.
+- Inpaint Brush, Eraser, brush size, Undo, Redo, Clear Mask, and Hide Mask tools.
+- Reuse of History results as Image to Image or Inpaint sources.
+- Separate storage for source, selection mask, and transmitted generation mask assets, with related asset cleanup when History is deleted.
+
+### Changed
+
+- Inpaint generation masks use full-resolution binary values aligned to NovelAI's 8x8 block behavior after 16px Generation Padding.
+- NovelAI raw Inpaint PNGs are stored directly as final images and History results.
+- Removed local final compositing to reduce style and sharpness discontinuities and visible gray boundaries.
+
+### Compatibility
+
+- Existing preset schema, Character Slot structure, saved presets, user data, and History records remain compatible.
+- Existing Text to Image generation, payload mapping, and Random Prompt Resolver behavior remain unchanged.
+- Existing History records from earlier Inpaint implementations remain readable without migration.
+
+## v1.6.3
+
+Chaessi Preset v1.6.3 aligns Inpaint generation masks with the verified NovelAI V4.5 behavior and stores the raw NovelAI result directly.
+
+### Changed
+
+- Generation masks are full-resolution binary PNG masks aligned to uniform 8x8 blocks after padding.
+- Generation Padding now defaults to 16px.
+- NovelAI raw Inpaint PNGs are saved directly as final images and History results.
+- Removed local final compositing that could make style and sharpness changes more visible across the generated region.
+- Removed the Feather control and feather cursor ring because they no longer affect the final image.
+
+### Compatibility
+
+- Existing History records with feather or composite-era metadata remain readable without migration.
+- Selection masks and transmitted generation masks remain separate History assets and are deleted with their History record.
+- Text to Image, Image to Image, preset schema, Character Slot structure, payload mapping, and Random Prompt Resolver behavior are unchanged.
+
+
+## v1.6.2
+
+Chaessi Preset v1.6.2 removes visible Inpaint boundary artifacts by separating the mask sent to NovelAI from the mask used for final compositing.
+
+### Added
+
+- Added Generation Padding from 0 to 32 pixels, with a verified 12px default.
+- Added a separate expanded binary generation mask for NovelAI requests.
+- Added local soft-mask compositing that preserves original pixels outside the logical mask.
+- Added separate History storage for logical masks and transmitted generation masks.
+
+### Changed
+
+- Inpaint History now stores the final composite PNG instead of the raw NovelAI response.
+- NovelAI response metadata is preserved when the final composite PNG is encoded.
+
+### Compatibility
+
+- Text to Image and Image to Image payloads are unchanged.
+- The Inpaint model, action, request type, preset schema, Character Slot structure, Random Prompt Resolver, token storage, and legacy History loading remain unchanged.
+
+## v1.6.1
+
+Chaessi Preset v1.6.1 improves Inpaint mask edges and makes brush size and feathering visible at the pointer.
+
+### Added
+
+- Added a Feather control for soft Brush and Eraser falloff.
+- Added an optional Add Original Image setting, recorded safely in generation metadata.
+- Added a round Brush/Eraser cursor with separate tool styling and an inner hard-core ring.
+
+### Changed
+
+- Separated the logical grayscale mask from the cyan visual overlay.
+- Preserved 0-255 grayscale mask strength when exporting the full-size RGB PNG mask.
+- Added stroke interpolation so fast pointer movement does not leave gaps.
+- Add Original Image defaults to off after live ON/OFF QA showed more visible seams when enabled on some images.
+
+### Compatibility
+
+- Text to Image and Image to Image payloads are unchanged.
+- The existing Inpaint request contract, preset schema, Character Slot structure, token storage, and History asset lifecycle remain unchanged.
+
+## v1.6.0
+
+Chaessi Preset v1.6.0 adds Image to Image and Inpaint workflows while preserving the existing preset schema and Text to Image payload flow.
+
+### Added
+
+- Added Text to Image / Image to Image / Inpaint mode selection in the Generate workspace.
+- Added PNG, WebP, and JPEG source image input with preview, drag-and-drop, removal, and History result reuse.
+- Added Image to Image Strength and Noise controls.
+- Added full-image Inpaint mask canvas with Brush, Eraser, brush size, Undo, Redo, Clear Mask, and mask visibility controls.
+- Added the confirmed NovelAI V4.5 Full inpaint request flow using `nai-diffusion-4-5-full-inpainting`, `infill`, and `NativeInfillingRequest`.
+- Added mode-aware History metadata and separate source/mask generation assets.
+
+### Security and Storage
+
+- Source and mask Base64 values are not written into payload or sidecar JSON files.
+- Source and mask images are stored as separate generation assets and removed with their History record.
+- Tokens and authorization values remain excluded from API responses, logs, payload files, and sidecars.
+
+### Compatibility
+
+- Text to Image remains the default and its v1.5.1 payload is unchanged.
+- Preset schema, Character Slot structure, and existing Text to Image adapter remain unchanged.
+- Random Prompt Resolver runs before all three generation modes without modifying saved presets.
+- Legacy History records without a mode are treated as Text to Image.
+- Advanced Crop / Composite is not included in this release.
 ## v1.5.1
 
 Chaessi Preset v1.5.1 adds optional subcategories for `남성 의상` Character Prompt Presets by extending the existing clothing preset workflow.

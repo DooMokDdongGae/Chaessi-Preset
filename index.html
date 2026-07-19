@@ -230,6 +230,67 @@
               </div>
             </div>
             <section class="tool-surface generate-surface">
+              <div class="generation-mode-picker" role="group" aria-label="Generation mode">
+                <button type="button" class="is-active" data-generation-mode="text-to-image">Text to Image</button>
+                <button type="button" data-generation-mode="image-to-image">Image to Image</button>
+                <button type="button" data-generation-mode="inpaint">Inpaint</button>
+              </div>
+
+              <section class="mode-source-panel" id="modeSourcePanel" hidden>
+                <div class="source-drop-zone" id="generationSourceDropZone">
+                  <input id="generationSourceInput" type="file" accept="image/png,image/webp,image/jpeg" hidden />
+                  <div class="source-canvas-frame" id="sourceCanvasFrame">
+                    <canvas id="generationSourceCanvas"></canvas>
+                    <canvas id="inpaintMaskOverlayCanvas" hidden></canvas>
+                    <canvas id="inpaintMaskCanvas" hidden></canvas>
+                    <div class="source-empty-state" id="sourceEmptyState">
+                      <strong>Source Image</strong>
+                      <span>Drop PNG, WebP, or JPEG here</span>
+                    </div>
+                  </div>
+                </div>
+                <div class="source-info" id="generationSourceInfo">No source image selected.</div>
+                <div class="actions compact-actions source-actions">
+                  <button type="button" id="chooseGenerationSourceButton">Choose Image</button>
+                  <button type="button" id="useLatestAsSourceButton">Use Latest Result</button>
+                  <button type="button" id="removeGenerationSourceButton">Remove</button>
+                </div>
+
+                <div class="mode-settings-row">
+                  <label>Strength
+                    <input id="generationStrength" type="range" min="0.01" max="1" step="0.01" value="0.70" />
+                    <output id="generationStrengthValue">0.70</output>
+                  </label>
+                  <label id="generationNoiseLabel">Noise
+                    <input id="generationNoise" type="range" min="0" max="0.99" step="0.01" value="0.05" />
+                    <output id="generationNoiseValue">0.05</output>
+                  </label>
+                </div>
+
+                <section class="inpaint-tools" id="inpaintTools" hidden>
+                  <div class="inpaint-toolbar">
+                    <div class="generation-mode-picker mask-tool-picker" role="group" aria-label="Mask tool">
+                      <button type="button" class="is-active" data-mask-tool="brush">Brush</button>
+                      <button type="button" data-mask-tool="eraser">Eraser</button>
+                    </div>
+                    <label>Brush size
+                      <input id="maskBrushSize" type="range" min="4" max="240" step="2" value="48" />
+                      <output id="maskBrushSizeValue">48 px</output>
+                    </label>
+                    <label title="Expands the binary region sent to NovelAI before 8x8 mask alignment.">Generation Padding
+                      <input id="inpaintGenerationPadding" type="range" min="0" max="32" step="4" value="16" />
+                      <output id="inpaintGenerationPaddingValue">16 px</output>
+                    </label>
+                    <div class="actions compact-actions">
+                      <button type="button" id="undoMaskButton">Undo</button>
+                      <button type="button" id="redoMaskButton">Redo</button>
+                      <button type="button" id="clearMaskButton">Clear Mask</button>
+                      <button type="button" id="toggleMaskButton">Hide Mask</button>
+                    </div>
+                  </div>
+                  <p class="mode-help">Paint the area NovelAI should regenerate. Unpainted areas are preserved.</p>
+                </section>
+              </section>
               <div class="generate-command-row">
                 <button id="generateButton" class="primary-generate-button">Generate One Image</button>
                 <div class="summary" id="generateStatus">Idle.</div>
@@ -390,6 +451,7 @@
     <input id="presetThumbnailInput" type="file" accept="image/png,image/jpeg,image/webp" hidden />
     <input id="characterThumbnailInput" type="file" accept="image/png,image/jpeg,image/webp" hidden />
     <div class="toast" id="toast" role="status" aria-live="polite"></div>
+    <div class="mask-brush-cursor" id="maskBrushCursor" hidden aria-hidden="true"></div>
     <script type="module" src="/src/app.js"></script>
   </body>
 </html>
