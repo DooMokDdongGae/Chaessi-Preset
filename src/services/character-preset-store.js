@@ -12,16 +12,9 @@ import {
     writeJsonFile,
 } from "./file-store-utils.js";
 import { normalizeCenters } from "../state/preset-schema.js";
+import { normalizeCharacterPresetCategoryName } from "../state/character-preset-categories.js";
 
 const CHARACTER_PRESET_SCHEMA = "chaessi-character-preset/v1";
-const DEFAULT_CHARACTER_PRESET_CATEGORY = "기타";
-const FEMALE_CLOTHING_CATEGORY = "여성 의상";
-const MALE_CLOTHING_CATEGORY = "남성 의상";
-const CLOTHING_CATEGORIES = new Set([FEMALE_CLOTHING_CATEGORY, MALE_CLOTHING_CATEGORY]);
-const CATEGORY_ALIASES = new Map([
-  ["여성 아웃핏", FEMALE_CLOTHING_CATEGORY],
-  ["남성 아웃핏", MALE_CLOTHING_CATEGORY],
-]);
 
 export function createCharacterPresetStore({ rootDir }) {
   const characterPresetsDir = path.join(rootDir, "data", "character-presets");
@@ -166,11 +159,9 @@ function toCharacterPresetSummary(preset) {
 }
 
 function normalizeCharacterPresetCategory(value) {
-  const category = String(value || "").trim();
-  return CATEGORY_ALIASES.get(category) || category || DEFAULT_CHARACTER_PRESET_CATEGORY;
+  return normalizeCharacterPresetCategoryName(value);
 }
 
-function normalizeCharacterPresetSubCategory(category, value) {
-  if (!CLOTHING_CATEGORIES.has(category)) return "";
+function normalizeCharacterPresetSubCategory(_category, value) {
   return String(value || "").trim();
 }

@@ -1,52 +1,14 @@
 import { deleteJson, getJson, postForm, postImage, postJson } from "./api/client.js";
 import { createGenerationModeController } from "./ui/generation-mode-controller.js";
+import {
+  DEFAULT_CHARACTER_PRESET_CATEGORY,
+  cloneBuiltInCharacterPresetCategories,
+  normalizeCharacterPresetCategoryName,
+} from "./state/character-preset-categories.js";
 
 const $ = (id) => document.getElementById(id);
 let rawJsonImportTimer = null;
 let generationModeController = null;
-const DEFAULT_CHARACTER_PRESET_CATEGORY = "기타";
-const FEMALE_CLOTHING_CATEGORY = "여성 의상";
-const MALE_CLOTHING_CATEGORY = "남성 의상";
-const CHARACTER_PRESET_CATEGORIES = [
-  "여성 캐릭터",
-  "남성 캐릭터",
-  FEMALE_CLOTHING_CATEGORY,
-  MALE_CLOTHING_CATEGORY,
-  "구도·카메라",
-  "배경·소품",
-  "조명",
-  "그림체",
-  "품질",
-  "기타",
-];
-const CHARACTER_CATEGORY_ALIASES = new Map([
-  ["여성 아웃핏", FEMALE_CLOTHING_CATEGORY],
-  ["남성 아웃핏", "남성 의상"],
-]);
-const FEMALE_CLOTHING_SUBCATEGORIES = [
-  "Casual / 캐주얼",
-  "Street / 스트리트",
-  "Sporty / 스포티",
-  "Office / 오피스",
-  "Girly / 걸리",
-  "Glam / 글램",
-  "Boudoir / 부두아르",
-  "Uniform / 유니폼",
-];
-const MALE_CLOTHING_SUBCATEGORIES = [
-  "Casual / 캐주얼",
-  "Street / 스트리트",
-  "Sporty / 스포티",
-  "Office / 오피스",
-  "Dandy / 댄디",
-  "Glam / 글램",
-  "Boudoir / 부두아르",
-  "Uniform / 유니폼",
-];
-const CLOTHING_SUBCATEGORIES = new Map([
-  [FEMALE_CLOTHING_CATEGORY, FEMALE_CLOTHING_SUBCATEGORIES],
-  [MALE_CLOTHING_CATEGORY, MALE_CLOTHING_SUBCATEGORIES],
-]);
 const state = {
   currentPreset: null,
   importResult: null,
@@ -57,6 +19,7 @@ const state = {
   presets: [],
   generations: [],
   characterPresets: [],
+  characterPresetCategories: cloneBuiltInCharacterPresetCategories(),
   characterUiState: [],
   characterPresetContextType: "slot",
   characterPresetContextIndex: null,
@@ -120,6 +83,7 @@ async function init() {
   bindDropAndPaste();
   await refreshHealth();
   await refreshTokenStatus();
+  await loadCharacterPresetCategories();
   const defaultResponse = await getJson("/api/preset/default");
   state.currentPreset = defaultResponse.preset;
   renderPresetForm();
@@ -164,9 +128,13 @@ function bindActions() {
   $("dialogRefreshCharacterPresetButton").addEventListener("click", () => loadCharacterList({ dialog: true }));
   $("dialogApplyCharacterPresetButton").addEventListener("click", () => applyCharacterPreset({ dialog: true }));
   $("dialogDeleteCharacterPresetButton").addEventListener("click", () => deleteCharacterPreset({ dialog: true }));
+  $("manageCharacterPresetCategoriesButton").addEventListener("click", openCharacterPresetCategoryManager);
+  $("categoryManagerParentCategorySelect").addEventListener("change", renderCategoryManagerSubcategories);
+  $("categoryManagerAddCategoryButton").addEventListener("click", addManagedCharacterPresetCategory);
+  $("categoryManagerAddSubCategoryButton").addEventListener("click", addManagedCharacterPresetSubcategory);
   $("dialogCharacterCategoryFilter").addEventListener("change", () => {
     state.dialogCharacterCategoryFilter = $("dialogCharacterCategoryFilter").value;
-    if (!getClothingSubcategories(state.dialogCharacterCategoryFilter).length) state.dialogCharacterSubCategoryFilter = "";
+    if (!getCharacterPresetSubcategories(state.dialogCharacterCategoryFilter).length) state.dialogCharacterSubCategoryFilter = "";
     syncCharacterSubCategoryFilter();
     const filtered = getFilteredDialogCharacterPresets();
     if (state.selectedDialogCharacterPresetId && !filtered.some((item) => item.id === state.selectedDialogCharacterPresetId)) {
@@ -738,6 +706,7 @@ async function saveCharacterPresetRequest(preset, { includeThumbnail = true } = 
 
 async function openBasePromptPresetDialog() {
   syncPresetFromForm();
+  await loadCharacterPresetCategories();
   initializeCharacterPresetCategoryControls();
   state.characterPresetContextType = "base";
   state.characterPresetContextIndex = null;
@@ -750,6 +719,7 @@ async function openBasePromptPresetDialog() {
 
 async function openCharacterPresetDialog(index) {
   syncPresetFromForm();
+  await loadCharacterPresetCategories();
   initializeCharacterPresetCategoryControls();
   state.characterPresetContextType = "slot";
   state.characterPresetContextIndex = index;
@@ -858,6 +828,7 @@ async function loadCharacterList({ dialog = false } = {}) {
   renderSelect($("characterPresetList"), response.items || []);
   renderSelect($("dialogCharacterPresetList"), response.items || []);
   if (dialog) {
+    syncCharacterPresetSaveCategoryOptions(response.items || []);
     syncCharacterCategoryFilterOptions(response.items || []);
     renderDialogCharacterPresetCards(getFilteredDialogCharacterPresets());
     const selectedCopy = state.selectedDialogCharacterPresetId
@@ -1638,13 +1609,29 @@ function renderSelect(select, items) {
     .join("");
 }
 
+async function loadCharacterPresetCategories() {
+  const response = await getJson("/api/character-preset-categories");
+  applyCharacterPresetCategoryResponse(response);
+  if (response.warning) showToast(response.warning, true);
+  return response;
+}
+
+function applyCharacterPresetCategoryResponse(response) {
+  state.characterPresetCategories = Array.isArray(response?.categories) && response.categories.length
+    ? response.categories.map((category, order) => ({
+      name: normalizeCharacterPresetCategory(category.name),
+      order: Number.isFinite(Number(category.order)) ? Number(category.order) : order,
+      builtIn: category.builtIn === true,
+      subcategories: uniqueNames(category.subcategories || []),
+    }))
+    : cloneBuiltInCharacterPresetCategories();
+  syncCharacterPresetSaveCategoryOptions(state.characterPresets);
+  syncCharacterCategoryFilterOptions(state.characterPresets);
+}
+
 function initializeCharacterPresetCategoryControls() {
-  const options = CHARACTER_PRESET_CATEGORIES
-    .map((category) => `<option value="${escapeHtml(category)}">${escapeHtml(category)}</option>`)
-    .join("");
-  $("characterPresetCategoryInput").innerHTML = options;
+  syncCharacterPresetSaveCategoryOptions(state.characterPresets, DEFAULT_CHARACTER_PRESET_CATEGORY);
   $("characterPresetSubCategoryInput").innerHTML = `<option value="">None</option>`;
-  $("characterPresetCategoryInput").value = DEFAULT_CHARACTER_PRESET_CATEGORY;
   $("characterPresetSubCategoryInput").value = "";
   syncCharacterSubCategoryInput();
   syncCharacterCategoryFilterOptions(state.characterPresets);
@@ -1664,12 +1651,21 @@ function getCharacterPresetDialogTargetLabel() {
   return "the selected target";
 }
 
+function syncCharacterPresetSaveCategoryOptions(items, preferredValue) {
+  const select = $("characterPresetCategoryInput");
+  const selected = preferredValue ?? select.value ?? DEFAULT_CHARACTER_PRESET_CATEGORY;
+  const categories = getAllCharacterPresetCategories(items).map((category) => category.name);
+  select.innerHTML = categories
+    .map((category) => `<option value="${escapeHtml(category)}">${escapeHtml(category)}</option>`)
+    .join("");
+  select.value = categories.includes(normalizeCharacterPresetCategory(selected))
+    ? normalizeCharacterPresetCategory(selected)
+    : DEFAULT_CHARACTER_PRESET_CATEGORY;
+  syncCharacterSubCategoryInput();
+}
+
 function syncCharacterCategoryFilterOptions(items) {
-  const categories = [...CHARACTER_PRESET_CATEGORIES];
-  for (const item of items || []) {
-    const category = normalizeCharacterPresetCategory(item.category);
-    if (!categories.includes(category)) categories.push(category);
-  }
+  const categories = getAllCharacterPresetCategories(items).map((category) => category.name);
   $("dialogCharacterCategoryFilter").innerHTML = [
     `<option value="">All categories</option>`,
     ...categories.map((category) => `<option value="${escapeHtml(category)}">${escapeHtml(category)}</option>`),
@@ -1679,10 +1675,10 @@ function syncCharacterCategoryFilterOptions(items) {
   syncCharacterSubCategoryFilter();
 }
 
-function syncCharacterSubCategoryInput() {
+function syncCharacterSubCategoryInput(preferredValue) {
   const input = $("characterPresetSubCategoryInput");
-  const subcategories = getClothingSubcategories($("characterPresetCategoryInput").value);
-  const selected = input.value;
+  const subcategories = getCharacterPresetSubcategories($("characterPresetCategoryInput").value);
+  const selected = preferredValue ?? input.value ?? "";
   $("characterPresetSubCategoryLabel").hidden = !subcategories.length;
   input.disabled = !subcategories.length;
   input.innerHTML = [
@@ -1693,7 +1689,7 @@ function syncCharacterSubCategoryInput() {
 }
 
 function syncCharacterSubCategoryFilter() {
-  const subcategories = getClothingSubcategories(state.dialogCharacterCategoryFilter);
+  const subcategories = getCharacterPresetSubcategories(state.dialogCharacterCategoryFilter);
   $("dialogCharacterSubCategoryFilterLabel").hidden = !subcategories.length;
   $("dialogCharacterSubCategoryFilter").disabled = !subcategories.length;
   $("dialogCharacterSubCategoryFilter").innerHTML = [
@@ -1705,32 +1701,116 @@ function syncCharacterSubCategoryFilter() {
 }
 
 function getCharacterPresetSubCategoryInputValue() {
-  if (!getClothingSubcategories($("characterPresetCategoryInput").value).length) return "";
-  return $("characterPresetSubCategoryInput").value || "";
+  return $("characterPresetSubCategoryInput").disabled ? "" : $("characterPresetSubCategoryInput").value || "";
 }
 
 function getFilteredDialogCharacterPresets() {
   const category = state.dialogCharacterCategoryFilter;
   let items = state.characterPresets;
   if (category) items = items.filter((item) => normalizeCharacterPresetCategory(item.category) === category);
-  if (getClothingSubcategories(category).length && state.dialogCharacterSubCategoryFilter) {
+  if (category && state.dialogCharacterSubCategoryFilter) {
     items = items.filter((item) => normalizeCharacterPresetSubCategory(item) === state.dialogCharacterSubCategoryFilter);
   }
   return items;
 }
 
 function normalizeCharacterPresetCategory(value) {
-  const category = String(value || "").trim();
-  return CHARACTER_CATEGORY_ALIASES.get(category) || category || DEFAULT_CHARACTER_PRESET_CATEGORY;
+  return normalizeCharacterPresetCategoryName(value);
 }
 
 function normalizeCharacterPresetSubCategory(item) {
-  if (!getClothingSubcategories(normalizeCharacterPresetCategory(item?.category)).length) return "";
-  return String(item?.subCategory || item?.subcategory || "").trim();
+  return String(item?.subCategory ?? item?.subcategory ?? "").trim();
 }
 
-function getClothingSubcategories(category) {
-  return CLOTHING_SUBCATEGORIES.get(normalizeCharacterPresetCategory(category)) || [];
+function getAllCharacterPresetCategories(items = state.characterPresets) {
+  const categories = state.characterPresetCategories.map((category) => ({
+    ...category,
+    subcategories: [...(category.subcategories || [])],
+  }));
+  for (const item of items || []) {
+    const categoryName = normalizeCharacterPresetCategory(item.category);
+    let category = categories.find((candidate) => candidate.name === categoryName);
+    if (!category) {
+      category = { name: categoryName, order: categories.length, builtIn: false, orphan: true, subcategories: [] };
+      categories.push(category);
+    }
+    const subCategory = normalizeCharacterPresetSubCategory(item);
+    if (subCategory && !category.subcategories.includes(subCategory)) category.subcategories.push(subCategory);
+  }
+  return categories;
+}
+
+function getCharacterPresetSubcategories(category, items = state.characterPresets) {
+  if (!category) return [];
+  return getAllCharacterPresetCategories(items)
+    .find((item) => item.name === normalizeCharacterPresetCategory(category))?.subcategories || [];
+}
+
+function uniqueNames(values) {
+  const names = [];
+  for (const value of values) {
+    const name = String(value || "").trim();
+    if (name && !names.includes(name)) names.push(name);
+  }
+  return names;
+}
+
+function openCharacterPresetCategoryManager() {
+  renderCharacterPresetCategoryManager();
+  setSummary($("categoryManagerStatus"), "Add-only category management. Existing names are not changed or deleted.", false);
+  $("characterPresetCategoryManagerDialog").showModal();
+}
+
+function renderCharacterPresetCategoryManager(preferredCategory) {
+  const categories = state.characterPresetCategories;
+  $("categoryManagerCategoryList").innerHTML = categories.map((category) => `
+    <li>
+      <strong>${escapeHtml(category.name)}</strong>
+      <span>${category.builtIn ? "Built-in" : "Custom"} | ${category.subcategories.length} subcategories</span>
+    </li>
+  `).join("");
+  const parentSelect = $("categoryManagerParentCategorySelect");
+  const selected = preferredCategory || parentSelect.value || categories[0]?.name || "";
+  parentSelect.innerHTML = categories
+    .map((category) => `<option value="${escapeHtml(category.name)}">${escapeHtml(category.name)}</option>`)
+    .join("");
+  parentSelect.value = categories.some((category) => category.name === selected) ? selected : categories[0]?.name || "";
+  renderCategoryManagerSubcategories();
+}
+
+function renderCategoryManagerSubcategories() {
+  const category = state.characterPresetCategories.find((item) => item.name === $("categoryManagerParentCategorySelect").value);
+  $("categoryManagerSubCategoryList").innerHTML = category?.subcategories.length
+    ? category.subcategories.map((name) => `<li>${escapeHtml(name)}</li>`).join("")
+    : "<li>No subcategories yet.</li>";
+}
+
+async function addManagedCharacterPresetCategory() {
+  const button = $("categoryManagerAddCategoryButton");
+  await withButton(button, "Adding", async () => {
+    const response = await postJson("/api/character-preset-categories", {
+      name: $("categoryManagerNewCategoryInput").value,
+    });
+    applyCharacterPresetCategoryResponse(response);
+    $("categoryManagerNewCategoryInput").value = "";
+    renderCharacterPresetCategoryManager(response.categories.at(-1)?.name);
+    setSummary($("categoryManagerStatus"), "Category added.", true);
+  }, (error) => setSummary($("categoryManagerStatus"), error.message, false, true));
+}
+
+async function addManagedCharacterPresetSubcategory() {
+  const button = $("categoryManagerAddSubCategoryButton");
+  await withButton(button, "Adding", async () => {
+    const parent = $("categoryManagerParentCategorySelect").value;
+    const response = await postJson("/api/character-preset-categories/subcategories", {
+      category: parent,
+      name: $("categoryManagerNewSubCategoryInput").value,
+    });
+    applyCharacterPresetCategoryResponse(response);
+    $("categoryManagerNewSubCategoryInput").value = "";
+    renderCharacterPresetCategoryManager(parent);
+    setSummary($("categoryManagerStatus"), "Subcategory added.", true);
+  }, (error) => setSummary($("categoryManagerStatus"), error.message, false, true));
 }
 
 function renderDialogCharacterPresetCards(items) {
@@ -1799,9 +1879,8 @@ function selectDialogCharacterPreset(id, { silent = false } = {}) {
   } else if (id) {
     clearCharacterThumbnailPreview({ markCleared: false });
   }
-  if (item?.category) $("characterPresetCategoryInput").value = normalizeCharacterPresetCategory(item.category);
-  syncCharacterSubCategoryInput();
-  $("characterPresetSubCategoryInput").value = normalizeCharacterPresetSubCategory(item);
+  if (item?.category) syncCharacterPresetSaveCategoryOptions(state.characterPresets, normalizeCharacterPresetCategory(item.category));
+  syncCharacterSubCategoryInput(normalizeCharacterPresetSubCategory(item));
   if (item?.name) $("characterPresetNameInput").value = item.name;
   if (!silent && id) {
     setSummary(

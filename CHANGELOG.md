@@ -1,5 +1,23 @@
 # Changelog
 
+## v2.1.0
+
+Chaessi Preset v2.1.0 adds an add-only Category Manager for organizing Character Prompt Presets without changing the existing preset schema or generation flow.
+
+### Added
+
+- User-defined top-level Character Prompt Preset categories.
+- One level of user-defined subcategories under any built-in or custom category.
+- Category settings persistence under Electron userData across app restarts and portable EXE replacement.
+- Dynamic category and subcategory options in preset saving and filtering UI.
+
+### Compatibility
+
+- Built-in categories and their existing clothing subcategories remain available.
+- Unregistered legacy category and subCategory strings are preserved and remain filterable.
+- Existing presets without a category continue to use the default category.
+- Character Prompt Preset schema, Character Slot structure, adapters, payloads, and Generate behavior are unchanged.
+
 ## v2.0.0
 
 Chaessi Preset v2.0.0 expands the local NovelAI V4.5 Full workflow to integrated Text to Image, Image to Image, and Inpaint generation while preserving existing user data compatibility.

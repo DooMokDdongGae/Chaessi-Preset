@@ -28,6 +28,7 @@ import {
 } from "./src/security/secret-store.js";
 import { createPresetStore } from "./src/services/preset-store.js";
 import { createCharacterPresetStore } from "./src/services/character-preset-store.js";
+import { createCharacterPresetCategoryStore } from "./src/services/character-preset-category-store.js";
 import { createGenerationStore } from "./src/services/generation-store.js";
 import { createSectionPresetStore } from "./src/services/section-preset-store.js";
 import {
@@ -51,7 +52,7 @@ import { parseNovelAiPngMetadata } from "./src/importers/nai-metadata.js";
 import { parseImageMetadata } from "./src/importers/image-metadata.js";
 
 const HEALTH_APP_NAME = "Chaessi Preset";
-const APP_VERSION = "2.0.0";
+const APP_VERSION = "2.1.0";
 const PORT = Number(process.env.PORT || 4174);
 const ROOT = path.dirname(fileURLToPath(import.meta.url));
 const DATA_ROOT = path.resolve(process.env.CHAESSI_USER_DATA_DIR || ROOT);
@@ -60,6 +61,7 @@ const TIMEOUT_MS = 180_000;
 const MIGRATABLE_DATA_DIRS = [
   "presets",
   "character-presets",
+  "character-preset-categories",
   "generations",
   "base-prompts",
   "undesired-prompts",
@@ -73,6 +75,7 @@ const tokenProvider = createTokenProvider({
 });
 const presetStore = createPresetStore({ rootDir: DATA_ROOT });
 const characterPresetStore = createCharacterPresetStore({ rootDir: DATA_ROOT });
+const characterPresetCategoryStore = createCharacterPresetCategoryStore({ rootDir: DATA_ROOT });
 const generationStore = createGenerationStore({ rootDir: DATA_ROOT });
 const basePromptStore = createSectionPresetStore({ rootDir: DATA_ROOT, section: "base-prompts" });
 const undesiredPromptStore = createSectionPresetStore({ rootDir: DATA_ROOT, section: "undesired-prompts" });
@@ -198,6 +201,26 @@ const server = http.createServer(async (req, res) => {
       const { preset: inputPreset, thumbnail } = await readPresetSaveRequest(req);
       const preset = await presetStore.savePreset(inputPreset, { thumbnail });
       sendJson(res, 200, { ok: true, preset });
+      return;
+    }
+
+    if (req.method === "GET" && url.pathname === "/api/character-preset-categories") {
+      sendJson(res, 200, { ok: true, ...await characterPresetCategoryStore.listCategories() });
+      return;
+    }
+
+    if (req.method === "POST" && url.pathname === "/api/character-preset-categories") {
+      const body = await readJsonBody(req);
+      sendJson(res, 201, { ok: true, ...await characterPresetCategoryStore.addCategory(body?.name) });
+      return;
+    }
+
+    if (req.method === "POST" && url.pathname === "/api/character-preset-categories/subcategories") {
+      const body = await readJsonBody(req);
+      sendJson(res, 201, {
+        ok: true,
+        ...await characterPresetCategoryStore.addSubcategory(body?.category, body?.name),
+      });
       return;
     }
 
@@ -936,6 +959,7 @@ function isPresetThumbnailPath(pathname) {
 
 function isAllowedClientSource(pathname) {
   return pathname === "/src/app.js"
+    || pathname === "/src/state/character-preset-categories.js"
     || pathname.startsWith("/src/api/")
     || pathname.startsWith("/src/ui/");
 }

@@ -28,13 +28,13 @@ The app keeps this flow stable:
 UI -> Internal Preset Schema -> Adapter -> NovelAI Payload -> NovelAI
 ```
 
-Chaessi Preset v2.0.0 expands the desktop workflow from preset management and Text to Image generation to integrated Text to Image, Image to Image, and Inpaint tools. This major version does not break the existing preset schema, Character Slot structure, saved data, or History compatibility.
+Chaessi Preset v2.1.0 keeps the integrated Text to Image, Image to Image, and Inpaint workflow and adds user-defined Character Prompt Preset categories. The existing preset schema, Character Slot structure, saved data, and History remain compatible.
 
-Chaessi Preset v2.0.0은 프리셋 관리와 Text to Image 중심이던 데스크톱 작업 흐름을 Text to Image, Image to Image, Inpaint 통합 도구로 확장합니다. 이번 major 버전에서도 기존 preset schema, Character Slot 구조, 저장 데이터 및 History 호환성은 유지됩니다.
+Chaessi Preset v2.1.0은 Text to Image, Image to Image, Inpaint 통합 흐름을 유지하면서 사용자 정의 Character Prompt Preset 카테고리를 추가합니다. 기존 preset schema, Character Slot 구조, 저장 데이터 및 History 호환성은 그대로 유지됩니다.
 
-Raw payload direct generation, reference images, vibe transfer, precise reference, scene composition, video features, and user-selectable multi-model support are intentionally not included in v2.0.0.
+Raw payload direct generation, reference images, vibe transfer, precise reference, scene composition, video features, and user-selectable multi-model support are intentionally not included in v2.1.0.
 
-Raw payload 직접 생성, reference image, vibe transfer, precise reference, scene composition, video 기능, 사용자 선택형 multi-model 지원은 v2.0.0에 의도적으로 포함하지 않았습니다.
+Raw payload 직접 생성, reference image, vibe transfer, precise reference, scene composition, video 기능, 사용자 선택형 multi-model 지원은 v2.1.0에 의도적으로 포함하지 않았습니다.
 
 ## Quick Start
 
@@ -67,7 +67,7 @@ Current release build:
 현재 릴리즈 빌드:
 
 ```text
-dist/Chaessi-Preset-v2.0.0-x64.exe
+dist/Chaessi-Preset-v2.1.0-x64.exe
 ```
 
 The EXE is portable. You can move it to another folder and run it from there. User presets, character presets, token storage, and generation history are stored separately from the EXE, so replacing the EXE does not remove saved app data.
@@ -139,6 +139,7 @@ User data includes:
 ```text
 data/presets/
 data/character-presets/
+data/character-preset-categories/categories.json
 data/base-prompts/
 data/undesired-prompts/
 data/params-presets/
@@ -160,7 +161,7 @@ Existing project-local user data is copied into userData on first Electron use w
 - Raw JSON metadata import
 - Full preset Save / Save As / Load
 - Character prompt presets with Save / Save As / Load / Delete
-- Character prompt preset categories and category filtering
+- Character prompt preset categories, one-level subcategories, and add-only Category Manager
 - Base Prompt has a Preset button and can use the existing Character Prompt Preset library
 - Character Prompt Presets can be loaded into Base Prompt or Character Slots from their own Preset buttons
 - Character preset thumbnails
@@ -177,7 +178,7 @@ Existing project-local user data is copied into userData on first Electron use w
 - Raw JSON metadata import
 - 전체 프리셋 Save / Save As / Load
 - 캐릭터 프롬프트 프리셋 Save / Save As / Load / Delete
-- 캐릭터 프롬프트 프리셋 분류와 분류 필터
+- 캐릭터 프롬프트 프리셋 분류, 1단계 하위 분류, 추가 전용 Category Manager
 - Base Prompt에 Preset 버튼이 있으며 기존 Character Prompt Preset 라이브러리를 사용할 수 있음
 - 각 영역의 Preset 버튼에서 Character Prompt Preset을 Base Prompt 또는 Character Slot에 로드 가능
 - 캐릭터 프리셋 썸네일
@@ -212,9 +213,9 @@ NovelAI's raw Inpaint PNG is used directly as the final image and History result
 
 NovelAI의 raw Inpaint PNG를 최종 이미지와 History 결과로 그대로 사용합니다. 로컬 Feather/Composite 처리는 적용하지 않습니다. Source, selection mask, 실제 전송 generation mask는 생성 시점의 별도 자산으로 보관되며 payload와 sidecar JSON에는 전체 이미지 Base64 데이터가 들어가지 않습니다.
 
-Advanced Crop -> Generate -> Composite is not included in v2.0.0.
+Advanced Crop -> Generate -> Composite is not included in v2.1.0.
 
-고급 Crop -> Generate -> Composite는 v2.0.0에 포함되지 않습니다.
+고급 Crop -> Generate -> Composite는 v2.1.0에 포함되지 않습니다.
 ## Character Prompt Preset Categories
 
 Character Prompt Presets support categories for organizing a large module-style preset library. Categories are only for organization and filtering. They are not connected to Character Slot numbers, and every Character Slot can freely load presets from every category.
@@ -247,6 +248,14 @@ Default categories:
 - 그림체
 - 품질
 - 기타
+
+Use **Manage Categories** to add a new top-level category or one level of subcategories under any built-in or custom category. New values appear immediately in the Save/Save As selectors and list filters. v2.1.0 is add-only: rename, delete, reorder, and deeper category trees are not included.
+
+**Manage Categories**에서 새 상위 카테고리를 추가하거나 built-in 및 사용자 카테고리 아래에 1단계 하위 카테고리를 추가할 수 있습니다. 새 항목은 Save/Save As 선택지와 목록 필터에 즉시 반영됩니다. v2.1.0은 추가만 지원하며 이름 변경, 삭제, 순서 변경, 더 깊은 카테고리 트리는 포함하지 않습니다.
+
+Custom category settings are stored at `data/character-preset-categories/categories.json` under Electron userData. Unregistered legacy category and subCategory strings remain visible, filterable, and unchanged when a preset is loaded or saved again.
+
+사용자 카테고리 설정은 Electron userData 아래 `data/character-preset-categories/categories.json`에 저장됩니다. 등록되지 않은 legacy category 및 subCategory 문자열도 계속 표시되고 필터링되며, 프리셋을 다시 불러오거나 저장해도 임의로 바뀌지 않습니다.
 
 Existing character prompt presets without category data are shown as `기타`.
 
@@ -318,9 +327,9 @@ Random prompt resolution occurs only at generation time. Saved presets always re
 
 랜덤 프롬프트는 Generate 시점에만 확정됩니다. 저장된 프리셋에는 확정 전의 원본 문법이 항상 그대로 유지됩니다.
 
-Chaessi Preset v2.0.0 does not include raw payload direct generation, reference images, vibe transfer, precise reference, advanced crop/composite, scene composition, video features, user-selectable multi-model support, installer, code signing, or auto-update.
+Chaessi Preset v2.1.0 does not include raw payload direct generation, reference images, vibe transfer, precise reference, advanced crop/composite, scene composition, video features, user-selectable multi-model support, installer, code signing, or auto-update.
 
-Chaessi Preset v2.0.0에는 raw payload 직접 생성, reference image, vibe transfer, precise reference, 고급 crop/composite, scene composition, video 기능, 사용자 선택형 multi-model 지원, installer, code signing, auto-update가 포함되어 있지 않습니다.
+Chaessi Preset v2.1.0에는 raw payload 직접 생성, reference image, vibe transfer, precise reference, 고급 crop/composite, scene composition, video 기능, 사용자 선택형 multi-model 지원, installer, code signing, auto-update가 포함되어 있지 않습니다.
 
 ## For Developers
 

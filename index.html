@@ -433,6 +433,7 @@
           <button type="button" id="dialogRefreshCharacterPresetButton">Refresh List</button>
           <button type="button" id="dialogApplyCharacterPresetButton">Load Preset</button>
           <button type="button" id="dialogDeleteCharacterPresetButton">Delete Selected</button>
+          <button type="button" id="manageCharacterPresetCategoriesButton">Manage Categories</button>
         </div>
         <div class="character-preset-filter-row">
           <label>Category filter
@@ -445,6 +446,42 @@
         <select id="dialogCharacterPresetList" size="8" hidden></select>
         <div class="character-preset-card-list" id="dialogCharacterPresetCards"></div>
         <div class="summary" id="characterPresetDialogStatus">No preset selected.</div>
+      </form>
+    </dialog>
+
+    <dialog class="category-manager-dialog" id="characterPresetCategoryManagerDialog">
+      <form method="dialog">
+        <header class="dialog-header">
+          <div>
+            <h2>Manage Categories</h2>
+            <p>Add categories and one level of subcategories.</p>
+          </div>
+          <button value="cancel">Close</button>
+        </header>
+        <section class="category-manager-section">
+          <h3>Categories</h3>
+          <ul class="category-manager-list" id="categoryManagerCategoryList"></ul>
+          <div class="category-manager-add-row">
+            <label>New category
+              <input id="categoryManagerNewCategoryInput" type="text" maxlength="120" autocomplete="off" />
+            </label>
+            <button type="button" id="categoryManagerAddCategoryButton">Add Category</button>
+          </div>
+        </section>
+        <section class="category-manager-section">
+          <h3>Subcategories</h3>
+          <label>Parent category
+            <select id="categoryManagerParentCategorySelect"></select>
+          </label>
+          <ul class="category-manager-list compact" id="categoryManagerSubCategoryList"></ul>
+          <div class="category-manager-add-row">
+            <label>New subcategory
+              <input id="categoryManagerNewSubCategoryInput" type="text" maxlength="120" autocomplete="off" />
+            </label>
+            <button type="button" id="categoryManagerAddSubCategoryButton">Add Subcategory</button>
+          </div>
+        </section>
+        <div class="summary" id="categoryManagerStatus">Ready.</div>
       </form>
     </dialog>
 
