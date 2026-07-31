@@ -14,7 +14,7 @@ const SUPPORTED_IMAGE_TYPES = new Set(["image/png", "image/webp", "image/jpeg"])
 const MAX_SOURCE_BYTES = 30 * 1024 * 1024;
 const MAX_SOURCE_PIXELS = 4_194_304;
 
-export function createGenerationModeController({ showToast, getLatestImagePath }) {
+export function createGenerationModeController({ showToast, getLatestImagePath, onModeChange }) {
   const state = {
     mode: MODES.TEXT_TO_IMAGE,
     source: null,
@@ -127,6 +127,7 @@ export function createGenerationModeController({ showToast, getLatestImagePath }
     }
     state.mode = mode;
     renderMode();
+    onModeChange?.(state.mode);
   }
 
   function renderMode() {

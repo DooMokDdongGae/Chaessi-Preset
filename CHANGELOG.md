@@ -1,5 +1,64 @@
 # Changelog
 
+## v2.3.0
+
+Chaessi Preset v2.3.0 adds NovelAI V4.5 Full Precise Reference conditioning without changing preset schemas or existing T2I, I2I, and Inpaint behavior when no reference is active.
+
+### Added
+
+- Precise Reference support for Text to Image, Image to Image, and Inpaint.
+- Character, Style, and Character & Style reference types with Strength and Fidelity controls.
+- Multiple ordered references with enable, disable, removal, active-count, cost, and compatibility warnings.
+- Official V4.5 local reference preprocessing to centered PNGs at 1024x1536, 1536x1024, or 1472x1472.
+- Separate History assets for the exact reference PNGs sent to NovelAI.
+
+### Security
+
+- Reference image Base64 is excluded from saved payload and sidecar JSON.
+- Stored reference metadata is limited to safe asset paths, byte lengths, SHA256 hashes, dimensions, type, Strength, and Fidelity.
+- Deleting History also deletes its reference assets.
+
+### Compatibility
+
+- Existing Text to Image, Image to Image, and Inpaint payloads remain unchanged when Precise Reference is not used.
+- Main Preset and Character Prompt Preset schemas, Character Slots, categories, Random Prompt Resolver, Token Counter, and legacy History remain unchanged.
+- Corrected stale app-version metadata so package, server health, preset metadata, and generation sidecars consistently report 2.3.0.
+
+## v2.2.1
+
+Chaessi Preset v2.2.1 corrects edit-time Random Prompt token counting without changing Generate-time resolution or NovelAI payloads.
+
+### Fixed
+
+- Random Prompt counters now display only the maximum token count among fully resolved alternatives.
+- Exact evaluation remains available for up to 256 combinations.
+- Larger sets use a tokenizer-based maximum estimate instead of unresolved syntax, delimiter tokens, or summed alternatives.
+- Warning colors and overflow status use the maximum resolved or estimated count.
+
+### Compatibility
+
+- Generate-time Random Prompt resolution, saved preset source text, preset schemas, Character Slots, categories, adapters, and NovelAI payloads are unchanged.
+
+## v2.2.0
+
+Chaessi Preset v2.2.0 adds exact local prompt token counters for NovelAI V4.5 Full without changing preset schemas or NovelAI payload mapping.
+
+### Added
+
+- Offline T5-compatible token counting for Base Prompt, Undesired Content, and Character Prompt/Undesired fields.
+- Per-field token counts with shared positive and negative context totals and the confirmed 512-token limit.
+- Exact minimum-maximum token ranges for manageable Random Prompt Resolver combinations.
+- Local tokenizer assets and Apache 2.0 third-party attribution packaged with the portable app.
+
+### Validation
+
+- Local counts match 32 of 32 synthetic vectors observed in the official NovelAI V4.5 Full UI, including whitespace, punctuation, emphasis syntax, Korean, Japanese, Unicode, and limit boundaries.
+- Generate-time validation recounts the resolved random-prompt copy and warns on overflow without changing saved preset text.
+
+### Compatibility
+
+- Preset schemas, Character Slot structure, category storage, adapters, payload mapping, T2I/I2I/Inpaint, History, and safeStorage token handling are unchanged.
+
 ## v2.1.0
 
 Chaessi Preset v2.1.0 adds an add-only Category Manager for organizing Character Prompt Presets without changing the existing preset schema or generation flow.

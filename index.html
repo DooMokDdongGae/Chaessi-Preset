@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Chaessi Preset / Payload Manager</title>
     <link rel="stylesheet" href="/styles.css" />
+    <link rel="stylesheet" href="/src/ui/precise-reference.css" />
   </head>
   <body>
     <header class="app-header">
@@ -57,8 +58,20 @@
                   <button type="button" id="basePromptPresetButton">Preset</button>
                 </div>
                 <label>Name <input id="presetName" type="text" /></label>
-                <label>Base prompt <textarea id="basePrompt"></textarea></label>
-                <label>Undesired <textarea id="undesiredPrompt"></textarea></label>
+                <label>
+                  <span class="prompt-field-heading">
+                    <span>Base prompt</span>
+                    <span class="prompt-token-counter is-loading" id="basePromptTokenCounter">Loading tokenizer...</span>
+                  </span>
+                  <textarea id="basePrompt"></textarea>
+                </label>
+                <label>
+                  <span class="prompt-field-heading">
+                    <span>Undesired</span>
+                    <span class="prompt-token-counter is-loading" id="undesiredPromptTokenCounter">Loading tokenizer...</span>
+                  </span>
+                  <textarea id="undesiredPrompt"></textarea>
+                </label>
               </section>
               <section class="tool-surface params-grid preset-params-surface">
                 <h3>Generation Settings</h3>
@@ -291,7 +304,25 @@
                   <p class="mode-help">Paint the area NovelAI should regenerate. Unpainted areas are preserved.</p>
                 </section>
               </section>
+              <section class="precise-reference-panel" aria-labelledby="preciseReferenceHeading">
+                <div class="section-row">
+                  <div>
+                    <h3 id="preciseReferenceHeading">Precise Reference</h3>
+                    <p class="mode-help">Condition this generation with character or style references.</p>
+                  </div>
+                  <button type="button" id="addPreciseReferenceButton">Add Reference</button>
+                  <input id="preciseReferenceInput" type="file" accept="image/png,image/webp,image/jpeg" multiple hidden />
+                </div>
+                <div class="precise-reference-summary">
+                  <span id="preciseReferenceCount">0 active / 0 total</span>
+                  <span id="preciseReferenceCost">No additional reference cost.</span>
+                </div>
+                <div class="summary precise-reference-warning" id="preciseReferenceWarning" hidden></div>
+                <div class="summary" id="preciseReferenceEmpty">No Precise References selected.</div>
+                <div class="precise-reference-list" id="preciseReferenceList"></div>
+              </section>
               <div class="generate-command-row">
+
                 <button id="generateButton" class="primary-generate-button">Generate One Image</button>
                 <div class="summary" id="generateStatus">Idle.</div>
               </div>

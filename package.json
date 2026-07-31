@@ -1,7 +1,7 @@
 {
   "name": "chaessi-preset",
   "productName": "Chaessi Preset",
-  "version": "2.1.0",
+  "version": "2.3.0",
   "description": "Local preset and payload manager for NovelAI V4.5 Full generation workflows.",
   "author": "Chaessi Preset",
   "license": "MIT",
@@ -31,6 +31,7 @@
       "styles.css",
       "server.mjs",
       "package.json",
+      "THIRD_PARTY_NOTICES.md",
       "electron/**/*",
       "src/**/*",
       "assets/**/*",

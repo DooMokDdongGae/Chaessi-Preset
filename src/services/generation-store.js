@@ -42,11 +42,16 @@ export function createGenerationStore({ rootDir }) {
       const generationMaskRelativePath = sourceAssets.generationMaskBytes
         ? toPosixPath(path.join(relativeFolder, `${id}.generation-mask.png`))
         : null;
+      const referenceAssets = (sourceAssets.referenceAssets || []).map((reference, index) => ({
+        ...reference,
+        storedAs: toPosixPath(path.join(relativeFolder, `${id}.reference-${String(index + 1).padStart(2, "0")}.png`)),
+      }));
       const storedPayload = redactPayloadAssets(payload, {
         sourceBytes: sourceAssets.sourceBytes,
         sourcePath: sourceRelativePath,
         maskBytes: sourceAssets.generationMaskBytes || sourceAssets.maskBytes,
         maskPath: generationMaskRelativePath || maskRelativePath,
+        referenceAssets,
       });
 
       const sidecar = buildSidecar({
@@ -81,6 +86,20 @@ export function createGenerationStore({ rootDir }) {
           source_info: modeSettings.source_info || {},
         };
       }
+      if (referenceAssets.length) {
+        sidecar.reference_assets = referenceAssets.map((reference) => ({
+          image_filename: reference.storedAs,
+          file_name: reference.file_name,
+          original_width: reference.original_width,
+          original_height: reference.original_height,
+          transmitted_width: reference.transmitted_width,
+          transmitted_height: reference.transmitted_height,
+          type: reference.type,
+          strength: reference.strength,
+          fidelity: reference.fidelity,
+          enabled: true,
+        }));
+      }
       sidecar.raw_payload = storedPayload;
 
       await writeFile(path.join(absoluteFolder, `${id}.png`), imageBytes);
@@ -88,6 +107,9 @@ export function createGenerationStore({ rootDir }) {
       if (sourceAssets.maskBytes) await writeFile(path.join(absoluteFolder, `${id}.mask.png`), sourceAssets.maskBytes);
       if (sourceAssets.generationMaskBytes) {
         await writeFile(path.join(absoluteFolder, `${id}.generation-mask.png`), sourceAssets.generationMaskBytes);
+      }
+      for (const reference of referenceAssets) {
+        await writeFile(resolveGenerationPath(rootDir, reference.storedAs), reference.bytes);
       }
       await writeJsonFile(path.join(absoluteFolder, `${id}.payload.json`), storedPayload);
       await writeJsonFile(path.join(absoluteFolder, `${id}.json`), sidecar);
@@ -148,6 +170,9 @@ export function createGenerationStore({ rootDir }) {
       }
       if (sidecar?.source_assets?.generation_mask_image_filename) {
         await removePath(resolveGenerationPath(rootDir, sidecar.source_assets.generation_mask_image_filename));
+      }
+      for (const reference of sidecar?.reference_assets || []) {
+        if (reference?.image_filename) await removePath(resolveGenerationPath(rootDir, reference.image_filename));
       }
       return {
         id: generationId,

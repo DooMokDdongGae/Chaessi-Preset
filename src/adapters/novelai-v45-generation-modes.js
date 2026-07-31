@@ -99,6 +99,12 @@ export function redactPayloadAssets(payload, assets = {}) {
   if (copy.parameters?.mask) {
     copy.parameters.mask = assetReference(assets.maskBytes, assets.maskPath);
   }
+  if (Array.isArray(copy.parameters?.director_reference_images)) {
+    copy.parameters.director_reference_images = copy.parameters.director_reference_images.map((_, index) => {
+      const reference = assets.referenceAssets?.[index] || {};
+      return assetReference(reference.bytes, reference.storedAs);
+    });
+  }
   return copy;
 }
 

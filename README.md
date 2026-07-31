@@ -28,13 +28,13 @@ The app keeps this flow stable:
 UI -> Internal Preset Schema -> Adapter -> NovelAI Payload -> NovelAI
 ```
 
-Chaessi Preset v2.1.0 keeps the integrated Text to Image, Image to Image, and Inpaint workflow and adds user-defined Character Prompt Preset categories. The existing preset schema, Character Slot structure, saved data, and History remain compatible.
+Chaessi Preset v2.3.0 adds Precise Reference conditioning to Text to Image, Image to Image, and Inpaint while keeping preset schemas, Character Slots, saved data, and existing generation modes compatible.
 
-Chaessi Preset v2.1.0은 Text to Image, Image to Image, Inpaint 통합 흐름을 유지하면서 사용자 정의 Character Prompt Preset 카테고리를 추가합니다. 기존 preset schema, Character Slot 구조, 저장 데이터 및 History 호환성은 그대로 유지됩니다.
+Chaessi Preset v2.3.0은 Text to Image, Image to Image, Inpaint에 Precise Reference conditioning을 추가하며, preset schema, Character Slot, 저장 데이터 및 기존 생성 모드의 호환성을 유지합니다.
 
-Raw payload direct generation, reference images, vibe transfer, precise reference, scene composition, video features, and user-selectable multi-model support are intentionally not included in v2.1.0.
+Raw payload direct generation, Vibe Transfer, Character Slot-specific reference binding, scene composition, video features, and user-selectable multi-model support are intentionally not included in v2.3.0.
 
-Raw payload 직접 생성, reference image, vibe transfer, precise reference, scene composition, video 기능, 사용자 선택형 multi-model 지원은 v2.1.0에 의도적으로 포함하지 않았습니다.
+Raw payload 직접 생성, Vibe Transfer, Character Slot별 reference 연결, scene composition, video 기능, 사용자 선택형 multi-model 지원은 v2.3.0에 의도적으로 포함하지 않았습니다.
 
 ## Quick Start
 
@@ -67,7 +67,7 @@ Current release build:
 현재 릴리즈 빌드:
 
 ```text
-dist/Chaessi-Preset-v2.1.0-x64.exe
+dist/Chaessi-Preset-v2.3.0-x64.exe
 ```
 
 The EXE is portable. You can move it to another folder and run it from there. User presets, character presets, token storage, and generation history are stored separately from the EXE, so replacing the EXE does not remove saved app data.
@@ -156,7 +156,7 @@ Existing project-local user data is copied into userData on first Electron use w
 - Integrated local workbench UI
 - NovelAI V4.5 Full Text to Image / Image to Image / Inpaint generation
 - Internal preset schema and NovelAI payload adapter
-- Random prompt resolver (`||a|b|c||` syntax resolved at generation time)
+- Exact local NovelAI V4.5 Full prompt token counters with shared context totals
 - Image metadata import for supported PNG/WebP NovelAI metadata
 - Raw JSON metadata import
 - Full preset Save / Save As / Load
@@ -173,7 +173,7 @@ Existing project-local user data is copied into userData on first Electron use w
 - 통합 로컬 작업대 UI
 - NovelAI V4.5 Full Text to Image / Image to Image / Inpaint 생성
 - internal preset schema와 NovelAI payload adapter
-- 랜덤 프롬프트 resolver (`||a|b|c||` 문법을 Generate 시점에 확정)
+- 공유 context 합계를 포함하는 NovelAI V4.5 Full 공식 일치 로컬 프롬프트 토큰 카운터
 - 지원되는 PNG/WebP NovelAI metadata 이미지 import
 - Raw JSON metadata import
 - 전체 프리셋 Save / Save As / Load
@@ -187,9 +187,15 @@ Existing project-local user data is copied into userData on first Electron use w
 - 데스크톱 앱용 Electron safeStorage 토큰 저장
 - 사용자 프리셋과 생성 기록을 Electron userData를 통해 앱 번들 밖에 저장
 
-Random prompt blocks are resolved at generation time before sending payload to NovelAI. Multiple random blocks within a single prompt field are supported.
+## Prompt Token Counters
 
-랜덤 프롬프트 블록은 NovelAI로 payload를 보내기 전 Generate 시점에 확정됩니다. 하나의 프롬프트 입력란에 여러 랜덤 블록을 함께 사용할 수 있습니다.
+Chaessi Preset counts NovelAI V4.5 Full prompt tokens locally and offline with a T5-compatible tokenizer validated against the official NovelAI UI. Base Prompt and enabled Character Prompts show their own token count plus the shared positive context total. Undesired Content and enabled Character Undesired fields use a separate shared negative context. The confirmed limit is 512 tokens per context; values at 80% are highlighted and values over the limit are shown in red without blocking Generate, matching the official warning behavior.
+
+Chaessi Preset은 NovelAI 공식 UI와 대조 검증한 T5 호환 tokenizer로 NovelAI V4.5 Full 프롬프트 토큰을 로컬·오프라인에서 계산합니다. Base Prompt와 활성 Character Prompt는 각 입력란의 토큰 수와 공유 positive context 합계를 함께 표시합니다. Undesired Content와 활성 Character Undesired는 별도의 shared negative context를 사용합니다. 확인된 한도는 context당 512 tokens이며, 80% 이상은 경고색, 초과는 빨간색으로 표시하되 공식 UI의 경고 동작처럼 Generate를 차단하지 않습니다.
+
+Random prompt blocks display the maximum token count among fully resolved alternatives. Up to 256 combinations are evaluated exactly; larger sets use a tokenizer-based maximum estimate without counting unresolved delimiters or summing every option. At Generate time, the existing Random Prompt Resolver creates a copy, the selected fields are counted exactly, and only the resolved copy is sent. Saved presets keep the original `||a|b|c||` syntax.
+
+랜덤 프롬프트 블록은 완전히 확정된 선택지 조합 중 최대 토큰 수 하나만 표시합니다. 256개 이하 조합은 정확히 계산하고, 이를 초과하면 미확정 구분자를 세거나 모든 선택지를 합산하지 않고 tokenizer 기반 최대 예상값을 사용합니다. Generate 시점에는 기존 Random Prompt Resolver가 복사본을 만들고 실제 선택된 입력을 정확히 다시 계산한 뒤 resolved copy만 전송합니다. 저장된 preset에는 원본 `||a|b|c||` 문법이 유지됩니다.
 
 ## Generation Modes
 
@@ -213,9 +219,31 @@ NovelAI's raw Inpaint PNG is used directly as the final image and History result
 
 NovelAI의 raw Inpaint PNG를 최종 이미지와 History 결과로 그대로 사용합니다. 로컬 Feather/Composite 처리는 적용하지 않습니다. Source, selection mask, 실제 전송 generation mask는 생성 시점의 별도 자산으로 보관되며 payload와 sidecar JSON에는 전체 이미지 Base64 데이터가 들어가지 않습니다.
 
-Advanced Crop -> Generate -> Composite is not included in v2.1.0.
+Advanced Crop -> Generate -> Composite is not included in v2.3.0.
 
-고급 Crop -> Generate -> Composite는 v2.1.0에 포함되지 않습니다.
+고급 Crop -> Generate -> Composite는 v2.3.0에 포함되지 않습니다.
+
+## Precise Reference
+
+Precise Reference is optional global generation conditioning available in Text to Image, Image to Image, and Inpaint. It is separate from Character Slots and is not stored inside preset schemas.
+
+Precise Reference는 Text to Image, Image to Image, Inpaint에서 선택적으로 사용하는 전역 generation conditioning입니다. Character Slot과 분리되어 있으며 preset schema 내부에는 저장되지 않습니다.
+
+Each reference can be enabled or disabled and configured as **Character**, **Style**, or **Character & Style**. **Strength** controls how strongly the reference influences the result, while **Fidelity** controls how closely its details are followed. The slider range is 0 to 1 in 0.05 steps; the numeric input also supports finite values outside that range, including negative values, as in the official NovelAI UI.
+
+각 reference는 활성화하거나 비활성화할 수 있으며 **Character**, **Style**, **Character & Style** 중 하나로 설정합니다. **Strength**는 결과에 미치는 영향의 크기를, **Fidelity**는 세부 특징을 얼마나 충실히 따를지를 조절합니다. 슬라이더 범위는 0부터 1까지 0.05 간격이며, 숫자 입력란에서는 공식 NovelAI UI와 같이 음수를 포함한 범위 밖의 유한 값도 사용할 수 있습니다.
+
+Multiple Character references are blended together; they are not assigned to separate Character Slots. Precise Reference adds 5 Image Anlas per active reference for each generated image. Inpaint may need lower Style or Character & Style Strength/Fidelity values to avoid overpowering the surrounding image.
+
+여러 Character reference는 서로 섞여 적용되며 각 Character Slot에 따로 배정되지 않습니다. Precise Reference는 생성 이미지 한 장마다 활성 reference 하나당 Image Anlas 5가 추가됩니다. Inpaint에서는 주변 이미지보다 reference 영향이 과해지지 않도록 Style 또는 Character & Style의 Strength/Fidelity를 낮춰야 할 수 있습니다.
+
+Reference images are prepared locally as centered PNGs using the official V4.5 reference sizes. Only the prepared bytes are sent for generation. History stores those transmitted PNGs as separate assets, while payload and sidecar JSON keep only safe paths, byte lengths, hashes, and settings instead of image Base64.
+
+Reference 이미지는 공식 V4.5 reference 크기에 맞춘 중앙 정렬 PNG로 로컬에서 준비되며, 준비된 bytes만 생성 요청에 사용됩니다. History에는 실제 전송 PNG를 별도 asset으로 저장하고, payload와 sidecar JSON에는 이미지 Base64 대신 안전한 경로, byte length, hash, 설정값만 기록합니다.
+
+Vibe Transfer, reference preset libraries, and Character Slot-specific reference binding are not included in v2.3.0.
+
+Vibe Transfer, reference preset library, Character Slot별 reference 연결은 v2.3.0에 포함되지 않습니다.
 ## Character Prompt Preset Categories
 
 Character Prompt Presets support categories for organizing a large module-style preset library. Categories are only for organization and filtering. They are not connected to Character Slot numbers, and every Character Slot can freely load presets from every category.
@@ -323,13 +351,9 @@ This is safer than plaintext `.env` storage for normal desktop use, but it is no
 
 ## Limitations
 
-Random prompt resolution occurs only at generation time. Saved presets always retain original unresolved syntax.
+Chaessi Preset v2.3.0 does not include raw payload direct generation, Vibe Transfer, Character Slot-specific reference binding, reference preset libraries, advanced crop/composite, scene composition, video features, user-selectable multi-model support, installer, code signing, or auto-update.
 
-랜덤 프롬프트는 Generate 시점에만 확정됩니다. 저장된 프리셋에는 확정 전의 원본 문법이 항상 그대로 유지됩니다.
-
-Chaessi Preset v2.1.0 does not include raw payload direct generation, reference images, vibe transfer, precise reference, advanced crop/composite, scene composition, video features, user-selectable multi-model support, installer, code signing, or auto-update.
-
-Chaessi Preset v2.1.0에는 raw payload 직접 생성, reference image, vibe transfer, precise reference, 고급 crop/composite, scene composition, video 기능, 사용자 선택형 multi-model 지원, installer, code signing, auto-update가 포함되어 있지 않습니다.
+Chaessi Preset v2.3.0에는 raw payload 직접 생성, Vibe Transfer, Character Slot별 reference 연결, reference preset library, 고급 crop/composite, scene composition, video 기능, 사용자 선택형 multi-model 지원, installer, code signing, auto-update가 포함되어 있지 않습니다.
 
 ## For Developers
 
@@ -401,6 +425,6 @@ Packaged output excludes:
 
 ## License
 
-MIT License. See `LICENSE`.
+MIT License. See `LICENSE`. The packaged T5 tokenizer vocabulary is derived from Google T5 under Apache License 2.0; see `THIRD_PARTY_NOTICES.md`.
 
-MIT License를 사용합니다. `LICENSE`를 확인하세요.
+MIT License를 사용합니다. `LICENSE`를 확인하세요. 패키지에 포함된 T5 tokenizer vocabulary는 Apache License 2.0의 Google T5에서 파생되었으며 `THIRD_PARTY_NOTICES.md`를 확인할 수 있습니다.

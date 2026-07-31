@@ -1,5 +1,13 @@
 import { deleteJson, getJson, postForm, postImage, postJson } from "./api/client.js";
 import { createGenerationModeController } from "./ui/generation-mode-controller.js";
+import { createPreciseReferenceController } from "./ui/precise-reference-controller.js";
+import { loadNovelAiT5Tokenizer } from "./ui/novelai-t5-tokenizer.js";
+import {
+  analyzePresetPromptTokens,
+  formatPromptTokenCounter,
+  getPromptTokenCounterState,
+} from "./ui/prompt-token-counter.js";
+import { resolvePresetRandomPrompts } from "./services/prompt-random-resolver.js";
 import {
   DEFAULT_CHARACTER_PRESET_CATEGORY,
   cloneBuiltInCharacterPresetCategories,
@@ -9,6 +17,10 @@ import {
 const $ = (id) => document.getElementById(id);
 let rawJsonImportTimer = null;
 let generationModeController = null;
+let preciseReferenceController = null;
+let promptTokenizer = null;
+let promptTokenCounterTimer = null;
+let promptTokenizerError = null;
 const state = {
   currentPreset: null,
   importResult: null,
@@ -77,8 +89,14 @@ async function init() {
     getLatestImagePath: () => state.lastGenerationResponse?.generation?.image_path
       ? toBrowserPath(state.lastGenerationResponse.generation.image_path)
       : "",
+    onModeChange: () => preciseReferenceController?.refreshWarnings(),
   });
   generationModeController.bind();
+  preciseReferenceController = createPreciseReferenceController({
+    showToast,
+    getMode: () => generationModeController.getMode(),
+  });
+  preciseReferenceController.bind();
   bindActions();
   bindDropAndPaste();
   await refreshHealth();
@@ -87,6 +105,7 @@ async function init() {
   const defaultResponse = await getJson("/api/preset/default");
   state.currentPreset = defaultResponse.preset;
   renderPresetForm();
+  void initializePromptTokenCounters();
   updateCurrentSummary();
 }
 
@@ -196,6 +215,7 @@ function bindActions() {
       try {
         syncPresetFromForm();
         updateCurrentSummary();
+        schedulePromptTokenCounterUpdate();
       } catch {
         // JSON edits are validated when saving or generating.
       }
@@ -208,6 +228,7 @@ function bindActions() {
       syncCharacterUiStateLength(state.currentPreset.prompt_parts.characters);
       renderCharacterCards(state.currentPreset.prompt_parts.characters);
       updateCurrentSummary();
+      schedulePromptTokenCounterUpdate();
     } catch (error) {
       showToast(error.message, true);
     }
@@ -372,6 +393,7 @@ function pushPlainText(target) {
   if (target === "undesired") fields.undesiredPrompt.value = text;
   syncPresetFromForm();
   updateCurrentSummary();
+  schedulePromptTokenCounterUpdate();
   showToast(target === "base" ? "Text applied to base prompt." : "Text applied to undesired prompt.");
 }
 
@@ -900,14 +922,114 @@ async function deleteCharacterPreset({ dialog = false } = {}) {
   showToast("Character preset deleted.");
 }
 
+async function initializePromptTokenCounters() {
+  setAllPromptTokenCounters("Loading tokenizer...", "is-loading");
+  try {
+    promptTokenizer = await loadNovelAiT5Tokenizer();
+    promptTokenizerError = null;
+    schedulePromptTokenCounterUpdate(0);
+  } catch (error) {
+    promptTokenizer = null;
+    promptTokenizerError = error.message;
+    setAllPromptTokenCounters("Token count unavailable", "is-unavailable");
+  }
+}
+
+function schedulePromptTokenCounterUpdate(delay = 80) {
+  clearTimeout(promptTokenCounterTimer);
+  promptTokenCounterTimer = setTimeout(renderPromptTokenCounters, delay);
+}
+
+function renderPromptTokenCounters() {
+  if (!promptTokenizer || !state.currentPreset) {
+    setAllPromptTokenCounters(
+      promptTokenizerError ? "Token count unavailable" : "Loading tokenizer...",
+      promptTokenizerError ? "is-unavailable" : "is-loading",
+    );
+    return;
+  }
+
+  try {
+    const analysis = analyzePresetPromptTokens(state.currentPreset, promptTokenizer);
+    setPromptTokenCounter($("basePromptTokenCounter"), analysis.basePrompt, analysis.limit,
+      "Includes enabled Quality Tags and all enabled Character Prompts in the shared context.");
+    setPromptTokenCounter($("undesiredPromptTokenCounter"), analysis.baseUndesired, analysis.limit,
+      "Includes the selected UC preset and all enabled Character Undesired fields in the shared context.");
+
+    document.querySelectorAll('#characterCards [data-character-scope="preset"]').forEach((card) => {
+      const index = Number(card.dataset.characterIndex);
+      const character = state.currentPreset.prompt_parts?.characters?.[index];
+      const counter = card.querySelector("[data-character-token-counter]");
+      if (!counter) return;
+      if (character?.enabled === false) {
+        setPromptTokenCounterMessage(counter, "Disabled | excluded from context", "is-unavailable");
+        return;
+      }
+      const entry = analysis.characters.find((item) => item.id === character?.id);
+      const activeRange = getCharacterActiveTab(index) === "undesired"
+        ? entry?.undesired
+        : entry?.prompt;
+      setPromptTokenCounter(counter, activeRange, analysis.limit,
+        "This field count is shown with the shared Base and enabled Character context total.");
+    });
+  } catch (error) {
+    promptTokenizerError = error.message;
+    setAllPromptTokenCounters("Token count unavailable", "is-unavailable");
+  }
+}
+
+function setPromptTokenCounter(element, range, limit, title) {
+  if (!element || !range) {
+    setPromptTokenCounterMessage(element, "Token count unavailable", "is-unavailable");
+    return;
+  }
+  const stateName = getPromptTokenCounterState(range, limit);
+  setPromptTokenCounterMessage(element, formatPromptTokenCounter(range, limit), `is-${stateName}`);
+  const estimated = range.estimated || range.context?.estimated;
+  element.title = estimated ? `${title} Maximum estimated token count.` : title;
+}
+
+function setAllPromptTokenCounters(message, className) {
+  const counters = [
+    $("basePromptTokenCounter"),
+    $("undesiredPromptTokenCounter"),
+    ...document.querySelectorAll("[data-character-token-counter]"),
+  ];
+  counters.forEach((counter) => setPromptTokenCounterMessage(counter, message, className));
+}
+
+function setPromptTokenCounterMessage(element, message, className) {
+  if (!element) return;
+  element.textContent = message;
+  element.classList.remove("is-loading", "is-unavailable", "is-normal", "is-near", "is-over");
+  element.classList.add(className);
+  element.removeAttribute("title");
+}
+
+function reportResolvedPromptLimits(preset) {
+  if (!promptTokenizer) return;
+  const analysis = analyzePresetPromptTokens(preset, promptTokenizer);
+  const exceeded = [];
+  if (analysis.positiveContext.max > analysis.limit) exceeded.push("Prompt");
+  if (analysis.negativeContext.max > analysis.limit) exceeded.push("Undesired Content");
+  if (exceeded.length) {
+    showToast(`${exceeded.join(" and ")} exceed the 512-token context. NovelAI will truncate the excess.`, true);
+  }
+}
+
 async function generateImage() {
   return withButton($("generateButton"), "Generating", async () => {
     syncPresetFromForm();
     setSummary($("generateStatus"), "Generating one image...", false);
     const modeRequest = generationModeController.getGenerateRequest();
-    const requestBody = modeRequest.mode === "text-to-image"
-      ? { preset: state.currentPreset }
-      : { preset: state.currentPreset, ...modeRequest };
+    const resolvedPreset = resolvePresetRandomPrompts(state.currentPreset);
+    reportResolvedPromptLimits(resolvedPreset);
+    const preciseReferences = preciseReferenceController.getGenerateRequest();
+    const requestBody = {
+      preset: resolvedPreset,
+      ...(modeRequest.mode === "text-to-image" ? {} : modeRequest),
+      ...(preciseReferences.length ? { precise_references: preciseReferences } : {}),
+    };
     const response = await postJson("/api/novelai/generate", requestBody);
     setSummary($("generateStatus"), "Generation saved.", true);
     $("generationSummary").innerHTML = renderGenerationSummary(response);
@@ -1160,6 +1282,7 @@ function renderPresetForm() {
   fields.smDyn.checked = Boolean(params.sm_dyn);
   fields.dynamicThresholding.checked = Boolean(params.dynamic_thresholding);
   renderCharacterCards(preset.prompt_parts?.characters || []);
+  schedulePromptTokenCounterUpdate();
   updateCurrentSummary();
 }
 
@@ -1237,6 +1360,7 @@ function renderCharacterCard(character, index, scope) {
       </div>
       <textarea class="character-pane ${activeTab === "prompt" ? "is-active" : ""}" data-character-field="prompt" spellcheck="false">${escapeHtml(character.prompt || "")}</textarea>
       <textarea class="character-pane ${activeTab === "undesired" ? "is-active" : ""}" data-character-field="undesired" spellcheck="false">${escapeHtml(character.undesired || "")}</textarea>
+      <div class="prompt-token-counter character-token-counter is-loading" data-character-token-counter>Loading tokenizer...</div>
       <details class="character-position">
         <summary>Position</summary>
         <div class="center-grid">
@@ -1267,6 +1391,7 @@ function bindCharacterCardActions() {
       fields.charactersJson.value = safeJson(getCharactersFromCards());
       syncPresetFromForm();
       updateCurrentSummary();
+      schedulePromptTokenCounterUpdate();
     });
   });
   document.querySelectorAll("#characterCards [data-character-tab]").forEach((button) => {

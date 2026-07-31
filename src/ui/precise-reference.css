@@ -1,0 +1,115 @@
+.precise-reference-panel {
+  display: grid;
+  gap: 10px;
+  margin: 14px 0;
+  padding: 12px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: #0b0f16;
+}
+
+.precise-reference-panel h3,
+.precise-reference-panel p {
+  margin: 0;
+}
+
+.precise-reference-summary {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.precise-reference-list {
+  display: grid;
+  gap: 8px;
+}
+
+.precise-reference-card {
+  display: grid;
+  grid-template-columns: 86px minmax(0, 1fr);
+  gap: 10px;
+  align-items: start;
+  padding: 10px;
+  border: 1px solid rgba(103, 232, 249, 0.22);
+  border-radius: var(--radius);
+  background: var(--surface);
+}
+
+.precise-reference-card > img {
+  width: 86px;
+  height: 112px;
+  object-fit: contain;
+  border: 1px solid var(--line);
+  border-radius: 4px;
+  background: #000;
+}
+
+.precise-reference-fields {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 8px;
+  min-width: 0;
+}
+
+.precise-reference-fields .section-row,
+.precise-reference-fields > small {
+  grid-column: 1 / -1;
+}
+
+.precise-reference-fields strong,
+.precise-reference-fields small {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.precise-reference-fields small {
+  color: var(--muted);
+}
+
+.precise-reference-number {
+  display: grid;
+  grid-template-columns: 1fr 72px;
+  gap: 6px;
+  align-items: center;
+}
+
+.precise-reference-number > span {
+  grid-column: 1 / -1;
+}
+
+.precise-reference-number input[type="range"] {
+  grid-column: 1;
+  min-width: 0;
+}
+
+.precise-reference-number input[type="number"] {
+  grid-column: 2;
+  min-width: 0;
+}
+
+.compact-reference-remove {
+  grid-column: 2;
+  justify-self: start;
+}
+
+.precise-reference-warning {
+  border-color: rgba(251, 191, 36, 0.5);
+  color: #fbbf24;
+}
+
+@media (max-width: 760px) {
+  .precise-reference-card {
+    grid-template-columns: 72px minmax(0, 1fr);
+  }
+
+  .compact-reference-remove {
+    grid-column: 1 / -1;
+  }
+
+  .precise-reference-fields {
+    grid-template-columns: 1fr;
+  }
+}

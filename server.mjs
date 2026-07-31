@@ -18,6 +18,12 @@ import {
   validateModeGeneratePayload,
 } from "./src/adapters/novelai-v45-generation-modes.js";
 import {
+  applyPreciseReferences,
+  normalizePreciseReferences,
+  validatePreciseReferencePayload,
+} from "./src/adapters/novelai-v45-precise-reference.js";
+
+import {
   APP_NAME,
   NOVELAI_GENERATE_ENDPOINT,
 } from "./src/state/defaults.js";
@@ -52,11 +58,11 @@ import { parseNovelAiPngMetadata } from "./src/importers/nai-metadata.js";
 import { parseImageMetadata } from "./src/importers/image-metadata.js";
 
 const HEALTH_APP_NAME = "Chaessi Preset";
-const APP_VERSION = "2.1.0";
+const APP_VERSION = "2.3.0";
 const PORT = Number(process.env.PORT || 4174);
 const ROOT = path.dirname(fileURLToPath(import.meta.url));
 const DATA_ROOT = path.resolve(process.env.CHAESSI_USER_DATA_DIR || ROOT);
-const REQUEST_LIMIT_BYTES = 64 * 1024 * 1024;
+const REQUEST_LIMIT_BYTES = 160 * 1024 * 1024;
 const TIMEOUT_MS = 180_000;
 const MIGRATABLE_DATA_DIRS = [
   "presets",
@@ -461,7 +467,7 @@ async function handleGenerate(body) {
     ? { mode }
     : { ...(body?.mode_state || {}), mode };
   const resolvedPreset = resolvePresetRandomPrompts(preset);
-  const payload = buildModeGeneratePayload(resolvedPreset, modeState);
+  let payload = buildModeGeneratePayload(resolvedPreset, modeState);
   const payloadSafety = mode === GENERATION_MODES.TEXT_TO_IMAGE
     ? validatePayloadSafety(payload)
     : validateModeGeneratePayload(payload, modeState);
@@ -472,6 +478,7 @@ async function handleGenerate(body) {
   let source = null;
   let mask = null;
   let generationMask = null;
+  let referenceAssets = [];
   const generationPadding = mode === GENERATION_MODES.INPAINT
     ? normalizeInpaintGenerationPadding(modeState.generation_padding ?? 16)
     : undefined;
@@ -489,6 +496,19 @@ async function handleGenerate(body) {
     assertMatchingDimensions(source, mask, payload.parameters.width, payload.parameters.height);
   }
 
+  const preparedReferences = preparePreciseReferences(body?.precise_references);
+  referenceAssets = preparedReferences.map((reference) => ({
+    bytes: reference.image_bytes,
+    ...reference.source_info,
+    type: reference.type,
+    strength: reference.strength,
+    fidelity: reference.fidelity,
+  }));
+  payload = applyPreciseReferences(payload, preparedReferences.map(({ image_bytes, ...reference }) => reference));
+  const preciseReferenceValidation = validatePreciseReferencePayload(payload, preparedReferences);
+  if (!preciseReferenceValidation.ok) {
+    throw httpError(400, "invalid_precise_reference_payload", "Precise Reference validation failed.", preciseReferenceValidation.errors.join("; "));
+  }
   const token = tokenProvider.getToken("novelai");
   const naiResponse = await postNovelAiPayload({ token, payload });
   if (naiResponse.status !== 200) {
@@ -523,6 +543,7 @@ async function handleGenerate(body) {
       sourceBytes: source?.bytes,
       maskBytes: mask?.bytes,
       generationMaskBytes: generationMask,
+      referenceAssets,
     },
     responseInfo: {
       created_at: createdAt.toISOString(),
@@ -557,10 +578,36 @@ async function handleGenerate(body) {
       noise,
       add_original_image: mode === GENERATION_MODES.INPAINT ? payload.parameters.add_original_image : undefined,
       generation_padding: generationPadding,
+      precise_reference_count: referenceAssets.length,
     },
   };
 }
 
+function preparePreciseReferences(value) {
+  const references = normalizePreciseReferences(value || []).filter((reference) => reference.enabled);
+  let totalBytes = 0;
+  return references.map((reference, index) => {
+    const image = decodeBase64Png(reference.image_base64, `Precise Reference ${index + 1}`);
+    const sizeKey = `${image.width}x${image.height}`;
+    if (!new Set(["1024x1536", "1536x1024", "1472x1472"]).has(sizeKey)) {
+      throw httpError(400, "invalid_precise_reference_size", `Precise Reference ${index + 1} must use an official V4.5 reference size.`);
+    }
+    totalBytes += image.bytes.length;
+    if (totalBytes > 96 * 1024 * 1024) {
+      throw httpError(413, "precise_reference_too_large", "Precise Reference images are too large in total.");
+    }
+    return {
+      ...reference,
+      image_bytes: image.bytes,
+      source_info: {
+        ...reference.source_info,
+        file_name: path.basename(reference.source_info.file_name || "reference-image"),
+        transmitted_width: image.width,
+        transmitted_height: image.height,
+      },
+    };
+  });
+}
 function sanitizeSourceInfo(value, source) {
   const fileName = path.basename(String(value?.file_name || "source-image")).replace(/[\u0000-\u001f]/g, "").slice(0, 180);
   return {
@@ -959,6 +1006,7 @@ function isPresetThumbnailPath(pathname) {
 
 function isAllowedClientSource(pathname) {
   return pathname === "/src/app.js"
+    || pathname === "/src/services/prompt-random-resolver.js"
     || pathname === "/src/state/character-preset-categories.js"
     || pathname.startsWith("/src/api/")
     || pathname.startsWith("/src/ui/");
