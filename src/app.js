@@ -1,6 +1,11 @@
 import { deleteJson, getJson, postForm, postImage, postJson } from "./api/client.js";
 import { createGenerationModeController } from "./ui/generation-mode-controller.js";
 import { createPreciseReferenceController } from "./ui/precise-reference-controller.js";
+import { createImageIntakeController } from "./ui/image-intake-controller.js";
+import {
+  getImageFilesFromTransfer,
+  hasFileTransfer,
+} from "./ui/image-intake.js";
 import { loadNovelAiT5Tokenizer } from "./ui/novelai-t5-tokenizer.js";
 import {
   analyzePresetPromptTokens,
@@ -18,6 +23,7 @@ const $ = (id) => document.getElementById(id);
 let rawJsonImportTimer = null;
 let generationModeController = null;
 let preciseReferenceController = null;
+let imageIntakeController = null;
 let promptTokenizer = null;
 let promptTokenCounterTimer = null;
 let promptTokenizerError = null;
@@ -97,8 +103,17 @@ async function init() {
     getMode: () => generationModeController.getMode(),
   });
   preciseReferenceController.bind();
+  imageIntakeController = createImageIntakeController({
+    showToast,
+    inspectMetadata: async (file) => (await postImage("/api/import/image", file)).import_result,
+    routeToSource: (item, mode) => generationModeController.loadSourceItem(item, mode),
+    routeToReferences: (items) => preciseReferenceController.addIntakeItems(items),
+    applyMetadata: applyIntakeMetadata,
+    getReferenceCapacity: () => preciseReferenceController.getCapacity(),
+  });
+  imageIntakeController.bind();
   bindActions();
-  bindDropAndPaste();
+  bindImageIntake();
   await refreshHealth();
   await refreshTokenStatus();
   await loadCharacterPresetCategories();
@@ -110,6 +125,7 @@ async function init() {
 }
 
 function bindActions() {
+  $("openImageIntakeButton").addEventListener("click", chooseImageForImport);
   $("importImageButton").addEventListener("click", chooseImageForImport);
   $("imageInput").addEventListener("change", importImage);
   $("importRawButton").addEventListener("click", importRawJson);
@@ -235,40 +251,64 @@ function bindActions() {
   });
 }
 
-function bindDropAndPaste() {
+function bindImageIntake() {
   const dropZone = $("dropZone");
-  dropZone.addEventListener("click", () => $("imageInput").click());
+  const dragOverlay = $("imageDragOverlay");
+  let dragDepth = 0;
+
+  dropZone.addEventListener("click", chooseImageForImport);
   ["dragenter", "dragover"].forEach((eventName) => {
     dropZone.addEventListener(eventName, (event) => {
+      if (!hasFileTransfer(event.dataTransfer)) return;
       event.preventDefault();
+      event.stopPropagation();
       dropZone.classList.add("is-over");
     });
   });
   ["dragleave", "drop"].forEach((eventName) => {
     dropZone.addEventListener(eventName, (event) => {
+      if (!hasFileTransfer(event.dataTransfer)) return;
       event.preventDefault();
+      event.stopPropagation();
       dropZone.classList.remove("is-over");
     });
   });
   dropZone.addEventListener("drop", async (event) => {
-    const file = [...(event.dataTransfer?.files || [])].find((item) => item.type.startsWith("image/"));
-    if (file) await importImageFile(file, `dropped:${file.name || "image"}`);
+    event.stopImmediatePropagation();
+    await imageIntakeController.openFiles(getImageFilesFromTransfer(event.dataTransfer), "drag-and-drop");
   });
 
   document.addEventListener("paste", async (event) => {
-    const file = [...(event.clipboardData?.files || [])].find((item) => item.type.startsWith("image/"));
-    if (file) {
-      await importImageFile(file, "clipboard image");
-      return;
-    }
-    const text = event.clipboardData?.getData("text/plain")?.trim();
-    if (text && document.activeElement === document.body) {
-      $("plainTextInput").value = text;
-      showToast("Text pasted into import text area.");
-    }
+    const files = getImageFilesFromTransfer(event.clipboardData).filter((file) => file.type.startsWith("image/"));
+    if (!files.length) return;
+    event.preventDefault();
+    event.stopImmediatePropagation();
+    await imageIntakeController.openFiles(files, "clipboard");
+  });
+
+  document.addEventListener("dragenter", (event) => {
+    if (!hasFileTransfer(event.dataTransfer)) return;
+    event.preventDefault();
+    dragDepth += 1;
+    dragOverlay.hidden = false;
+  });
+  document.addEventListener("dragover", (event) => {
+    if (!hasFileTransfer(event.dataTransfer)) return;
+    event.preventDefault();
+  });
+  document.addEventListener("dragleave", (event) => {
+    if (!hasFileTransfer(event.dataTransfer)) return;
+    dragDepth = Math.max(0, dragDepth - 1);
+    if (!dragDepth) dragOverlay.hidden = true;
+  });
+  document.addEventListener("drop", async (event) => {
+    if (!hasFileTransfer(event.dataTransfer)) return;
+    event.preventDefault();
+    dragDepth = 0;
+    dragOverlay.hidden = true;
+    await imageIntakeController.openFiles(getImageFilesFromTransfer(event.dataTransfer), "drag-and-drop");
   });
 }
-
 async function refreshHealth() {
   const health = await getJson("/api/health");
   $("healthStatus").textContent = `v${health.version || "0.0.0"}`;
@@ -313,27 +353,14 @@ function formatTokenStatus(token) {
 
 async function importImage() {
   const input = $("imageInput");
-  const file = input.files?.[0];
-  if (!file) return showToast("Choose an image first.", true);
-  await importImageFile(file, file.name || "file picker image");
+  const files = [...(input.files || [])];
   input.value = "";
+  if (!files.length) return showToast("Choose at least one image.", true);
+  await imageIntakeController.openFiles(files, "file-picker");
 }
 
 function chooseImageForImport() {
-  const input = $("imageInput");
-  if (input.files?.[0]) return importImage();
-  input.click();
-}
-
-async function importImageFile(file, sourceLabel) {
-  return withButton($("importImageButton"), "Importing", async () => {
-    const response = await postImage("/api/import/image", file);
-    state.importResult = response.import_result;
-    state.lastImportedSource = sourceLabel;
-    setImageImportPreview(file, sourceLabel);
-    renderImportResult();
-    await applyImportedResultAutomatically("Image metadata imported and applied.");
-  });
+  $("imageInput").click();
 }
 
 function setImageImportPreview(file, sourceLabel) {
@@ -343,9 +370,26 @@ function setImageImportPreview(file, sourceLabel) {
   preview.src = state.imageImportPreviewUrl;
   preview.hidden = false;
   $("imageImportTitle").textContent = sourceLabel || file.name || "Imported image";
-  $("imageImportHint").textContent = "Metadata imported. Drop, paste, or choose another image to replace it.";
+  $("imageImportHint").textContent = "Metadata imported explicitly. Open another image to replace it.";
 }
 
+async function applyIntakeMetadata(item, options) {
+  state.importResult = item.metadata;
+  state.lastImportedSource = item.fileName || item.source;
+  setImageImportPreview(item.file, item.fileName);
+  renderImportResult();
+  syncPresetFromForm();
+  const response = await postJson("/api/import/apply", {
+    current_preset: state.currentPreset,
+    import_result: item.metadata,
+    options,
+  });
+  state.currentPreset = response.preset;
+  renderPresetForm();
+  updateCurrentSummary();
+  renderImportResult();
+  showToast("Selected NovelAI metadata imported.");
+}
 async function importRawJson() {
   const text = $("rawJsonInput").value.trim();
   if (!text) return showToast("Paste raw JSON first.", true);

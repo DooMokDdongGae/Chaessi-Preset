@@ -3,6 +3,12 @@ import {
   interpolateStrokePoints,
   maskAlphaToRgbPixels,
 } from "./inpaint-mask-utils.js";
+import {
+  getImageFilesFromTransfer,
+  hasFileTransfer,
+  inspectImageFile,
+  releaseImageIntakeItems,
+} from "./image-intake.js";
 
 const MODES = Object.freeze({
   TEXT_TO_IMAGE: "text-to-image",
@@ -10,8 +16,6 @@ const MODES = Object.freeze({
   INPAINT: "inpaint",
 });
 
-const SUPPORTED_IMAGE_TYPES = new Set(["image/png", "image/webp", "image/jpeg"]);
-const MAX_SOURCE_BYTES = 30 * 1024 * 1024;
 const MAX_SOURCE_PIXELS = 4_194_304;
 
 export function createGenerationModeController({ showToast, getLatestImagePath, onModeChange }) {
@@ -70,30 +74,32 @@ export function createGenerationModeController({ showToast, getLatestImagePath, 
       await loadSourceFromUrl(imagePath, "latest-generation.png");
     });
     elements.sourceInput.addEventListener("change", async () => {
-      const file = elements.sourceInput.files?.[0];
-      if (file) await loadSourceFile(file);
+      const files = [...(elements.sourceInput.files || [])];
+      if (files.length === 1) await loadSourceFile(files[0]);
+      else if (files.length > 1) showToast("Choose one source image for Image to Image or Inpaint.", true);
       elements.sourceInput.value = "";
     });
 
     ["dragenter", "dragover"].forEach((name) => elements.sourceDropZone.addEventListener(name, (event) => {
+      if (!hasFileTransfer(event.dataTransfer)) return;
       event.preventDefault();
+      event.stopPropagation();
       elements.sourceDropZone.classList.add("is-over");
     }));
     ["dragleave", "drop"].forEach((name) => elements.sourceDropZone.addEventListener(name, (event) => {
+      if (!hasFileTransfer(event.dataTransfer)) return;
       event.preventDefault();
+      event.stopPropagation();
       elements.sourceDropZone.classList.remove("is-over");
     }));
     elements.sourceDropZone.addEventListener("drop", async (event) => {
-      const file = [...(event.dataTransfer?.files || [])].find((item) => item.type.startsWith("image/"));
-      if (file) await loadSourceFile(file);
-    });
-    document.addEventListener("paste", async (event) => {
-      if (state.mode === MODES.TEXT_TO_IMAGE) return;
-      const file = [...(event.clipboardData?.files || [])].find((item) => item.type.startsWith("image/"));
-      if (!file) return;
-      event.preventDefault();
       event.stopImmediatePropagation();
-      await loadSourceFile(file, "clipboard-image.png");
+      const files = getImageFilesFromTransfer(event.dataTransfer);
+      if (files.length !== 1) {
+        if (files.length > 1) showToast("Drop one source image here. Use Open Image for multiple references.", true);
+        return;
+      }
+      await loadSourceFile(files[0]);
     });
 
     elements.strength.addEventListener("input", updateStrength);
@@ -152,15 +158,23 @@ export function createGenerationModeController({ showToast, getLatestImagePath, 
   }
 
   async function loadSourceFile(file, fallbackName = "") {
+    let item = null;
     try {
-      if (!SUPPORTED_IMAGE_TYPES.has(file.type)) throw new Error("Source image must be PNG, WebP, or JPEG.");
-      if (file.size > MAX_SOURCE_BYTES) throw new Error("Source image is too large. Use an image smaller than 30 MB.");
-      const bitmap = await createImageBitmap(file);
-      if (!bitmap.width || !bitmap.height) throw new Error("Source image dimensions could not be read.");
-      if (bitmap.width * bitmap.height > MAX_SOURCE_PIXELS) {
-        bitmap.close();
-        throw new Error("Source image is too large. Use an image with 4,194,304 pixels or fewer.");
-      }
+      item = await inspectImageFile(file, { createPreview: false });
+      await loadSourceItem(item, null, fallbackName);
+    } catch (error) {
+      showToast(error.message, true);
+    } finally {
+      releaseImageIntakeItems(item ? [item] : []);
+    }
+  }
+
+  async function loadSourceItem(item, mode = null, fallbackName = "") {
+    if (item.width * item.height > MAX_SOURCE_PIXELS) {
+      throw new Error("Source image is too large. Use an image with 4,194,304 pixels or fewer.");
+    }
+    const bitmap = await createImageBitmap(item.file);
+    try {
       const canvas = elements.sourceCanvas;
       canvas.width = bitmap.width;
       canvas.height = bitmap.height;
@@ -168,29 +182,27 @@ export function createGenerationModeController({ showToast, getLatestImagePath, 
       context.fillStyle = "#000";
       context.fillRect(0, 0, canvas.width, canvas.height);
       context.drawImage(bitmap, 0, 0);
-      bitmap.close();
       state.source = {
-        fileName: file.name || fallbackName || "source-image",
+        fileName: item.fileName || fallbackName || "source-image",
         originalWidth: canvas.width,
         originalHeight: canvas.height,
       };
       resetMaskCanvas(canvas.width, canvas.height);
       elements.emptyState.hidden = true;
-      elements.sourceInfo.textContent = `${state.source.fileName} · original ${canvas.width}x${canvas.height} · transmitted ${canvas.width}x${canvas.height}`;
-      renderMode();
+      elements.sourceInfo.textContent = state.source.fileName + " · original " + canvas.width + "x" + canvas.height + " · transmitted " + canvas.width + "x" + canvas.height;
+      if (mode) setMode(mode);
+      else renderMode();
       showToast("Source image ready.");
-    } catch (error) {
-      showToast(error.message, true);
+    } finally {
+      bitmap.close();
     }
   }
-
   async function loadSourceFromUrl(url, fileName = "generation.png") {
     try {
       const response = await fetch(url);
       if (!response.ok) throw new Error("Could not load the selected generation image.");
       const blob = await response.blob();
-      const type = SUPPORTED_IMAGE_TYPES.has(blob.type) ? blob.type : "image/png";
-      await loadSourceFile(new File([blob], fileName, { type }), fileName);
+      await loadSourceFile(new File([blob], fileName, { type: blob.type || "image/png" }), fileName);
     } catch (error) {
       showToast(error.message, true);
     }
@@ -472,7 +484,9 @@ export function createGenerationModeController({ showToast, getLatestImagePath, 
   return {
     bind,
     getGenerateRequest,
+    loadSourceItem,
     loadSourceFromUrl,
+    setMode,
     getMode: () => state.mode,
   };
 }

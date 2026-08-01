@@ -28,13 +28,13 @@ The app keeps this flow stable:
 UI -> Internal Preset Schema -> Adapter -> NovelAI Payload -> NovelAI
 ```
 
-Chaessi Preset v2.3.0 adds Precise Reference conditioning to Text to Image, Image to Image, and Inpaint while keeping preset schemas, Character Slots, saved data, and existing generation modes compatible.
+Chaessi Preset v2.4.0 adds unified image intake for files, clipboard images, and drag-and-drop input. Each image can be routed to Image to Image, Inpaint, or Precise Reference, while detected NovelAI metadata remains an explicit optional import.
 
-Chaessi Preset v2.3.0은 Text to Image, Image to Image, Inpaint에 Precise Reference conditioning을 추가하며, preset schema, Character Slot, 저장 데이터 및 기존 생성 모드의 호환성을 유지합니다.
+Chaessi Preset v2.4.0은 파일, 클립보드 이미지, 드래그 앤 드롭을 하나의 이미지 입력 흐름으로 통합합니다. 이미지는 Image to Image, Inpaint, Precise Reference 중 원하는 목적지로 보낼 수 있으며, 감지된 NovelAI metadata는 사용자가 명시적으로 선택할 때만 가져옵니다.
 
-Raw payload direct generation, Vibe Transfer, Character Slot-specific reference binding, scene composition, video features, and user-selectable multi-model support are intentionally not included in v2.3.0.
+Raw payload direct generation, Vibe Transfer, Character Slot-specific reference binding, scene composition, video features, and user-selectable multi-model support are intentionally not included in v2.4.0.
 
-Raw payload 직접 생성, Vibe Transfer, Character Slot별 reference 연결, scene composition, video 기능, 사용자 선택형 multi-model 지원은 v2.3.0에 의도적으로 포함하지 않았습니다.
+Raw payload 직접 생성, Vibe Transfer, Character Slot별 reference 연결, scene composition, video 기능, 사용자 선택형 multi-model 지원은 v2.4.0에 의도적으로 포함하지 않았습니다.
 
 ## Quick Start
 
@@ -67,7 +67,7 @@ Current release build:
 현재 릴리즈 빌드:
 
 ```text
-dist/Chaessi-Preset-v2.3.0-x64.exe
+dist/Chaessi-Preset-v2.4.0-x64.exe
 ```
 
 The EXE is portable. You can move it to another folder and run it from there. User presets, character presets, token storage, and generation history are stored separately from the EXE, so replacing the EXE does not remove saved app data.
@@ -157,7 +157,8 @@ Existing project-local user data is copied into userData on first Electron use w
 - NovelAI V4.5 Full Text to Image / Image to Image / Inpaint generation
 - Internal preset schema and NovelAI payload adapter
 - Exact local NovelAI V4.5 Full prompt token counters with shared context totals
-- Image metadata import for supported PNG/WebP NovelAI metadata
+- Unified PNG/WebP/JPEG image intake with file, clipboard, and drag-and-drop routing
+- Conditional, explicit NovelAI metadata import
 - Raw JSON metadata import
 - Full preset Save / Save As / Load
 - Character prompt presets with Save / Save As / Load / Delete
@@ -174,7 +175,8 @@ Existing project-local user data is copied into userData on first Electron use w
 - NovelAI V4.5 Full Text to Image / Image to Image / Inpaint 생성
 - internal preset schema와 NovelAI payload adapter
 - 공유 context 합계를 포함하는 NovelAI V4.5 Full 공식 일치 로컬 프롬프트 토큰 카운터
-- 지원되는 PNG/WebP NovelAI metadata 이미지 import
+- PNG/WebP/JPEG 파일, 클립보드, 드래그 앤 드롭을 지원하는 통합 이미지 입력 및 목적지 라우팅
+- NovelAI metadata가 있을 때만 표시되는 명시적 선택 import
 - Raw JSON metadata import
 - 전체 프리셋 Save / Save As / Load
 - 캐릭터 프롬프트 프리셋 Save / Save As / Load / Delete
@@ -196,6 +198,16 @@ Chaessi Preset은 NovelAI 공식 UI와 대조 검증한 T5 호환 tokenizer로 N
 Random prompt blocks display the maximum token count among fully resolved alternatives. Up to 256 combinations are evaluated exactly; larger sets use a tokenizer-based maximum estimate without counting unresolved delimiters or summing every option. At Generate time, the existing Random Prompt Resolver creates a copy, the selected fields are counted exactly, and only the resolved copy is sent. Saved presets keep the original `||a|b|c||` syntax.
 
 랜덤 프롬프트 블록은 완전히 확정된 선택지 조합 중 최대 토큰 수 하나만 표시합니다. 256개 이하 조합은 정확히 계산하고, 이를 초과하면 미확정 구분자를 세거나 모든 선택지를 합산하지 않고 tokenizer 기반 최대 예상값을 사용합니다. Generate 시점에는 기존 Random Prompt Resolver가 복사본을 만들고 실제 선택된 입력을 정확히 다시 계산한 뒤 resolved copy만 전송합니다. 저장된 preset에는 원본 `||a|b|c||` 문법이 유지됩니다.
+
+## Unified Image Input
+
+Use **Open Image**, paste a clipboard image, or drop image files anywhere outside a dedicated input zone. Chaessi validates PNG, WebP, and JPEG files, shows a preview, then lets you route one image to **Image to Image** or **Inpaint**, or add one or more images to **Precise Reference** in order. Dedicated source and reference zones continue to route images directly.
+
+**Open Image**를 사용하거나 클립보드 이미지를 붙여넣거나 전용 입력 영역 밖에 이미지 파일을 드롭할 수 있습니다. Chaessi는 PNG, WebP, JPEG 파일을 검증하고 미리보기를 표시한 뒤, 이미지 한 장을 **Image to Image** 또는 **Inpaint**로 보내거나 여러 이미지를 순서대로 **Precise Reference**에 추가할 수 있게 합니다. 각 전용 source/reference 영역에서는 기존처럼 해당 목적지로 바로 입력됩니다.
+
+NovelAI metadata import is shown only when supported metadata is detected in a single original image. Choosing an image destination never imports metadata automatically; Prompt, Undesired Content, Characters, and Settings / Seed are imported only through the separate explicit action.
+
+NovelAI metadata import는 원본 이미지 한 장에서 지원 metadata가 감지될 때만 표시됩니다. 이미지 목적지를 고르는 것만으로 metadata가 자동 적용되지 않으며, Prompt, Undesired Content, Characters, Settings / Seed는 별도의 명시적 import 동작으로만 가져옵니다.
 
 ## Generation Modes
 
@@ -219,9 +231,9 @@ NovelAI's raw Inpaint PNG is used directly as the final image and History result
 
 NovelAI의 raw Inpaint PNG를 최종 이미지와 History 결과로 그대로 사용합니다. 로컬 Feather/Composite 처리는 적용하지 않습니다. Source, selection mask, 실제 전송 generation mask는 생성 시점의 별도 자산으로 보관되며 payload와 sidecar JSON에는 전체 이미지 Base64 데이터가 들어가지 않습니다.
 
-Advanced Crop -> Generate -> Composite is not included in v2.3.0.
+Advanced Crop -> Generate -> Composite is not included in v2.4.0.
 
-고급 Crop -> Generate -> Composite는 v2.3.0에 포함되지 않습니다.
+고급 Crop -> Generate -> Composite는 v2.4.0에 포함되지 않습니다.
 
 ## Precise Reference
 
@@ -241,9 +253,10 @@ Reference images are prepared locally as centered PNGs using the official V4.5 r
 
 Reference 이미지는 공식 V4.5 reference 크기에 맞춘 중앙 정렬 PNG로 로컬에서 준비되며, 준비된 bytes만 생성 요청에 사용됩니다. History에는 실제 전송 PNG를 별도 asset으로 저장하고, payload와 sidecar JSON에는 이미지 Base64 대신 안전한 경로, byte length, hash, 설정값만 기록합니다.
 
-Vibe Transfer, reference preset libraries, and Character Slot-specific reference binding are not included in v2.3.0.
+Vibe Transfer, reference preset libraries, and Character Slot-specific reference binding are not included in v2.4.0.
 
-Vibe Transfer, reference preset library, Character Slot별 reference 연결은 v2.3.0에 포함되지 않습니다.
+Vibe Transfer, reference preset library, Character Slot별 reference 연결은 v2.4.0에 포함되지 않습니다.
+
 ## Character Prompt Preset Categories
 
 Character Prompt Presets support categories for organizing a large module-style preset library. Categories are only for organization and filtering. They are not connected to Character Slot numbers, and every Character Slot can freely load presets from every category.
@@ -351,9 +364,9 @@ This is safer than plaintext `.env` storage for normal desktop use, but it is no
 
 ## Limitations
 
-Chaessi Preset v2.3.0 does not include raw payload direct generation, Vibe Transfer, Character Slot-specific reference binding, reference preset libraries, advanced crop/composite, scene composition, video features, user-selectable multi-model support, installer, code signing, or auto-update.
+Chaessi Preset v2.4.0 does not include raw payload direct generation, Vibe Transfer, Character Slot-specific reference binding, reference preset libraries, advanced crop/composite, scene composition, video features, user-selectable multi-model support, installer, code signing, or auto-update.
 
-Chaessi Preset v2.3.0에는 raw payload 직접 생성, Vibe Transfer, Character Slot별 reference 연결, reference preset library, 고급 crop/composite, scene composition, video 기능, 사용자 선택형 multi-model 지원, installer, code signing, auto-update가 포함되어 있지 않습니다.
+Chaessi Preset v2.4.0에는 raw payload 직접 생성, Vibe Transfer, Character Slot별 reference 연결, reference preset library, 고급 crop/composite, scene composition, video 기능, 사용자 선택형 multi-model 지원, installer, code signing, auto-update가 포함되어 있지 않습니다.
 
 ## For Developers
 

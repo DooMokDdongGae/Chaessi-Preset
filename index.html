@@ -17,6 +17,7 @@
         </div>
       </div>
       <div class="header-tools">
+        <button id="openImageIntakeButton" type="button">Open Image</button>
         <div class="health">NovelAI Diffusion V4.5 Full</div>
         <div class="health" id="healthStatus">checking</div>
         <button id="apiSettingsButton" type="button">API Settings</button>
@@ -161,20 +162,20 @@
           <section class="panel workbench-section" id="panel-import">
             <div class="panel-heading">
               <div>
-                <h2>Import Metadata</h2>
-                <p>Bring prompt, characters, and settings into the current preset.</p>
+                <h2>Image Intake</h2>
+                <p>Open an image, choose its destination, and optionally import NovelAI metadata.</p>
               </div>
             </div>
             <div class="grid import-source-grid">
               <section class="tool-surface">
-                <h3>Image Metadata</h3>
+                <h3>Unified Image Input</h3>
                 <div class="drop-zone" id="dropZone">
                   <img id="imageImportPreview" class="image-import-preview" alt="Imported image preview" hidden />
-                  <strong id="imageImportTitle">Drop PNG/WebP here</strong>
-                  <span id="imageImportHint">or paste an image anywhere in the app</span>
+                  <strong id="imageImportTitle">Drop PNG, WebP, or JPEG here</strong>
+                  <span id="imageImportHint">or paste an image anywhere to choose its destination</span>
                 </div>
-                <input id="imageInput" type="file" accept="image/png,image/webp,image/jpeg" />
-                <button id="importImageButton">Choose Image</button>
+                <input id="imageInput" type="file" accept="image/png,image/webp,image/jpeg" multiple />
+                <button id="importImageButton" type="button">Open Image</button>
               </section>
               <section class="tool-surface" hidden>
                 <h3>Text Paste</h3>
@@ -304,11 +305,11 @@
                   <p class="mode-help">Paint the area NovelAI should regenerate. Unpainted areas are preserved.</p>
                 </section>
               </section>
-              <section class="precise-reference-panel" aria-labelledby="preciseReferenceHeading">
+              <section class="precise-reference-panel" id="preciseReferencePanel" tabindex="0" aria-labelledby="preciseReferenceHeading">
                 <div class="section-row">
                   <div>
                     <h3 id="preciseReferenceHeading">Precise Reference</h3>
-                    <p class="mode-help">Condition this generation with character or style references.</p>
+                    <p class="mode-help">Add files, drop images here, or focus this panel and paste.</p>
                   </div>
                   <button type="button" id="addPreciseReferenceButton">Add Reference</button>
                   <input id="preciseReferenceInput" type="file" accept="image/png,image/webp,image/jpeg" multiple hidden />
@@ -357,6 +358,35 @@
       </div>
     </main>
 
+    <dialog class="image-intake-dialog" id="imageIntakeDialog">
+      <form method="dialog">
+        <header class="dialog-header">
+          <div>
+            <h2>이 이미지를 어디에 사용할까요?</h2>
+            <p>Choose one destination. Metadata import is a separate optional action.</p>
+          </div>
+          <button value="cancel">Close</button>
+        </header>
+        <div class="image-intake-previews" id="imageIntakePreviews"></div>
+        <div class="image-intake-summary" id="imageIntakeSummary"></div>
+        <div class="image-intake-routes">
+          <button type="button" id="imageIntakeI2IButton">Image to Image</button>
+          <button type="button" id="imageIntakeInpaintButton">Inpaint</button>
+          <button type="button" id="imageIntakePreciseButton">Precise Reference</button>
+        </div>
+        <section class="image-intake-metadata" id="imageIntakeMetadata" hidden>
+          <h3>NovelAI Metadata</h3>
+          <div class="image-intake-options">
+            <label><input id="imageIntakeApplyBase" type="checkbox" checked /> Prompt</label>
+            <label><input id="imageIntakeApplyUndesired" type="checkbox" checked /> Undesired Content</label>
+            <label><input id="imageIntakeApplyCharacters" type="checkbox" checked /> Characters</label>
+            <label><input id="imageIntakeApplyParams" type="checkbox" checked /> Settings / Seed</label>
+          </div>
+          <button type="button" id="imageIntakeApplyMetadataButton">Import Selected Metadata</button>
+        </section>
+        <div class="summary" id="imageIntakeStatus">Choose a destination.</div>
+      </form>
+    </dialog>
     <dialog class="image-viewer-dialog" id="imageViewerDialog">
       <form method="dialog">
         <header class="dialog-header">
@@ -519,6 +549,9 @@
     <input id="presetThumbnailInput" type="file" accept="image/png,image/jpeg,image/webp" hidden />
     <input id="characterThumbnailInput" type="file" accept="image/png,image/jpeg,image/webp" hidden />
     <div class="toast" id="toast" role="status" aria-live="polite"></div>
+    <div class="image-drag-overlay" id="imageDragOverlay" hidden aria-hidden="true">
+      <strong>Drop image to choose destination</strong>
+    </div>
     <div class="mask-brush-cursor" id="maskBrushCursor" hidden aria-hidden="true"></div>
     <script type="module" src="/src/app.js"></script>
   </body>

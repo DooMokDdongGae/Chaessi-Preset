@@ -1,5 +1,26 @@
 # Changelog
 
+## v2.4.0
+
+Chaessi Preset v2.4.0 unifies file, clipboard, and drag-and-drop image input without changing existing generation payloads or preset schemas.
+
+### Added
+
+- Unified PNG, WebP, and JPEG image intake with preview and destination selection.
+- Routing to Image to Image, Inpaint, or Precise Reference from one shared dialog.
+- Direct clipboard paste and drag-and-drop support, including ordered multi-image Precise Reference input.
+- Conditional NovelAI metadata controls shown only for a supported single image.
+
+### Improved
+
+- Metadata import is now an explicit action and never occurs automatically when choosing an image destination.
+- Existing dedicated I2I, Inpaint, and Precise Reference input zones continue to route directly.
+- Temporary previews are released when the dialog closes, and image Base64 is not stored in presets or sidecar JSON.
+
+### Compatibility
+
+- T2I, I2I, Inpaint, and Precise Reference payload structures are unchanged.
+- Main Preset, Character Prompt Preset, category, Character Slot, History, Random Prompt Resolver, and token storage structures remain compatible.
 ## v2.3.0
 
 Chaessi Preset v2.3.0 adds NovelAI V4.5 Full Precise Reference conditioning without changing preset schemas or existing T2I, I2I, and Inpaint behavior when no reference is active.

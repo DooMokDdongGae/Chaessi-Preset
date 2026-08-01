@@ -748,7 +748,8 @@ pre {
 
 .preset-dialog,
 .character-preset-dialog,
-.category-manager-dialog {
+.category-manager-dialog,
+.image-intake-dialog {
   width: min(760px, calc(100% - 32px));
 }
 
@@ -794,7 +795,8 @@ pre {
 .image-viewer-dialog,
 .preset-dialog,
 .character-preset-dialog,
-.category-manager-dialog {
+.category-manager-dialog,
+.image-intake-dialog {
   border: 1px solid var(--line);
   border-radius: var(--radius);
   background: #0b0f16;
@@ -805,14 +807,16 @@ pre {
 .image-viewer-dialog::backdrop,
 .preset-dialog::backdrop,
 .character-preset-dialog::backdrop,
-.category-manager-dialog::backdrop {
+.category-manager-dialog::backdrop,
+.image-intake-dialog::backdrop {
   background: rgba(0, 0, 0, 0.72);
 }
 
 .image-viewer-dialog form,
 .preset-dialog form,
 .character-preset-dialog form,
-.category-manager-dialog form {
+.category-manager-dialog form,
+.image-intake-dialog form {
   display: grid;
   gap: 12px;
   margin: 0;
@@ -1259,6 +1263,113 @@ pre {
   font-weight: 700;
 }
 
+.image-intake-previews {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 10px;
+  max-height: 46vh;
+  overflow: auto;
+}
+
+.image-intake-preview-item {
+  display: grid;
+  gap: 6px;
+  min-width: 0;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: #080b10;
+  padding: 8px;
+}
+
+.image-intake-preview-item img {
+  width: 100%;
+  aspect-ratio: 1;
+  object-fit: contain;
+  background: #05070b;
+}
+
+.image-intake-preview-item strong,
+.image-intake-preview-item span,
+.image-intake-summary {
+  overflow-wrap: anywhere;
+}
+
+.image-intake-preview-item span,
+.image-intake-summary {
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.image-intake-routes,
+.image-intake-options {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.image-intake-options {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.image-intake-routes button:disabled {
+  cursor: not-allowed;
+}
+
+.image-intake-options label {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 8px;
+}
+
+.image-intake-options input {
+  width: auto;
+}
+
+.image-intake-metadata {
+  display: grid;
+  gap: 10px;
+  border-top: 1px solid var(--line);
+  padding-top: 12px;
+}
+
+.image-intake-metadata[hidden] {
+  display: none;
+}
+
+.image-intake-metadata h3 {
+  margin: 0;
+  font-size: 14px;
+}
+
+.image-drag-overlay {
+  position: fixed;
+  z-index: 900;
+  inset: 16px;
+  display: grid;
+  place-items: center;
+  border: 2px dashed rgba(103, 232, 249, 0.7);
+  border-radius: var(--radius);
+  background: rgba(5, 7, 11, 0.84);
+  color: var(--cyan);
+  pointer-events: none;
+}
+
+.image-drag-overlay[hidden] {
+  display: none;
+}
+
+.precise-reference-panel {
+  outline: none;
+}
+
+.precise-reference-panel.is-over,
+.precise-reference-panel:focus-visible {
+  border-color: rgba(103, 232, 249, 0.7);
+  box-shadow: inset 0 0 0 1px rgba(103, 232, 249, 0.18);
+}
 @media (max-width: 860px) {
   .app-header,
   .generation-layout,
@@ -1277,7 +1388,9 @@ pre {
   .dialog-preview,
   .category-manager-add-row,
   .preset-thumb-picker,
-  .preset-card {
+  .preset-card,
+  .image-intake-routes,
+  .image-intake-options {
     grid-template-columns: 1fr;
   }
 

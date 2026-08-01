@@ -1,11 +1,16 @@
-const SUPPORTED_IMAGE_TYPES = new Set(["image/png", "image/webp", "image/jpeg"]);
+import {
+  getImageFilesFromTransfer,
+  hasFileTransfer,
+  inspectImageFiles,
+  releaseImageIntakeItems,
+} from "./image-intake.js";
+
 const TARGET_SIZES = Object.freeze([
   [1024, 1536],
   [1536, 1024],
   [1472, 1472],
 ]);
 const MAX_REFERENCES = 16;
-const MAX_FILE_BYTES = 30 * 1024 * 1024;
 
 export function createPreciseReferenceController({ showToast, getMode }) {
   const state = { references: [] };
@@ -13,6 +18,7 @@ export function createPreciseReferenceController({ showToast, getMode }) {
 
   function bind() {
     Object.assign(elements, {
+      panel: byId("preciseReferencePanel"),
       input: byId("preciseReferenceInput"),
       list: byId("preciseReferenceList"),
       empty: byId("preciseReferenceEmpty"),
@@ -24,7 +30,30 @@ export function createPreciseReferenceController({ showToast, getMode }) {
     elements.input.addEventListener("change", async () => {
       const files = [...(elements.input.files || [])];
       elements.input.value = "";
-      for (const file of files) await addFile(file);
+      await addFiles(files, "file-picker");
+    });
+    ["dragenter", "dragover"].forEach((name) => elements.panel.addEventListener(name, (event) => {
+      if (!hasFileTransfer(event.dataTransfer)) return;
+      event.preventDefault();
+      event.stopPropagation();
+      elements.panel.classList.add("is-over");
+    }));
+    ["dragleave", "drop"].forEach((name) => elements.panel.addEventListener(name, (event) => {
+      if (!hasFileTransfer(event.dataTransfer)) return;
+      event.preventDefault();
+      event.stopPropagation();
+      elements.panel.classList.remove("is-over");
+    }));
+    elements.panel.addEventListener("drop", async (event) => {
+      event.stopImmediatePropagation();
+      await addFiles(getImageFilesFromTransfer(event.dataTransfer), "drag-and-drop");
+    });
+    elements.panel.addEventListener("paste", async (event) => {
+      const files = getImageFilesFromTransfer(event.clipboardData).filter((file) => file.type.startsWith("image/"));
+      if (!files.length) return;
+      event.preventDefault();
+      event.stopImmediatePropagation();
+      await addFiles(files, "clipboard");
     });
     elements.list.addEventListener("input", handleInput);
     elements.list.addEventListener("change", handleInput);
@@ -36,33 +65,52 @@ export function createPreciseReferenceController({ showToast, getMode }) {
     render();
   }
 
-  async function addFile(file) {
+  async function addFiles(files, source) {
+    if (!files.length) return;
+    let items = [];
     try {
-      if (state.references.length >= MAX_REFERENCES) throw new Error(`Use no more than ${MAX_REFERENCES} Precise References.`);
-      if (!SUPPORTED_IMAGE_TYPES.has(file.type)) throw new Error("Precise Reference must be PNG, WebP, or JPEG.");
-      if (file.size > MAX_FILE_BYTES) throw new Error("Precise Reference must be smaller than 30 MB.");
-      const processed = await preprocessReferenceImage(file);
-      state.references.push({
-        id: crypto.randomUUID(),
-        enabled: true,
-        type: "character",
-        strength: 1,
-        fidelity: 1,
-        fileName: file.name || "reference-image",
-        originalWidth: processed.originalWidth,
-        originalHeight: processed.originalHeight,
-        transmittedWidth: processed.width,
-        transmittedHeight: processed.height,
-        imageBase64: processed.base64,
-        previewUrl: processed.previewUrl,
-      });
-      render();
-      showToast("Precise Reference added.");
+      items = await inspectImageFiles(files, { source, createPreview: false });
+      await addIntakeItems(items);
     } catch (error) {
       showToast(error.message, true);
+    } finally {
+      releaseImageIntakeItems(items);
     }
   }
 
+  async function addIntakeItems(items) {
+    if (!items.length) return;
+    const remaining = MAX_REFERENCES - state.references.length;
+    if (items.length > remaining) {
+      throw new Error("Only " + remaining + " Precise Reference slot" + (remaining === 1 ? " is" : "s are") + " available.");
+    }
+    const prepared = [];
+    try {
+      for (const item of items) {
+        const processed = await preprocessReferenceImage(item.file);
+        prepared.push({
+          id: crypto.randomUUID(),
+          enabled: true,
+          type: "character",
+          strength: 1,
+          fidelity: 1,
+          fileName: item.fileName || "reference-image",
+          originalWidth: processed.originalWidth,
+          originalHeight: processed.originalHeight,
+          transmittedWidth: processed.width,
+          transmittedHeight: processed.height,
+          imageBase64: processed.base64,
+          previewUrl: processed.previewUrl,
+        });
+      }
+    } catch (error) {
+      prepared.forEach((reference) => URL.revokeObjectURL(reference.previewUrl));
+      throw error;
+    }
+    state.references.push(...prepared);
+    render();
+    showToast(prepared.length === 1 ? "Precise Reference added." : prepared.length + " Precise References added.");
+  }
   function handleInput(event) {
     const field = event.target.dataset.referenceField;
     const id = event.target.dataset.referenceId;
@@ -138,7 +186,13 @@ export function createPreciseReferenceController({ showToast, getMode }) {
     elements.warning.hidden = warnings.length === 0;
   }
 
-  return { bind, getGenerateRequest, refreshWarnings: updateSummary };
+  return {
+    bind,
+    addIntakeItems,
+    getCapacity: () => MAX_REFERENCES - state.references.length,
+    getGenerateRequest,
+    refreshWarnings: updateSummary,
+  };
 }
 
 export function selectPreciseReferenceTarget(width, height) {
