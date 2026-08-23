@@ -14,6 +14,7 @@ import {
 import {
   buildModeGeneratePayload,
   GENERATION_MODES,
+  NOVELAI_V5_FULL_INPAINT_MODEL,
   normalizeGenerationMode,
   validateModeGeneratePayload,
 } from "./src/adapters/novelai-v45-generation-modes.js";
@@ -26,7 +27,10 @@ import {
 import {
   APP_NAME,
   NOVELAI_GENERATE_ENDPOINT,
+  NOVELAI_V5_GENERATE_ENDPOINT,
 } from "./src/state/defaults.js";
+import { getModelProfile, NOVELAI_V5_FULL_MODEL } from "./src/state/model-profiles.js";
+import { validateV5Payload } from "./src/adapters/novelai-v5-full.js";
 import { createTokenProvider } from "./src/security/token-provider.js";
 import {
   EnvSecretStore,
@@ -42,11 +46,15 @@ import {
   storeError,
 } from "./src/services/file-store-utils.js";
 import { resolvePresetRandomPrompts } from "./src/services/prompt-random-resolver.js";
+import { fetchNovelAiAccountUsage, projectNovelAiAccountUsage } from "./src/services/novelai-account-usage.js";
+import { extractFinalNovelAiPng } from "./src/services/novelai-msgpack-stream.js";
+import { createNovelAiMultipartBody } from "./src/services/novelai-multipart-request.js";
 import {
   assertMaskHasPaintedPixels,
   assertMatchingDimensions,
   decodeBase64Png,
   normalizePngToRgb,
+  normalizePngToRgba,
 } from "./src/services/generation-image-utils.js";
 import {
   createInpaintGenerationMask,
@@ -58,7 +66,7 @@ import { parseNovelAiPngMetadata } from "./src/importers/nai-metadata.js";
 import { parseImageMetadata } from "./src/importers/image-metadata.js";
 
 const HEALTH_APP_NAME = "Chaessi Preset";
-const APP_VERSION = "2.4.0";
+const APP_VERSION = "3.1.0";
 const PORT = Number(process.env.PORT || 4174);
 const ROOT = path.dirname(fileURLToPath(import.meta.url));
 const DATA_ROOT = path.resolve(process.env.CHAESSI_USER_DATA_DIR || ROOT);
@@ -107,6 +115,11 @@ const server = http.createServer(async (req, res) => {
 
     if (req.method === "GET" && url.pathname === "/api/settings/token-status") {
       sendJson(res, 200, await handleTokenStatus());
+      return;
+    }
+
+    if (req.method === "GET" && url.pathname === "/api/novelai/account-usage") {
+      sendJson(res, 200, await handleNovelAiAccountUsage());
       return;
     }
 
@@ -347,6 +360,20 @@ async function handleTokenStatus() {
   };
 }
 
+async function handleNovelAiAccountUsage() {
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), 15_000);
+  try {
+    const usage = await fetchNovelAiAccountUsage({
+      token: tokenProvider.getToken("novelai"),
+      signal: controller.signal,
+    });
+    return { ok: true, ...projectNovelAiAccountUsage(usage) };
+  } finally {
+    clearTimeout(timeout);
+  }
+}
+
 async function handleSaveToken(body) {
   const provider = validateTokenProvider(body?.provider);
   const token = String(body?.token || "").trim();
@@ -469,7 +496,7 @@ async function handleGenerate(body) {
   const resolvedPreset = resolvePresetRandomPrompts(preset);
   let payload = buildModeGeneratePayload(resolvedPreset, modeState);
   const payloadSafety = mode === GENERATION_MODES.TEXT_TO_IMAGE
-    ? validatePayloadSafety(payload)
+    ? payload.model === NOVELAI_V5_FULL_MODEL ? validateV5Payload(payload) : validatePayloadSafety(payload)
     : validateModeGeneratePayload(payload, modeState);
   if (!payloadSafety.ok) {
     throw httpError(400, "unsafe_payload", "Payload safety validation failed.", payloadSafety.errors.join("; "));
@@ -479,23 +506,40 @@ async function handleGenerate(body) {
   let mask = null;
   let generationMask = null;
   let referenceAssets = [];
+  const isV5Request = payload.model === NOVELAI_V5_FULL_MODEL || payload.model === NOVELAI_V5_FULL_INPAINT_MODEL;
+  const multipartAssets = {};
   const generationPadding = mode === GENERATION_MODES.INPAINT
     ? normalizeInpaintGenerationPadding(modeState.generation_padding ?? 16)
     : undefined;
   if (mode !== GENERATION_MODES.TEXT_TO_IMAGE) {
     source = decodeBase64Png(modeState.source_image_base64, "source image");
-    source.bytes = normalizePngToRgb(source.bytes, "source image");
-    payload.parameters.image = source.bytes.toString("base64");
+    source.bytes = isV5Request
+      ? normalizePngToRgba(source.bytes, "source image")
+      : normalizePngToRgb(source.bytes, "source image");
+    if (isV5Request) {
+      payload.parameters.image = "image";
+      multipartAssets.image = source.bytes;
+    } else {
+      payload.parameters.image = source.bytes.toString("base64");
+    }
     if (mode === GENERATION_MODES.INPAINT) {
       mask = decodeBase64Png(modeState.mask_image_base64, "selection mask image");
       assertMaskHasPaintedPixels(mask.bytes);
       mask.bytes = normalizePngToRgb(mask.bytes, "selection mask image");
       generationMask = createInpaintGenerationMask(mask.bytes, generationPadding);
-      payload.parameters.mask = generationMask.toString("base64");
+      if (isV5Request) {
+        payload.parameters.mask = "mask";
+        multipartAssets.mask = generationMask;
+      } else {
+        payload.parameters.mask = generationMask.toString("base64");
+      }
     }
     assertMatchingDimensions(source, mask, payload.parameters.width, payload.parameters.height);
   }
 
+  if (!getModelProfile(preset.params?.model).capabilities.preciseReference && body?.precise_references?.length) {
+    throw httpError(400, "unsupported_precise_reference", "Precise Reference is not supported by the selected model.");
+  }
   const preparedReferences = preparePreciseReferences(body?.precise_references);
   referenceAssets = preparedReferences.map((reference) => ({
     bytes: reference.image_bytes,
@@ -510,7 +554,7 @@ async function handleGenerate(body) {
     throw httpError(400, "invalid_precise_reference_payload", "Precise Reference validation failed.", preciseReferenceValidation.errors.join("; "));
   }
   const token = tokenProvider.getToken("novelai");
-  const naiResponse = await postNovelAiPayload({ token, payload });
+  const naiResponse = await postNovelAiPayload({ token, payload, multipartAssets });
   if (naiResponse.status !== 200) {
     throw httpError(
       naiResponse.status,
@@ -520,7 +564,10 @@ async function handleGenerate(body) {
     );
   }
 
-  const extracted = extractFirstImageFromZip(naiResponse.body);
+  const isV5 = isV5Request;
+  const extracted = isV5
+    ? extractFinalNovelAiPng(naiResponse.body)
+    : extractFirstImageFromZip(naiResponse.body);
   const finalImageBytes = extracted.imageBytes;
   const createdAt = new Date();
   const strength = mode === GENERATION_MODES.INPAINT
@@ -535,6 +582,8 @@ async function handleGenerate(body) {
     modeSettings: {
       strength,
       noise,
+      image_strength: mode === GENERATION_MODES.INPAINT ? payload.parameters.strength : undefined,
+      image_noise: mode === GENERATION_MODES.INPAINT ? payload.parameters.noise : undefined,
       source_info: sanitizeSourceInfo(modeState.source_info, source),
       add_original_image: mode === GENERATION_MODES.INPAINT ? payload.parameters.add_original_image : undefined,
       generation_padding: generationPadding,
@@ -547,10 +596,12 @@ async function handleGenerate(body) {
     },
     responseInfo: {
       created_at: createdAt.toISOString(),
-      response_container: "zip",
-      response_image_entry: extracted.entryName,
+      response_container: isV5 ? "msgpack" : "zip",
+      response_image_entry: isV5 ? "final.image" : extracted.entryName,
       response_content_type: naiResponse.headers.get("content-type") || "",
       content_disposition: naiResponse.headers.get("content-disposition") || "",
+      stream_event_count: isV5 ? extracted.events.length : undefined,
+      stream_intermediate_count: isV5 ? extracted.intermediateCount : undefined,
     },
   });
 
@@ -573,9 +624,18 @@ async function handleGenerate(body) {
       sampler: payload.parameters.sampler,
       noise_schedule: payload.parameters.noise_schedule,
       qualityToggle: payload.parameters.qualityToggle,
+      qualityPreset: resolvedPreset.params?.qualityPreset,
+      ucPreset: resolvedPreset.params?.ucPreset,
+      transparentBackground: Boolean(resolvedPreset.params?.transparentBackground),
+      character_count: Array.isArray(payload.parameters.characterPrompts)
+        ? payload.parameters.characterPrompts.length
+        : 0,
+      use_coords: payload.parameters.use_coords,
       seed: payload.parameters.seed,
       strength,
       noise,
+      image_strength: mode === GENERATION_MODES.INPAINT ? payload.parameters.strength : undefined,
+      image_noise: mode === GENERATION_MODES.INPAINT ? payload.parameters.noise : undefined,
       add_original_image: mode === GENERATION_MODES.INPAINT ? payload.parameters.add_original_image : undefined,
       generation_padding: generationPadding,
       precise_reference_count: referenceAssets.length,
@@ -632,22 +692,31 @@ function stripPresetUiState(preset) {
   };
 }
 
-async function postNovelAiPayload({ token, payload }) {
+async function postNovelAiPayload({ token, payload, multipartAssets = {} }) {
   const controller = new AbortController();
   const timeout = setTimeout(() => controller.abort(), TIMEOUT_MS);
   try {
-    const response = await fetch(NOVELAI_GENERATE_ENDPOINT, {
+    const isMultipart = payload.model === NOVELAI_V5_FULL_MODEL || payload.model === NOVELAI_V5_FULL_INPAINT_MODEL;
+    const headers = {
+      "Authorization": `Bearer ${token}`,
+      "Accept": "*/*",
+      "Accept-Language": "en-US,en;q=0.9",
+      "Origin": "https://novelai.net",
+      "Referer": "https://novelai.net/",
+      "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36",
+    };
+    let requestBody;
+    if (isMultipart) {
+      requestBody = createNovelAiMultipartBody(payload, multipartAssets);
+    } else {
+      headers["Content-Type"] = "application/json";
+      requestBody = JSON.stringify(payload);
+    }
+    const endpoint = isMultipart ? NOVELAI_V5_GENERATE_ENDPOINT : NOVELAI_GENERATE_ENDPOINT;
+    const response = await fetch(endpoint, {
       method: "POST",
-      headers: {
-        "Authorization": `Bearer ${token}`,
-        "Content-Type": "application/json",
-        "Accept": "*/*",
-        "Accept-Language": "en-US,en;q=0.9",
-        "Origin": "https://novelai.net",
-        "Referer": "https://novelai.net/",
-        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36",
-      },
-      body: JSON.stringify(payload),
+      headers,
+      body: requestBody,
       signal: controller.signal,
     });
     return {
@@ -1008,6 +1077,8 @@ function isAllowedClientSource(pathname) {
   return pathname === "/src/app.js"
     || pathname === "/src/services/prompt-random-resolver.js"
     || pathname === "/src/state/character-preset-categories.js"
+    || pathname === "/src/state/model-profiles.js"
+    || pathname === "/src/state/model-state.js"
     || pathname.startsWith("/src/api/")
     || pathname.startsWith("/src/ui/");
 }

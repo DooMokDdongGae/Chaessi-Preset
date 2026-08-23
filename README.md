@@ -1,16 +1,33 @@
 # Chaessi Preset
 
-Chaessi Preset is a local preset and payload manager for NovelAI V4.5 Full text-to-image, image-to-image, and inpaint generation.
+Chaessi Preset is a local preset and payload manager for NovelAI V4.5 Full and V5 Full text-to-image, image-to-image, and inpaint generation.
 
-Chaessi Preset은 NovelAI V4.5 Full text-to-image, image-to-image, inpaint 생성을 위한 로컬 프리셋 / 페이로드 매니저입니다.
+Chaessi Preset은 NovelAI V4.5 Full과 V5 Full의 text-to-image, image-to-image, inpaint 생성을 위한 로컬 프리셋 / 페이로드 매니저입니다.
 
-Text to Image and Image to Image model:
+Selectable generation models:
 
-Text to Image와 Image to Image 모델:
+선택 가능한 생성 모델:
 
 ```text
 nai-diffusion-4-5-full
+nai-diffusion-5-full
 ```
+
+| 기능 | NovelAI V4.5 Full | NovelAI V5 Full |
+| --- | ---: | ---: |
+| Text to Image | 지원 | 지원 |
+| Image to Image | 지원 | 지원 |
+| Inpaint | 지원 | 지원 |
+| Character Prompt | 최대 6 | UI 최대 32 |
+| AI’s Choice 위치 | 지원 | 지원 |
+| Custom 자유 좌표 | 기존 방식 지원 | 지원 |
+| Precise Reference | 지원 | NovelAI V5 미지원 |
+| Vibe Transfer | 앱 미지원 | NovelAI V5 미지원 |
+| Transparent Background | 앱에서 미지원 | 지원 |
+| CFG Rescale | 지원 | 지원 |
+| Tokenizer | T5 / 512 | Qwen / 1471 |
+| Anlas 표시 | 공통 계정 상태 | 공통 계정 상태 |
+| V5 Stamina | 해당 없음 | 표시 |
 
 Inpaint mode automatically uses the matching inpainting model internally; it is not a user-selectable multi-model feature.
 
@@ -18,6 +35,7 @@ Inpaint 모드는 내부적으로 대응 inpainting 모델을 자동 사용하�
 
 ```text
 nai-diffusion-4-5-full-inpainting
+nai-diffusion-5-full-inpainting
 ```
 
 The app keeps this flow stable:
@@ -28,13 +46,116 @@ The app keeps this flow stable:
 UI -> Internal Preset Schema -> Adapter -> NovelAI Payload -> NovelAI
 ```
 
-Chaessi Preset v2.4.0 adds unified image intake for files, clipboard images, and drag-and-drop input. Each image can be routed to Image to Image, Inpaint, or Precise Reference, while detected NovelAI metadata remains an explicit optional import.
+Chaessi Preset v3.1.0 preserves the complete V4.5 Full workflow and supports V5 Full T2I, I2I, and Inpaint through the official multipart and MessagePack stream contract.
 
-Chaessi Preset v2.4.0은 파일, 클립보드 이미지, 드래그 앤 드롭을 하나의 이미지 입력 흐름으로 통합합니다. 이미지는 Image to Image, Inpaint, Precise Reference 중 원하는 목적지로 보낼 수 있으며, 감지된 NovelAI metadata는 사용자가 명시적으로 선택할 때만 가져옵니다.
+Chaessi Preset v3.1.0은 V4.5 Full 전체 흐름을 보존하면서 공식 multipart 및 MessagePack stream 계약에 맞춘 V5 Full T2I, I2I, Inpaint를 지원합니다.
 
-Raw payload direct generation, Vibe Transfer, Character Slot-specific reference binding, scene composition, video features, and user-selectable multi-model support are intentionally not included in v2.4.0.
+V5 Precise Reference, Vibe Transfer, ControlNet, and SMEA/SMEA DYN are unavailable in NovelAI V5. V5 Curated, raw payload direct generation, scene composition, and video features are not included in Chaessi Preset v3.1.0.
 
-Raw payload 직접 생성, Vibe Transfer, Character Slot별 reference 연결, scene composition, video 기능, 사용자 선택형 multi-model 지원은 v2.4.0에 의도적으로 포함하지 않았습니다.
+Precise Reference, Vibe Transfer, ControlNet, SMEA/SMEA DYN은 현재 NovelAI V5에서 지원되지 않습니다. V5 Curated, raw payload 직접 생성, scene composition, video 기능은 Chaessi Preset v3.1.0에 포함하지 않았습니다.
+
+## Current Version and Download / 현재 버전과 다운로드
+
+- Current version / 현재 버전: **v3.1.0**
+- Download / 다운로드: [GitHub Release v3.1.0](https://github.com/DooMokDdongGae/Chaessi-Preset/releases/tag/v3.1.0)
+- Windows Portable app: `Chaessi-Preset-v3.1.0-x64.exe`
+- Size / 크기: `97,830,060 bytes`
+- SHA256: `0FADC0E5C828B8D5BA781DC42813B11109383A5C83D584863F5D62F6FFA11AEF`
+
+이 배포본은 Windows용 Portable Electron 앱입니다. 설치 프로그램이 아니므로 EXE를 다운로드해 직접 실행합니다. 기존 사용자 데이터는 EXE와 분리된 Electron userData에 저장되므로 새 EXE로 교체해도 프리셋과 History가 자동으로 삭제되지 않습니다.
+
+## NovelAI V5는 V4.5와 무엇이 다른가
+
+NovelAI V5 Full은 V4.5 Full과 별도의 모델입니다. Chaessi Preset은 모델별 profile, adapter, tokenizer와 지원 기능을 분리하며, 모델을 바꾸면 현재 모델에서 사용할 수 있는 UI만 표시합니다. NovelAI의 공개 안내는 [Image Generation: NovelAI Diffusion V5 is Here](https://journal.novelai.net/image-generation-novelai-diffusion-v5-is-here-c2df7c6b8d2d/)에서 확인할 수 있습니다.
+
+### 모델과 prompting
+
+- V4.5는 T5 tokenizer와 context당 512 tokens를 사용합니다.
+- V5 Full은 Qwen 계열 tokenizer와 context당 1471 tokens를 사용합니다.
+- Base Positive와 활성 Character Positive는 하나의 Positive context를 공유합니다.
+- Base UC와 활성 Character UC는 별도의 Negative context를 공유합니다.
+- Random Prompt는 편집 중 가능한 선택 결과를 기준으로 계산하고, Generate 직전 실제 선택된 문장으로 다시 해석·계산합니다. 저장된 preset에는 원래 `||a|b|c||` 문법이 유지됩니다.
+
+### Character Prompt와 위치
+
+- V4.5는 최대 6개 Character Prompt를 지원합니다.
+- V5 공식 UI와 Chaessi의 V5 UI는 최대 32개 슬롯을 제공합니다. 이는 payload/UI 슬롯 한도이며 서로 다른 32명이 이미지에 반드시 표현된다는 뜻이 아닙니다.
+- V5는 전체 캐릭터 배치를 모델에 맡기는 **AI’s Choice**와 각 Character에 자유 좌표를 지정하는 **Custom**을 지원합니다.
+- Character Positive, UC, 좌표, 활성 상태와 순서는 model snapshot 및 preset round trip에서 보존됩니다.
+- Character Prompt 개수와 Base Prompt의 `2girls`, `3girls` 같은 인원수 표현은 반드시 같을 필요가 없습니다. 지정되지 않은 인물은 Base Prompt의 영향을 받을 수 있으며 앱은 인원수 일치를 강제하지 않습니다.
+- NovelAI가 공식 발표에서 예시로 언급한 최대 22명 표현과 UI의 32개 슬롯은 서로 다른 개념입니다.
+
+### Quality와 Undesired Content
+
+- V5 Quality는 **Standard**, **Light**, **None**을 지원하며 선택한 preset의 공식 quality 문구가 Positive prompt 뒤에 결합됩니다.
+- V5 UC는 **Heavy**, **Light**, **Furry Focus**, **Human Focus**, **None**을 지원합니다.
+- 사용자 UC는 선택한 UC preset 뒤에 결합되며 `{}`, `[]`, 수치 weighting 같은 문법을 변경하지 않습니다.
+- Chaessi는 공식 UI 요청에서 확인한 preset 식별자와 tag hint를 adapter에서 구성합니다. 저장된 사용자 prompt 자체를 preset prefix로 덮어쓰지 않습니다.
+
+### 생성 설정
+
+새 V5 profile의 기본값은 `832×1216`, Steps `23`, Guidance `5`, CFG Rescale `0`, Euler Ancestral, Karras입니다. V4.5 새 profile은 같은 기본 해상도·Steps에서 Guidance `4`를 사용합니다. Euler Ancestral, Euler, DPM++ 2S Ancestral, DPM++ 2M SDE, DPM++ 2M, DPM++ SDE sampler를 모델 profile에서 선택할 수 있습니다.
+
+V5 요청의 Noise Schedule은 공식 계약에 맞춰 Karras로 정규화되며 V5에서는 SMEA/SMEA DYN을 사용하지 않습니다. 이 값들은 **새 profile의 기본값**입니다. 기존 preset을 불러오면 저장된 모델별 값이 우선되므로, 기존 preset 값이 새 기본값으로 자동 교체된다고 해석하면 안 됩니다.
+
+### 투명 배경
+
+V5의 **Transparent Background**는 모델의 native alpha transparency를 요청합니다. 반환된 PNG alpha는 preview, thumbnail, History와 Save 흐름에서 보존되며 Chaessi가 결과를 불투명 배경에 로컬 합성하지 않습니다.
+
+### Image to Image와 Inpaint
+
+- V5 I2I는 `nai-diffusion-5-full`의 Image to Image mode이며 Strength와 Noise를 지원합니다.
+- PNG, WebP, JPEG source를 파일 선택, Paste, Drag & Drop으로 입력할 수 있습니다.
+- V5 Full 전용 Inpaint는 `Selection → Generation Padding → 8×8 binary generation mask → server request` 흐름을 사용합니다.
+- source, 사용자가 그린 selection mask, 실제 전송 generation mask와 raw result는 History에서 서로 다른 자산으로 저장됩니다.
+- NovelAI가 반환한 raw PNG를 로컬 composite 없이 최종 결과로 사용합니다.
+
+### V5 Stamina와 Anlas
+
+앱은 NovelAI 서버의 실제 계정 상태를 읽어 Anlas 잔액과 V5 Stamina 표시용 백분율만 renderer에 전달합니다. Stamina를 로컬 생성 횟수로 추정하지 않으며 token이나 전체 계정 응답을 renderer에 노출하지 않습니다. NovelAI가 Stamina 정책이나 회복 방식을 변경할 수 있으므로 고정된 일일 장수나 충전 속도를 영구 규칙으로 가정하지 마세요. Stamina가 부족한 경우에는 생성 전에 NovelAI가 표시하는 Anlas 비용 조건을 확인해야 합니다.
+
+### V5에서 사용할 수 없는 기능
+
+현재 NovelAI V5 자체에서 지원되지 않아 Chaessi의 V5 UI에서도 비활성화되는 기능은 **Precise Reference, Vibe Transfer, ControlNet, SMEA/SMEA DYN**입니다. 이 중 V4.5 Precise Reference는 Chaessi에서 계속 지원됩니다. 반면 V5 Curated, raw payload 직접 생성, scene composition과 video는 이 앱 v3.1.0의 제품 범위에 포함되지 않은 항목입니다.
+
+<details>
+<summary>기술적 호환성</summary>
+
+V5 T2I/I2I/Inpaint는 공식 multipart request와 length-prefixed MessagePack stream 응답 계약을 사용합니다. V5 I2I는 기본 V5 Full 모델을, Inpaint는 대응 V5 Full inpainting 모델을 사용합니다. 이미지와 mask bytes는 JSON/Base64로 저장하지 않고 multipart binary part로 전송하며 raw result PNG bytes를 변환 없이 보존합니다.
+
+</details>
+
+## v3.1.0은 v2.4.0에서 무엇이 달라졌는가
+
+### 다중 모델 구조와 V5 Full 지원
+
+- V4.5 Full 전용 구조를 V4.5/V5 Full 선택 구조로 확장했습니다.
+- Model Profile/Capability 기반 UI, 모델별 adapter와 tokenizer를 사용합니다.
+- 모델 전환 시 지원 기능만 표시하며 V4.5는 시안, V5는 마젠타 네온 모델 배지로 구분합니다. 상단 version은 server health의 runtime version을 표시합니다.
+- V5 T2I, I2I, Full Inpaint, Character Prompt UI 최대 32개, AI’s Choice/Custom positioning, Quality/UC preset, CFG Rescale, Transparent Background와 Qwen Token Counter를 지원합니다.
+
+### 모델 상태와 preset 호환성
+
+- 모델별 prompt와 params snapshot을 보존합니다.
+- V5에서 V4.5로 전환해도 Character 7~32 데이터를 삭제하지 않으며 V5로 돌아오면 enable, prompt, UC, 좌표와 순서를 복원합니다.
+- model 정보가 없는 기존 preset은 V4.5 preset으로 해석합니다.
+- 기존 Character Prompt Preset은 모델과 독립적인 prompt module로 유지됩니다.
+- 기존 category/subCategory와 등록되지 않은 legacy 문자열을 유지하며 전면 migration을 수행하지 않습니다.
+- V5에서 Precise Reference UI가 숨겨져도 기존 V4.5 reference 데이터는 삭제되지 않습니다.
+
+### Account Usage, 전송, History와 보안
+
+- 실제 Anlas 잔액과 V5 Stamina 백분율을 표시하면서 기존 Electron safeStorage token 경로를 재사용합니다.
+- renderer에는 token, Authorization 또는 전체 계정 응답을 전달하지 않습니다.
+- V5 공식 multipart/MessagePack stream을 T2I, I2I, Inpaint에 적용합니다.
+- source, mask, generation mask, raw result를 별도 자산으로 보관하고 저장 payload/sidecar에서 이미지 Base64를 제거합니다.
+- History 삭제 시 해당 generation의 관련 자산도 함께 정리합니다.
+
+### v2.4.0 기능 보존
+
+Full Preset, Character Prompt Preset, 사용자 category/subCategory, Random Prompt Resolver, V4.5 T5 Token Counter, 통합 Image Intake, metadata import, thumbnail, History, V4.5 T2I/I2I/Inpaint, V4.5 Precise Reference와 safeStorage token 관리는 그대로 유지됩니다. 기존 preset을 계속 읽을 수 있지만 V4.5와 V5는 tokenizer와 token limit이 다르고, 모델에 따라 표시되는 UI가 달라집니다.
+
+> **주의:** V5 Character Prompt 32 슬롯은 32명 출력 보장이 아닙니다. 또한 모델 전환으로 숨겨진 비호환 기능의 데이터는 삭제되지 않지만 현재 모델의 Generate 요청에는 포함되지 않습니다.
 
 ## Quick Start
 
@@ -67,7 +188,7 @@ Current release build:
 현재 릴리즈 빌드:
 
 ```text
-dist/Chaessi-Preset-v2.4.0-x64.exe
+dist/Chaessi-Preset-v3.1.0-x64.exe
 ```
 
 The EXE is portable. You can move it to another folder and run it from there. User presets, character presets, token storage, and generation history are stored separately from the EXE, so replacing the EXE does not remove saved app data.
@@ -155,6 +276,7 @@ Existing project-local user data is copied into userData on first Electron use w
 
 - Integrated local workbench UI
 - NovelAI V4.5 Full Text to Image / Image to Image / Inpaint generation
+- NovelAI V5 Full Text to Image / Image to Image / Inpaint generation
 - Internal preset schema and NovelAI payload adapter
 - Exact local NovelAI V4.5 Full prompt token counters with shared context totals
 - Unified PNG/WebP/JPEG image intake with file, clipboard, and drag-and-drop routing
@@ -173,6 +295,7 @@ Existing project-local user data is copied into userData on first Electron use w
 
 - 통합 로컬 작업대 UI
 - NovelAI V4.5 Full Text to Image / Image to Image / Inpaint 생성
+- NovelAI V5 Full Text to Image / Image to Image / Inpaint 생성
 - internal preset schema와 NovelAI payload adapter
 - 공유 context 합계를 포함하는 NovelAI V4.5 Full 공식 일치 로컬 프롬프트 토큰 카운터
 - PNG/WebP/JPEG 파일, 클립보드, 드래그 앤 드롭을 지원하는 통합 이미지 입력 및 목적지 라우팅
@@ -231,15 +354,15 @@ NovelAI's raw Inpaint PNG is used directly as the final image and History result
 
 NovelAI의 raw Inpaint PNG를 최종 이미지와 History 결과로 그대로 사용합니다. 로컬 Feather/Composite 처리는 적용하지 않습니다. Source, selection mask, 실제 전송 generation mask는 생성 시점의 별도 자산으로 보관되며 payload와 sidecar JSON에는 전체 이미지 Base64 데이터가 들어가지 않습니다.
 
-Advanced Crop -> Generate -> Composite is not included in v2.4.0.
+Advanced Crop -> Generate -> Composite is not included in v3.1.0.
 
-고급 Crop -> Generate -> Composite는 v2.4.0에 포함되지 않습니다.
+고급 Crop -> Generate -> Composite는 v3.1.0에 포함되지 않습니다.
 
 ## Precise Reference
 
-Precise Reference is optional global generation conditioning available in Text to Image, Image to Image, and Inpaint. It is separate from Character Slots and is not stored inside preset schemas.
+Precise Reference is optional global generation conditioning available for V4.5 Full Text to Image, Image to Image, and Inpaint. It remains disabled for V5 Full.
 
-Precise Reference는 Text to Image, Image to Image, Inpaint에서 선택적으로 사용하는 전역 generation conditioning입니다. Character Slot과 분리되어 있으며 preset schema 내부에는 저장되지 않습니다.
+Precise Reference는 V4.5 Full Text to Image, Image to Image, Inpaint에서 선택적으로 사용하는 전역 generation conditioning이며 V5 Full에서는 비활성화됩니다.
 
 Each reference can be enabled or disabled and configured as **Character**, **Style**, or **Character & Style**. **Strength** controls how strongly the reference influences the result, while **Fidelity** controls how closely its details are followed. The slider range is 0 to 1 in 0.05 steps; the numeric input also supports finite values outside that range, including negative values, as in the official NovelAI UI.
 
@@ -253,9 +376,9 @@ Reference images are prepared locally as centered PNGs using the official V4.5 r
 
 Reference 이미지는 공식 V4.5 reference 크기에 맞춘 중앙 정렬 PNG로 로컬에서 준비되며, 준비된 bytes만 생성 요청에 사용됩니다. History에는 실제 전송 PNG를 별도 asset으로 저장하고, payload와 sidecar JSON에는 이미지 Base64 대신 안전한 경로, byte length, hash, 설정값만 기록합니다.
 
-Vibe Transfer, reference preset libraries, and Character Slot-specific reference binding are not included in v2.4.0.
+Vibe Transfer, reference preset libraries, and Character Slot-specific reference binding are not included in v3.1.0.
 
-Vibe Transfer, reference preset library, Character Slot별 reference 연결은 v2.4.0에 포함되지 않습니다.
+Vibe Transfer, reference preset library, Character Slot별 reference 연결은 v3.1.0에 포함되지 않습니다.
 
 ## Character Prompt Preset Categories
 
@@ -364,9 +487,9 @@ This is safer than plaintext `.env` storage for normal desktop use, but it is no
 
 ## Limitations
 
-Chaessi Preset v2.4.0 does not include raw payload direct generation, Vibe Transfer, Character Slot-specific reference binding, reference preset libraries, advanced crop/composite, scene composition, video features, user-selectable multi-model support, installer, code signing, or auto-update.
+Chaessi Preset v3.1.0 does not include V5 Precise Reference, Vibe Transfer, ControlNet, SMEA/SMEA DYN, V5 Curated, raw payload direct generation, reference preset libraries, advanced crop/composite, scene composition, video features, installer, code signing, or auto-update.
 
-Chaessi Preset v2.4.0에는 raw payload 직접 생성, Vibe Transfer, Character Slot별 reference 연결, reference preset library, 고급 crop/composite, scene composition, video 기능, 사용자 선택형 multi-model 지원, installer, code signing, auto-update가 포함되어 있지 않습니다.
+Chaessi Preset v3.1.0에는 V5 Precise Reference, Vibe Transfer, ControlNet, SMEA/SMEA DYN, V5 Curated, raw payload 직접 생성, reference preset library, 고급 crop/composite, scene composition, video 기능, installer, code signing, auto-update가 포함되어 있지 않습니다.
 
 ## For Developers
 

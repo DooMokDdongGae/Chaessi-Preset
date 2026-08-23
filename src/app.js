@@ -7,11 +7,16 @@ import {
   hasFileTransfer,
 } from "./ui/image-intake.js";
 import { loadNovelAiT5Tokenizer } from "./ui/novelai-t5-tokenizer.js";
+import { loadNovelAiQwenTokenizer } from "./ui/novelai-qwen-tokenizer.js";
 import {
   analyzePresetPromptTokens,
   formatPromptTokenCounter,
   getPromptTokenCounterState,
+  NOVELAI_V45_FULL_TOKEN_PROFILE,
+  NOVELAI_V5_FULL_TOKEN_PROFILE,
 } from "./ui/prompt-token-counter.js";
+import { getModelProfile, NOVELAI_V45_FULL_MODEL } from "./state/model-profiles.js";
+import { switchPresetModel, syncActiveModelState } from "./state/model-state.js";
 import { resolvePresetRandomPrompts } from "./services/prompt-random-resolver.js";
 import {
   DEFAULT_CHARACTER_PRESET_CATEGORY,
@@ -24,9 +29,12 @@ let rawJsonImportTimer = null;
 let generationModeController = null;
 let preciseReferenceController = null;
 let imageIntakeController = null;
-let promptTokenizer = null;
+const promptTokenizers = { t5: null, qwen: null };
 let promptTokenCounterTimer = null;
 let promptTokenizerError = null;
+let promptTokenizerInitialized = false;
+let lastAccountUsageRefreshAt = 0;
+const ACCOUNT_USAGE_FOCUS_REFRESH_MS = 60_000;
 const state = {
   currentPreset: null,
   importResult: null,
@@ -51,9 +59,11 @@ const state = {
   selectedDialogCharacterPresetId: "",
   dialogCharacterCategoryFilter: "",
   dialogCharacterSubCategoryFilter: "",
+  modeByModel: {},
 };
 
 const fields = {
+  model: $("paramModel"),
   presetName: $("presetName"),
   basePrompt: $("basePrompt"),
   undesiredPrompt: $("undesiredPrompt"),
@@ -71,6 +81,8 @@ const fields = {
   sm: $("paramSm"),
   smDyn: $("paramSmDyn"),
   dynamicThresholding: $("paramDynamicThresholding"),
+  qualityPreset: $("paramQualityPreset"),
+  transparentBackground: $("paramTransparentBackground"),
 };
 
 const importFields = {
@@ -95,6 +107,7 @@ async function init() {
     getLatestImagePath: () => state.lastGenerationResponse?.generation?.image_path
       ? toBrowserPath(state.lastGenerationResponse.generation.image_path)
       : "",
+    getModel: () => state.currentPreset?.params?.model || NOVELAI_V45_FULL_MODEL,
     onModeChange: () => preciseReferenceController?.refreshWarnings(),
   });
   generationModeController.bind();
@@ -106,8 +119,13 @@ async function init() {
   imageIntakeController = createImageIntakeController({
     showToast,
     inspectMetadata: async (file) => (await postImage("/api/import/image", file)).import_result,
-    routeToSource: (item, mode) => generationModeController.loadSourceItem(item, mode),
-    routeToReferences: (items) => preciseReferenceController.addIntakeItems(items),
+    routeToSource: async (item, mode) => {
+      await generationModeController.loadSourceItem(item, mode);
+    },
+    routeToReferences: async (items) => {
+      await preciseReferenceController.addIntakeItems(items);
+      if (state.currentPreset?.params?.model === "nai-diffusion-5-full") showToast("V5 Full Precise Reference is not supported. References are preserved for V4.5.", true);
+    },
     applyMetadata: applyIntakeMetadata,
     getReferenceCapacity: () => preciseReferenceController.getCapacity(),
   });
@@ -116,6 +134,7 @@ async function init() {
   bindImageIntake();
   await refreshHealth();
   await refreshTokenStatus();
+  await refreshAccountUsage();
   await loadCharacterPresetCategories();
   const defaultResponse = await getJson("/api/preset/default");
   state.currentPreset = defaultResponse.preset;
@@ -191,6 +210,22 @@ function bindActions() {
   $("characterClearThumbnailButton").addEventListener("click", clearCharacterThumbnail);
   $("characterThumbnailInput").addEventListener("change", setCharacterThumbnailFromFile);
   $("addCharacterButton").addEventListener("click", addCharacterCard);
+  $("characterPositionMode").addEventListener("change", () => {
+    syncPresetFromForm();
+    const mode = $("characterPositionMode").value === "custom" ? "custom" : "auto";
+    state.currentPreset.prompt_parts.characters = state.currentPreset.prompt_parts.characters.map((character) => ({ ...character, position_mode: mode }));
+    renderPresetForm();
+  });
+  fields.model.addEventListener("change", () => {
+    const targetModel = fields.model.value;
+    const currentModel = state.currentPreset.params?.model || NOVELAI_V45_FULL_MODEL;
+    fields.model.value = currentModel;
+    syncPresetFromForm();
+    state.modeByModel[currentModel] = generationModeController.getMode();
+    state.currentPreset = switchPresetModel(state.currentPreset, targetModel);
+    renderPresetForm();
+    showToast(`Switched to ${getModelProfile(targetModel).label}. Incompatible data remains preserved.`);
+  });
   $("generateButton").addEventListener("click", generateImage);
   $("generatedImage").addEventListener("click", () => {
     if (state.lastGenerationResponse) openGenerationViewer(state.lastGenerationResponse);
@@ -219,14 +254,20 @@ function bindActions() {
   });
   $("imageViewerDeleteButton").addEventListener("click", deleteViewedGeneration);
   $("loadHistoryButton").addEventListener("click", loadHistory);
-  $("refreshTokenStatusButton").addEventListener("click", refreshTokenStatus);
+  $("refreshTokenStatusButton").addEventListener("click", async () => {
+    await refreshTokenStatus();
+    await refreshAccountUsage();
+  });
   $("saveTokenButton").addEventListener("click", saveNovelAiToken);
   $("clearTokenButton").addEventListener("click", clearSavedNovelAiToken);
   $("apiSettingsButton").addEventListener("click", () => {
     document.querySelector(".api-settings-surface")?.scrollIntoView({ behavior: "smooth", block: "center" });
   });
+  window.addEventListener("focus", () => {
+    if (Date.now() - lastAccountUsageRefreshAt >= ACCOUNT_USAGE_FOCUS_REFRESH_MS) void refreshAccountUsage();
+  });
 
-  Object.values(fields).filter((field) => field !== fields.charactersJson).forEach((field) => {
+  Object.values(fields).filter((field) => field !== fields.charactersJson && field !== fields.model).forEach((field) => {
     field.addEventListener("input", () => {
       try {
         syncPresetFromForm();
@@ -324,6 +365,41 @@ async function refreshTokenStatus() {
   );
 }
 
+async function refreshAccountUsage() {
+  lastAccountUsageRefreshAt = Date.now();
+  try {
+    const response = await getJson("/api/novelai/account-usage");
+    $("anlasBalanceStatus").textContent = formatAccountMetric("Anlas", response.anlas_balance);
+    $("staminaStatus").textContent = formatAccountMetric("V5 Stamina", response.stamina_percent, "%");
+    return response;
+  } catch {
+    $("anlasBalanceStatus").textContent = "Anlas unavailable";
+    $("staminaStatus").textContent = "V5 Stamina unavailable";
+    return null;
+  }
+}
+
+function formatAccountMetric(label, value, suffix = "") {
+  if (value === null || value === undefined || value === "") return `${label} —`;
+  const number = Number(value);
+  if (!Number.isFinite(number)) return `${label} —`;
+  const formatted = suffix === "%"
+    ? new Intl.NumberFormat("en-US", { maximumFractionDigits: 1 }).format(number)
+    : new Intl.NumberFormat("en-US", { maximumFractionDigits: 0 }).format(number);
+  return `${label} ${formatted}${suffix}`;
+}
+
+function formatSamplerLabel(value) {
+  return ({
+    k_euler_ancestral: "Euler Ancestral",
+    k_euler: "Euler",
+    k_dpmpp_2s_ancestral: "DPM++ 2S Ancestral",
+    k_dpmpp_2m_sde: "DPM++ 2M SDE",
+    k_dpmpp_2m: "DPM++ 2M",
+    k_dpmpp_sde: "DPM++ SDE",
+  })[value] || value;
+}
+
 async function saveNovelAiToken() {
   const input = $("tokenInput");
   const token = input.value.trim();
@@ -332,6 +408,7 @@ async function saveNovelAiToken() {
     await postJson("/api/settings/token", { provider: "novelai", token });
     input.value = "";
     await refreshTokenStatus();
+    await refreshAccountUsage();
     showToast("NovelAI token saved.");
   });
 }
@@ -341,6 +418,7 @@ async function clearSavedNovelAiToken() {
     await deleteJson("/api/settings/token/novelai");
     $("tokenInput").value = "";
     await refreshTokenStatus();
+    await refreshAccountUsage();
     showToast("Saved NovelAI token cleared.");
   });
 }
@@ -502,6 +580,7 @@ async function openPresetSaveDialog(forceNew) {
 async function confirmPresetSave() {
   return withButton($("confirmSavePresetButton"), "Saving", async () => {
     syncPresetFromForm();
+    state.currentPreset = syncActiveModelState(state.currentPreset);
     const preset = structuredClone(state.currentPreset);
     preset.metadata = preset.metadata || {};
     preset.metadata.name = $("presetSaveNameInput").value.trim() || "Untitled Preset";
@@ -616,8 +695,7 @@ async function makeThumbnailBlob(src) {
   canvas.width = size;
   canvas.height = size;
   const context = canvas.getContext("2d");
-  context.fillStyle = "#080b10";
-  context.fillRect(0, 0, size, size);
+  context.clearRect(0, 0, size, size);
   const scale = Math.max(size / image.naturalWidth, size / image.naturalHeight);
   const width = image.naturalWidth * scale;
   const height = image.naturalHeight * scale;
@@ -969,12 +1047,17 @@ async function deleteCharacterPreset({ dialog = false } = {}) {
 async function initializePromptTokenCounters() {
   setAllPromptTokenCounters("Loading tokenizer...", "is-loading");
   try {
-    promptTokenizer = await loadNovelAiT5Tokenizer();
-    promptTokenizerError = null;
+    const [t5, qwen] = await Promise.allSettled([loadNovelAiT5Tokenizer(), loadNovelAiQwenTokenizer()]);
+    promptTokenizers.t5 = t5.status === "fulfilled" ? t5.value : null;
+    promptTokenizers.qwen = qwen.status === "fulfilled" ? qwen.value : null;
+    promptTokenizerError = promptTokenizers.t5 || promptTokenizers.qwen ? null : "Tokenizer assets could not be loaded.";
+    promptTokenizerInitialized = true;
     schedulePromptTokenCounterUpdate(0);
   } catch (error) {
-    promptTokenizer = null;
+    promptTokenizers.t5 = null;
+    promptTokenizers.qwen = null;
     promptTokenizerError = error.message;
+    promptTokenizerInitialized = true;
     setAllPromptTokenCounters("Token count unavailable", "is-unavailable");
   }
 }
@@ -985,16 +1068,18 @@ function schedulePromptTokenCounterUpdate(delay = 80) {
 }
 
 function renderPromptTokenCounters() {
+  const profile = getActiveTokenProfile();
+  const promptTokenizer = profile === NOVELAI_V5_FULL_TOKEN_PROFILE ? promptTokenizers.qwen : promptTokenizers.t5;
   if (!promptTokenizer || !state.currentPreset) {
     setAllPromptTokenCounters(
-      promptTokenizerError ? "Token count unavailable" : "Loading tokenizer...",
-      promptTokenizerError ? "is-unavailable" : "is-loading",
+      promptTokenizerInitialized || promptTokenizerError ? "Token count unavailable" : "Loading tokenizer...",
+      promptTokenizerInitialized || promptTokenizerError ? "is-unavailable" : "is-loading",
     );
     return;
   }
 
   try {
-    const analysis = analyzePresetPromptTokens(state.currentPreset, promptTokenizer);
+    const analysis = analyzePresetPromptTokens(state.currentPreset, promptTokenizer, profile);
     setPromptTokenCounter($("basePromptTokenCounter"), analysis.basePrompt, analysis.limit,
       "Includes enabled Quality Tags and all enabled Character Prompts in the shared context.");
     setPromptTokenCounter($("undesiredPromptTokenCounter"), analysis.baseUndesired, analysis.limit,
@@ -1051,24 +1136,33 @@ function setPromptTokenCounterMessage(element, message, className) {
 }
 
 function reportResolvedPromptLimits(preset) {
+  const profile = getActiveTokenProfile(preset);
+  const promptTokenizer = profile === NOVELAI_V5_FULL_TOKEN_PROFILE ? promptTokenizers.qwen : promptTokenizers.t5;
   if (!promptTokenizer) return;
-  const analysis = analyzePresetPromptTokens(preset, promptTokenizer);
+  const analysis = analyzePresetPromptTokens(preset, promptTokenizer, profile);
   const exceeded = [];
   if (analysis.positiveContext.max > analysis.limit) exceeded.push("Prompt");
   if (analysis.negativeContext.max > analysis.limit) exceeded.push("Undesired Content");
   if (exceeded.length) {
-    showToast(`${exceeded.join(" and ")} exceed the 512-token context. NovelAI will truncate the excess.`, true);
+    showToast(`${exceeded.join(" and ")} exceed the ${analysis.limit}-token context. NovelAI will truncate the excess.`, true);
   }
+}
+
+function getActiveTokenProfile(preset = state.currentPreset) {
+  return preset?.params?.model === "nai-diffusion-5-full" ? NOVELAI_V5_FULL_TOKEN_PROFILE : NOVELAI_V45_FULL_TOKEN_PROFILE;
 }
 
 async function generateImage() {
   return withButton($("generateButton"), "Generating", async () => {
     syncPresetFromForm();
+    const isV5 = state.currentPreset.params?.model === "nai-diffusion-5-full";
+    if (isV5) await refreshAccountUsage();
     setSummary($("generateStatus"), "Generating one image...", false);
     const modeRequest = generationModeController.getGenerateRequest();
     const resolvedPreset = resolvePresetRandomPrompts(state.currentPreset);
     reportResolvedPromptLimits(resolvedPreset);
-    const preciseReferences = preciseReferenceController.getGenerateRequest();
+    const profile = getModelProfile(state.currentPreset.params?.model);
+    const preciseReferences = profile.capabilities.preciseReference ? preciseReferenceController.getGenerateRequest() : [];
     const requestBody = {
       preset: resolvedPreset,
       ...(modeRequest.mode === "text-to-image" ? {} : modeRequest),
@@ -1082,9 +1176,11 @@ async function generateImage() {
     state.lastGeneratedImage = toBrowserPath(response.generation.image_path);
     state.lastGenerationResponse = response;
     updateCurrentSummary();
+    await refreshAccountUsage();
     await loadHistory(false);
-  }, (error) => {
+  }, async (error) => {
     setSummary($("generateStatus"), error.message, false, true);
+    await refreshAccountUsage();
   });
 }
 
@@ -1207,6 +1303,8 @@ async function applyGenerationParams(id) {
     "sm",
     "sm_dyn",
     "dynamic_thresholding",
+    "qualityPreset",
+    "transparentBackground",
   ];
   const params = {};
   for (const key of allowed) {
@@ -1312,12 +1410,15 @@ function renderPresetForm() {
   syncCharacterUiStateLength(preset.prompt_parts?.characters || []);
 
   const params = preset.params || {};
+  const profile = getModelProfile(params.model);
+  fields.model.value = profile.id;
   fields.width.value = params.width ?? "";
   fields.height.value = params.height ?? "";
   fields.steps.value = params.steps ?? "";
   fields.scale.value = params.scale ?? "";
   fields.cfgRescale.value = params.cfg_rescale ?? "";
-  fields.sampler.value = params.sampler ?? "";
+  fields.sampler.innerHTML = profile.samplers.map((sampler) => `<option value="${escapeHtml(sampler)}">${escapeHtml(formatSamplerLabel(sampler))}</option>`).join("");
+  fields.sampler.value = profile.samplers.includes(params.sampler) ? params.sampler : profile.defaults.sampler;
   fields.seed.value = params.seed ?? "";
   fields.noiseSchedule.value = params.noise_schedule ?? "";
   fields.qualityToggle.checked = params.qualityToggle !== false;
@@ -1325,6 +1426,11 @@ function renderPresetForm() {
   fields.sm.checked = Boolean(params.sm);
   fields.smDyn.checked = Boolean(params.sm_dyn);
   fields.dynamicThresholding.checked = Boolean(params.dynamic_thresholding);
+  fields.qualityPreset.value = params.qualityPreset || "standard";
+  fields.transparentBackground.checked = params.transparentBackground === true;
+  const visibleCharacters = (preset.prompt_parts?.characters || []).slice(0, profile.maxCharacters);
+  $("characterPositionMode").value = visibleCharacters.length > 0 && visibleCharacters.every((character) => character.position_mode === "custom") ? "custom" : "auto";
+  applyModelCapabilities(profile);
   renderCharacterCards(preset.prompt_parts?.characters || []);
   schedulePromptTokenCounterUpdate();
   updateCurrentSummary();
@@ -1335,6 +1441,7 @@ function syncPresetFromForm() {
   preset.metadata = preset.metadata || {};
   preset.prompt_parts = preset.prompt_parts || {};
   preset.params = preset.params || {};
+  preset.params.model = fields.model.value || preset.params.model || NOVELAI_V45_FULL_MODEL;
 
   preset.metadata.name = fields.presetName.value.trim() || "Untitled Preset";
   preset.prompt_parts.base = fields.basePrompt.value;
@@ -1353,6 +1460,8 @@ function syncPresetFromForm() {
   preset.params.sm = fields.sm.checked;
   preset.params.sm_dyn = fields.smDyn.checked;
   preset.params.dynamic_thresholding = fields.dynamicThresholding.checked;
+  preset.params.qualityPreset = fields.qualityPreset.value || "standard";
+  preset.params.transparentBackground = fields.transparentBackground.checked;
 
   state.currentPreset = preset;
 }
@@ -1369,7 +1478,9 @@ function parseCharactersJson(value) {
 
 function renderCharacterCards(characters) {
   syncCharacterUiStateLength(characters);
-  $("characterCards").innerHTML = characters.map((character, index) => renderCharacterCard(character, index, "preset")).join("")
+  const maxCharacters = getModelProfile(state.currentPreset?.params?.model).maxCharacters;
+  const visibleCharacters = characters.slice(0, maxCharacters);
+  $("characterCards").innerHTML = visibleCharacters.map((character, index) => renderCharacterCard(character, index, "preset")).join("")
     || "<div class=\"summary\">No character prompts. Add one or import metadata with characters.</div>";
   bindCharacterCardActions();
 }
@@ -1408,8 +1519,8 @@ function renderCharacterCard(character, index, scope) {
       <details class="character-position">
         <summary>Position</summary>
         <div class="center-grid">
-          <label>X <input data-character-field="x" type="number" min="0" max="1" step="0.01" value="${escapeHtml(center.x ?? 0.5)}" /></label>
-          <label>Y <input data-character-field="y" type="number" min="0" max="1" step="0.01" value="${escapeHtml(center.y ?? 0.5)}" /></label>
+          <label>X <input data-character-field="x" type="number" min="0" max="1" step="0.01" value="${escapeHtml(center.x ?? 0.5)}" ${$("characterPositionMode")?.value === "custom" ? "" : "disabled"} /></label>
+          <label>Y <input data-character-field="y" type="number" min="0" max="1" step="0.01" value="${escapeHtml(center.y ?? 0.5)}" ${$("characterPositionMode")?.value === "custom" ? "" : "disabled"} /></label>
         </div>
       </details>
     </article>
@@ -1487,7 +1598,7 @@ function bindCharacterCardActions() {
 function getCharactersFromCards() {
   const cards = [...document.querySelectorAll('#characterCards [data-character-scope="preset"]')];
   if (!cards.length) return parseCharactersJson(fields.charactersJson.value);
-  return cards.map((card, index) => {
+  const edited = cards.map((card, index) => {
     const value = (field) => card.querySelector(`[data-character-field="${field}"]`);
     return {
       id: state.currentPreset.prompt_parts?.characters?.[index]?.id || `character_${index + 1}`,
@@ -1499,12 +1610,17 @@ function getCharactersFromCards() {
         x: clampUnit(value("x").value, 0.5),
         y: clampUnit(value("y").value, 0.5),
       }],
+      position_mode: $("characterPositionMode").value === "custom" ? "custom" : "auto",
     };
   });
+  const existing = state.currentPreset.prompt_parts?.characters || [];
+  return [...edited, ...structuredClone(existing.slice(cards.length))];
 }
 
 function addCharacterCard() {
   syncPresetFromForm();
+  const maxCharacters = getModelProfile(state.currentPreset.params?.model).maxCharacters;
+  if (state.currentPreset.prompt_parts.characters.length >= maxCharacters) return showToast(`This model supports ${maxCharacters} Character Prompt slots.`, true);
   state.currentPreset.prompt_parts.characters.push({
     id: `character_${Date.now()}`,
     name: `Character ${state.currentPreset.prompt_parts.characters.length + 1}`,
@@ -1512,6 +1628,7 @@ function addCharacterCard() {
     prompt: "",
     undesired: "",
     centers: [{ x: 0.5, y: 0.5 }],
+    position_mode: "auto",
   });
   state.characterUiState.push({ activeTab: "prompt" });
   renderPresetForm();
@@ -1537,6 +1654,7 @@ function sanitizeCharacters(characters) {
         y: clampUnit(center?.y, 0.5),
       }))
       : [{ x: 0.5, y: 0.5 }],
+    position_mode: character.position_mode === "custom" ? "custom" : "auto",
   }));
 }
 
@@ -1556,12 +1674,34 @@ function sanitizePresetSnapshot(preset) {
     },
     params: {
       ...(preset?.params || {}),
+      model: preset?.params?.model || NOVELAI_V45_FULL_MODEL,
     },
     sources: {
       imported_raw_payload: preset?.sources?.imported_raw_payload ?? null,
       imported_image_metadata: preset?.sources?.imported_image_metadata ?? null,
     },
+    ...(preset?.model_states && typeof preset.model_states === "object" ? { model_states: structuredClone(preset.model_states) } : {}),
   };
+}
+
+function applyModelCapabilities(profile) {
+  const modelBadge = $("headerModelLabel");
+  modelBadge.textContent = `NovelAI Diffusion ${profile.label}`;
+  modelBadge.dataset.model = profile.id;
+  $("qualityToggleField").hidden = profile.capabilities.qualityPreset;
+  $("qualityPresetField").hidden = !profile.capabilities.qualityPreset;
+  $("transparentBackgroundField").hidden = !profile.capabilities.transparency;
+  $("noiseScheduleField").hidden = profile.family === "v5";
+  $("smField").hidden = !profile.capabilities.smea;
+  $("smDynField").hidden = !profile.capabilities.smea;
+  $("dynamicThresholdField").hidden = profile.family === "v5";
+  $("characterPositionModeField").hidden = profile.family !== "v5";
+  $("preciseReferencePanel").hidden = !profile.capabilities.preciseReference;
+  $("addCharacterButton").disabled = (state.currentPreset.prompt_parts?.characters?.length || 0) >= profile.maxCharacters;
+  const overflow = Math.max(0, (state.currentPreset.prompt_parts?.characters?.length || 0) - profile.maxCharacters);
+  $("characterLimitNotice").textContent = overflow ? `${overflow} additional V5 character slots are preserved but excluded from ${profile.label} generation.` : `${profile.label}: up to ${profile.maxCharacters} Character Prompt slots.`;
+  $("modelCapabilityNotice").textContent = profile.family === "v5" ? "V5 Full: Text to Image, Image to Image, and Inpaint are available. Precise Reference and SMEA are preserved but disabled." : "V4.5 Full: existing Text to Image, Image to Image, Inpaint, and Precise Reference remain available.";
+  generationModeController.setSupportedModes(profile.modes, state.modeByModel[profile.id]);
 }
 
 function syncCharacterUiStateLength(characters) {
@@ -1738,7 +1878,7 @@ async function withButton(button, label, fn, onError) {
   try {
     return await fn();
   } catch (error) {
-    if (onError) onError(error);
+    if (onError) await onError(error);
     showToast(error.message, true);
   } finally {
     button.disabled = false;

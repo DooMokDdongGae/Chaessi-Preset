@@ -29,6 +29,7 @@ export function createCharacterPart(overrides = {}) {
     prompt: overrides.prompt ?? "",
     undesired: overrides.undesired ?? "",
     centers: normalizeCenters(overrides.centers),
+    position_mode: overrides.position_mode === "custom" ? "custom" : "auto",
   };
 }
 
@@ -46,6 +47,9 @@ export function createDefaultPreset(overrides = {}) {
       ...DEFAULT_PARAMS,
       ...(overrides.params ?? {}),
     },
+    ...(overrides.model_states && typeof overrides.model_states === "object"
+      ? { model_states: structuredClone(overrides.model_states) }
+      : {}),
     sources: {
       imported_raw_payload: overrides.sources?.imported_raw_payload ?? null,
       imported_image_metadata: overrides.sources?.imported_image_metadata ?? null,
@@ -76,4 +80,3 @@ function cryptoRandomId(prefix) {
   }
   return `${prefix}-${Date.now()}-${Math.floor(Math.random() * 1_000_000)}`;
 }
-

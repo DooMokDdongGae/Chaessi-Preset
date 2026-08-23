@@ -18,7 +18,9 @@
       </div>
       <div class="header-tools">
         <button id="openImageIntakeButton" type="button">Open Image</button>
-        <div class="health">NovelAI Diffusion V4.5 Full</div>
+        <div class="health model-badge" id="headerModelLabel" data-model="nai-diffusion-4-5-full" role="status" aria-live="polite" tabindex="0">NovelAI Diffusion V4.5 Full</div>
+        <div class="health" id="anlasBalanceStatus">Anlas —</div>
+        <div class="health" id="staminaStatus">V5 Stamina —</div>
         <div class="health" id="healthStatus">checking</div>
         <button id="apiSettingsButton" type="button">API Settings</button>
       </div>
@@ -76,19 +78,32 @@
               </section>
               <section class="tool-surface params-grid preset-params-surface">
                 <h3>Generation Settings</h3>
+                <label>Model
+                  <select id="paramModel">
+                    <option value="nai-diffusion-4-5-full">V4.5 Full</option>
+                    <option value="nai-diffusion-5-full">V5 Full</option>
+                  </select>
+                </label>
+                <div class="summary" id="modelCapabilityNotice"></div>
                 <label>Width <input id="paramWidth" type="number" min="64" step="64" /></label>
                 <label>Height <input id="paramHeight" type="number" min="64" step="64" /></label>
                 <label>Steps <input id="paramSteps" type="number" min="1" /></label>
                 <label>Scale <input id="paramScale" type="number" step="0.1" /></label>
                 <label>CFG rescale <input id="paramCfgRescale" type="number" step="0.01" /></label>
-                <label>Sampler <input id="paramSampler" type="text" /></label>
+                <label>Sampler <select id="paramSampler"></select></label>
                 <label>Seed <input id="paramSeed" type="number" /></label>
-                <label>Noise schedule <input id="paramNoiseSchedule" type="text" /></label>
-                <label>UC preset <input id="paramUcPreset" type="number" /></label>
-                <label class="inline"><input id="paramQualityToggle" type="checkbox" /> Quality tags</label>
-                <label class="inline"><input id="paramSm" type="checkbox" /> SM</label>
-                <label class="inline"><input id="paramSmDyn" type="checkbox" /> Dynamic SM</label>
-                <label class="inline"><input id="paramDynamicThresholding" type="checkbox" /> Dynamic threshold</label>
+                <label id="noiseScheduleField">Noise schedule <input id="paramNoiseSchedule" type="text" /></label>
+                <label>UC preset
+                  <select id="paramUcPreset"><option value="0">Heavy</option><option value="1">Light</option><option value="2">Furry Focus</option><option value="3">Human Focus</option><option value="4">None</option></select>
+                </label>
+                <label class="inline" id="qualityToggleField"><input id="paramQualityToggle" type="checkbox" /> Quality tags</label>
+                <label id="qualityPresetField" hidden>Quality Tags
+                  <select id="paramQualityPreset"><option value="standard">Standard</option><option value="light">Light</option><option value="none">None</option></select>
+                </label>
+                <label class="inline" id="transparentBackgroundField" hidden><input id="paramTransparentBackground" type="checkbox" /> Transparent Background</label>
+                <label class="inline" id="smField"><input id="paramSm" type="checkbox" /> SM</label>
+                <label class="inline" id="smDynField"><input id="paramSmDyn" type="checkbox" /> Dynamic SM</label>
+                <label class="inline" id="dynamicThresholdField"><input id="paramDynamicThresholding" type="checkbox" /> Dynamic threshold</label>
               </section>
             </div>
             <section class="tool-surface preset-character-surface">
@@ -96,6 +111,10 @@
                 <h3>Character Prompts</h3>
                 <button id="addCharacterButton">Add Character</button>
               </div>
+              <div class="summary" id="characterLimitNotice"></div>
+              <label id="characterPositionModeField">Position
+                <select id="characterPositionMode"><option value="auto">AI's Choice</option><option value="custom">Custom</option></select>
+              </label>
               <div class="character-card-list" id="characterCards"></div>
               <textarea id="charactersJson" spellcheck="false" hidden></textarea>
             </section>

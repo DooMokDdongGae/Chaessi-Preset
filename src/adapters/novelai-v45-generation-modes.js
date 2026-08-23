@@ -1,6 +1,8 @@
 import { createHash } from "node:crypto";
 import { buildGeneratePayload } from "./novelai-v45-full.js";
 import { NOVELAI_V45_FULL_MODEL } from "../state/defaults.js";
+import { NOVELAI_V5_FULL_MODEL } from "../state/model-profiles.js";
+import { buildV5GeneratePayload } from "./novelai-v5-full.js";
 
 export const GENERATION_MODES = Object.freeze({
   TEXT_TO_IMAGE: "text-to-image",
@@ -9,9 +11,41 @@ export const GENERATION_MODES = Object.freeze({
 });
 
 export const NOVELAI_V45_FULL_INPAINT_MODEL = `${NOVELAI_V45_FULL_MODEL}-inpainting`;
+export const NOVELAI_V5_FULL_INPAINT_MODEL = `${NOVELAI_V5_FULL_MODEL}-inpainting`;
 
 export function buildModeGeneratePayload(preset, modeState = {}) {
   const mode = normalizeGenerationMode(modeState.mode);
+  if (preset?.params?.model === NOVELAI_V5_FULL_MODEL) {
+    const payload = buildV5GeneratePayload(preset);
+    if (mode === GENERATION_MODES.TEXT_TO_IMAGE) return payload;
+
+    const width = positiveInteger(modeState.width, "source width");
+    const height = positiveInteger(modeState.height, "source height");
+    payload.parameters.width = width;
+    payload.parameters.height = height;
+    payload.parameters.image = requiredBase64(modeState.source_image_base64, "source image");
+    payload.parameters.extra_noise_seed = Math.max(0, payload.parameters.seed - 1);
+
+    if (mode === GENERATION_MODES.IMAGE_TO_IMAGE) {
+      payload.action = "img2img";
+      payload.parameters.strength = unitNumber(modeState.strength, 0.7, "strength");
+      payload.parameters.noise = unitNumber(modeState.noise, 0, "noise");
+      payload.parameters.color_correct = false;
+      return payload;
+    }
+
+    payload.model = NOVELAI_V5_FULL_INPAINT_MODEL;
+    payload.action = "infill";
+    payload.parameters.mask = requiredBase64(modeState.mask_image_base64, "mask image");
+    payload.parameters.strength = unitNumber(modeState.i2i_strength, 0.7, "image strength");
+    payload.parameters.noise = unitNumber(modeState.i2i_noise, 0, "image noise");
+    payload.parameters.add_original_image = false;
+    payload.parameters.inpaintImg2ImgStrength = unitNumber(modeState.strength, 1, "inpaint strength");
+    payload.parameters.deliberate_euler_ancestral_bug = false;
+    payload.parameters.controlnet_strength = 1;
+    payload.parameters.request_type = "NativeInfillingRequest";
+    return payload;
+  }
   const payload = buildGeneratePayload(preset);
   if (mode === GENERATION_MODES.TEXT_TO_IMAGE) return payload;
 
@@ -44,6 +78,7 @@ export function buildModeGeneratePayload(preset, modeState = {}) {
 export function validateModeGeneratePayload(payload, modeState = {}) {
   const mode = normalizeGenerationMode(modeState.mode);
   const errors = [];
+  const isV5 = payload.model === NOVELAI_V5_FULL_MODEL || payload.model === NOVELAI_V5_FULL_INPAINT_MODEL;
   if (payload.parameters?.v4_prompt?.caption?.base_caption !== payload.input) {
     errors.push("v4_prompt base caption does not match input");
   }
@@ -59,20 +94,48 @@ export function validateModeGeneratePayload(payload, modeState = {}) {
     }
   } else if (mode === GENERATION_MODES.IMAGE_TO_IMAGE) {
     if (payload.model !== NOVELAI_V45_FULL_MODEL || payload.action !== "img2img") {
-      errors.push("image-to-image model or action is invalid");
+      if (payload.model !== NOVELAI_V5_FULL_MODEL || payload.action !== "img2img") {
+        errors.push("image-to-image model or action is invalid");
+      }
     }
     if (!payload.parameters?.image || payload.parameters?.mask !== undefined) {
       errors.push("image-to-image payload source assets are invalid");
     }
   } else {
     if (payload.model !== NOVELAI_V45_FULL_INPAINT_MODEL || payload.action !== "infill") {
-      errors.push("inpaint model or action is invalid");
+      if (payload.model !== NOVELAI_V5_FULL_INPAINT_MODEL || payload.action !== "infill") {
+        errors.push("inpaint model or action is invalid");
+      }
     }
     if (!payload.parameters?.image || !payload.parameters?.mask) {
       errors.push("inpaint payload requires source image and mask");
     }
     if (payload.parameters?.request_type !== "NativeInfillingRequest") {
       errors.push("inpaint request_type is invalid");
+    }
+  }
+  if (isV5) {
+    if (payload.parameters?.params_version !== 4) errors.push("V5 mode params_version must be 4");
+    if (payload.parameters?.stream !== "msgpack" || payload.parameters?.image_format !== "png") {
+      errors.push("V5 mode transport parameters are invalid");
+    }
+    if (payload.parameters?.straight_alpha !== true) errors.push("V5 mode straight_alpha must be true");
+    if (payload.parameters?.n_samples !== 1) errors.push("V5 modes support one image per request");
+    for (const key of ["director_reference_images", "reference_image_multiple", "controlnet_condition", "sm", "sm_dyn"]) {
+      if (payload.parameters?.[key] !== undefined) errors.push(`V5 mode contains unsupported ${key}`);
+    }
+    if (mode === GENERATION_MODES.IMAGE_TO_IMAGE) {
+      if (payload.parameters?.color_correct !== false) errors.push("V5 image-to-image color_correct must be false");
+      if (payload.parameters?.extra_noise_seed !== Math.max(0, payload.parameters.seed - 1)) {
+        errors.push("V5 image-to-image extra_noise_seed must equal seed - 1");
+      }
+    }
+    if (mode === GENERATION_MODES.INPAINT) {
+      if (payload.parameters?.add_original_image !== false) errors.push("V5 inpaint add_original_image must be false");
+      if (payload.parameters?.inpaintImg2ImgStrength === undefined) errors.push("V5 inpaint strength is missing");
+      if (payload.parameters?.extra_noise_seed !== Math.max(0, payload.parameters.seed - 1)) {
+        errors.push("V5 inpaint extra_noise_seed must equal seed - 1");
+      }
     }
   }
   findSecretLikeValue(payload, "", errors);

@@ -13,6 +13,22 @@ export const NOVELAI_V45_FULL_TOKEN_PROFILE = Object.freeze({
   ]),
 });
 
+export const NOVELAI_V5_FULL_TOKEN_PROFILE = Object.freeze({
+  model: "nai-diffusion-5-full",
+  tokenizer: "qwen35-compatible",
+  promptLimit: 1471,
+  randomCombinationLimit: 256,
+  qualitySuffix: "",
+  qualitySuffixes: Object.freeze({ none: "", standard: "very aesthetic, masterpiece, no text", light: "very aesthetic, amazing quality, no text" }),
+  ucPresets: Object.freeze([
+    "lowres, artistic error, film grain, scan artifacts, worst quality, bad quality, jpeg artifacts, very displeasing, chromatic aberration, dithering, halftone, screentone, multiple views, logo, too many watermarks, negative space, blank page",
+    "lowres, bad hands, bad anatomy, artistic error, sepia, white haze, worst quality, very displeasing, jpeg artifacts, 0::ai-generated::",
+    "{worst quality}, distracting watermark, unfinished, bad quality, {widescreen}, upscale, {sequence}, {{grandfathered content}}, blurred foreground, chromatic aberration, sketch, everyone, [sketch background], simple, [flat colors], ych (character), outline, multiple scenes, [[horror (theme)]], comic",
+    "lowres, artistic error, film grain, scan artifacts, worst quality, bad quality, jpeg artifacts, very displeasing, chromatic aberration, dithering, halftone, screentone, multiple views, logo, too many watermarks, negative space, blank page, @_@, mismatched pupils, glowing eyes, bad anatomy",
+    "",
+  ]),
+});
+
 const RANDOM_BLOCK_PATTERN = /\|\|([\s\S]*?)\|\|/g;
 
 export function analyzePresetPromptTokens(
@@ -23,7 +39,7 @@ export function analyzePresetPromptTokens(
   const promptParts = preset?.prompt_parts ?? {};
   const params = preset?.params ?? {};
   const characters = Array.isArray(promptParts.characters)
-    ? promptParts.characters.filter((character) => character?.enabled !== false)
+    ? promptParts.characters.slice(0, profile.model === "nai-diffusion-5-full" ? 32 : 6).filter((character) => character?.enabled !== false)
     : [];
   const rawBaseVariants = expandRandomPrompt(
     promptParts.base,
@@ -31,9 +47,7 @@ export function analyzePresetPromptTokens(
     tokenizer,
   );
   const basePrompt = countVariantSet(
-    transformVariantSet(rawBaseVariants, (text) => params.qualityToggle === false
-      ? text
-      : `${text}${profile.qualitySuffix}`),
+    transformVariantSet(rawBaseVariants, (text) => applyQuality(text, params, profile)),
     tokenizer,
   );
   const characterPrompts = characters.map((character) => countPromptText(
@@ -75,6 +89,15 @@ export function analyzePresetPromptTokens(
     positiveContext,
     negativeContext,
   };
+}
+
+function applyQuality(text, params, profile) {
+  if (profile.qualitySuffixes) {
+    const suffix = profile.qualitySuffixes[params.qualityPreset] ?? profile.qualitySuffixes.standard;
+    const parts = [text, params.transparentBackground ? "transparent background" : "", suffix].filter(Boolean);
+    return parts.join(", ");
+  }
+  return params.qualityToggle === false ? text : `${text}${profile.qualitySuffix}`;
 }
 
 export function formatPromptTokenCounter(range, limit = 512) {

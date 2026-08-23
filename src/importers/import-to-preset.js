@@ -1,5 +1,7 @@
 import { createDefaultPreset } from "../state/preset-schema.js";
 import { DEFAULT_PARAMS, NOVELAI_V45_FULL_MODEL } from "../state/defaults.js";
+import { getModelProfile, isSupportedModel } from "../state/model-profiles.js";
+import { syncActiveModelState } from "../state/model-state.js";
 
 const DEFAULT_APPLY_OPTIONS = {
   applyBasePrompt: false,
@@ -38,6 +40,7 @@ export function applyImportToPreset(currentPreset, parsedImport, options = {}) {
           centers: Array.isArray(character.centers) && character.centers.length
             ? character.centers
             : [{ x: 0.5, y: 0.5 }],
+          position_mode: character.position_mode === "custom" ? "custom" : "auto",
         }))
       : [];
   }
@@ -55,9 +58,10 @@ export function applyImportToPreset(currentPreset, parsedImport, options = {}) {
     updated_at: new Date().toISOString(),
   };
 
+  const syncedPreset = syncActiveModelState(nextPreset);
   return {
     ok: true,
-    preset: nextPreset,
+    preset: syncedPreset,
     applied: {
       base_prompt: Boolean(applyOptions.applyBasePrompt),
       undesired: Boolean(applyOptions.applyUndesired),
@@ -69,20 +73,23 @@ export function applyImportToPreset(currentPreset, parsedImport, options = {}) {
 }
 
 function normalizeImportedParams(currentParams, params, warnings) {
+  const importedModel = isSupportedModel(params?.model) ? params.model : NOVELAI_V45_FULL_MODEL;
+  const profile = getModelProfile(importedModel);
   const output = {
     ...DEFAULT_PARAMS,
+    ...profile.defaults,
     ...(currentParams ?? {}),
-    model: NOVELAI_V45_FULL_MODEL,
+    model: importedModel,
   };
   if (!params || typeof params !== "object") return output;
 
-  for (const key of Object.keys(DEFAULT_PARAMS)) {
+  for (const key of new Set([...Object.keys(DEFAULT_PARAMS), ...Object.keys(profile.defaults)])) {
     if (params[key] !== undefined) output[key] = params[key];
   }
-  if (params.model && params.model !== NOVELAI_V45_FULL_MODEL) {
-    warnings.push(`Ignored imported model ${params.model}; only ${NOVELAI_V45_FULL_MODEL} is supported.`);
+  if (params.model && !isSupportedModel(params.model)) {
+    warnings.push(`Imported model ${params.model} is unsupported; using ${NOVELAI_V45_FULL_MODEL}.`);
   }
-  output.model = NOVELAI_V45_FULL_MODEL;
+  output.model = importedModel;
   return output;
 }
 

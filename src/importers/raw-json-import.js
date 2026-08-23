@@ -1,4 +1,5 @@
 import { NOVELAI_V45_FULL_MODEL } from "../state/defaults.js";
+import { NOVELAI_V5_FULL_MODEL } from "../state/model-profiles.js";
 
 const SECRET_KEYS = new Set([
   "token",
@@ -8,6 +9,19 @@ const SECRET_KEYS = new Set([
   "apiKey",
   "access_token",
   "NAI_ACCESS_TOKEN",
+  "signed_hash",
+  "image_cache_secret_key",
+  "cookie",
+  "set-cookie",
+  "session",
+]);
+
+const SOURCE_ASSET_KEYS = new Set([
+  "image",
+  "mask",
+  "controlnet_condition",
+  "director_reference_images",
+  "reference_image_multiple",
 ]);
 
 const PARAM_MAP = {
@@ -26,8 +40,11 @@ const PARAM_MAP = {
   sm: "sm",
   sm_dyn: "sm_dyn",
   dynamic_thresholding: "dynamic_thresholding",
+  qualityPresetId: "qualityPreset",
+  ucPresetId: "ucPreset",
+  tag_hint_transparent_background: "transparentBackground",
 };
-const REQUIRED_PARAM_KEYS = [
+const REQUIRED_COMMON_PARAM_KEYS = [
   "model",
   "width",
   "height",
@@ -38,12 +55,9 @@ const REQUIRED_PARAM_KEYS = [
   "seed",
   "n_samples",
   "noise_schedule",
-  "qualityToggle",
-  "ucPreset",
-  "sm",
-  "sm_dyn",
-  "dynamic_thresholding",
 ];
+const REQUIRED_V45_PARAM_KEYS = ["qualityToggle", "ucPreset", "sm", "sm_dyn", "dynamic_thresholding"];
+const REQUIRED_V5_PARAM_KEYS = ["qualityPreset", "ucPreset", "transparentBackground"];
 
 export function parseRawJsonImport(input) {
   const warnings = [];
@@ -52,7 +66,7 @@ export function parseRawJsonImport(input) {
   const payload = findPayload(sanitized);
   const parameters = payload?.parameters ?? sanitized?.parameters ?? {};
 
-  const basePrompt = firstString(
+  let basePrompt = firstString(
     sanitized?.Description,
     sanitized?.Prompt,
     payload?.input,
@@ -65,7 +79,7 @@ export function parseRawJsonImport(input) {
     sanitized?.v4_prompt?.caption?.base_caption,
     sanitized?.prompt_parts?.base,
   );
-  const undesired = firstString(
+  let undesired = firstString(
     sanitized?.["Undesired Content"],
     parameters?.negative_prompt,
     payload?.negative_prompt,
@@ -79,11 +93,19 @@ export function parseRawJsonImport(input) {
     sanitized?.prompt_parts?.undesired,
   );
 
-  const positiveChars = getCharCaptions(parameters?.v4_prompt ?? payload?.v4_prompt ?? sanitized?.v4_prompt);
+  const positivePrompt = parameters?.v4_prompt ?? payload?.v4_prompt ?? sanitized?.v4_prompt;
+  const positiveChars = getCharCaptions(positivePrompt);
   const negativeChars = getCharCaptions(parameters?.v4_negative_prompt ?? payload?.v4_negative_prompt ?? sanitized?.v4_negative_prompt);
-  const characters = mergeCharacters(positiveChars, negativeChars);
+  const characters = mergeCharacters(positiveChars, negativeChars, positivePrompt?.use_coords === true);
   const params = extractParams(payload, parameters, sanitized);
-  const missingParams = REQUIRED_PARAM_KEYS.filter((key) => params[key] === undefined);
+  basePrompt = stripQualitySuffix(basePrompt, params.qualityPreset);
+  basePrompt = stripTransparentSuffix(basePrompt, params.transparentBackground);
+  undesired = stripUcPrefix(undesired, params.ucPreset, basePrompt);
+  const requiredKeys = [
+    ...REQUIRED_COMMON_PARAM_KEYS,
+    ...(params.model === NOVELAI_V5_FULL_MODEL ? REQUIRED_V5_PARAM_KEYS : REQUIRED_V45_PARAM_KEYS),
+  ];
+  const missingParams = requiredKeys.filter((key) => params[key] === undefined);
   if (missingParams.length) {
     warnings.push(`Missing generation parameter candidates: ${missingParams.join(", ")}.`);
   }
@@ -177,8 +199,8 @@ function extractParams(payload, parameters, source) {
     ...(source?.generation ?? {}),
   };
 
-  if (payload?.model || source?.generation?.model || parameters?.model) {
-    params.model = payload?.model || source?.generation?.model || parameters?.model;
+  if (payload?.model || source?.generation?.model || parameters?.model || source?.model_name || source?.Source) {
+    params.model = detectModel(payload?.model || source?.generation?.model || parameters?.model || source?.model_name || source?.Source);
   } else if (payload || parameters || source) {
     params.model = NOVELAI_V45_FULL_MODEL;
   }
@@ -186,6 +208,7 @@ function extractParams(payload, parameters, source) {
   for (const [sourceKey, targetKey] of Object.entries(PARAM_MAP)) {
     if (candidates[sourceKey] !== undefined) params[targetKey] = candidates[sourceKey];
   }
+  params.transparentBackground = candidates.tag_hint_transparent_background === true;
 
   if (source?.generation?.quality_toggle !== undefined) {
     params.qualityToggle = source.generation.quality_toggle;
@@ -199,14 +222,32 @@ function extractParams(payload, parameters, source) {
   if (source?.generation?.guidance_rescale !== undefined) {
     params.cfg_rescale = source.generation.guidance_rescale;
   }
-  if (params.qualityToggle === undefined && looksLikeNovelAiV4Source(payload, parameters, source)) {
+  if (params.qualityToggle === undefined && params.model === NOVELAI_V45_FULL_MODEL && looksLikeNovelAiV4Source(payload, parameters, source)) {
     params.qualityToggle = true;
   }
-  if (params.ucPreset === undefined && looksLikeNovelAiV4Source(payload, parameters, source)) {
+  if (typeof params.qualityPreset === "number") {
+    params.qualityPreset = new Map([[0, "none"], [1, "standard"], [3, "light"]]).get(params.qualityPreset) || "standard";
+  }
+  if (typeof params.qualityPreset !== "string" && candidates.tag_hint_qt !== undefined) {
+    params.qualityPreset = new Map([[0, "none"], [1, "standard"], [3, "light"]]).get(Number(candidates.tag_hint_qt)) || "none";
+  }
+  if (typeof params.ucPreset === "string") {
+    params.ucPreset = new Map([["heavy", 0], ["light", 1], ["furryFocus", 2], ["humanFocus", 3], ["none", 4]]).get(params.ucPreset) ?? 4;
+  } else if (params.ucPreset === undefined && candidates.tag_hint_uc_preset !== undefined) {
+    params.ucPreset = new Map([[2, 0], [3, 1], [5, 2], [4, 3], [0, 4]]).get(Number(candidates.tag_hint_uc_preset)) ?? 4;
+  }
+  if (params.ucPreset === undefined && params.model === NOVELAI_V45_FULL_MODEL && looksLikeNovelAiV4Source(payload, parameters, source)) {
     params.ucPreset = 0;
   }
 
   return params;
+}
+
+function detectModel(value) {
+  const text = String(value || "");
+  return /diffusion[- ]?v5|nai-diffusion-5|NovelAI Diffusion V5/i.test(text)
+    ? NOVELAI_V5_FULL_MODEL
+    : text === NOVELAI_V45_FULL_MODEL ? text : NOVELAI_V45_FULL_MODEL;
 }
 
 function looksLikeNovelAiV4Source(payload, parameters, source) {
@@ -229,7 +270,7 @@ function getCharCaptions(v4Prompt) {
   return Array.isArray(captions) ? captions : [];
 }
 
-function mergeCharacters(positiveChars, negativeChars) {
+function mergeCharacters(positiveChars, negativeChars, useCoords = false) {
   const max = Math.max(positiveChars.length, negativeChars.length);
   const characters = [];
   for (let index = 0; index < max; index += 1) {
@@ -246,9 +287,39 @@ function mergeCharacters(positiveChars, negativeChars) {
         : Array.isArray(negative.centers)
           ? negative.centers
           : [{ x: 0.5, y: 0.5 }],
+      position_mode: useCoords ? "custom" : "auto",
     });
   }
   return characters;
+}
+
+function stripQualitySuffix(prompt, qualityPreset) {
+  const suffix = qualityPreset === "standard"
+    ? "very aesthetic, masterpiece, no text"
+    : qualityPreset === "light" ? "very aesthetic, amazing quality, no text" : "";
+  if (!suffix) return prompt;
+  const marker = `, ${suffix}`;
+  return prompt.endsWith(marker) ? prompt.slice(0, -marker.length) : prompt;
+}
+
+function stripTransparentSuffix(prompt, transparentBackground) {
+  if (transparentBackground !== true) return prompt;
+  const marker = ", transparent background";
+  return prompt.endsWith(marker) ? prompt.slice(0, -marker.length) : prompt;
+}
+
+function stripUcPrefix(prompt, ucPreset, basePrompt) {
+  const prefixes = [
+    "lowres, artistic error, film grain, scan artifacts, worst quality, bad quality, jpeg artifacts, very displeasing, chromatic aberration, dithering, halftone, screentone, multiple views, logo, too many watermarks, negative space, blank page",
+    "lowres, bad hands, bad anatomy, artistic error, sepia, white haze, worst quality, very displeasing, jpeg artifacts, 0::ai-generated::",
+    "{worst quality}, distracting watermark, unfinished, bad quality, {widescreen}, upscale, {sequence}, {{grandfathered content}}, blurred foreground, chromatic aberration, sketch, everyone, [sketch background], simple, [flat colors], ych (character), outline, multiple scenes, [[horror (theme)]], comic",
+    "lowres, artistic error, film grain, scan artifacts, worst quality, bad quality, jpeg artifacts, very displeasing, chromatic aberration, dithering, halftone, screentone, multiple views, logo, too many watermarks, negative space, blank page, @_@, mismatched pupils, glowing eyes, bad anatomy",
+  ];
+  const prefix = prefixes[Number(ucPreset)];
+  if (!prefix) return prompt;
+  const complete = `${String(basePrompt).toLowerCase().includes("nsfw") ? "" : "nsfw, "}${prefix}`;
+  if (prompt === complete) return "";
+  return prompt.startsWith(`${complete}, `) ? prompt.slice(complete.length + 2) : prompt;
 }
 
 function firstString(...values) {
@@ -273,8 +344,13 @@ export function sanitizeImportedValue(value, warnings, path = "") {
   const output = {};
   for (const [key, child] of Object.entries(value)) {
     const childPath = path ? `${path}.${key}` : key;
-    if (SECRET_KEYS.has(key)) {
+    const normalizedKey = key.toLowerCase();
+    if (SECRET_KEYS.has(key) || SECRET_KEYS.has(normalizedKey)) {
       warnings.push("Removed secret-like field from imported data.");
+      continue;
+    }
+    if (SOURCE_ASSET_KEYS.has(key)) {
+      warnings.push("Removed embedded source asset from imported data.");
       continue;
     }
     output[key] = sanitizeImportedValue(child, warnings, childPath);

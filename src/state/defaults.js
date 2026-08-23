@@ -1,8 +1,10 @@
 export const APP_NAME = "chaessi-payload-manager";
-export const APP_VERSION = "2.4.0";
+export const APP_VERSION = "3.1.0";
 
-export const NOVELAI_V45_FULL_MODEL = "nai-diffusion-4-5-full";
+export { NOVELAI_V45_FULL_MODEL, NOVELAI_V5_FULL_MODEL } from "./model-profiles.js";
+import { NOVELAI_V45_FULL_MODEL } from "./model-profiles.js";
 export const NOVELAI_GENERATE_ENDPOINT = "https://image.novelai.net/ai/generate-image";
+export const NOVELAI_V5_GENERATE_ENDPOINT = "https://image.novelai.net/ai/generate-image-stream";
 
 export const DEFAULT_PROMPT = "1girl, flower field, sunset, very aesthetic, masterpiece, no text";
 export const DEFAULT_UNDESIRED_PROMPT = [

@@ -78,6 +78,8 @@ export function createGenerationStore({ rootDir }) {
         if (mode === GENERATION_MODES.INPAINT) {
           sidecar.generation.add_original_image = modeSettings.add_original_image === true;
           sidecar.generation.generation_padding = Number(modeSettings.generation_padding) || 0;
+          if (modeSettings.image_strength !== undefined) sidecar.generation.image_strength = modeSettings.image_strength;
+          if (modeSettings.image_noise !== undefined) sidecar.generation.image_noise = modeSettings.image_noise;
         }
         sidecar.source_assets = {
           source_image_filename: sourceRelativePath,

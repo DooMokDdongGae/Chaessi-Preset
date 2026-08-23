@@ -48,6 +48,11 @@ export function normalizePngToRgb(bytes, label = "image") {
   return encodeRgbPng(pngPixelsToRgb(decoded), decoded.width, decoded.height);
 }
 
+export function normalizePngToRgba(bytes, label = "image") {
+  const decoded = decodePngPixels(bytes, label);
+  return encodeRgbaPng(pngPixelsToRgba(decoded), decoded.width, decoded.height);
+}
+
 export function decodePngPixels(bytes, label = "image") {
   const buffer = Buffer.from(bytes);
   const { width, height } = readPngSize(buffer, label);
@@ -114,6 +119,17 @@ export function pngPixelsToAlpha(decoded) {
   return alpha;
 }
 
+export function pngPixelsToRgba(decoded) {
+  const rgb = pngPixelsToRgb(decoded);
+  const alpha = pngPixelsToAlpha(decoded);
+  const rgba = Buffer.alloc(decoded.width * decoded.height * 4);
+  for (let index = 0; index < decoded.width * decoded.height; index += 1) {
+    rgb.copy(rgba, index * 4, index * 3, index * 3 + 3);
+    rgba[index * 4 + 3] = alpha[index];
+  }
+  return rgba;
+}
+
 export function pngPixelsToMask(decoded) {
   const mask = Buffer.alloc(decoded.width * decoded.height);
   const alpha = pngPixelsToAlpha(decoded);
@@ -143,6 +159,31 @@ export function encodeRgbPng(rgb, width, height, { metadataSourceBytes } = {}) {
   ihdr.writeUInt32BE(height, 4);
   ihdr[8] = 8;
   ihdr[9] = 2;
+  return Buffer.concat([
+    PNG_SIGNATURE,
+    pngChunk("IHDR", ihdr),
+    ...extractMetadataChunks(metadataSourceBytes),
+    pngChunk("IDAT", deflateSync(raw)),
+    pngChunk("IEND", Buffer.alloc(0)),
+  ]);
+}
+
+export function encodeRgbaPng(rgba, width, height, { metadataSourceBytes } = {}) {
+  const expectedLength = width * height * 4;
+  if (rgba.length !== expectedLength) throw imageError("RGBA pixel data length does not match image dimensions.");
+  const rgbaBuffer = Buffer.from(rgba);
+  const stride = width * 4;
+  const raw = Buffer.alloc((stride + 1) * height);
+  for (let y = 0; y < height; y += 1) {
+    const targetOffset = y * (stride + 1);
+    raw[targetOffset] = 0;
+    rgbaBuffer.copy(raw, targetOffset + 1, y * stride, (y + 1) * stride);
+  }
+  const ihdr = Buffer.alloc(13);
+  ihdr.writeUInt32BE(width, 0);
+  ihdr.writeUInt32BE(height, 4);
+  ihdr[8] = 8;
+  ihdr[9] = 6;
   return Buffer.concat([
     PNG_SIGNATURE,
     pngChunk("IHDR", ihdr),

@@ -1,5 +1,58 @@
 # Changelog
 
+## v3.1.0
+
+Chaessi Preset v3.1.0 adds NovelAI V5 Full Image to Image and Inpaint while preserving the complete V4.5 Full generation workflow.
+
+### Added
+
+- V5 Full Image to Image with PNG/WebP/JPEG intake, Strength, Noise, Character Prompts, Quality/UC presets, CFG Rescale, transparent-source alpha preservation, and History result reuse.
+- V5 Full Inpaint through `nai-diffusion-5-full-inpainting`, action `infill`, multipart `image`/`mask`/`request` parts, and MessagePack final-image decoding.
+- Model-specific I2I settings so V5 defaults to Noise 0 while the existing V4.5 Noise 0.05 behavior remains unchanged.
+- RGBA PNG normalization for V5 source images without embedding source or mask Base64 in NovelAI request JSON, sidecars, or stored payloads.
+- Separate History source, user selection mask, 16px-padded 8x8 binary generation mask, raw result, metadata, and redacted payload assets for V5 modes.
+
+### Verified
+
+- Official UI V5 Inpaint center and image-edge cases confirmed `nai-diffusion-5-full-inpainting`, `infill`, `NativeInfillingRequest`, multipart PNG parts, `application/msgpack`, raw RGBA PNG output, and model hash `657484A5` at 0 Anlas.
+- Three sequential Chaessi live cases validated V5 I2I (Strength 0.4, Noise 0.2), History result reuse, center Inpaint, edge Inpaint, mask padding/alignment, raw output storage, and complete History asset cleanup.
+- Anlas remained 10000 before and after every new live case; projected V5 Stamina remained 100%.
+
+### Compatibility and safety
+
+- V4.5 T2I remains deep-equal to the v3.0.0 builder; existing V4.5 I2I, Inpaint, Precise Reference, mask, History, and token-storage tests remain unchanged and passing.
+- V5 Precise Reference, Vibe Transfer, ControlNet, SMEA/SMEA DYN, and V5 Curated remain blocked.
+- Raw NovelAI Inpaint PNGs are stored directly without a local composite pass.
+- The existing safeStorage/server authentication route and projected Anlas/V5 Stamina fields are unchanged.
+- Existing presets without model metadata continue to load as V4.5; model-specific snapshots preserve hidden V5 Character 7-32 data and restore it when returning to V5.
+- Existing Full Presets, Character Prompt Presets, custom category/subCategory values, Random Prompt Resolver, image intake, metadata import, thumbnails, and legacy History remain compatible without a broad migration.
+
+### Release
+
+- Windows portable asset: `Chaessi-Preset-v3.1.0-x64.exe` (`97,830,060 bytes`).
+- SHA256: `0FADC0E5C828B8D5BA781DC42813B11109383A5C83D584863F5D62F6FFA11AEF`.
+- Users updating from v2.4.0 can replace the portable EXE; presets, History, token storage, and other user data remain outside the application bundle.
+
+## v3.0.0
+
+Chaessi Preset v3.0.0 preserves the complete NovelAI V4.5 Full workflow and adds NovelAI V5 Full Text to Image using the request and streaming response contract verified against the official UI.
+
+### Added
+
+- NovelAI V5 Full Text to Image with separate model state and an official Qwen-compatible 1471-token context counter.
+- V5 Quality Standard, Light, and None; UC Heavy, Light, Furry Focus, Human Focus, and None; CFG Rescale; transparent PNG output; and official sampler values.
+- Up to 32 V5 Character Prompts with positive and undesired text plus global AI's Choice or Custom positioning.
+- Multipart `request` JSON Blob transport to `generate-image-stream` and strict length-prefixed MessagePack event decoding without transforming final PNG bytes.
+- Server-side Anlas and V5 Stamina lookup through the existing safeStorage/token path, exposing only display values to the renderer.
+- Distinct non-animated neon cyan and magenta model badges with keyboard focus styling.
+
+### Compatibility and safety
+
+- V4.5 Full Text to Image, Image to Image, Inpaint, Precise Reference, presets, Character Slots, History, imports, Random Prompt Resolver, and token storage remain supported.
+- V5 Image to Image, Inpaint, and Precise Reference are preserved in model state but disabled for generation in this release.
+- Five sequential V5 free-generation cases validated base presets, transparent alpha, AI positioning, Custom positioning, raw PNG storage, metadata import, and History round trips without changing Anlas.
+- Authentication, embedded source bytes, signed hashes, cache secrets, and raw stream payloads are excluded from renderer projections and saved preset metadata.
+
 ## v2.4.0
 
 Chaessi Preset v2.4.0 unifies file, clipboard, and drag-and-drop image input without changing existing generation payloads or preset schemas.

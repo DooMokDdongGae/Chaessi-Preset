@@ -3,7 +3,9 @@ import {
   APP_VERSION,
   DEFAULT_PARAMS,
   NOVELAI_GENERATE_ENDPOINT,
+  NOVELAI_V5_GENERATE_ENDPOINT,
   NOVELAI_V45_FULL_MODEL,
+  NOVELAI_V5_FULL_MODEL,
 } from "../state/defaults.js";
 import {
   createDefaultPreset as createSchemaDefaultPreset,
@@ -11,10 +13,10 @@ import {
   PRESET_SCHEMA,
 } from "../state/preset-schema.js";
 
-const SUPPORTED_TOP_LEVEL_KEYS = new Set(["metadata", "prompt_parts", "params", "sources"]);
+const SUPPORTED_TOP_LEVEL_KEYS = new Set(["metadata", "prompt_parts", "params", "sources", "model_states"]);
 const SUPPORTED_METADATA_KEYS = new Set(["schema", "id", "name", "created_at", "updated_at", "app", "thumbnail_path"]);
 const SUPPORTED_PROMPT_KEYS = new Set(["base", "undesired", "characters"]);
-const SUPPORTED_CHARACTER_KEYS = new Set(["id", "name", "enabled", "prompt", "undesired", "centers"]);
+const SUPPORTED_CHARACTER_KEYS = new Set(["id", "name", "enabled", "prompt", "undesired", "centers", "position_mode"]);
 const SUPPORTED_SOURCE_KEYS = new Set(["imported_raw_payload", "imported_image_metadata"]);
 const SUPPORTED_PARAM_KEYS = new Set([
   "model",
@@ -33,6 +35,8 @@ const SUPPORTED_PARAM_KEYS = new Set([
   "sm",
   "sm_dyn",
   "dynamic_thresholding",
+  "qualityPreset",
+  "transparentBackground",
 ]);
 
 const FORBIDDEN_PAYLOAD_KEYS = [
@@ -48,6 +52,10 @@ const FORBIDDEN_PAYLOAD_KEYS = [
   "reference_image_multiple",
   "director_reference_images",
 ];
+const FORBIDDEN_PRESET_KEYS = new Set([
+  "authorization", "bearer", "apikey", "token", "access_token", "cookie", "set-cookie", "session",
+  "signed_hash", "image_cache_secret_key", "image", "mask", "reference_image_multiple", "director_reference_images",
+]);
 
 export function createDefaultPreset(overrides = {}) {
   return createSchemaDefaultPreset(overrides);
@@ -71,7 +79,7 @@ export function buildGeneratePayload(preset) {
   const basePrompt = String(preset.prompt_parts?.base ?? "");
   const undesiredPrompt = String(preset.prompt_parts?.undesired ?? "");
   const characters = Array.isArray(preset.prompt_parts?.characters)
-    ? preset.prompt_parts.characters.filter((character) => character.enabled !== false)
+    ? preset.prompt_parts.characters.slice(0, 6).filter((character) => character.enabled !== false)
     : [];
 
   const positiveCharCaptions = characters
@@ -178,11 +186,19 @@ export function buildSidecar({ preset, payload, status, responseInfo = {} }) {
       sampler: parameters.sampler,
       noise_schedule: parameters.noise_schedule,
       n_samples: parameters.n_samples,
-      qualityToggle: parameters.qualityToggle,
-      ucPreset: parameters.ucPreset,
+      qualityToggle: preset.params?.qualityToggle,
+      ucPreset: preset.params?.ucPreset,
       sm: parameters.sm,
       sm_dyn: parameters.sm_dyn,
       dynamic_thresholding: parameters.dynamic_thresholding,
+      qualityPreset: preset.params?.qualityPreset,
+      qualityPresetId: parameters.qualityPresetId,
+      ucPresetId: parameters.ucPresetId,
+      tag_hint_qt: parameters.tag_hint_qt,
+      tag_hint_uc_preset: parameters.tag_hint_uc_preset,
+      transparentBackground: preset.params?.transparentBackground === true,
+      characterPrompts: parameters.characterPrompts,
+      use_coords: parameters.use_coords,
     },
     output: {
       image_filename: responseInfo.image_filename ?? null,
@@ -191,9 +207,11 @@ export function buildSidecar({ preset, payload, status, responseInfo = {} }) {
       response_image_entry: responseInfo.response_image_entry ?? null,
       response_content_type: responseInfo.response_content_type ?? null,
       content_disposition: responseInfo.content_disposition ?? null,
+      stream_event_count: responseInfo.stream_event_count ?? null,
+      stream_intermediate_count: responseInfo.stream_intermediate_count ?? null,
     },
     request: {
-      endpoint: NOVELAI_GENERATE_ENDPOINT,
+      endpoint: payload.model === NOVELAI_V5_FULL_MODEL ? NOVELAI_V5_GENERATE_ENDPOINT : NOVELAI_GENERATE_ENDPOINT,
       automatic_retry: false,
       created_at_utc: createdAt,
     },
@@ -247,8 +265,8 @@ export function validatePreset(preset) {
     errors.push("params is required");
   } else {
     warnUnknownKeys(preset.params, SUPPORTED_PARAM_KEYS, "params", warnings);
-    if (preset.params.model && preset.params.model !== NOVELAI_V45_FULL_MODEL) {
-      errors.push(`params.model must be ${NOVELAI_V45_FULL_MODEL}`);
+    if (preset.params.model && ![NOVELAI_V45_FULL_MODEL, NOVELAI_V5_FULL_MODEL].includes(preset.params.model)) {
+      errors.push(`params.model is unsupported: ${preset.params.model}`);
     }
   }
 
@@ -258,7 +276,25 @@ export function validatePreset(preset) {
     warnUnknownKeys(preset.sources, SUPPORTED_SOURCE_KEYS, "sources", warnings);
   }
 
+  findForbiddenPresetEntries(preset, "preset", errors);
+
   return { ok: errors.length === 0, errors, warnings };
+}
+
+function findForbiddenPresetEntries(value, path, errors) {
+  if (!value || typeof value !== "object") return;
+  if (Array.isArray(value)) {
+    value.forEach((item, index) => findForbiddenPresetEntries(item, `${path}[${index}]`, errors));
+    return;
+  }
+  for (const [key, child] of Object.entries(value)) {
+    const childPath = `${path}.${key}`;
+    if (FORBIDDEN_PRESET_KEYS.has(key.toLowerCase())) errors.push(`forbidden preset field detected: ${childPath}`);
+    if (typeof child === "string" && (/^pst-[A-Za-z0-9_-]+$/.test(child.trim()) || /Bearer\s+[A-Za-z0-9._-]+/.test(child))) {
+      errors.push(`possible credential detected at: ${childPath}`);
+    }
+    findForbiddenPresetEntries(child, childPath, errors);
+  }
 }
 
 export function validatePayloadSafety(payload) {

@@ -18,7 +18,7 @@ const MODES = Object.freeze({
 
 const MAX_SOURCE_PIXELS = 4_194_304;
 
-export function createGenerationModeController({ showToast, getLatestImagePath, onModeChange }) {
+export function createGenerationModeController({ showToast, getLatestImagePath, getModel, onModeChange }) {
   const state = {
     mode: MODES.TEXT_TO_IMAGE,
     source: null,
@@ -35,6 +35,9 @@ export function createGenerationModeController({ showToast, getLatestImagePath, 
     generationPadding: 16,
     cursorPoint: null,
     cursorInside: false,
+    supportedModes: new Set(Object.values(MODES)),
+    activeModel: null,
+    settingsByModel: new Map(),
   };
 
   const elements = {};
@@ -62,6 +65,8 @@ export function createGenerationModeController({ showToast, getLatestImagePath, 
       generationPaddingValue: byId("inpaintGenerationPaddingValue"),
       toggleMaskButton: byId("toggleMaskButton"),
     });
+
+    activateModelSettings();
 
     document.querySelectorAll("[data-generation-mode]").forEach((button) => {
       button.addEventListener("click", () => setMode(button.dataset.generationMode));
@@ -124,7 +129,7 @@ export function createGenerationModeController({ showToast, getLatestImagePath, 
   }
 
   function setMode(mode) {
-    if (!Object.values(MODES).includes(mode)) return;
+    if (!Object.values(MODES).includes(mode) || !state.supportedModes.has(mode)) return;
     if (state.mode === MODES.IMAGE_TO_IMAGE) {
       state.i2iStrength = Number(elements.strength.value);
       state.i2iNoise = Number(elements.noise.value);
@@ -139,6 +144,7 @@ export function createGenerationModeController({ showToast, getLatestImagePath, 
   function renderMode() {
     document.querySelectorAll("[data-generation-mode]").forEach((button) => {
       button.classList.toggle("is-active", button.dataset.generationMode === state.mode);
+      button.disabled = !state.supportedModes.has(button.dataset.generationMode);
     });
     const requiresSource = state.mode !== MODES.TEXT_TO_IMAGE;
     elements.sourcePanel.hidden = !requiresSource;
@@ -178,9 +184,8 @@ export function createGenerationModeController({ showToast, getLatestImagePath, 
       const canvas = elements.sourceCanvas;
       canvas.width = bitmap.width;
       canvas.height = bitmap.height;
-      const context = canvas.getContext("2d", { alpha: false });
-      context.fillStyle = "#000";
-      context.fillRect(0, 0, canvas.width, canvas.height);
+      const context = canvas.getContext("2d");
+      context.clearRect(0, 0, canvas.width, canvas.height);
       context.drawImage(bitmap, 0, 0);
       state.source = {
         fileName: item.fileName || fallbackName || "source-image",
@@ -435,7 +440,32 @@ export function createGenerationModeController({ showToast, getLatestImagePath, 
     if (state.mode === MODES.IMAGE_TO_IMAGE) state.i2iNoise = value;
   }
 
+  function activateModelSettings() {
+    const model = getModel?.() || "nai-diffusion-4-5-full";
+    if (state.activeModel === model) return;
+    if (state.activeModel) {
+      state.settingsByModel.set(state.activeModel, {
+        i2iStrength: state.i2iStrength,
+        i2iNoise: state.i2iNoise,
+        inpaintStrength: state.inpaintStrength,
+        generationPadding: state.generationPadding,
+      });
+    }
+    const restored = state.settingsByModel.get(model) || defaultModeSettings(model);
+    state.i2iStrength = restored.i2iStrength;
+    state.i2iNoise = restored.i2iNoise;
+    state.inpaintStrength = restored.inpaintStrength;
+    state.generationPadding = restored.generationPadding;
+    state.activeModel = model;
+    if (elements.generationPadding) {
+      elements.generationPadding.value = String(state.generationPadding);
+      updateGenerationPadding();
+      renderMode();
+    }
+  }
+
   function getGenerateRequest() {
+    if (!state.supportedModes.has(state.mode)) throw new Error("The selected model does not support this generation mode.");
     if (state.mode === MODES.TEXT_TO_IMAGE) return { mode: state.mode };
     if (!state.source) throw new Error("Choose a source image before generating.");
     const request = {
@@ -443,7 +473,7 @@ export function createGenerationModeController({ showToast, getLatestImagePath, 
       mode_state: {
         width: elements.sourceCanvas.width,
         height: elements.sourceCanvas.height,
-        source_image_base64: elements.sourceCanvas.toDataURL("image/png").split(",")[1],
+        source_image_base64: exportSourcePngBase64(),
         strength: state.mode === MODES.INPAINT ? state.inpaintStrength : state.i2iStrength,
         noise: state.mode === MODES.IMAGE_TO_IMAGE ? state.i2iNoise : 0,
         source_info: {
@@ -459,6 +489,8 @@ export function createGenerationModeController({ showToast, getLatestImagePath, 
       request.mode_state.mask_image_base64 = exportSelectionMaskPngBase64();
       request.mode_state.add_original_image = false;
       request.mode_state.generation_padding = state.generationPadding;
+      request.mode_state.i2i_strength = state.i2iStrength;
+      request.mode_state.i2i_noise = state.i2iNoise;
     }
     return request;
   }
@@ -469,6 +501,20 @@ export function createGenerationModeController({ showToast, getLatestImagePath, 
 
   function exportSelectionMaskPngBase64() {
     return exportMaskPngBase64(getSelectionMaskImageData());
+  }
+
+  function exportSourcePngBase64() {
+    if (getModel?.() === "nai-diffusion-5-full") {
+      return elements.sourceCanvas.toDataURL("image/png").split(",")[1];
+    }
+    const output = document.createElement("canvas");
+    output.width = elements.sourceCanvas.width;
+    output.height = elements.sourceCanvas.height;
+    const context = output.getContext("2d", { alpha: false });
+    context.fillStyle = "#000";
+    context.fillRect(0, 0, output.width, output.height);
+    context.drawImage(elements.sourceCanvas, 0, 0);
+    return output.toDataURL("image/png").split(",")[1];
   }
 
   function exportMaskPngBase64(maskImageData) {
@@ -488,6 +534,22 @@ export function createGenerationModeController({ showToast, getLatestImagePath, 
     loadSourceFromUrl,
     setMode,
     getMode: () => state.mode,
+    setSupportedModes(modes, preferredMode) {
+      activateModelSettings();
+      state.supportedModes = new Set(Array.isArray(modes) ? modes : [MODES.TEXT_TO_IMAGE]);
+      const nextMode = state.supportedModes.has(preferredMode) ? preferredMode : state.supportedModes.has(state.mode) ? state.mode : MODES.TEXT_TO_IMAGE;
+      setMode(nextMode);
+      renderMode();
+    },
+  };
+}
+
+function defaultModeSettings(model) {
+  return {
+    i2iStrength: 0.7,
+    i2iNoise: model === "nai-diffusion-5-full" ? 0 : 0.05,
+    inpaintStrength: 1,
+    generationPadding: 16,
   };
 }
 
