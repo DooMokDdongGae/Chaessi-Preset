@@ -46,21 +46,21 @@ The app keeps this flow stable:
 UI -> Internal Preset Schema -> Adapter -> NovelAI Payload -> NovelAI
 ```
 
-Chaessi Preset v3.1.0 preserves the complete V4.5 Full workflow and supports V5 Full T2I, I2I, and Inpaint through the official multipart and MessagePack stream contract.
+Chaessi Preset v3.1.1 preserves the complete V4.5 Full workflow and supports V5 Full T2I, I2I, and Inpaint through the official multipart and MessagePack stream contract.
 
-Chaessi Preset v3.1.0은 V4.5 Full 전체 흐름을 보존하면서 공식 multipart 및 MessagePack stream 계약에 맞춘 V5 Full T2I, I2I, Inpaint를 지원합니다.
+Chaessi Preset v3.1.1은 V4.5 Full 전체 흐름을 보존하면서 공식 multipart 및 MessagePack stream 계약에 맞춘 V5 Full T2I, I2I, Inpaint를 지원합니다.
 
-V5 Precise Reference, Vibe Transfer, ControlNet, and SMEA/SMEA DYN are unavailable in NovelAI V5. V5 Curated, raw payload direct generation, scene composition, and video features are not included in Chaessi Preset v3.1.0.
+V5 Precise Reference, Vibe Transfer, ControlNet, and SMEA/SMEA DYN are unavailable in NovelAI V5. V5 Curated, raw payload direct generation, scene composition, and video features are not included in Chaessi Preset v3.1.1.
 
-Precise Reference, Vibe Transfer, ControlNet, SMEA/SMEA DYN은 현재 NovelAI V5에서 지원되지 않습니다. V5 Curated, raw payload 직접 생성, scene composition, video 기능은 Chaessi Preset v3.1.0에 포함하지 않았습니다.
+Precise Reference, Vibe Transfer, ControlNet, SMEA/SMEA DYN은 현재 NovelAI V5에서 지원되지 않습니다. V5 Curated, raw payload 직접 생성, scene composition, video 기능은 Chaessi Preset v3.1.1에 포함하지 않았습니다.
 
 ## Current Version and Download / 현재 버전과 다운로드
 
-- Current version / 현재 버전: **v3.1.0**
-- Download / 다운로드: [GitHub Release v3.1.0](https://github.com/DooMokDdongGae/Chaessi-Preset/releases/tag/v3.1.0)
-- Windows Portable app: `Chaessi-Preset-v3.1.0-x64.exe`
-- Size / 크기: `97,830,060 bytes`
-- SHA256: `0FADC0E5C828B8D5BA781DC42813B11109383A5C83D584863F5D62F6FFA11AEF`
+- Current version / 현재 버전: **v3.1.1**
+- Download / 다운로드: [GitHub Release v3.1.1](https://github.com/DooMokDdongGae/Chaessi-Preset/releases/tag/v3.1.1)
+- Windows Portable app: `Chaessi-Preset-v3.1.1-x64.exe`
+- Size / 크기: `97,835,572 bytes`
+- SHA256: `30AFF09142BE5C428B46B147743653C802E5C9F456B4F30A2E61BE8956F8D234`
 
 이 배포본은 Windows용 Portable Electron 앱입니다. 설치 프로그램이 아니므로 EXE를 다운로드해 직접 실행합니다. 기존 사용자 데이터는 EXE와 분리된 Electron userData에 저장되므로 새 EXE로 교체해도 프리셋과 History가 자동으로 삭제되지 않습니다.
 
@@ -116,7 +116,7 @@ V5의 **Transparent Background**는 모델의 native alpha transparency를 요�
 
 ### V5에서 사용할 수 없는 기능
 
-현재 NovelAI V5 자체에서 지원되지 않아 Chaessi의 V5 UI에서도 비활성화되는 기능은 **Precise Reference, Vibe Transfer, ControlNet, SMEA/SMEA DYN**입니다. 이 중 V4.5 Precise Reference는 Chaessi에서 계속 지원됩니다. 반면 V5 Curated, raw payload 직접 생성, scene composition과 video는 이 앱 v3.1.0의 제품 범위에 포함되지 않은 항목입니다.
+현재 NovelAI V5 자체에서 지원되지 않아 Chaessi의 V5 UI에서도 비활성화되는 기능은 **Precise Reference, Vibe Transfer, ControlNet, SMEA/SMEA DYN**입니다. 이 중 V4.5 Precise Reference는 Chaessi에서 계속 지원됩니다. 반면 V5 Curated, raw payload 직접 생성, scene composition과 video는 이 앱 v3.1.1의 제품 범위에 포함되지 않은 항목입니다.
 
 <details>
 <summary>기술적 호환성</summary>
@@ -124,6 +124,19 @@ V5의 **Transparent Background**는 모델의 native alpha transparency를 요�
 V5 T2I/I2I/Inpaint는 공식 multipart request와 length-prefixed MessagePack stream 응답 계약을 사용합니다. V5 I2I는 기본 V5 Full 모델을, Inpaint는 대응 V5 Full inpainting 모델을 사용합니다. 이미지와 mask bytes는 JSON/Base64로 저장하지 않고 multipart binary part로 전송하며 raw result PNG bytes를 변환 없이 보존합니다.
 
 </details>
+
+## v3.1.1 성능 및 반응성 개선
+
+v3.1.1은 저장 형식이나 생성 계약을 바꾸지 않고, History와 Character Preset이 많을 때의 화면 반응성을 개선한 패치 릴리즈입니다.
+
+- History 상세 정보를 열 때 전체 History 목록을 다시 구성하지 않고 해당 항목을 직접 조회합니다.
+- 큰 History 목록과 Character Preset 목록을 단계적으로 표시해 최초 화면 부담을 줄였습니다.
+- History 선택 직후 loading 상태를 표시합니다.
+- 여러 History를 빠르게 연속 선택했을 때 이전 요청이 최신 선택을 덮어쓰지 않습니다.
+- Character Preset category 전환과 목록 동작의 중복 listener를 정리했습니다.
+- 기존 preset, History, 모델 상태와 저장 schema는 그대로 호환됩니다.
+
+This patch improves History and Character Preset responsiveness while preserving existing presets, History files, model state, and storage schemas.
 
 ## v3.1.0은 v2.4.0에서 무엇이 달라졌는가
 
@@ -188,7 +201,7 @@ Current release build:
 현재 릴리즈 빌드:
 
 ```text
-dist/Chaessi-Preset-v3.1.0-x64.exe
+dist/Chaessi-Preset-v3.1.1-x64.exe
 ```
 
 The EXE is portable. You can move it to another folder and run it from there. User presets, character presets, token storage, and generation history are stored separately from the EXE, so replacing the EXE does not remove saved app data.
@@ -354,9 +367,9 @@ NovelAI's raw Inpaint PNG is used directly as the final image and History result
 
 NovelAI의 raw Inpaint PNG를 최종 이미지와 History 결과로 그대로 사용합니다. 로컬 Feather/Composite 처리는 적용하지 않습니다. Source, selection mask, 실제 전송 generation mask는 생성 시점의 별도 자산으로 보관되며 payload와 sidecar JSON에는 전체 이미지 Base64 데이터가 들어가지 않습니다.
 
-Advanced Crop -> Generate -> Composite is not included in v3.1.0.
+Advanced Crop -> Generate -> Composite is not included in v3.1.1.
 
-고급 Crop -> Generate -> Composite는 v3.1.0에 포함되지 않습니다.
+고급 Crop -> Generate -> Composite는 v3.1.1에 포함되지 않습니다.
 
 ## Precise Reference
 
@@ -376,9 +389,9 @@ Reference images are prepared locally as centered PNGs using the official V4.5 r
 
 Reference 이미지는 공식 V4.5 reference 크기에 맞춘 중앙 정렬 PNG로 로컬에서 준비되며, 준비된 bytes만 생성 요청에 사용됩니다. History에는 실제 전송 PNG를 별도 asset으로 저장하고, payload와 sidecar JSON에는 이미지 Base64 대신 안전한 경로, byte length, hash, 설정값만 기록합니다.
 
-Vibe Transfer, reference preset libraries, and Character Slot-specific reference binding are not included in v3.1.0.
+Vibe Transfer, reference preset libraries, and Character Slot-specific reference binding are not included in v3.1.1.
 
-Vibe Transfer, reference preset library, Character Slot별 reference 연결은 v3.1.0에 포함되지 않습니다.
+Vibe Transfer, reference preset library, Character Slot별 reference 연결은 v3.1.1에 포함되지 않습니다.
 
 ## Character Prompt Preset Categories
 
@@ -487,9 +500,9 @@ This is safer than plaintext `.env` storage for normal desktop use, but it is no
 
 ## Limitations
 
-Chaessi Preset v3.1.0 does not include V5 Precise Reference, Vibe Transfer, ControlNet, SMEA/SMEA DYN, V5 Curated, raw payload direct generation, reference preset libraries, advanced crop/composite, scene composition, video features, installer, code signing, or auto-update.
+Chaessi Preset v3.1.1 does not include V5 Precise Reference, Vibe Transfer, ControlNet, SMEA/SMEA DYN, V5 Curated, raw payload direct generation, reference preset libraries, advanced crop/composite, scene composition, video features, installer, code signing, or auto-update.
 
-Chaessi Preset v3.1.0에는 V5 Precise Reference, Vibe Transfer, ControlNet, SMEA/SMEA DYN, V5 Curated, raw payload 직접 생성, reference preset library, 고급 crop/composite, scene composition, video 기능, installer, code signing, auto-update가 포함되어 있지 않습니다.
+Chaessi Preset v3.1.1에는 V5 Precise Reference, Vibe Transfer, ControlNet, SMEA/SMEA DYN, V5 Curated, raw payload 직접 생성, reference preset library, 고급 crop/composite, scene composition, video 기능, installer, code signing, auto-update가 포함되어 있지 않습니다.
 
 ## For Developers
 

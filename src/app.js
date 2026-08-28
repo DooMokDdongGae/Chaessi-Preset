@@ -2,6 +2,8 @@ import { deleteJson, getJson, postForm, postImage, postJson } from "./api/client
 import { createGenerationModeController } from "./ui/generation-mode-controller.js";
 import { createPreciseReferenceController } from "./ui/precise-reference-controller.js";
 import { createImageIntakeController } from "./ui/image-intake-controller.js";
+import { createLatestRequestGuard } from "./ui/latest-request.js";
+import { createPagedListController } from "./ui/paged-list.js";
 import {
   getImageFilesFromTransfer,
   hasFileTransfer,
@@ -35,6 +37,9 @@ let promptTokenizerError = null;
 let promptTokenizerInitialized = false;
 let lastAccountUsageRefreshAt = 0;
 const ACCOUNT_USAGE_FOCUS_REFRESH_MS = 60_000;
+const historyPages = createPagedListController(50);
+const characterPresetPages = createPagedListController(50);
+const historyViewGuard = createLatestRequestGuard();
 const state = {
   currentPreset: null,
   importResult: null,
@@ -44,6 +49,8 @@ const state = {
   imageViewerContext: null,
   presets: [],
   generations: [],
+  selectedHistoryGenerationId: "",
+  historyLoadingGenerationId: "",
   characterPresets: [],
   characterPresetCategories: cloneBuiltInCharacterPresetCategories(),
   characterUiState: [],
@@ -182,6 +189,8 @@ function bindActions() {
   $("dialogRefreshCharacterPresetButton").addEventListener("click", () => loadCharacterList({ dialog: true }));
   $("dialogApplyCharacterPresetButton").addEventListener("click", () => applyCharacterPreset({ dialog: true }));
   $("dialogDeleteCharacterPresetButton").addEventListener("click", () => deleteCharacterPreset({ dialog: true }));
+  $("dialogCharacterPresetCards").addEventListener("click", handleDialogCharacterPresetClick);
+  $("dialogCharacterPresetLoadMoreButton").addEventListener("click", loadMoreDialogCharacterPresets);
   $("manageCharacterPresetCategoriesButton").addEventListener("click", openCharacterPresetCategoryManager);
   $("categoryManagerParentCategorySelect").addEventListener("change", renderCategoryManagerSubcategories);
   $("categoryManagerAddCategoryButton").addEventListener("click", addManagedCharacterPresetCategory);
@@ -253,7 +262,10 @@ function bindActions() {
     if (context?.imagePath) downloadPath(context.imagePath, `${context.id || "generation"}.png`);
   });
   $("imageViewerDeleteButton").addEventListener("click", deleteViewedGeneration);
+  $("imageViewerDialog").addEventListener("close", cancelPendingHistoryView);
   $("loadHistoryButton").addEventListener("click", loadHistory);
+  $("historyList").addEventListener("click", handleHistoryListClick);
+  $("historyLoadMoreButton").addEventListener("click", loadMoreHistory);
   $("refreshTokenStatusButton").addEventListener("click", async () => {
     await refreshTokenStatus();
     await refreshAccountUsage();
@@ -1201,76 +1213,125 @@ async function deleteLatestGeneration() {
 async function loadHistory(showMessage = true) {
   const response = await getJson("/api/generations");
   state.generations = response.items || [];
-  $("historyList").innerHTML = state.generations.map(renderHistoryItem).join("") || "<div class=\"summary\">No generations yet.</div>";
-  document.querySelectorAll("button[data-generation-id]").forEach((button) => {
-    button.addEventListener("click", () => {
-      const item = state.generations.find((generation) => generation.id === button.dataset.generationId);
-      if (item) viewHistoryGeneration(item.id);
-    });
-  });
-  document.querySelectorAll("img[data-view-generation]").forEach((image) => {
-    image.addEventListener("click", () => viewHistoryGeneration(image.dataset.viewGeneration));
-  });
-  document.querySelectorAll("[data-download-generation]").forEach((button) => {
-    button.addEventListener("click", (event) => {
-      event.stopPropagation();
-      const item = state.generations.find((generation) => generation.id === button.dataset.downloadGeneration);
-      if (item) downloadPath(toBrowserPath(item.image_path), `${item.id}.png`);
-    });
-  });
-  document.querySelectorAll("[data-use-generation-source]").forEach((button) => {
-    button.addEventListener("click", async (event) => {
-      event.stopPropagation();
-      const item = state.generations.find((generation) => generation.id === button.dataset.useGenerationSource);
-      if (!item) return;
-      await generationModeController.loadSourceFromUrl(toBrowserPath(item.image_path), `${item.id}.png`);
-      document.querySelector('[data-generation-mode="image-to-image"]')?.click();
-      document.getElementById("panel-generate")?.scrollIntoView({ behavior: "smooth", block: "start" });
-    });
-  });
-  document.querySelectorAll("[data-delete-generation]").forEach((button) => {
-    button.addEventListener("click", async (event) => {
-      event.stopPropagation();
-      const id = button.dataset.deleteGeneration;
-      await deleteJson(`/api/generations/${encodeURIComponent(id)}`);
-      if (state.lastGenerationResponse?.generation?.id === id) {
-        $("generatedImage").removeAttribute("src");
-        $("latestResultActions").hidden = true;
-        $("generationSummary").innerHTML = "";
-        state.lastGeneratedImage = "";
-        state.lastGenerationResponse = null;
-        updateCurrentSummary();
-      }
-      await loadHistory(false);
-      showToast("Generation deleted with image, sidecar, and payload.");
-    });
-  });
-  document.querySelectorAll("[data-apply-generation-seed]").forEach((button) => {
-    button.addEventListener("click", async (event) => {
-      event.stopPropagation();
-      await applyGenerationSeed(button.dataset.applyGenerationSeed);
-    });
-  });
-  document.querySelectorAll("[data-apply-generation-params]").forEach((button) => {
-    button.addEventListener("click", async (event) => {
-      event.stopPropagation();
-      await applyGenerationParams(button.dataset.applyGenerationParams);
-    });
-  });
-  document.querySelectorAll("[data-apply-generation-preset]").forEach((button) => {
-    button.addEventListener("click", async (event) => {
-      event.stopPropagation();
-      await applyGenerationPreset(button.dataset.applyGenerationPreset);
-    });
-  });
+  historyPages.reset(state.generations);
+  renderHistoryList();
   if (showMessage) showToast("History loaded.");
 }
 
 async function viewHistoryGeneration(id) {
-  const response = await getJson(`/api/generations/${encodeURIComponent(id)}`);
-  const generation = response.generation || {};
-  $("historyImage").src = toBrowserPath(generation.image_path);
-  openStoredGenerationViewer(generation);
+  const requestToken = historyViewGuard.begin();
+  state.selectedHistoryGenerationId = id;
+  state.historyLoadingGenerationId = id;
+  updateHistorySelection(id, true);
+  $("historyStatus").textContent = "Loading generation details…";
+  await waitForNextPaint();
+  try {
+    const response = await getJson(`/api/generations/${encodeURIComponent(id)}`);
+    if (!historyViewGuard.isCurrent(requestToken)) return;
+    const generation = response.generation || {};
+    $("historyImage").src = toBrowserPath(generation.image_path);
+    state.historyLoadingGenerationId = "";
+    updateHistorySelection(id, false);
+    $("historyStatus").textContent = "Generation details loaded.";
+    openStoredGenerationViewer(generation);
+  } catch (error) {
+    if (!historyViewGuard.isCurrent(requestToken)) return;
+    state.historyLoadingGenerationId = "";
+    updateHistorySelection(id, false);
+    $("historyStatus").textContent = "Generation details could not be loaded.";
+    showToast(error.message, true);
+  }
+}
+
+function renderHistoryList() {
+  const page = historyPages.snapshot();
+  $("historyList").innerHTML = page.items.map(renderHistoryItem).join("") || "<div class=\"summary\">No generations yet.</div>";
+  updateHistorySelection(
+    state.selectedHistoryGenerationId,
+    state.historyLoadingGenerationId === state.selectedHistoryGenerationId,
+  );
+  $("historyLoadMoreButton").hidden = !page.hasMore;
+  $("historyLoadMoreButton").textContent = page.hasMore
+    ? `Load ${Math.min(50, page.totalCount - page.visibleCount)} more (${page.visibleCount}/${page.totalCount})`
+    : `All ${page.totalCount} loaded`;
+}
+
+function loadMoreHistory() {
+  historyPages.loadMore();
+  renderHistoryList();
+}
+
+async function handleHistoryListClick(event) {
+  const target = event.target instanceof Element ? event.target : null;
+  if (!target) return;
+  try {
+    const view = target.closest("[data-view-generation], button[data-generation-id]");
+    if (view) return await viewHistoryGeneration(view.dataset.viewGeneration || view.dataset.generationId);
+    const download = target.closest("[data-download-generation]");
+    if (download) {
+      const item = state.generations.find((generation) => generation.id === download.dataset.downloadGeneration);
+      if (item) downloadPath(toBrowserPath(item.image_path), `${item.id}.png`);
+      return;
+    }
+    const source = target.closest("[data-use-generation-source]");
+    if (source) {
+      const item = state.generations.find((generation) => generation.id === source.dataset.useGenerationSource);
+      if (!item) return;
+      await generationModeController.loadSourceFromUrl(toBrowserPath(item.image_path), `${item.id}.png`);
+      document.querySelector('[data-generation-mode="image-to-image"]')?.click();
+      document.getElementById("panel-generate")?.scrollIntoView({ behavior: "smooth", block: "start" });
+      return;
+    }
+    const remove = target.closest("[data-delete-generation]");
+    if (remove) return await deleteHistoryGeneration(remove.dataset.deleteGeneration);
+    const preset = target.closest("[data-apply-generation-preset]");
+    if (preset) return await applyGenerationPreset(preset.dataset.applyGenerationPreset);
+    const seed = target.closest("[data-apply-generation-seed]");
+    if (seed) return await applyGenerationSeed(seed.dataset.applyGenerationSeed);
+    const params = target.closest("[data-apply-generation-params]");
+    if (params) return await applyGenerationParams(params.dataset.applyGenerationParams);
+  } catch (error) {
+    showToast(error.message, true);
+  }
+}
+
+async function deleteHistoryGeneration(id) {
+  await deleteJson(`/api/generations/${encodeURIComponent(id)}`);
+  if (state.lastGenerationResponse?.generation?.id === id) {
+    $("generatedImage").removeAttribute("src");
+    $("latestResultActions").hidden = true;
+    $("generationSummary").innerHTML = "";
+    state.lastGeneratedImage = "";
+    state.lastGenerationResponse = null;
+    updateCurrentSummary();
+  }
+  if (state.selectedHistoryGenerationId === id) state.selectedHistoryGenerationId = "";
+  if (state.historyLoadingGenerationId === id) state.historyLoadingGenerationId = "";
+  await loadHistory(false);
+  showToast("Generation deleted with image, sidecar, and payload.");
+}
+
+function updateHistorySelection(id, loading) {
+  document.querySelectorAll(".history-card[data-generation-id]").forEach((card) => {
+    const selected = Boolean(id) && card.dataset.generationId === id;
+    card.classList.toggle("is-selected", selected);
+    card.classList.toggle("is-loading", selected && loading);
+    if (selected && loading) card.setAttribute("aria-busy", "true");
+    else card.removeAttribute("aria-busy");
+  });
+}
+
+function cancelPendingHistoryView() {
+  historyViewGuard.cancel();
+  state.historyLoadingGenerationId = "";
+  updateHistorySelection(state.selectedHistoryGenerationId, false);
+}
+
+function waitForNextPaint() {
+  return Promise.race([
+    new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve))),
+    new Promise((resolve) => setTimeout(resolve, 120)),
+  ]);
 }
 
 async function applyGenerationSeed(id) {
@@ -1792,7 +1853,7 @@ function openImageViewer({ title, imagePath, meta = "", id = "" }) {
   $("imageViewerSummary").textContent = meta || "";
   state.imageViewerContext = { id, imagePath };
   $("imageViewerDeleteButton").hidden = !id;
-  $("imageViewerDialog").showModal();
+  if (!$("imageViewerDialog").open) $("imageViewerDialog").showModal();
 }
 
 async function deleteViewedGeneration() {
@@ -2122,32 +2183,49 @@ async function addManagedCharacterPresetSubcategory() {
   }, (error) => setSummary($("categoryManagerStatus"), error.message, false, true));
 }
 
-function renderDialogCharacterPresetCards(items) {
+function renderDialogCharacterPresetCards(items, { reset = true } = {}) {
+  if (reset) characterPresetPages.reset(items);
+  const page = characterPresetPages.snapshot();
   const selectedId = state.selectedDialogCharacterPresetId || "";
-  $("dialogCharacterPresetCards").innerHTML = items.map((item) => renderDialogCharacterPresetCard(item, selectedId)).join("")
+  $("dialogCharacterPresetCards").innerHTML = page.items.map((item) => renderDialogCharacterPresetCard(item, selectedId)).join("")
     || "<div class=\"summary\">No character presets in this category.</div>";
   if (selectedId) {
     selectDialogCharacterPreset(selectedId, { silent: true });
   } else {
     $("dialogCharacterPresetList").value = "";
   }
-  document.querySelectorAll("[data-dialog-character-preset-id]").forEach((card) => {
-    card.addEventListener("click", () => selectDialogCharacterPreset(card.dataset.dialogCharacterPresetId));
-  });
-  document.querySelectorAll("[data-dialog-character-load]").forEach((button) => {
-    button.addEventListener("click", async (event) => {
-      event.stopPropagation();
-      selectDialogCharacterPreset(button.dataset.dialogCharacterLoad);
+  $("dialogCharacterPresetLoadMoreButton").hidden = !page.hasMore;
+  $("dialogCharacterPresetLoadMoreButton").textContent = page.hasMore
+    ? `Load ${Math.min(50, page.totalCount - page.visibleCount)} more (${page.visibleCount}/${page.totalCount})`
+    : `All ${page.totalCount} loaded`;
+}
+
+function loadMoreDialogCharacterPresets() {
+  characterPresetPages.loadMore();
+  renderDialogCharacterPresetCards([], { reset: false });
+}
+
+async function handleDialogCharacterPresetClick(event) {
+  const target = event.target instanceof Element ? event.target : null;
+  if (!target) return;
+  try {
+    const load = target.closest("[data-dialog-character-load]");
+    if (load) {
+      selectDialogCharacterPreset(load.dataset.dialogCharacterLoad);
       await applyCharacterPreset({ dialog: true });
-    });
-  });
-  document.querySelectorAll("[data-dialog-character-delete]").forEach((button) => {
-    button.addEventListener("click", async (event) => {
-      event.stopPropagation();
-      selectDialogCharacterPreset(button.dataset.dialogCharacterDelete);
+      return;
+    }
+    const remove = target.closest("[data-dialog-character-delete]");
+    if (remove) {
+      selectDialogCharacterPreset(remove.dataset.dialogCharacterDelete);
       await deleteCharacterPreset({ dialog: true });
-    });
-  });
+      return;
+    }
+    const card = target.closest("[data-dialog-character-preset-id]");
+    if (card) selectDialogCharacterPreset(card.dataset.dialogCharacterPresetId);
+  } catch (error) {
+    showToast(error.message, true);
+  }
 }
 
 function renderDialogCharacterPresetCard(item, selectedId) {

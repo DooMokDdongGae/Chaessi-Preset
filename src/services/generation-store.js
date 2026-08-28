@@ -1,4 +1,4 @@
-import { writeFile } from "node:fs/promises";
+import { access, writeFile } from "node:fs/promises";
 import path from "node:path";
 import {
   createTimestampId,
@@ -20,6 +20,7 @@ import {
 
 export function createGenerationStore({ rootDir }) {
   const generationsDir = path.join(rootDir, "data", "generations");
+  const sidecarPathById = new Map();
 
   return {
     async saveGeneration({ preset, payload, imageBytes, responseInfo, mode = GENERATION_MODES.TEXT_TO_IMAGE, modeSettings = {}, sourceAssets = {} }) {
@@ -115,6 +116,7 @@ export function createGenerationStore({ rootDir }) {
       }
       await writeJsonFile(path.join(absoluteFolder, `${id}.payload.json`), storedPayload);
       await writeJsonFile(path.join(absoluteFolder, `${id}.json`), sidecar);
+      sidecarPathById.set(id, path.join(absoluteFolder, `${id}.json`));
 
       return {
         id,
@@ -135,6 +137,7 @@ export function createGenerationStore({ rootDir }) {
         for (const fileName of files.filter((name) => name.endsWith(".json") && !name.endsWith(".payload.json"))) {
           try {
             const sidecar = await readJsonFile(path.join(folder, fileName));
+            if (sidecar.generation_id) sidecarPathById.set(sidecar.generation_id, path.join(folder, fileName));
             items.push(toGenerationSummary(sidecar, dateDir));
           } catch {
             // Ignore incomplete generation sidecars.
@@ -147,20 +150,25 @@ export function createGenerationStore({ rootDir }) {
 
     async getGeneration(id) {
       const generationId = sanitizeStoreId(id);
-      const items = await this.listGenerations();
-      const item = items.find((entry) => entry.id === generationId);
-      if (!item) throw storeError(404, "generation_not_found", "Generation not found.");
-      const absoluteSidecar = resolveGenerationPath(rootDir, item.sidecar_path);
-      return await readJsonFile(absoluteSidecar);
+      const sidecarPath = await findGenerationSidecarPath(generationId);
+      const sidecar = await readGenerationSidecar(sidecarPath);
+      if (sidecar.generation_id !== generationId) {
+        sidecarPathById.delete(generationId);
+        throw storeError(404, "generation_not_found", "Generation not found.");
+      }
+      return sidecar;
     },
 
     async deleteGeneration(id) {
       const generationId = sanitizeStoreId(id);
-      const items = await this.listGenerations();
-      const item = items.find((entry) => entry.id === generationId);
-      if (!item) throw storeError(404, "generation_not_found", "Generation not found.");
-      const sidecarPath = resolveGenerationPath(rootDir, item.sidecar_path);
-      const sidecar = await readJsonFile(sidecarPath).catch(() => null);
+      const sidecarPath = await findGenerationSidecarPath(generationId);
+      const sidecar = await readGenerationSidecar(sidecarPath);
+      if (sidecar.generation_id !== generationId) {
+        sidecarPathById.delete(generationId);
+        throw storeError(404, "generation_not_found", "Generation not found.");
+      }
+      const dateDir = path.basename(path.dirname(sidecarPath));
+      const item = toGenerationSummary(sidecar, dateDir);
       await removePath(resolveGenerationPath(rootDir, item.image_path));
       await removePath(sidecarPath);
       await removePath(resolveGenerationPath(rootDir, item.payload_path));
@@ -176,6 +184,7 @@ export function createGenerationStore({ rootDir }) {
       for (const reference of sidecar?.reference_assets || []) {
         if (reference?.image_filename) await removePath(resolveGenerationPath(rootDir, reference.image_filename));
       }
+      sidecarPathById.delete(generationId);
       return {
         id: generationId,
         deleted: true,
@@ -183,6 +192,48 @@ export function createGenerationStore({ rootDir }) {
       };
     },
   };
+
+  async function findGenerationSidecarPath(generationId) {
+    const indexedPath = sidecarPathById.get(generationId);
+    if (indexedPath) {
+      try {
+        await access(indexedPath);
+        return indexedPath;
+      } catch {
+        sidecarPathById.delete(generationId);
+      }
+    }
+
+    const datePrefix = generationId.match(/^(\d{4}-\d{2}-\d{2})_/u)?.[1];
+    if (datePrefix) {
+      const directPath = path.join(generationsDir, datePrefix, `${generationId}.json`);
+      try {
+        await access(directPath);
+        sidecarPathById.set(generationId, directPath);
+        return directPath;
+      } catch {
+        // Fall through for legacy records whose folder does not match their id prefix.
+      }
+    }
+
+    for (const dateDir of await listDirectories(generationsDir)) {
+      const folder = path.join(generationsDir, dateDir);
+      if ((await listFiles(folder)).includes(`${generationId}.json`)) {
+        const legacyPath = path.join(folder, `${generationId}.json`);
+        sidecarPathById.set(generationId, legacyPath);
+        return legacyPath;
+      }
+    }
+    throw storeError(404, "generation_not_found", "Generation not found.");
+  }
+
+  async function readGenerationSidecar(sidecarPath) {
+    try {
+      return await readJsonFile(sidecarPath);
+    } catch {
+      throw storeError(404, "generation_not_found", "Generation not found.");
+    }
+  }
 }
 
 function toGenerationSummary(sidecar, dateDir) {

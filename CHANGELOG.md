@@ -1,5 +1,22 @@
 # Changelog
 
+## v3.1.1
+
+Chaessi Preset v3.1.1 improves responsiveness for large History and Character Preset libraries without changing their stored schemas.
+
+### Improved
+
+- History details now use direct sidecar lookup instead of rebuilding the complete History list for every selection.
+- History cards render in 50-item steps, with additional items available through Load more.
+- History selection shows immediate loading feedback while the detail request is in progress.
+- Rapid History selections keep the newest result and ignore older responses that arrive later.
+- Character Preset cards render in 50-item steps while preserving category and subcategory filters.
+- Character Preset actions use a single delegated listener, reducing repeated listener registration and improving category-switch responsiveness.
+
+### Compatibility
+
+- Existing preset and History schemas, stored files, ordering, model state, and V4.5/V5 generation contracts remain compatible.
+
 ## v3.1.0
 
 Chaessi Preset v3.1.0 adds NovelAI V5 Full Image to Image and Inpaint while preserving the complete V4.5 Full generation workflow.

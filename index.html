@@ -369,7 +369,11 @@
               <button id="loadHistoryButton">Load History</button>
             </div>
             <div class="history-layout">
-              <div id="historyList" class="history-list"></div>
+              <div>
+                <div id="historyList" class="history-list"></div>
+                <button id="historyLoadMoreButton" class="load-more-button" type="button" hidden>Load more</button>
+                <div id="historyStatus" class="visually-hidden" role="status" aria-live="polite"></div>
+              </div>
               <img id="historyImage" alt="" />
             </div>
           </section>
@@ -525,6 +529,7 @@
         </div>
         <select id="dialogCharacterPresetList" size="8" hidden></select>
         <div class="character-preset-card-list" id="dialogCharacterPresetCards"></div>
+        <button id="dialogCharacterPresetLoadMoreButton" class="load-more-button" type="button" hidden>Load more</button>
         <div class="summary" id="characterPresetDialogStatus">No preset selected.</div>
       </form>
     </dialog>
