@@ -66,7 +66,7 @@ import { parseNovelAiPngMetadata } from "./src/importers/nai-metadata.js";
 import { parseImageMetadata } from "./src/importers/image-metadata.js";
 
 const HEALTH_APP_NAME = "Chaessi Preset";
-const APP_VERSION = "3.1.1";
+const APP_VERSION = "3.2.0";
 const PORT = Number(process.env.PORT || 4174);
 const ROOT = path.dirname(fileURLToPath(import.meta.url));
 const DATA_ROOT = path.resolve(process.env.CHAESSI_USER_DATA_DIR || ROOT);
@@ -276,6 +276,12 @@ const server = http.createServer(async (req, res) => {
 
     if (req.method === "GET" && url.pathname === "/api/generations") {
       sendJson(res, 200, { ok: true, items: await generationStore.listGenerations() });
+      return;
+    }
+
+    if (req.method === "POST" && url.pathname === "/api/generations/delete-batch") {
+      const body = await readJsonBody(req);
+      sendJson(res, 200, { ok: true, result: await generationStore.deleteGenerations(body?.ids) });
       return;
     }
 

@@ -21,6 +21,7 @@ import {
 export function createGenerationStore({ rootDir }) {
   const generationsDir = path.join(rootDir, "data", "generations");
   const sidecarPathById = new Map();
+  let mutationQueue = Promise.resolve();
 
   return {
     async saveGeneration({ preset, payload, imageBytes, responseInfo, mode = GENERATION_MODES.TEXT_TO_IMAGE, modeSettings = {}, sourceAssets = {} }) {
@@ -160,38 +161,111 @@ export function createGenerationStore({ rootDir }) {
     },
 
     async deleteGeneration(id) {
-      const generationId = sanitizeStoreId(id);
-      const sidecarPath = await findGenerationSidecarPath(generationId);
-      const sidecar = await readGenerationSidecar(sidecarPath);
-      if (sidecar.generation_id !== generationId) {
-        sidecarPathById.delete(generationId);
-        throw storeError(404, "generation_not_found", "Generation not found.");
+      return enqueueMutation(() => deleteGenerationInternal(id));
+    },
+
+    async deleteGenerations(ids) {
+      if (!Array.isArray(ids)) {
+        throw storeError(400, "invalid_generation_ids", "Generation ids must be an array.");
       }
-      const dateDir = path.basename(path.dirname(sidecarPath));
-      const item = toGenerationSummary(sidecar, dateDir);
-      await removePath(resolveGenerationPath(rootDir, item.image_path));
-      await removePath(sidecarPath);
-      await removePath(resolveGenerationPath(rootDir, item.payload_path));
-      if (sidecar?.source_assets?.source_image_filename) {
-        await removePath(resolveGenerationPath(rootDir, sidecar.source_assets.source_image_filename));
+      if (!ids.length) {
+        throw storeError(400, "empty_generation_ids", "Select at least one generation to delete.");
       }
-      if (sidecar?.source_assets?.mask_image_filename) {
-        await removePath(resolveGenerationPath(rootDir, sidecar.source_assets.mask_image_filename));
-      }
-      if (sidecar?.source_assets?.generation_mask_image_filename) {
-        await removePath(resolveGenerationPath(rootDir, sidecar.source_assets.generation_mask_image_filename));
-      }
-      for (const reference of sidecar?.reference_assets || []) {
-        if (reference?.image_filename) await removePath(resolveGenerationPath(rootDir, reference.image_filename));
-      }
-      sidecarPathById.delete(generationId);
-      return {
-        id: generationId,
-        deleted: true,
-        delete_mode: "image_sidecar_payload_mode_assets",
-      };
+      return enqueueMutation(() => deleteGenerationsInternal(ids));
     },
   };
+
+  function enqueueMutation(task) {
+    const result = mutationQueue.then(task, task);
+    mutationQueue = result.catch(() => undefined);
+    return result;
+  }
+
+  async function deleteGenerationsInternal(ids) {
+    const uniqueIds = [];
+    const seenIds = new Set();
+    const duplicateIds = [];
+    const failed = [];
+
+    ids.forEach((value, inputIndex) => {
+      try {
+        const generationId = sanitizeStoreId(value);
+        if (seenIds.has(generationId)) {
+          duplicateIds.push(generationId);
+          return;
+        }
+        seenIds.add(generationId);
+        uniqueIds.push(generationId);
+      } catch {
+        failed.push({
+          id: null,
+          input_index: inputIndex,
+          reason: "Invalid generation id.",
+        });
+      }
+    });
+
+    const deletedIds = [];
+    const missingIds = [];
+    for (const generationId of uniqueIds) {
+      try {
+        await deleteGenerationInternal(generationId);
+        deletedIds.push(generationId);
+      } catch (error) {
+        if (error?.type === "generation_not_found" && Number(error?.statusCode) === 404) {
+          sidecarPathById.delete(generationId);
+          missingIds.push(generationId);
+          continue;
+        }
+        failed.push({
+          id: generationId,
+          reason: error?.publicMessage || "Generation could not be deleted.",
+        });
+      }
+    }
+
+    return {
+      requested_count: ids.length,
+      unique_count: uniqueIds.length,
+      deleted_ids: deletedIds,
+      missing_ids: missingIds,
+      duplicate_ids: [...new Set(duplicateIds)],
+      failed,
+    };
+  }
+
+  async function deleteGenerationInternal(id) {
+    const generationId = sanitizeStoreId(id);
+    const sidecarPath = await findGenerationSidecarPath(generationId);
+    const sidecar = await readGenerationSidecar(sidecarPath);
+    if (sidecar.generation_id !== generationId) {
+      sidecarPathById.delete(generationId);
+      throw storeError(404, "generation_not_found", "Generation not found.");
+    }
+    const dateDir = path.basename(path.dirname(sidecarPath));
+    const item = toGenerationSummary(sidecar, dateDir);
+    const storedPaths = [item.image_path, item.payload_path];
+    if (sidecar?.source_assets?.source_image_filename) storedPaths.push(sidecar.source_assets.source_image_filename);
+    if (sidecar?.source_assets?.mask_image_filename) storedPaths.push(sidecar.source_assets.mask_image_filename);
+    if (sidecar?.source_assets?.generation_mask_image_filename) {
+      storedPaths.push(sidecar.source_assets.generation_mask_image_filename);
+    }
+    for (const reference of sidecar?.reference_assets || []) {
+      if (reference?.image_filename) storedPaths.push(reference.image_filename);
+    }
+
+    // Validate every sidecar-provided path before deleting any file. Keep the
+    // sidecar until last so an interrupted deletion can be retried safely.
+    const assetPaths = [...new Set(storedPaths.map((storedPath) => resolveGenerationPath(rootDir, storedPath)))];
+    for (const assetPath of assetPaths) await removePath(assetPath);
+    await removePath(sidecarPath);
+    sidecarPathById.delete(generationId);
+    return {
+      id: generationId,
+      deleted: true,
+      delete_mode: "image_sidecar_payload_mode_assets",
+    };
+  }
 
   async function findGenerationSidecarPath(generationId) {
     const indexedPath = sidecarPathById.get(generationId);
@@ -260,8 +334,9 @@ function toGenerationSummary(sidecar, dateDir) {
 
 function resolveGenerationPath(rootDir, storedPath) {
   const root = path.resolve(rootDir);
+  const generationsRoot = path.resolve(root, "data", "generations");
   const resolved = path.resolve(root, String(storedPath || ""));
-  if (resolved === root || !resolved.startsWith(`${root}${path.sep}`)) {
+  if (resolved === generationsRoot || !resolved.startsWith(`${generationsRoot}${path.sep}`)) {
     throw storeError(400, "invalid_generation_path", "Generation storage path is invalid.");
   }
   return resolved;

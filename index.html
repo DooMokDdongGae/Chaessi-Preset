@@ -366,7 +366,19 @@
                 <h2>History</h2>
                 <p>Local generation records saved by the server.</p>
               </div>
-              <button id="loadHistoryButton">Load History</button>
+              <div class="actions compact-actions">
+                <button id="loadHistoryButton">Load History</button>
+                <button id="historyEnterSelectionButton" type="button">Select to delete</button>
+              </div>
+            </div>
+            <div id="historySelectionToolbar" class="history-selection-toolbar" hidden>
+              <strong id="historySelectionCount">0 selected</strong>
+              <div class="actions compact-actions">
+                <button id="historySelectVisibleButton" type="button">Select displayed</button>
+                <button id="historyClearSelectionButton" type="button">Clear selection</button>
+                <button id="historyDeleteSelectedButton" class="danger-button" type="button" disabled>Delete selected</button>
+                <button id="historyCancelSelectionButton" type="button">Cancel</button>
+              </div>
             </div>
             <div class="history-layout">
               <div>
@@ -417,14 +429,48 @@
             <h2 id="imageViewerTitle">Generation Preview</h2>
             <p id="imageViewerMeta">No image selected.</p>
           </div>
-          <button>Close</button>
+          <button id="imageViewerCloseButton">Close</button>
         </header>
         <div class="result-action-row image-viewer-actions">
           <button type="button" id="imageViewerSaveButton">Save</button>
           <button type="button" id="imageViewerDeleteButton">Delete</button>
         </div>
-        <img id="imageViewerImage" class="image-viewer-image" alt="" />
+        <div class="image-viewer-stage">
+          <button type="button" class="image-viewer-nav image-viewer-nav-previous" id="imageViewerPreviousButton" aria-label="Previous, newer History item" hidden>←</button>
+          <img id="imageViewerImage" class="image-viewer-image" alt="" />
+          <button type="button" class="image-viewer-nav image-viewer-nav-next" id="imageViewerNextButton" aria-label="Next, older History item" hidden>→</button>
+        </div>
+        <div class="image-viewer-position" id="imageViewerPosition" aria-live="polite" hidden></div>
         <div class="viewer-meta-line" id="imageViewerSummary"></div>
+        <details class="image-viewer-history-details" id="imageViewerHistoryDetails" hidden>
+          <summary>History details</summary>
+          <dl>
+            <div><dt>History ID</dt><dd id="imageViewerHistoryId"></dd></div>
+            <div><dt>Created</dt><dd id="imageViewerCreatedAt"></dd></div>
+            <div><dt>Prompt</dt><dd><pre id="imageViewerPrompt"></pre></dd></div>
+            <div><dt>Undesired Content</dt><dd><pre id="imageViewerUndesired"></pre></dd></div>
+            <div><dt>Metadata</dt><dd id="imageViewerHistoryMetadata"></dd></div>
+          </dl>
+        </details>
+      </form>
+    </dialog>
+    <dialog class="history-delete-dialog" id="historyBulkDeleteDialog">
+      <form method="dialog">
+        <header class="dialog-header">
+          <div>
+            <h2>Delete selected History?</h2>
+            <p id="historyBulkDeleteCount">No History selected.</p>
+          </div>
+        </header>
+        <div class="history-delete-warning">
+          <strong>Result images and all assets owned by the selected History items will also be deleted.</strong>
+          <p>This cannot be recovered from Chaessi Preset after deletion.</p>
+        </div>
+        <div id="historyBulkDeleteStatus" class="summary" role="status" aria-live="polite"></div>
+        <div class="result-action-row">
+          <button id="historyBulkDeleteCancelButton" value="cancel">Cancel</button>
+          <button id="historyBulkDeleteConfirmButton" class="danger-button" type="button">Delete</button>
+        </div>
       </form>
     </dialog>
 

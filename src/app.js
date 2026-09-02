@@ -4,6 +4,12 @@ import { createPreciseReferenceController } from "./ui/precise-reference-control
 import { createImageIntakeController } from "./ui/image-intake-controller.js";
 import { createLatestRequestGuard } from "./ui/latest-request.js";
 import { createPagedListController } from "./ui/paged-list.js";
+import { createHistorySelectionController } from "./ui/history-selection.js";
+import {
+  getAdjacentHistoryIdAfterRemoval,
+  getHistoryNavigation,
+  isHistoryNavigationEditingTarget,
+} from "./ui/history-navigation.js";
 import {
   getImageFilesFromTransfer,
   hasFileTransfer,
@@ -36,10 +42,12 @@ let promptTokenCounterTimer = null;
 let promptTokenizerError = null;
 let promptTokenizerInitialized = false;
 let lastAccountUsageRefreshAt = 0;
+let pendingImageViewerCloseEvents = 0;
 const ACCOUNT_USAGE_FOCUS_REFRESH_MS = 60_000;
 const historyPages = createPagedListController(50);
 const characterPresetPages = createPagedListController(50);
 const historyViewGuard = createLatestRequestGuard();
+const historySelection = createHistorySelectionController();
 const state = {
   currentPreset: null,
   importResult: null,
@@ -262,10 +270,24 @@ function bindActions() {
     if (context?.imagePath) downloadPath(context.imagePath, `${context.id || "generation"}.png`);
   });
   $("imageViewerDeleteButton").addEventListener("click", deleteViewedGeneration);
-  $("imageViewerDialog").addEventListener("close", cancelPendingHistoryView);
+  $("imageViewerPreviousButton").addEventListener("click", () => navigateHistoryViewer("previous"));
+  $("imageViewerNextButton").addEventListener("click", () => navigateHistoryViewer("next"));
+  $("imageViewerCloseButton").addEventListener("click", prepareImageViewerClose);
+  $("imageViewerDialog").addEventListener("cancel", prepareImageViewerClose);
+  $("imageViewerDialog").addEventListener("close", handleImageViewerClosed);
+  document.addEventListener("keydown", handleHistoryViewerKeydown);
   $("loadHistoryButton").addEventListener("click", loadHistory);
   $("historyList").addEventListener("click", handleHistoryListClick);
   $("historyLoadMoreButton").addEventListener("click", loadMoreHistory);
+  $("historyEnterSelectionButton").addEventListener("click", enterHistorySelectionMode);
+  $("historySelectVisibleButton").addEventListener("click", selectDisplayedHistory);
+  $("historyClearSelectionButton").addEventListener("click", clearHistorySelection);
+  $("historyDeleteSelectedButton").addEventListener("click", openHistoryBulkDeleteDialog);
+  $("historyCancelSelectionButton").addEventListener("click", cancelHistorySelectionMode);
+  $("historyBulkDeleteConfirmButton").addEventListener("click", confirmHistoryBulkDelete);
+  $("historyBulkDeleteDialog").addEventListener("cancel", (event) => {
+    if (historySelection.snapshot().busy) event.preventDefault();
+  });
   $("refreshTokenStatusButton").addEventListener("click", async () => {
     await refreshTokenStatus();
     await refreshAccountUsage();
@@ -1213,38 +1235,53 @@ async function deleteLatestGeneration() {
 async function loadHistory(showMessage = true) {
   const response = await getJson("/api/generations");
   state.generations = response.items || [];
+  historySelection.reconcile(state.generations.map((item) => item.id));
   historyPages.reset(state.generations);
   renderHistoryList();
+  reconcileHistoryViewerWithList();
   if (showMessage) showToast("History loaded.");
 }
 
 async function viewHistoryGeneration(id) {
+  if (!state.generations.some((item) => item.id === id)) return false;
   const requestToken = historyViewGuard.begin();
   state.selectedHistoryGenerationId = id;
   state.historyLoadingGenerationId = id;
   updateHistorySelection(id, true);
+  syncHistoryViewerNavigation();
   $("historyStatus").textContent = "Loading generation details…";
   await waitForNextPaint();
   try {
     const response = await getJson(`/api/generations/${encodeURIComponent(id)}`);
-    if (!historyViewGuard.isCurrent(requestToken)) return;
+    if (!historyViewGuard.isCurrent(requestToken)) return false;
     const generation = response.generation || {};
-    $("historyImage").src = toBrowserPath(generation.image_path);
+    if ((generation.generation_id || generation.id) !== id) {
+      throw new Error("History detail response did not match the requested item.");
+    }
+    $("historyImage").src = toBrowserPath(generation.output?.image_filename || generation.image_path);
     state.historyLoadingGenerationId = "";
     updateHistorySelection(id, false);
     $("historyStatus").textContent = "Generation details loaded.";
     openStoredGenerationViewer(generation);
+    return true;
   } catch (error) {
-    if (!historyViewGuard.isCurrent(requestToken)) return;
+    if (!historyViewGuard.isCurrent(requestToken)) return false;
     state.historyLoadingGenerationId = "";
+    state.selectedHistoryGenerationId = state.imageViewerContext?.kind === "history"
+      ? state.imageViewerContext.id
+      : "";
     updateHistorySelection(id, false);
+    syncHistoryViewerNavigation();
     $("historyStatus").textContent = "Generation details could not be loaded.";
     showToast(error.message, true);
+    return false;
   }
 }
 
 function renderHistoryList() {
   const page = historyPages.snapshot();
+  const selection = historySelection.snapshot();
+  $("historyList").classList.toggle("is-selection-mode", selection.active);
   $("historyList").innerHTML = page.items.map(renderHistoryItem).join("") || "<div class=\"summary\">No generations yet.</div>";
   updateHistorySelection(
     state.selectedHistoryGenerationId,
@@ -1254,9 +1291,11 @@ function renderHistoryList() {
   $("historyLoadMoreButton").textContent = page.hasMore
     ? `Load ${Math.min(50, page.totalCount - page.visibleCount)} more (${page.visibleCount}/${page.totalCount})`
     : `All ${page.totalCount} loaded`;
+  syncHistorySelectionUi();
 }
 
 function loadMoreHistory() {
+  if (historySelection.snapshot().busy) return;
   historyPages.loadMore();
   renderHistoryList();
 }
@@ -1265,6 +1304,15 @@ async function handleHistoryListClick(event) {
   const target = event.target instanceof Element ? event.target : null;
   if (!target) return;
   try {
+    const selection = historySelection.snapshot();
+    if (selection.busy) return;
+    if (selection.active) {
+      const card = target.closest(".history-card[data-generation-id]");
+      if (!card) return;
+      historySelection.toggle(card.dataset.generationId);
+      syncHistorySelectionUi();
+      return;
+    }
     const view = target.closest("[data-view-generation], button[data-generation-id]");
     if (view) return await viewHistoryGeneration(view.dataset.viewGeneration || view.dataset.generationId);
     const download = target.closest("[data-download-generation]");
@@ -1296,19 +1344,156 @@ async function handleHistoryListClick(event) {
 }
 
 async function deleteHistoryGeneration(id) {
+  if (historySelection.snapshot().busy) return showToast("History deletion is already in progress.", true);
+  const previousItems = [...state.generations];
+  const activeViewerId = getActiveHistoryViewerId();
   await deleteJson(`/api/generations/${encodeURIComponent(id)}`);
   if (state.lastGenerationResponse?.generation?.id === id) {
-    $("generatedImage").removeAttribute("src");
-    $("latestResultActions").hidden = true;
-    $("generationSummary").innerHTML = "";
-    state.lastGeneratedImage = "";
-    state.lastGenerationResponse = null;
-    updateCurrentSummary();
+    clearLatestGenerationState();
   }
-  if (state.selectedHistoryGenerationId === id) state.selectedHistoryGenerationId = "";
-  if (state.historyLoadingGenerationId === id) state.historyLoadingGenerationId = "";
-  await loadHistory(false);
+  await applyHistoryRemoval(previousItems, new Set([id]), activeViewerId);
   showToast("Generation deleted with image, sidecar, and payload.");
+}
+
+function enterHistorySelectionMode() {
+  historySelection.enter();
+  renderHistoryList();
+}
+
+function cancelHistorySelectionMode() {
+  if (historySelection.snapshot().busy) return;
+  historySelection.cancel();
+  renderHistoryList();
+}
+
+function selectDisplayedHistory() {
+  const displayedIds = historyPages.snapshot().items.map((item) => item.id);
+  historySelection.selectVisible(displayedIds);
+  syncHistorySelectionUi();
+}
+
+function clearHistorySelection() {
+  historySelection.clear();
+  syncHistorySelectionUi();
+}
+
+function syncHistorySelectionUi() {
+  const selection = historySelection.snapshot();
+  $("historySelectionToolbar").hidden = !selection.active;
+  $("historyEnterSelectionButton").hidden = selection.active;
+  $("historySelectionCount").textContent = `${selection.count} selected`;
+  $("historyDeleteSelectedButton").disabled = selection.busy || selection.count === 0;
+  $("historySelectVisibleButton").disabled = selection.busy || historyPages.snapshot().visibleCount === 0;
+  $("historyClearSelectionButton").disabled = selection.busy || selection.count === 0;
+  $("historyCancelSelectionButton").disabled = selection.busy;
+  $("historyLoadMoreButton").disabled = selection.busy;
+  $("loadHistoryButton").disabled = selection.busy;
+  $("imageViewerDeleteButton").disabled = selection.busy;
+  document.querySelectorAll(".history-card[data-generation-id]").forEach((card) => {
+    const selected = historySelection.has(card.dataset.generationId);
+    card.classList.toggle("is-selection-mode", selection.active);
+    card.classList.toggle("is-bulk-selected", selected);
+    const toggle = card.querySelector("[data-select-generation]");
+    if (toggle) toggle.setAttribute("aria-pressed", String(selected));
+  });
+  syncHistoryViewerNavigation();
+}
+
+function openHistoryBulkDeleteDialog() {
+  const selection = historySelection.snapshot();
+  if (!selection.active || selection.busy || selection.count === 0) {
+    return showToast("Select at least one History item to delete.", true);
+  }
+  $("historyBulkDeleteCount").textContent = `${selection.count} History item${selection.count === 1 ? "" : "s"} will be deleted.`;
+  $("historyBulkDeleteStatus").textContent = "Deletion has not started.";
+  $("historyBulkDeleteConfirmButton").disabled = false;
+  $("historyBulkDeleteCancelButton").disabled = false;
+  $("historyBulkDeleteCancelButton").textContent = "Cancel";
+  $("historyBulkDeleteDialog").showModal();
+}
+
+async function confirmHistoryBulkDelete() {
+  const selection = historySelection.snapshot();
+  if (!selection.active || selection.busy || selection.count === 0) return;
+  const ids = [...selection.selectedIds];
+  const previousItems = [...state.generations];
+  const activeViewerId = getActiveHistoryViewerId();
+  historySelection.setBusy(true);
+  $("historyBulkDeleteConfirmButton").disabled = true;
+  $("historyBulkDeleteCancelButton").disabled = true;
+  $("historyBulkDeleteStatus").textContent = `Deleting… (0/${ids.length})`;
+  syncHistorySelectionUi();
+
+  try {
+    const response = await postJson("/api/generations/delete-batch", { ids });
+    const result = response.result || {};
+    const deletedIds = Array.isArray(result.deleted_ids) ? result.deleted_ids : [];
+    const missingIds = Array.isArray(result.missing_ids) ? result.missing_ids : [];
+    const failed = Array.isArray(result.failed) ? result.failed : [];
+    const removedIds = new Set([...deletedIds, ...missingIds]);
+    historySelection.setBusy(false);
+    if (removedIds.has(state.lastGenerationResponse?.generation?.id)) clearLatestGenerationState();
+    await applyHistoryRemoval(previousItems, removedIds, activeViewerId);
+    const summary = `Deleted ${deletedIds.length}, already missing ${missingIds.length}, failed ${failed.length}.`;
+    $("historyBulkDeleteStatus").textContent = `${summary} (${deletedIds.length + missingIds.length + failed.length}/${ids.length})`;
+    $("historyBulkDeleteCancelButton").disabled = false;
+    $("historyBulkDeleteCancelButton").textContent = "Close";
+    showToast(summary, failed.length > 0);
+
+    if (!failed.length) {
+      $("historyBulkDeleteDialog").close();
+      historySelection.cancel();
+      renderHistoryList();
+    }
+  } catch (error) {
+    historySelection.setBusy(false);
+    $("historyBulkDeleteStatus").textContent = error.message || "Selected History could not be deleted.";
+    $("historyBulkDeleteConfirmButton").disabled = false;
+    $("historyBulkDeleteCancelButton").disabled = false;
+    syncHistorySelectionUi();
+    showToast(error.message, true);
+  }
+}
+
+function clearLatestGenerationState() {
+  $("generatedImage").removeAttribute("src");
+  $("latestResultActions").hidden = true;
+  $("generationSummary").innerHTML = "";
+  state.lastGeneratedImage = "";
+  state.lastGenerationResponse = null;
+  updateCurrentSummary();
+}
+
+async function applyHistoryRemoval(previousItems, removedIds, activeViewerId) {
+  const removed = removedIds instanceof Set ? removedIds : new Set(removedIds || []);
+  const removedSelectedHistory = removed.has(state.selectedHistoryGenerationId);
+  state.generations = previousItems.filter((item) => !removed.has(item.id));
+  historySelection.reconcile(state.generations.map((item) => item.id));
+  historyPages.reset(state.generations);
+
+  if (removedSelectedHistory) {
+    state.selectedHistoryGenerationId = "";
+    $("historyImage").removeAttribute("src");
+  }
+  renderHistoryList();
+
+  if (!$("imageViewerDialog").open || state.imageViewerContext?.kind !== "history") {
+    syncHistoryViewerNavigation();
+    return;
+  }
+  if (!removed.has(activeViewerId)) {
+    syncHistoryViewerNavigation();
+    return;
+  }
+
+  const adjacentId = getAdjacentHistoryIdAfterRemoval(previousItems, activeViewerId, removed);
+  historyViewGuard.cancel();
+  state.historyLoadingGenerationId = "";
+  if (adjacentId && state.generations.some((item) => item.id === adjacentId)) {
+    await viewHistoryGeneration(adjacentId);
+    return;
+  }
+  closeImageViewer();
 }
 
 function updateHistorySelection(id, loading) {
@@ -1325,6 +1510,77 @@ function cancelPendingHistoryView() {
   historyViewGuard.cancel();
   state.historyLoadingGenerationId = "";
   updateHistorySelection(state.selectedHistoryGenerationId, false);
+  state.imageViewerContext = null;
+  syncHistoryViewerNavigation();
+}
+
+function prepareImageViewerClose() {
+  cancelPendingHistoryView();
+  pendingImageViewerCloseEvents += 1;
+}
+
+function handleImageViewerClosed() {
+  if (pendingImageViewerCloseEvents > 0) {
+    pendingImageViewerCloseEvents -= 1;
+    return;
+  }
+  cancelPendingHistoryView();
+}
+
+function closeImageViewer() {
+  if (!$("imageViewerDialog").open) return;
+  prepareImageViewerClose();
+  $("imageViewerDialog").close();
+}
+
+function getActiveHistoryViewerId() {
+  if (state.imageViewerContext?.kind !== "history") return "";
+  return state.historyLoadingGenerationId || state.imageViewerContext.id || "";
+}
+
+function syncHistoryViewerNavigation() {
+  const isHistoryViewer = state.imageViewerContext?.kind === "history";
+  const currentId = getActiveHistoryViewerId();
+  const navigation = getHistoryNavigation(state.generations, currentId);
+  const busy = historySelection.snapshot().busy;
+  const previousButton = $("imageViewerPreviousButton");
+  const nextButton = $("imageViewerNextButton");
+  document.querySelector(".image-viewer-stage")?.classList.toggle("has-history-navigation", isHistoryViewer);
+  previousButton.hidden = !isHistoryViewer;
+  nextButton.hidden = !isHistoryViewer;
+  previousButton.disabled = !isHistoryViewer || busy || !navigation.previousId;
+  nextButton.disabled = !isHistoryViewer || busy || !navigation.nextId;
+  $("imageViewerPosition").hidden = !isHistoryViewer;
+  $("imageViewerPosition").textContent = isHistoryViewer && navigation.index >= 0
+    ? `${navigation.index + 1} of ${navigation.total}`
+    : "";
+}
+
+function reconcileHistoryViewerWithList() {
+  if (!$("imageViewerDialog").open || state.imageViewerContext?.kind !== "history") return;
+  const currentId = getActiveHistoryViewerId();
+  if (!state.generations.some((item) => item.id === currentId)) {
+    closeImageViewer();
+    return;
+  }
+  syncHistoryViewerNavigation();
+}
+
+function navigateHistoryViewer(direction) {
+  if (!$("imageViewerDialog").open || state.imageViewerContext?.kind !== "history") return;
+  if (historySelection.snapshot().busy) return;
+  const navigation = getHistoryNavigation(state.generations, getActiveHistoryViewerId());
+  const targetId = direction === "previous" ? navigation.previousId : navigation.nextId;
+  if (targetId) void viewHistoryGeneration(targetId);
+}
+
+function handleHistoryViewerKeydown(event) {
+  if (event.defaultPrevented || event.altKey || event.ctrlKey || event.metaKey || event.shiftKey) return;
+  if (event.key !== "ArrowLeft" && event.key !== "ArrowRight") return;
+  if (!$("imageViewerDialog").open || state.imageViewerContext?.kind !== "history") return;
+  if (isHistoryNavigationEditingTarget(event.target)) return;
+  event.preventDefault();
+  navigateHistoryViewer(event.key === "ArrowLeft" ? "previous" : "next");
 }
 
 function waitForNextPaint() {
@@ -1790,8 +2046,11 @@ function moveCharacterUiState(from, to) {
 
 function renderHistoryItem(item) {
   const size = item.width && item.height ? `${item.width}x${item.height}` : "unknown size";
+  const selection = historySelection.snapshot();
+  const selected = historySelection.has(item.id);
   return `
-    <article class="history-card" data-generation-id="${escapeHtml(item.id)}">
+    <article class="history-card${selection.active ? " is-selection-mode" : ""}${selected ? " is-bulk-selected" : ""}" data-generation-id="${escapeHtml(item.id)}">
+      ${selection.active ? `<button type="button" class="history-select-toggle" data-select-generation="${escapeHtml(item.id)}" aria-label="Select History item" aria-pressed="${selected}">✓</button>` : ""}
       <img src="${escapeHtml(toBrowserPath(item.image_path))}" alt="" data-view-generation="${escapeHtml(item.id)}" />
       <div>
         <span class="history-mode">${escapeHtml(formatGenerationMode(item.mode))}</span>
@@ -1832,6 +2091,7 @@ function openGenerationViewer(response) {
     imagePath: toBrowserPath(generation.image_path),
     meta: formatGenerationMeta(summary),
     id: generation.id,
+    kind: "latest",
   });
 }
 
@@ -1843,34 +2103,68 @@ function openStoredGenerationViewer(generation) {
     imagePath: toBrowserPath(imagePath),
     meta: formatGenerationMeta(info),
     id: generation.generation_id || generation.id,
+    kind: "history",
+    generation,
   });
 }
 
-function openImageViewer({ title, imagePath, meta = "", id = "" }) {
+function openImageViewer({ title, imagePath, meta = "", id = "", kind = "generic", generation = null }) {
+  if (kind !== "history") {
+    historyViewGuard.cancel();
+    state.historyLoadingGenerationId = "";
+  }
   $("imageViewerTitle").textContent = title || "Generation Preview";
   $("imageViewerMeta").textContent = meta || "Preview image";
   $("imageViewerImage").src = imagePath || "";
+  $("imageViewerImage").dataset.historyGenerationId = kind === "history" ? id : "";
   $("imageViewerSummary").textContent = meta || "";
-  state.imageViewerContext = { id, imagePath };
+  state.imageViewerContext = { id, imagePath, kind };
   $("imageViewerDeleteButton").hidden = !id;
+  renderHistoryViewerDetails(kind === "history" ? generation : null);
   if (!$("imageViewerDialog").open) $("imageViewerDialog").showModal();
+  syncHistoryViewerNavigation();
+}
+
+function renderHistoryViewerDetails(generation) {
+  const details = $("imageViewerHistoryDetails");
+  details.hidden = !generation;
+  if (!generation) {
+    details.open = false;
+    for (const id of ["imageViewerHistoryId", "imageViewerCreatedAt", "imageViewerPrompt", "imageViewerUndesired", "imageViewerHistoryMetadata"]) {
+      $(id).textContent = "";
+    }
+    return;
+  }
+  const info = generation.generation || {};
+  $("imageViewerHistoryId").textContent = generation.generation_id || generation.id || "";
+  $("imageViewerCreatedAt").textContent = generation.created_at || "Unknown";
+  $("imageViewerPrompt").textContent = info.prompt || "(empty)";
+  $("imageViewerUndesired").textContent = info.undesired_prompt || "(empty)";
+  $("imageViewerHistoryMetadata").textContent = [
+    generation.preset?.name ? `Preset ${generation.preset.name}` : "",
+    generation.preset?.schema ? `Schema ${generation.preset.schema}` : "",
+    generation.app?.version ? `Chaessi ${generation.app.version}` : "",
+    generation.output?.response_content_type || "",
+  ].filter(Boolean).join(" · ") || "No additional metadata.";
 }
 
 async function deleteViewedGeneration() {
+  if (historySelection.snapshot().busy) return showToast("History deletion is already in progress.", true);
   const context = state.imageViewerContext;
   if (!context?.id) return showToast("No viewed generation to delete.", true);
+  const previousItems = [...state.generations];
+  const activeViewerId = getActiveHistoryViewerId();
   await deleteJson(`/api/generations/${encodeURIComponent(context.id)}`);
-  $("imageViewerDialog").close();
   if (state.lastGenerationResponse?.generation?.id === context.id) {
-    $("generatedImage").removeAttribute("src");
-    $("latestResultActions").hidden = true;
-    $("generationSummary").innerHTML = "";
-    state.lastGeneratedImage = "";
-    state.lastGenerationResponse = null;
-    updateCurrentSummary();
+    clearLatestGenerationState();
     setSummary($("generateStatus"), "Generation deleted with image, sidecar, and payload.", true);
   }
-  await loadHistory(false);
+  if (context.kind === "history") {
+    await applyHistoryRemoval(previousItems, new Set([context.id]), activeViewerId || context.id);
+  } else {
+    closeImageViewer();
+    await loadHistory(false);
+  }
   showToast("Generation deleted with image, sidecar, and payload.");
 }
 

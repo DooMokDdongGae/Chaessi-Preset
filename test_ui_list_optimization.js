@@ -14,7 +14,8 @@ assert.equal(app.includes('document.querySelectorAll("img[data-view-generation]"
 assert.equal(app.includes('document.querySelectorAll("[data-dialog-character-load]").forEach'), false);
 assert.ok(app.includes("historyViewGuard.begin()"));
 assert.ok(app.includes("historyViewGuard.isCurrent(requestToken)"));
-assert.ok(app.includes('$("imageViewerDialog").addEventListener("close", cancelPendingHistoryView)'));
+assert.ok(app.includes('$("imageViewerDialog").addEventListener("close", handleImageViewerClosed)'));
+assert.ok(app.includes("cancelPendingHistoryView();"));
 assert.ok(app.includes("await waitForNextPaint()"));
 assert.ok(css.includes('.history-card.is-loading::after'));
 assert.ok(app.includes('$("historyStatus").textContent = "Loading generation details…"'));

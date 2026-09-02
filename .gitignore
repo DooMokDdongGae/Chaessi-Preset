@@ -53,6 +53,11 @@ test_*.js
 !test_generation_direct_lookup.js
 !test_ui_performance_controls.js
 !test_ui_list_optimization.js
+!test_history_bulk_delete.js
+!test_history_bulk_delete_endpoint.js
+!test_history_bulk_delete_wiring.js
+!test_history_navigation.js
+!test_history_navigation_wiring.js
 rebuild_blueprint.md
 nai_v45_full_poc.py
 *.txt

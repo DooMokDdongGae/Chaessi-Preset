@@ -1,5 +1,27 @@
 # Changelog
 
+## v3.2.0
+
+Chaessi Preset v3.2.0 adds safer bulk History cleanup and direct previous/next navigation without changing stored preset or History schemas.
+
+### Added
+
+- Select multiple History records, including all records currently displayed, and delete them together after an explicit permanent-deletion confirmation.
+- The enlarged History viewer now has previous/newer and next/older buttons, a current-position indicator, and Left/Right keyboard navigation.
+- History navigation updates the image, prompt, Undesired Content, model settings, and metadata from the same History record.
+
+### Safety and responsiveness
+
+- Bulk deletion validates every owned asset path before deleting files, removes sidecars last for safer retries, serializes single and batch deletion, and reports partial failures while keeping failed records selected.
+- Images, sidecars, payloads, Image to Image/Inpaint sources and masks, generation masks, and reference assets owned by deleted History records are cleaned up together.
+- Previous/next navigation uses the existing ordered History summaries and direct detail lookup, so crossing the staged-render boundary does not force Load more, scan every sidecar, or preload every image.
+- Rapid navigation, modal closing, single deletion, and batch deletion preserve the latest selection and move to a remaining adjacent record when possible.
+
+### Compatibility
+
+- Existing presets and History remain compatible; the stored schemas are unchanged.
+- Existing staged History rendering and V4.5/V5 generation workflows are preserved.
+
 ## v3.1.1
 
 Chaessi Preset v3.1.1 improves responsiveness for large History and Character Preset libraries without changing their stored schemas.

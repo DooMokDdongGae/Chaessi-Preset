@@ -754,6 +754,84 @@ pre {
   font-weight: 700;
 }
 
+.history-selection-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-top: 12px;
+  border: 1px solid rgba(251, 113, 133, 0.35);
+  border-radius: var(--radius);
+  background: rgba(251, 113, 133, 0.06);
+  padding: 10px 12px;
+}
+
+.history-selection-toolbar[hidden] {
+  display: none;
+}
+
+.history-card.is-selection-mode {
+  cursor: pointer;
+}
+
+.history-card.is-selection-mode img {
+  cursor: pointer;
+}
+
+.history-card.is-bulk-selected {
+  border-color: var(--danger);
+  box-shadow: 0 0 0 1px rgba(251, 113, 133, 0.24);
+}
+
+.history-select-toggle {
+  position: absolute;
+  z-index: 2;
+  inset: 8px auto auto 8px;
+  width: 28px;
+  min-height: 28px;
+  padding: 0;
+  border-radius: 50%;
+  background: rgba(8, 11, 16, 0.9);
+  color: var(--muted);
+}
+
+.history-card.is-bulk-selected .history-select-toggle {
+  border-color: var(--danger);
+  background: rgba(159, 18, 57, 0.92);
+  color: white;
+}
+
+.history-list.is-selection-mode .history-reuse-details,
+.history-list.is-selection-mode .history-card .actions {
+  pointer-events: none;
+  opacity: 0.45;
+}
+
+.danger-button {
+  border-color: rgba(251, 113, 133, 0.72);
+  background: #4c1420;
+  color: #fecdd3;
+}
+
+.danger-button:hover:not(:disabled),
+.danger-button:focus-visible:not(:disabled) {
+  background: #6b1829;
+  border-color: var(--danger);
+}
+
+.history-delete-warning {
+  border: 1px solid rgba(251, 113, 133, 0.42);
+  border-radius: var(--radius);
+  background: rgba(251, 113, 133, 0.08);
+  color: #fecdd3;
+  padding: 12px;
+}
+
+.history-delete-warning p {
+  margin: 6px 0 0;
+  color: var(--muted);
+}
+
 .load-more-button {
   display: block;
   margin: 12px auto 0;
@@ -822,7 +900,8 @@ pre {
 .preset-dialog,
 .character-preset-dialog,
 .category-manager-dialog,
-.image-intake-dialog {
+.image-intake-dialog,
+.history-delete-dialog {
   width: min(760px, calc(100% - 32px));
 }
 
@@ -838,6 +917,96 @@ pre {
   border: 1px solid var(--line);
   border-radius: var(--radius);
   background: #05070b;
+}
+
+.image-viewer-stage {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  min-width: 0;
+}
+
+.image-viewer-stage.has-history-navigation {
+  grid-template-columns: 48px minmax(0, 1fr) 48px;
+  gap: 10px;
+  align-items: center;
+}
+
+.image-viewer-nav {
+  width: 44px;
+  min-height: 64px;
+  padding: 0;
+  border-color: rgba(103, 232, 249, 0.42);
+  border-radius: 999px;
+  background: rgba(8, 11, 16, 0.94);
+  color: var(--cyan);
+  font-size: 24px;
+}
+
+.image-viewer-nav:hover:not(:disabled),
+.image-viewer-nav:focus-visible:not(:disabled) {
+  border-color: var(--cyan);
+  background: #132332;
+}
+
+.image-viewer-nav:disabled {
+  cursor: not-allowed;
+  opacity: 0.3;
+}
+
+.image-viewer-position {
+  text-align: center;
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.image-viewer-position[hidden],
+.image-viewer-history-details[hidden] {
+  display: none;
+}
+
+.image-viewer-history-details {
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: #080b10;
+  padding: 10px 12px;
+}
+
+.image-viewer-history-details summary {
+  color: var(--blue);
+  cursor: pointer;
+  font-weight: 700;
+}
+
+.image-viewer-history-details dl {
+  display: grid;
+  gap: 10px;
+  margin: 12px 0 0;
+}
+
+.image-viewer-history-details dl > div {
+  display: grid;
+  grid-template-columns: minmax(120px, 0.2fr) minmax(0, 1fr);
+  gap: 10px;
+}
+
+.image-viewer-history-details dt {
+  color: var(--muted);
+  font-weight: 700;
+}
+
+.image-viewer-history-details dd {
+  min-width: 0;
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+
+.image-viewer-history-details pre {
+  max-height: 180px;
+  margin: 0;
+  overflow: auto;
+  color: var(--text);
+  font: inherit;
+  white-space: pre-wrap;
 }
 
 .image-viewer-actions {
@@ -1486,6 +1655,24 @@ pre {
     position: static;
     max-height: none;
     overflow: visible;
+  }
+}
+
+@media (max-width: 560px) {
+  .image-viewer-stage.has-history-navigation {
+    grid-template-columns: 38px minmax(0, 1fr) 38px;
+    gap: 5px;
+  }
+
+  .image-viewer-nav {
+    width: 36px;
+    min-height: 48px;
+    font-size: 20px;
+  }
+
+  .image-viewer-history-details dl > div {
+    grid-template-columns: 1fr;
+    gap: 4px;
   }
 }
 
