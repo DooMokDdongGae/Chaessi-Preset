@@ -5,6 +5,7 @@ import { createImageIntakeController } from "./ui/image-intake-controller.js";
 import { createLatestRequestGuard } from "./ui/latest-request.js";
 import { createPagedListController } from "./ui/paged-list.js";
 import { createHistorySelectionController } from "./ui/history-selection.js";
+import { createCharacterPositionPad } from "./ui/character-position-pad.js";
 import {
   getAdjacentHistoryIdAfterRemoval,
   getHistoryNavigation,
@@ -37,6 +38,7 @@ let rawJsonImportTimer = null;
 let generationModeController = null;
 let preciseReferenceController = null;
 let imageIntakeController = null;
+let characterPositionPadController = null;
 const promptTokenizers = { t5: null, qwen: null };
 let promptTokenCounterTimer = null;
 let promptTokenizerError = null;
@@ -75,6 +77,7 @@ const state = {
   dialogCharacterCategoryFilter: "",
   dialogCharacterSubCategoryFilter: "",
   modeByModel: {},
+  selectedCharacterPositionIndex: 0,
 };
 
 const fields = {
@@ -117,6 +120,16 @@ const importFields = {
 init().catch((error) => showToast(error.message, true));
 
 async function init() {
+  characterPositionPadController = createCharacterPositionPad({
+    root: $("characterPositionPadPanel"),
+    pad: $("characterPositionPad"),
+    markers: $("characterPositionMarkers"),
+    warning: $("characterPositionOverlapWarning"),
+    selectionLabel: $("characterPositionSelection"),
+    resetButton: $("characterPositionResetSelected"),
+    onPositionChange: applyCharacterPositionChange,
+    onSelect: selectCharacterPosition,
+  });
   generationModeController = createGenerationModeController({
     showToast,
     getLatestImagePath: () => state.lastGenerationResponse?.generation?.image_path
@@ -227,6 +240,9 @@ function bindActions() {
   $("characterClearThumbnailButton").addEventListener("click", clearCharacterThumbnail);
   $("characterThumbnailInput").addEventListener("change", setCharacterThumbnailFromFile);
   $("addCharacterButton").addEventListener("click", addCharacterCard);
+  $("characterCards").addEventListener("pointerdown", handleCharacterCardSelection, true);
+  $("characterCards").addEventListener("focusin", handleCharacterCardSelection);
+  $("characterCards").addEventListener("change", handleCharacterPositionCommit);
   $("characterPositionMode").addEventListener("change", () => {
     syncPresetFromForm();
     const mode = $("characterPositionMode").value === "custom" ? "custom" : "auto";
@@ -305,6 +321,7 @@ function bindActions() {
     field.addEventListener("input", () => {
       try {
         syncPresetFromForm();
+        if (field === fields.width || field === fields.height) renderCharacterPositionPad();
         updateCurrentSummary();
         schedulePromptTokenCounterUpdate();
       } catch {
@@ -318,6 +335,7 @@ function bindActions() {
       state.currentPreset.prompt_parts.characters = sanitizeCharacters(characters);
       syncCharacterUiStateLength(state.currentPreset.prompt_parts.characters);
       renderCharacterCards(state.currentPreset.prompt_parts.characters);
+      renderCharacterPositionPad();
       updateCurrentSummary();
       schedulePromptTokenCounterUpdate();
     } catch (error) {
@@ -1062,6 +1080,9 @@ function applyCharacterPresetToSlot(preset, index) {
     prompt: preset.prompt || "",
     undesired: preset.undesired || "",
     centers: preset.centers || [{ x: 0.5, y: 0.5 }],
+    ...(getModelProfile(state.currentPreset.params?.model).family === "v5"
+      ? { position_mode: $("characterPositionMode").value === "custom" ? "custom" : "auto" }
+      : {}),
   };
   state.currentPreset.prompt_parts.characters = characters;
   renderPresetForm();
@@ -1749,6 +1770,7 @@ function renderPresetForm() {
   $("characterPositionMode").value = visibleCharacters.length > 0 && visibleCharacters.every((character) => character.position_mode === "custom") ? "custom" : "auto";
   applyModelCapabilities(profile);
   renderCharacterCards(preset.prompt_parts?.characters || []);
+  renderCharacterPositionPad();
   schedulePromptTokenCounterUpdate();
   updateCurrentSummary();
 }
@@ -1802,12 +1824,71 @@ function renderCharacterCards(characters) {
   bindCharacterCardActions();
 }
 
+function renderCharacterPositionPad() {
+  if (!characterPositionPadController || !state.currentPreset) return;
+  const profile = getModelProfile(state.currentPreset.params?.model);
+  const characters = (state.currentPreset.prompt_parts?.characters || []).slice(0, profile.maxCharacters);
+  const activeIndexes = characters
+    .map((character, index) => (character.enabled === false ? -1 : index))
+    .filter((index) => index >= 0);
+  if (!activeIndexes.includes(state.selectedCharacterPositionIndex)) {
+    state.selectedCharacterPositionIndex = activeIndexes[0] ?? 0;
+  }
+  characterPositionPadController.render({
+    characters,
+    selectedIndex: state.selectedCharacterPositionIndex,
+    visible: profile.family === "v5" && $("characterPositionMode").value === "custom",
+    width: state.currentPreset.params?.width,
+    height: state.currentPreset.params?.height,
+  });
+}
+
+function handleCharacterCardSelection(event) {
+  const card = event.target.closest?.('#characterCards [data-character-scope="preset"]');
+  if (!card) return;
+  selectCharacterPosition(Number(card.dataset.characterIndex));
+}
+
+function selectCharacterPosition(index) {
+  if (!Number.isInteger(index) || index < 0) return;
+  state.selectedCharacterPositionIndex = index;
+  characterPositionPadController?.setSelectedIndex(index, false);
+}
+
+function handleCharacterPositionCommit(event) {
+  const field = event.target;
+  if (getModelProfile(state.currentPreset?.params?.model).family !== "v5"
+    || !["x", "y"].includes(field.dataset?.characterField)) return;
+  syncPresetFromForm();
+  const index = Number(field.closest(".character-card").dataset.characterIndex);
+  const position = state.currentPreset.prompt_parts.characters[index].centers[0];
+  applyCharacterPositionChange(index, position);
+  characterPositionPadController?.setPosition(index, position, { notify: false });
+}
+
+function applyCharacterPositionChange(index, position) {
+  const characters = state.currentPreset.prompt_parts.characters;
+  if (!characters[index]) return;
+  characters[index].centers = [
+    { x: position.x, y: position.y },
+    ...characters[index].centers.slice(1),
+  ];
+  state.currentPreset.prompt_parts.characters = characters;
+  fields.charactersJson.value = safeJson(characters);
+  const card = document.querySelector(`#characterCards [data-character-index="${index}"]`);
+  const xInput = card?.querySelector('[data-character-field="x"]');
+  const yInput = card?.querySelector('[data-character-field="y"]');
+  if (xInput) xInput.value = String(position.x);
+  if (yInput) yInput.value = String(position.y);
+}
+
 function renderImportCharacterCards(characters) {
   $("importCharacterCards").innerHTML = characters.map((character, index) => renderImportCharacterCard(character, index)).join("")
     || "<div class=\"summary\">No imported character prompts.</div>";
 }
 
 function renderCharacterCard(character, index, scope) {
+  const positionStep = getModelProfile(state.currentPreset?.params?.model).family === "v5" ? "0.001" : "0.01";
   const centers = Array.isArray(character.centers) && character.centers.length ? character.centers : [{ x: 0.5, y: 0.5 }];
   const center = centers[0] || { x: 0.5, y: 0.5 };
   const activeTab = getCharacterActiveTab(index);
@@ -1834,10 +1915,10 @@ function renderCharacterCard(character, index, scope) {
       <textarea class="character-pane ${activeTab === "undesired" ? "is-active" : ""}" data-character-field="undesired" spellcheck="false">${escapeHtml(character.undesired || "")}</textarea>
       <div class="prompt-token-counter character-token-counter is-loading" data-character-token-counter>Loading tokenizer...</div>
       <details class="character-position">
-        <summary>Position</summary>
+        <summary>${positionStep === "0.001" ? "Position (Advanced)" : "Position"}</summary>
         <div class="center-grid">
-          <label>X <input data-character-field="x" type="number" min="0" max="1" step="0.01" value="${escapeHtml(center.x ?? 0.5)}" ${$("characterPositionMode")?.value === "custom" ? "" : "disabled"} /></label>
-          <label>Y <input data-character-field="y" type="number" min="0" max="1" step="0.01" value="${escapeHtml(center.y ?? 0.5)}" ${$("characterPositionMode")?.value === "custom" ? "" : "disabled"} /></label>
+          <label>X <input data-character-field="x" type="number" min="0" max="1" step="${positionStep}" value="${escapeHtml(center.x ?? 0.5)}" ${$("characterPositionMode")?.value === "custom" ? "" : "disabled"} /></label>
+          <label>Y <input data-character-field="y" type="number" min="0" max="1" step="${positionStep}" value="${escapeHtml(center.y ?? 0.5)}" ${$("characterPositionMode")?.value === "custom" ? "" : "disabled"} /></label>
         </div>
       </details>
     </article>
@@ -1862,6 +1943,12 @@ function bindCharacterCardActions() {
     field.addEventListener("input", () => {
       fields.charactersJson.value = safeJson(getCharactersFromCards());
       syncPresetFromForm();
+      const card = field.closest(".character-card");
+      const index = Number(card?.dataset.characterIndex);
+      if ((field.dataset.characterField === "x" || field.dataset.characterField === "y") && Number.isInteger(index)) {
+        selectCharacterPosition(index);
+        characterPositionPadController?.setPosition(index, state.currentPreset.prompt_parts.characters[index]?.centers?.[0], { notify: false });
+      }
       updateCurrentSummary();
       schedulePromptTokenCounterUpdate();
     });
@@ -1882,6 +1969,8 @@ function bindCharacterCardActions() {
       const characters = getCharactersFromCards();
       if (target < 0 || target >= characters.length) return;
       [characters[index], characters[target]] = [characters[target], characters[index]];
+      if (state.selectedCharacterPositionIndex === index) state.selectedCharacterPositionIndex = target;
+      else if (state.selectedCharacterPositionIndex === target) state.selectedCharacterPositionIndex = index;
       state.currentPreset.prompt_parts.characters = sanitizeCharacters(renumberCharacters(characters));
       moveCharacterUiState(index, target);
       renderPresetForm();
@@ -1904,7 +1993,10 @@ function bindCharacterCardActions() {
   document.querySelectorAll("[data-remove-character]").forEach((button) => {
     button.addEventListener("click", () => {
       const characters = getCharactersFromCards();
-      characters.splice(Number(button.dataset.removeCharacter), 1);
+      const removedIndex = Number(button.dataset.removeCharacter);
+      characters.splice(removedIndex, 1);
+      if (state.selectedCharacterPositionIndex > removedIndex) state.selectedCharacterPositionIndex -= 1;
+      else if (state.selectedCharacterPositionIndex === removedIndex) state.selectedCharacterPositionIndex = Math.min(removedIndex, characters.length - 1);
       state.currentPreset.prompt_parts.characters = sanitizeCharacters(renumberCharacters(characters));
       state.characterUiState.splice(Number(button.dataset.removeCharacter), 1);
       renderPresetForm();
@@ -1926,8 +2018,10 @@ function getCharactersFromCards() {
       centers: [{
         x: clampUnit(value("x").value, 0.5),
         y: clampUnit(value("y").value, 0.5),
-      }],
-      position_mode: $("characterPositionMode").value === "custom" ? "custom" : "auto",
+      }, ...structuredClone((state.currentPreset.prompt_parts?.characters?.[index]?.centers || []).slice(1))],
+      position_mode: getModelProfile(state.currentPreset.params?.model).family === "v5"
+        ? (state.currentPreset.prompt_parts?.characters?.[index]?.position_mode === "custom" ? "custom" : "auto")
+        : ($("characterPositionMode").value === "custom" ? "custom" : "auto"),
     };
   });
   const existing = state.currentPreset.prompt_parts?.characters || [];
@@ -1945,8 +2039,9 @@ function addCharacterCard() {
     prompt: "",
     undesired: "",
     centers: [{ x: 0.5, y: 0.5 }],
-    position_mode: "auto",
+    position_mode: $("characterPositionMode").value === "custom" ? "custom" : "auto",
   });
+  state.selectedCharacterPositionIndex = state.currentPreset.prompt_parts.characters.length - 1;
   state.characterUiState.push({ activeTab: "prompt" });
   renderPresetForm();
 }

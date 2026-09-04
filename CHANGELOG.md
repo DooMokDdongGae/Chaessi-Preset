@@ -1,5 +1,23 @@
 # Changelog
 
+## v3.2.1
+
+### Added
+
+- A shared visual Position Pad for V5 Character Custom Position, with draggable numbered markers for up to 32 enabled Character slots.
+- Generation aspect ratio, normalized 0–1 coordinates with 0.001 precision, and two-way synchronization with Advanced X/Y inputs.
+- Selected-marker highlighting, reset selected to center, and a non-blocking overlap warning.
+
+### Fixed
+
+- Preserve Character coordinates and position modes through add/delete/reorder, Character Preset Load, and AI’s Choice/Custom transitions.
+- Safely clear drag state on pointer cancellation, selection/model/mode changes, and window resize.
+
+### Compatibility
+
+- Existing preset and History schemas, adapter payload semantics, and V4.5 generation behavior are unchanged. The new Pad is V5-only.
+- Local Position Pad/payload regressions and Portable runtime checks passed without NovelAI Generate calls.
+
 ## v3.2.0
 
 Chaessi Preset v3.2.0 adds safer bulk History cleanup and direct previous/next navigation without changing stored preset or History schemas.

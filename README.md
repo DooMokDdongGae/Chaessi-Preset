@@ -56,13 +56,23 @@ Precise Reference, Vibe Transfer, ControlNet, SMEA/SMEA DYN은 현재 NovelAI V5
 
 ## Current Version and Download / 현재 버전과 다운로드
 
-- Current version / 현재 버전: **v3.2.0**
-- Download / 다운로드: [GitHub Release v3.2.0](https://github.com/DooMokDdongGae/Chaessi-Preset/releases/tag/v3.2.0)
-- Windows Portable app: `Chaessi-Preset-v3.2.0-x64.exe`
-- Size / 크기: `97,838,531 bytes`
-- SHA256: `6D8A8F1436D5800AA113731D43686874C56D726A839C2D70EAC081E5F416F4ED`
+- Current version / 현재 버전: **v3.2.1**
+- Download / 다운로드: [GitHub Release v3.2.1](https://github.com/DooMokDdongGae/Chaessi-Preset/releases/tag/v3.2.1)
+- Windows Portable app: `Chaessi-Preset-v3.2.1-x64.exe`
+- Size / 크기: `97,838,057 bytes`
+- SHA256: `906081D3517E3B056FA3B7C73326F80E9D6B6B57C78CD13DE8E60ECCB0CF004F`
 
 이 배포본은 Windows용 Portable Electron 앱입니다. 설치 프로그램이 아니므로 EXE를 다운로드해 직접 실행합니다. 기존 사용자 데이터는 EXE와 분리된 Electron userData에 저장되므로 새 EXE로 교체해도 프리셋과 History가 자동으로 삭제되지 않습니다.
+
+## v3.2.1 Visual Character Position Pad
+
+V5 Custom Position now offers a shared visual Position Pad: drag numbered markers in a manner similar to the official NovelAI app to place enabled Characters, up to 32 slots. The Pad follows the generation resolution's aspect ratio and uses normalized 0–1 coordinates with 0.001 precision, synchronized with the existing Advanced X/Y inputs.
+
+V5 Character Custom Position에 공용 Position Pad를 추가했습니다. 공식 NovelAI 웹앱과 유사하게 번호 마커를 드래그해 활성 Character를 한 화면에서 배치할 수 있습니다(최대 32개 슬롯). Pad는 생성 해상도의 가로세로 비율을 반영하고, 0~1 좌표를 0.001 정밀도로 처리하며 기존 Advanced X/Y 숫자 입력과 양방향으로 동기화됩니다.
+
+- 선택한 Character 강조와 중앙으로 되돌리기, 가까운 마커의 겹침 경고를 지원합니다. 경고는 생성을 막지 않습니다.
+- Character 추가·삭제·재정렬과 프리셋 Load 시 위치 상태를 보존하며, AI’s Choice로 전환해도 Custom 좌표는 삭제하지 않습니다.
+- 기존 preset/schema 및 History와 호환됩니다. V4.5에는 새 Pad를 표시하지 않고 기존 동작을 유지합니다.
 
 ## NovelAI V5는 V4.5와 무엇이 다른가
 
@@ -212,7 +222,7 @@ Current release build:
 현재 릴리즈 빌드:
 
 ```text
-dist/Chaessi-Preset-v3.2.0-x64.exe
+dist/Chaessi-Preset-v3.2.1-x64.exe
 ```
 
 The EXE is portable. You can move it to another folder and run it from there. User presets, character presets, token storage, and generation history are stored separately from the EXE, so replacing the EXE does not remove saved app data.

@@ -115,6 +115,24 @@
               <label id="characterPositionModeField">Position
                 <select id="characterPositionMode"><option value="auto">AI's Choice</option><option value="custom">Custom</option></select>
               </label>
+              <section class="character-position-pad-panel" id="characterPositionPadPanel" hidden>
+                <div class="section-row">
+                  <div>
+                    <strong>Position Pad</strong>
+                    <div class="summary">Drag a numbered marker to position an active character.</div>
+                  </div>
+                  <button type="button" id="characterPositionResetSelected">Reset selected to center</button>
+                </div>
+                <div class="character-position-pad-wrap">
+                  <div class="character-position-pad" id="characterPositionPad" aria-label="Character position pad">
+                    <div id="characterPositionMarkers"></div>
+                  </div>
+                </div>
+                <div class="character-position-pad-status">
+                  <span id="characterPositionSelection">Select a character marker</span>
+                  <span class="character-position-overlap-warning" id="characterPositionOverlapWarning" role="status" hidden></span>
+                </div>
+              </section>
               <div class="character-card-list" id="characterCards"></div>
               <textarea id="charactersJson" spellcheck="false" hidden></textarea>
             </section>
