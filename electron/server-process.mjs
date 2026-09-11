@@ -1,5 +1,6 @@
 import { app } from "electron";
 import { spawn } from "node:child_process";
+import { existsSync, readdirSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import {
@@ -40,6 +41,7 @@ export async function startServerProcess() {
       ...process.env,
       PORT: String(serverPort),
       CHAESSI_USER_DATA_DIR: app.getPath("userData"),
+      ...resolveCodexExecutableEnv(),
       ...command.env,
       ...savedTokenEnv,
     },
@@ -77,6 +79,21 @@ export async function startServerProcess() {
   });
 
   return serverProcess;
+}
+
+function resolveCodexExecutableEnv() {
+  if (process.env.CHAESSI_CODEX_EXECUTABLE) return { CHAESSI_CODEX_EXECUTABLE: process.env.CHAESSI_CODEX_EXECUTABLE };
+  if (process.platform !== "win32") return {};
+  const binRoot = path.join(process.env.LOCALAPPDATA || "", "OpenAI", "Codex", "bin");
+  if (!existsSync(binRoot)) return {};
+  try {
+    for (const entry of readdirSync(binRoot, { withFileTypes: true })) {
+      if (!entry.isDirectory()) continue;
+      const candidate = path.join(binRoot, entry.name, "codex.exe");
+      if (existsSync(candidate)) return { CHAESSI_CODEX_EXECUTABLE: candidate };
+    }
+  } catch {}
+  return {};
 }
 
 async function loadSavedTokenEnv() {

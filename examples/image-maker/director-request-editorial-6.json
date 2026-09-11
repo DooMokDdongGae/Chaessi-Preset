@@ -1,0 +1,25 @@
+{
+  "schema": "chaessi-image-director-request/v1",
+  "request": "채씨 캐릭터와 호텔 유니폼을 유지한 세련된 호텔 로비 광고 화보 6장. 카메라, 포즈, 표정이 겹치지 않게 한다.",
+  "count": 6,
+  "mode": "editorial",
+  "presetSelections": {
+    "basePresetId": "preset_hotel_editorial",
+    "characterPresetIds": ["character_chaessi"],
+    "outfitPresetIds": ["outfit_hotel_uniform"],
+    "stylePresetId": "style_luxury_editorial",
+    "qualityPresetId": "quality_v5_standard",
+    "cameraPresetId": null,
+    "lightingPresetId": "lighting_warm_lobby"
+  },
+  "directing": {
+    "keepCharacterConsistent": true,
+    "keepOutfitConsistent": true,
+    "varyCamera": true,
+    "varyPose": true,
+    "varyExpression": true,
+    "preserveLocation": true,
+    "trackProps": true,
+    "additionalConstraints": "호텔 광고다운 절제된 서비스 행동을 사용한다."
+  }
+}

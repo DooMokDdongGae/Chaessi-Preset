@@ -41,8 +41,15 @@ async function parseResponse(response) {
     error: { message: "Response was not JSON." },
   }));
   if (!response.ok || payload.ok === false) {
-    const message = payload?.error?.details || payload?.error?.message || `HTTP ${response.status}`;
-    throw new Error(message);
+    const errorPayload = payload?.error || {};
+    const message = typeof errorPayload.details === "string"
+      ? errorPayload.details
+      : errorPayload.message || `HTTP ${response.status}`;
+    const error = new Error(message);
+    if (errorPayload.type) error.type = errorPayload.type;
+    if (errorPayload.code) error.code = errorPayload.code;
+    if (errorPayload.details && typeof errorPayload.details === "object") error.details = errorPayload.details;
+    throw error;
   }
   return payload;
 }

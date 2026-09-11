@@ -1,0 +1,71 @@
+{
+  "schema": "chaessi-scene-plan/v2",
+  "request": "성인 호텔 직원이 낮의 로비에서 장부를 들고 손님을 맞이하는 1인 검증 이미지",
+  "mode": "single",
+  "count": 1,
+  "presetSelections": {
+    "basePresetId": "preset_2cc76fdfa1a8",
+    "characterPresetIds": ["character_ab4f6e6420b8"],
+    "outfitPresetIds": ["character_0eaf3848aafa"],
+    "stylePresetId": null,
+    "qualityPresetId": null,
+    "cameraPresetId": null,
+    "lightingPresetId": null
+  },
+  "continuity": {
+    "characterIdentity": "locked",
+    "outfit": "locked",
+    "location": "locked",
+    "props": "tracked",
+    "screenDirection": "free"
+  },
+  "shots": [
+    {
+      "id": "shot_001",
+      "index": 1,
+      "intent": "Composer v2의 실제 저장 preset과 V5 payload 연결을 검증한다.",
+      "rhythmRole": "hero",
+      "direction": {
+        "shotSize": "medium",
+        "cameraHeight": "eye level",
+        "cameraAngle": "three-quarter angle",
+        "viewpoint": "from the lobby entrance",
+        "bodyOrientation": "front three-quarter",
+        "pose": "upright relaxed stance",
+        "action": "holding a closed guest ledger at waist height",
+        "gaze": "looking toward the viewer",
+        "expression": "professional welcoming smile",
+        "subjectPlacement": "left third of the frame",
+        "depth": "character in the foreground and reception desk in the background",
+        "lighting": "soft daylight through tall lobby windows",
+        "visibilityRequirements": [
+          "adult face remains readable",
+          "track jacket and trousers remain visible",
+          "closed guest ledger remains visible"
+        ]
+      },
+      "continuity": {
+        "location": "modern hotel lobby",
+        "outfitState": "athletic uniform fully worn",
+        "props": [{ "id": "prop_guest_ledger", "state": "closed and held at waist" }],
+        "screenDirection": "facing slightly right",
+        "carriesFrom": null
+      },
+      "generation": {
+        "mainPrompt": "1girl, modern hotel lobby, reception desk, tall windows, soft daylight, high complexity",
+        "supplement": "An adult woman working at the hotel stands in the left third of the frame. She holds a closed guest ledger at waist height while welcoming an arriving guest.",
+        "characters": [
+          {
+            "characterPresetId": "character_ab4f6e6420b8",
+            "visibleFeaturesPrompt": "",
+            "scenePrompt": "left side, standing, holding book, looking at viewer, professional smile",
+            "undesiredPrompt": "",
+            "position": { "x": 0.25, "y": 0.5 }
+          }
+        ],
+        "undesiredPrompt": "extra people, background characters",
+        "seed": 24090401
+      }
+    }
+  ]
+}

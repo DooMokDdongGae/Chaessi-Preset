@@ -1,0 +1,76 @@
+{
+  "schema": "chaessi-scene-plan/v2",
+  "request": "같은 호텔 직원이 도착한 손님의 가방을 받아 프런트로 안내하는 연속 장면 4컷",
+  "mode": "sequence",
+  "count": 4,
+  "presetSelections": {
+    "basePresetId": "preset_hotel_sequence",
+    "characterPresetIds": ["character_chaessi"],
+    "outfitPresetIds": ["outfit_hotel_uniform"],
+    "stylePresetId": "style_luxury_editorial",
+    "qualityPresetId": "quality_v5_standard",
+    "cameraPresetId": null,
+    "lightingPresetId": "lighting_warm_lobby"
+  },
+  "continuity": {
+    "characterIdentity": "locked",
+    "outfit": "locked",
+    "location": "tracked",
+    "props": "tracked",
+    "screenDirection": "tracked"
+  },
+  "shots": [
+    {
+      "id": "shot_001", "index": 1,
+      "intent": "도착한 손님과 가방의 초기 위치를 확립한다.", "rhythmRole": "establishing",
+      "direction": {
+        "shotSize": "wide", "cameraHeight": "eye level", "cameraAngle": "side three-quarter angle", "viewpoint": "from inside the entrance", "bodyOrientation": "facing the arriving guest", "pose": "standing with one arm extended", "action": "reaching toward the suitcase handle", "gaze": "looking at the guest", "expression": "welcoming attentive smile", "subjectPlacement": "character left, suitcase center, guest implied at right edge", "depth": "door foreground edge, subjects midground, reception background", "lighting": "cool entrance light mixed with warm lobby light", "visibilityRequirements": ["extended hand", "suitcase handle", "path toward reception"]
+      },
+      "continuity": { "location": "hotel entrance inside the lobby", "outfitState": "hotel uniform fully worn", "props": [{"id": "prop_suitcase", "state": "upright at center, handle held by arriving guest"}], "screenDirection": "movement will continue toward screen left", "carriesFrom": null },
+      "generation": {
+        "mainPrompt": "1girl, hotel lobby entrance, wide shot, side three-quarter view, upright suitcase, reception in background, mixed cool and warm lighting",
+        "supplement": "Chaessi stands left of the suitcase and reaches toward its handle. The arriving guest remains mostly outside the right edge. The open route to reception is visible behind Chaessi.",
+        "characters": [{"characterPresetId": "character_chaessi", "visibleFeaturesPrompt": "", "scenePrompt": "left midground, reaching toward suitcase handle, welcoming smile", "undesiredPrompt": ""}], "undesiredPrompt": "", "seed": 52001
+      }
+    },
+    {
+      "id": "shot_002", "index": 2,
+      "intent": "가방 인계 동작을 손과 접촉점 중심으로 명확히 보여준다.", "rhythmRole": "transition",
+      "direction": {
+        "shotSize": "medium", "cameraHeight": "chest height", "cameraAngle": "front oblique angle", "viewpoint": "close to the suitcase handle", "bodyOrientation": "torso turned toward the suitcase", "pose": "slight forward lean", "action": "closing one hand around the suitcase handle as the guest releases it", "gaze": "looking at the handle", "expression": "focused courteous expression", "subjectPlacement": "character center-left, handle center", "depth": "hands foreground, character midground, entrance background", "lighting": "warm overhead light with soft hand-level fill", "visibilityRequirements": ["Chaessi hand on handle", "guest hand releasing handle", "no hand occlusion"]
+      },
+      "continuity": { "location": "hotel entrance inside the lobby", "outfitState": "hotel uniform fully worn", "props": [{"id": "prop_suitcase", "state": "upright at center, handle transfers from guest to Chaessi"}], "screenDirection": "movement remains toward screen left", "carriesFrom": "shot_001" },
+      "generation": {
+        "mainPrompt": "1girl, hotel lobby entrance, medium shot, oblique angle, suitcase handle, warm overhead light, soft fill light",
+        "supplement": "Chaessi closes one hand around the same suitcase handle while the guest releases it from the opposite side. Both hands and the handle remain separated and visible. The suitcase stays upright.",
+        "characters": [{"characterPresetId": "character_chaessi", "visibleFeaturesPrompt": "", "scenePrompt": "center-left, leaning slightly forward, taking suitcase handle, focused expression", "undesiredPrompt": ""}], "undesiredPrompt": "", "seed": 52002
+      }
+    },
+    {
+      "id": "shot_003", "index": 3,
+      "intent": "가방을 끌고 로비를 가로지르는 이동을 보여준다.", "rhythmRole": "action",
+      "direction": {
+        "shotSize": "full-body", "cameraHeight": "waist height", "cameraAngle": "rear three-quarter angle", "viewpoint": "behind and to the right of the character", "bodyOrientation": "walking toward reception", "pose": "mid-stride pulling posture", "action": "pulling the suitcase with the right hand", "gaze": "looking toward reception", "expression": "face only partly visible in profile", "subjectPlacement": "character center moving toward upper left", "depth": "suitcase foreground, character midground, reception background", "lighting": "warm ceiling light with long floor reflections", "visibilityRequirements": ["right hand gripping handle", "rolling suitcase", "walking stride and destination"]
+      },
+      "continuity": { "location": "central hotel lobby path", "outfitState": "hotel uniform fully worn", "props": [{"id": "prop_suitcase", "state": "rolling behind Chaessi, handle held in right hand"}], "screenDirection": "movement continues toward screen left", "carriesFrom": "shot_002" },
+      "generation": {
+        "mainPrompt": "1girl, central hotel lobby, full body, rear three-quarter view, walking, rolling suitcase, reception ahead, warm floor reflections",
+        "supplement": "Chaessi walks toward reception and pulls the same suitcase with her right hand. The suitcase rolls in the foreground behind her. Her destination and full walking stride remain visible.",
+        "characters": [{"characterPresetId": "character_chaessi", "visibleFeaturesPrompt": "1girl, visible hair silhouette, visible profile", "scenePrompt": "center midground, rear three-quarter walking view, pulling suitcase with right hand", "undesiredPrompt": ""}], "undesiredPrompt": "", "seed": 52003
+      }
+    },
+    {
+      "id": "shot_004", "index": 4,
+      "intent": "가방을 프런트 옆에 안정적으로 세우며 행동을 마무리한다.", "rhythmRole": "resolution",
+      "direction": {
+        "shotSize": "cowboy", "cameraHeight": "counter height", "cameraAngle": "low side angle", "viewpoint": "from beside the reception desk", "bodyOrientation": "turning toward the guest behind camera", "pose": "one knee slightly bent beside the suitcase", "action": "parking the suitcase upright beside the desk", "gaze": "looking back toward the guest", "expression": "reassuring service smile", "subjectPlacement": "character right, suitcase lower center", "depth": "suitcase foreground, character midground, desk background", "lighting": "warm counter light with subtle edge light from entrance", "visibilityRequirements": ["suitcase upright beside desk", "hand releasing handle", "face turned enough to show smile"]
+      },
+      "continuity": { "location": "reception desk inside the same lobby", "outfitState": "hotel uniform fully worn", "props": [{"id": "prop_suitcase", "state": "upright beside reception desk, handle released by Chaessi"}], "screenDirection": "movement ends at screen left destination", "carriesFrom": "shot_003" },
+      "generation": {
+        "mainPrompt": "1girl, luxury hotel reception, cowboy shot, low side angle, upright suitcase beside desk, warm counter light, subtle edge light",
+        "supplement": "The same suitcase stands upright beside the reception desk. Chaessi releases the handle and turns far enough for her service smile to remain visible. The suitcase no longer moves.",
+        "characters": [{"characterPresetId": "character_chaessi", "visibleFeaturesPrompt": "", "scenePrompt": "right midground, one knee slightly bent, releasing suitcase handle, looking back with reassuring smile", "undesiredPrompt": ""}], "undesiredPrompt": "", "seed": 52004
+      }
+    }
+  ]
+}

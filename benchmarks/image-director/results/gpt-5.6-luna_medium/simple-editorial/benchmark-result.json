@@ -1,0 +1,149 @@
+{
+  "caseId": "simple-editorial",
+  "promptHash": "1506ab0daaae6f2e8b64c9008982e3f246a785db8293df53321ecc9bdec60b1c",
+  "process": {
+    "success": true,
+    "exitCode": 0,
+    "durationMs": 52691,
+    "retryCount": 0,
+    "cacheBypass": true,
+    "timedOut": false,
+    "diagnostic": "2026-09-10T12:36:15.777730Z  WARN codex_skills::interface: ignoring interface.icon_small: icon path with '..' must resolve under plugin assets/\n2026-09-10T12:36:15.777780Z  WARN codex_skills::interface: ignoring interface.icon_large: icon path with '..' must resolve under plugin assets/\n2026-09-10T12:36:15.787549Z  WARN codex_core::shell_snapshot: Failed to create shell snapshot for powershell: Shell snapshot not supported yet for PowerShell\n2026-09-10T12:36:16.217847Z  WARN codex_skills::interface: ignoring interface.icon_small: icon path with '..' must resolve under plugin assets/\n2026-09-10T12:36:16.217872Z  WARN codex_skills::interface: ignoring interface.icon_large: icon path with '..' must resolve under plugin assets/",
+    "usage": {
+      "inputTokens": 18768,
+      "cachedInputTokens": 0,
+      "outputTokens": 2656
+    }
+  },
+  "evaluation": {
+    "pass": true,
+    "contract": {
+      "ok": true
+    },
+    "countExact": true,
+    "requestExact": true,
+    "presetsExact": true,
+    "actorCountsExact": true,
+    "audit": {
+      "ok": true,
+      "errors": [],
+      "warnings": [],
+      "requiresSemanticReview": [
+        "user request coverage",
+        "preset content fidelity",
+        "visual similarity beyond exact signatures",
+        "camera/crop/action fit beyond known contradictions",
+        "expression/intent fit",
+        "physical plausibility and occlusion",
+        "prompt vocabulary quality"
+      ]
+    },
+    "preflight": {
+      "ok": true,
+      "shots": [
+        {
+          "shotId": "shot_001",
+          "ok": true,
+          "guard": {
+            "ok": true,
+            "requiresSemanticReview": false,
+            "issues": []
+          },
+          "payload": {
+            "ok": true,
+            "errors": [],
+            "warnings": []
+          },
+          "error": null
+        },
+        {
+          "shotId": "shot_002",
+          "ok": true,
+          "guard": {
+            "ok": true,
+            "requiresSemanticReview": false,
+            "issues": []
+          },
+          "payload": {
+            "ok": true,
+            "errors": [],
+            "warnings": []
+          },
+          "error": null
+        },
+        {
+          "shotId": "shot_003",
+          "ok": true,
+          "guard": {
+            "ok": true,
+            "requiresSemanticReview": false,
+            "issues": []
+          },
+          "payload": {
+            "ok": true,
+            "errors": [],
+            "warnings": []
+          },
+          "error": null
+        },
+        {
+          "shotId": "shot_004",
+          "ok": true,
+          "guard": {
+            "ok": true,
+            "requiresSemanticReview": false,
+            "issues": []
+          },
+          "payload": {
+            "ok": true,
+            "errors": [],
+            "warnings": []
+          },
+          "error": null
+        },
+        {
+          "shotId": "shot_005",
+          "ok": true,
+          "guard": {
+            "ok": true,
+            "requiresSemanticReview": false,
+            "issues": []
+          },
+          "payload": {
+            "ok": true,
+            "errors": [],
+            "warnings": []
+          },
+          "error": null
+        },
+        {
+          "shotId": "shot_006",
+          "ok": true,
+          "guard": {
+            "ok": true,
+            "requiresSemanticReview": false,
+            "issues": []
+          },
+          "payload": {
+            "ok": true,
+            "errors": [],
+            "warnings": []
+          },
+          "error": null
+        }
+      ]
+    },
+    "semantics": {
+      "cameraVariation": 6,
+      "placementVariation": 6,
+      "actionVariation": 6,
+      "expressionVariation": 6,
+      "duplicateAcceptable": true,
+      "sequenceContinuity": true,
+      "interactionAccuracy": true,
+      "difficultCoverage": true,
+      "requestCoverage": true
+    },
+    "blockingErrors": []
+  }
+}

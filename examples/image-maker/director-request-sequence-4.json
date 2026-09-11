@@ -1,0 +1,25 @@
+{
+  "schema": "chaessi-image-director-request/v1",
+  "request": "같은 호텔 직원이 도착한 손님의 가방을 받아 프런트로 안내하는 연속 장면 4컷",
+  "count": 4,
+  "mode": "sequence",
+  "presetSelections": {
+    "basePresetId": "preset_hotel_sequence",
+    "characterPresetIds": ["character_chaessi"],
+    "outfitPresetIds": ["outfit_hotel_uniform"],
+    "stylePresetId": "style_luxury_editorial",
+    "qualityPresetId": "quality_v5_standard",
+    "cameraPresetId": null,
+    "lightingPresetId": "lighting_warm_lobby"
+  },
+  "directing": {
+    "keepCharacterConsistent": true,
+    "keepOutfitConsistent": true,
+    "varyCamera": true,
+    "varyPose": true,
+    "varyExpression": true,
+    "preserveLocation": true,
+    "trackProps": true,
+    "additionalConstraints": "여행 가방은 매 컷 같은 물체이며 이동 방향과 손잡이 소유권을 추적한다."
+  }
+}

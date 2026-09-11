@@ -58,6 +58,16 @@ test_*.js
 !test_history_bulk_delete_wiring.js
 !test_history_navigation.js
 !test_history_navigation_wiring.js
+!test_image_director_contract.js
+!test_preset_composer_v2.js
+!test_image_maker_backend.js
+!test_image_maker_runner.js
+!test_image_maker_multi_runner.js
+!test_image_maker_frontend.js
+!test_codex_director_bridge.js
+!test_image_maker_v321_migration.js
+!test_image_maker_ux.js
+!test_release_candidate.js
 rebuild_blueprint.md
 nai_v45_full_poc.py
 *.txt
@@ -65,6 +75,13 @@ nai_v45_full_poc.py
 # Private research / planning archive
 archive/
 docs/
+!docs/
+docs/*
+!docs/image-maker/
+!docs/image-maker/**
+!docs/images/
+!docs/images/image-maker/
+!docs/images/image-maker/*.png
 
 # Python
 __pycache__/

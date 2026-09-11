@@ -1,0 +1,118 @@
+{
+  "schema": "chaessi-scene-plan/v2",
+  "request": "햇빛이 드는 현대적인 호텔 로비에서 같은 성인 여성 직원의 서로 다른 구도 화보 2장",
+  "mode": "editorial",
+  "count": 2,
+  "presetSelections": {
+    "basePresetId": "preset_2cc76fdfa1a8",
+    "characterPresetIds": ["character_ab4f6e6420b8"],
+    "outfitPresetIds": ["character_edbb8ce63b7b"],
+    "stylePresetId": null,
+    "qualityPresetId": null,
+    "cameraPresetId": null,
+    "lightingPresetId": null
+  },
+  "continuity": {
+    "characterIdentity": "locked",
+    "outfit": "locked",
+    "location": "locked",
+    "props": "tracked",
+    "screenDirection": "free"
+  },
+  "shots": [
+    {
+      "id": "shot_001",
+      "index": 1,
+      "intent": "프런트 공간과 차분한 업무 자세를 함께 보여주는 첫 중경 화보",
+      "rhythmRole": "hero",
+      "direction": {
+        "shotSize": "medium",
+        "cameraHeight": "eye level",
+        "cameraAngle": "front three-quarter angle",
+        "viewpoint": "from the open lobby entrance",
+        "bodyOrientation": "front three-quarter",
+        "pose": "upright relaxed stance",
+        "action": "holding a closed leather ledger at waist height",
+        "gaze": "looking toward the viewer",
+        "expression": "calm professional smile",
+        "subjectPlacement": "left third of the frame",
+        "depth": "shallow foreground depth with reception furniture in the background",
+        "lighting": "soft daylight through tall windows",
+        "visibilityRequirements": [
+          "adult face remains readable",
+          "uniform jacket and hat remain visible",
+          "closed leather ledger remains visible"
+        ]
+      },
+      "continuity": {
+        "location": "modern sunlit hotel lobby",
+        "outfitState": "cream and red uniform fully worn",
+        "props": [{ "id": "room_ledger", "state": "closed and held at waist height" }],
+        "screenDirection": "facing slightly right",
+        "carriesFrom": null
+      },
+      "generation": {
+        "mainPrompt": "1girl, solo, modern hotel lobby, reception desk, tall windows, soft daylight",
+        "supplement": "One adult woman stands alone in the left third of a bright modern lobby, holding a closed leather ledger at waist height.",
+        "characters": [
+          {
+            "characterPresetId": "character_ab4f6e6420b8",
+            "visibleFeaturesPrompt": "",
+            "scenePrompt": "standing, holding book at waist, looking at viewer, calm professional smile",
+            "undesiredPrompt": "",
+            "position": { "x": 0.28, "y": 0.55 }
+          }
+        ],
+        "undesiredPrompt": "4::extra person, extra man, extra woman, multiple people, background characters, bystanders, duplicate character::",
+        "seed": null
+      }
+    },
+    {
+      "id": "shot_002",
+      "index": 2,
+      "intent": "창가 방향의 낮은 시점과 옆모습으로 첫 장과 다른 공간감을 만드는 두 번째 화보",
+      "rhythmRole": "portrait",
+      "direction": {
+        "shotSize": "full-body",
+        "cameraHeight": "slightly low",
+        "cameraAngle": "profile three-quarter angle",
+        "viewpoint": "from the reception aisle",
+        "bodyOrientation": "side three-quarter",
+        "pose": "gentle turning stance with one foot forward",
+        "action": "holding a closed leather ledger against the hip",
+        "gaze": "looking toward the tall windows",
+        "expression": "quiet thoughtful expression",
+        "subjectPlacement": "right third of the frame",
+        "depth": "deep window lines with lobby architecture in the background",
+        "lighting": "soft daylight through tall windows",
+        "visibilityRequirements": [
+          "full uniform silhouette remains visible",
+          "profile and hat remain readable",
+          "closed leather ledger remains visible"
+        ]
+      },
+      "continuity": {
+        "location": "modern sunlit hotel lobby",
+        "outfitState": "cream and red uniform fully worn",
+        "props": [{ "id": "room_ledger", "state": "closed and held against the hip" }],
+        "screenDirection": "facing left toward the windows",
+        "carriesFrom": null
+      },
+      "generation": {
+        "mainPrompt": "1girl, solo, modern hotel lobby, reception desk, tall windows, soft daylight",
+        "supplement": "One adult woman stands alone in the right third of the same bright modern lobby, turning beside tall windows with a closed leather ledger against the hip.",
+        "characters": [
+          {
+            "characterPresetId": "character_ab4f6e6420b8",
+            "visibleFeaturesPrompt": "",
+            "scenePrompt": "full body, turning, one foot forward, holding book against hip, looking aside, thoughtful expression",
+            "undesiredPrompt": "",
+            "position": { "x": 0.68, "y": 0.55 }
+          }
+        ],
+        "undesiredPrompt": "4::extra person, extra man, extra woman, multiple people, background characters, bystanders, duplicate character::",
+        "seed": null
+      }
+    }
+  ]
+}

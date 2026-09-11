@@ -1,0 +1,10 @@
+{
+  "schema": "chaessi-scene-plan/v1",
+  "request": "기존 프리셋의 외형과 설정을 유지하며 도시 야경 배경을 추가한다.",
+  "basePresetId": "preset_2cc76fdfa1a8",
+  "scene": {
+    "mainPrompt": "city street at night, soft reflected light",
+    "supplement": "Distant street lights illuminate the background."
+  },
+  "overrides": { "seed": 12345 }
+}

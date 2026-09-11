@@ -26,7 +26,12 @@
       </div>
     </header>
 
-    <main class="workspace">
+    <nav class="app-view-tabs" aria-label="Workspace">
+      <button type="button" class="is-active" id="presetWorkspaceTab">Preset Workshop</button>
+      <button type="button" id="imageMakerWorkspaceTab">Image Maker</button>
+    </nav>
+
+    <main class="workspace" id="presetWorkspace">
       <section class="current-strip" id="currentPresetSummary">
         <div><strong>Preset</strong><span id="summaryName">Untitled</span></div>
         <div><strong>Model</strong><span id="summaryModel">nai-diffusion-4-5-full</span></div>
@@ -411,6 +416,134 @@
       </div>
     </main>
 
+    <main class="workspace image-maker-workspace" id="imageMakerWorkspace" hidden>
+      <section class="panel image-maker-hero">
+        <div class="panel-heading">
+          <div>
+            <span class="eyebrow">MULTI-SHOT DIRECTOR</span>
+            <h2>Image Maker</h2>
+            <p>장면을 설명하고, 인물과 스타일을 선택한 뒤 Director의 구도를 확인하세요.</p>
+          </div>
+          <button type="button" id="imageMakerNewRequestButton">New Request</button>
+        </div>
+
+        <div class="image-maker-director-bar">
+          <div class="image-maker-director-status" id="imageMakerDirectorStatus" data-status="checking" role="status" aria-live="polite">
+            <span class="director-status-dot" aria-hidden="true"></span>
+            <div><small>DIRECTOR</small><strong>Checking Director</strong><span>Codex 연결 상태를 확인하고 있습니다.</span></div>
+          </div>
+          <button type="button" id="imageMakerDirectorRefreshButton">Refresh status</button>
+        </div>
+
+        <div class="image-maker-request-grid">
+          <section class="tool-surface image-maker-request-copy">
+            <label>무엇을 만들까요?
+              <textarea id="imageMakerRequest" rows="5" placeholder="호텔 로비에서 일하는 여성 직원의 세련된 화보"></textarea>
+            </label>
+            <div class="image-maker-mode-row">
+              <label class="image-maker-mode-card">
+                <input type="radio" name="imageMakerMode" value="editorial" checked />
+                <span><strong>Editorial</strong><small>서로 독립적인 다양한 구도</small></span>
+              </label>
+              <label class="image-maker-mode-card">
+                <input type="radio" name="imageMakerMode" value="sequence" />
+                <span><strong>Sequence</strong><small>시간적으로 이어지는 장면</small></span>
+              </label>
+              <label class="image-maker-count">Count
+                <input id="imageMakerCount" type="number" min="1" step="1" value="4" inputmode="numeric" />
+              </label>
+            </div>
+          </section>
+
+          <section class="tool-surface image-maker-preset-grid">
+            <label>Base
+              <select id="imageMakerBasePreset"></select>
+            </label>
+            <label>Character
+              <select id="imageMakerCharacterPreset"></select>
+            </label>
+            <label>Outfit
+              <select id="imageMakerOutfitPreset"></select>
+            </label>
+            <label>Style <span class="field-note">optional</span>
+              <select id="imageMakerStylePreset"></select>
+            </label>
+            <label>Quality <span class="field-note">optional</span>
+              <select id="imageMakerQualityPreset"></select>
+            </label>
+            <label>Base seed <span class="field-note">optional</span>
+              <input id="imageMakerBaseSeed" type="number" min="0" step="1" placeholder="Random" />
+            </label>
+          </section>
+        </div>
+      </section>
+
+      <section class="panel image-maker-plan-panel">
+        <div class="panel-heading">
+          <div>
+            <h2>Director Plan</h2>
+            <p>Codex로 장면을 설계하거나, 기존 scene-plan/v2를 붙여넣어 사용할 수 있습니다.</p>
+          </div>
+          <div class="actions">
+            <button type="button" class="primary-generate-button" id="imageMakerCreatePlanButton">Create Director Plan</button>
+            <button type="button" id="imageMakerRegeneratePlanButton" hidden>Regenerate</button>
+            <button type="button" id="imageMakerImportPlanButton">Import Plan</button>
+            <button type="button" id="imageMakerPreparePlanButton">Use Pasted Plan</button>
+          </div>
+        </div>
+        <div class="image-maker-plan-meta">
+          <div class="image-maker-plan-mode" id="imageMakerPlanMode"></div>
+          <span class="image-maker-plan-source-badge" id="imageMakerPlanSourceBadge">No plan</span>
+        </div>
+        <input id="imageMakerPlanFile" type="file" accept="application/json,.json" hidden />
+        <details class="image-maker-plan-source">
+          <summary>Director Plan JSON</summary>
+          <div class="details-body">
+            <textarea id="imageMakerPlanJson" rows="10" spellcheck="false" placeholder="Paste chaessi-scene-plan/v2 JSON here"></textarea>
+          </div>
+        </details>
+        <div class="summary" id="imageMakerPlanStatus">Director Plan을 준비하면 shot 구도를 여기서 확인할 수 있습니다.</div>
+        <nav class="image-maker-shot-overview" id="imageMakerShotOverview" aria-label="Shot overview"></nav>
+        <div class="image-maker-shot-grid" id="imageMakerShotList"></div>
+      </section>
+
+      <section class="panel image-maker-run-panel">
+        <div class="panel-heading">
+          <div>
+            <h2>Preflight &amp; Generate</h2>
+            <p>모든 shot이 준비된 뒤에만 NovelAI 생성을 시작합니다.</p>
+          </div>
+          <div class="actions">
+            <button type="button" id="imageMakerPreflightButton" disabled>Run Preflight</button>
+            <button type="button" class="primary-generate-button" id="imageMakerGenerateButton" disabled>Generate Images</button>
+          </div>
+        </div>
+        <div class="image-maker-run-summary" id="imageMakerRunSummary" data-status="idle">
+          <strong>Idle</strong><span>Director Plan을 먼저 준비하세요.</span>
+        </div>
+        <div class="image-maker-review-list" id="imageMakerReviewList"></div>
+        <div class="image-maker-progress-list" id="imageMakerProgressList"></div>
+      </section>
+
+      <section class="panel image-maker-results-panel" id="imageMakerResultsPanel" hidden>
+        <div class="panel-heading">
+          <div><h2>Results</h2><p>Shot 순서대로 저장된 generation 결과입니다.</p></div>
+        </div>
+        <p class="image-maker-renderer-note" id="imageMakerRendererNote" hidden>Rendered details may differ from the Director plan.</p>
+        <div class="image-maker-gallery" id="imageMakerGallery"></div>
+      </section>
+
+      <section class="panel image-maker-history-panel">
+        <details>
+          <summary>Recent Image Maker Runs</summary>
+          <div class="details-body">
+            <button type="button" id="imageMakerRefreshRunsButton">Refresh Runs</button>
+            <div class="image-maker-run-history" id="imageMakerRunHistory"></div>
+          </div>
+        </details>
+      </section>
+    </main>
+
     <dialog class="image-intake-dialog" id="imageIntakeDialog">
       <form method="dialog">
         <header class="dialog-header">
@@ -489,6 +622,15 @@
           <button id="historyBulkDeleteCancelButton" value="cancel">Cancel</button>
           <button id="historyBulkDeleteConfirmButton" class="danger-button" type="button">Delete</button>
         </div>
+      </form>
+    </dialog>
+    <dialog class="image-maker-detail-dialog" id="imageMakerDetailDialog">
+      <form method="dialog">
+        <header class="dialog-header">
+          <div><h2 id="imageMakerDetailTitle">Shot details</h2><p>Stored generation artifact</p></div>
+          <button value="cancel">Close</button>
+        </header>
+        <pre id="imageMakerDetailContent"></pre>
       </form>
     </dialog>
 

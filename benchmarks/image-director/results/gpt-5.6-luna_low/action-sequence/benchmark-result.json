@@ -1,0 +1,159 @@
+{
+  "caseId": "action-sequence",
+  "promptHash": "34d9126745e5b7e8a6049a871adbd1c88835dc24a49f7dc8f79217bb9718ca2a",
+  "process": {
+    "success": true,
+    "exitCode": 0,
+    "durationMs": 53147,
+    "retryCount": 0,
+    "cacheBypass": true,
+    "timedOut": false,
+    "diagnostic": "2026-09-10T12:33:57.977700Z  WARN codex_skills::interface: ignoring interface.icon_small: icon path with '..' must resolve under plugin assets/\n2026-09-10T12:33:57.977736Z  WARN codex_skills::interface: ignoring interface.icon_large: icon path with '..' must resolve under plugin assets/\n2026-09-10T12:33:57.986238Z  WARN codex_core::shell_snapshot: Failed to create shell snapshot for powershell: Shell snapshot not supported yet for PowerShell\n2026-09-10T12:33:58.438074Z  WARN codex_skills::interface: ignoring interface.icon_small: icon path with '..' must resolve under plugin assets/\n2026-09-10T12:33:58.438101Z  WARN codex_skills::interface: ignoring interface.icon_large: icon path with '..' must resolve under plugin assets/",
+    "usage": {
+      "inputTokens": 18809,
+      "cachedInputTokens": 0,
+      "outputTokens": 2689
+    }
+  },
+  "evaluation": {
+    "pass": false,
+    "contract": {
+      "ok": true
+    },
+    "countExact": true,
+    "requestExact": true,
+    "presetsExact": true,
+    "actorCountsExact": true,
+    "audit": {
+      "ok": false,
+      "errors": [
+        "shot_003 changes a locked location.",
+        "shot_004 changes a locked location.",
+        "shot_005 changes a locked location.",
+        "shot_006 changes a locked location."
+      ],
+      "warnings": [],
+      "requiresSemanticReview": [
+        "user request coverage",
+        "preset content fidelity",
+        "visual similarity beyond exact signatures",
+        "camera/crop/action fit beyond known contradictions",
+        "expression/intent fit",
+        "physical plausibility and occlusion",
+        "prompt vocabulary quality"
+      ]
+    },
+    "preflight": {
+      "ok": true,
+      "shots": [
+        {
+          "shotId": "shot_001",
+          "ok": true,
+          "guard": {
+            "ok": true,
+            "requiresSemanticReview": false,
+            "issues": []
+          },
+          "payload": {
+            "ok": true,
+            "errors": [],
+            "warnings": []
+          },
+          "error": null
+        },
+        {
+          "shotId": "shot_002",
+          "ok": true,
+          "guard": {
+            "ok": true,
+            "requiresSemanticReview": false,
+            "issues": []
+          },
+          "payload": {
+            "ok": true,
+            "errors": [],
+            "warnings": []
+          },
+          "error": null
+        },
+        {
+          "shotId": "shot_003",
+          "ok": true,
+          "guard": {
+            "ok": true,
+            "requiresSemanticReview": false,
+            "issues": []
+          },
+          "payload": {
+            "ok": true,
+            "errors": [],
+            "warnings": []
+          },
+          "error": null
+        },
+        {
+          "shotId": "shot_004",
+          "ok": true,
+          "guard": {
+            "ok": true,
+            "requiresSemanticReview": false,
+            "issues": []
+          },
+          "payload": {
+            "ok": true,
+            "errors": [],
+            "warnings": []
+          },
+          "error": null
+        },
+        {
+          "shotId": "shot_005",
+          "ok": true,
+          "guard": {
+            "ok": true,
+            "requiresSemanticReview": false,
+            "issues": []
+          },
+          "payload": {
+            "ok": true,
+            "errors": [],
+            "warnings": []
+          },
+          "error": null
+        },
+        {
+          "shotId": "shot_006",
+          "ok": true,
+          "guard": {
+            "ok": true,
+            "requiresSemanticReview": false,
+            "issues": []
+          },
+          "payload": {
+            "ok": true,
+            "errors": [],
+            "warnings": []
+          },
+          "error": null
+        }
+      ]
+    },
+    "semantics": {
+      "cameraVariation": 6,
+      "placementVariation": 6,
+      "actionVariation": 6,
+      "expressionVariation": 6,
+      "duplicateAcceptable": true,
+      "sequenceContinuity": true,
+      "interactionAccuracy": true,
+      "difficultCoverage": true,
+      "requestCoverage": true
+    },
+    "blockingErrors": [
+      "audit: shot_003 changes a locked location.",
+      "audit: shot_004 changes a locked location.",
+      "audit: shot_005 changes a locked location.",
+      "audit: shot_006 changes a locked location."
+    ]
+  }
+}

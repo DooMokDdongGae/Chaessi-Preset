@@ -1,0 +1,306 @@
+{
+  "schema": "chaessi-scene-plan/v2",
+  "request": "기하학적 현대 미술관에서 남성 무용수 한 명의 비대칭 화보 6장. 강한 오버헤드, 바닥 가까운 로우 앵글, 화면 모서리의 비정상적 배치, 전경 구조물과 먼 배경의 층위를 포함하되 인물과 의상은 유지한다.",
+  "mode": "editorial",
+  "count": 6,
+  "presetSelections": {
+    "basePresetId": "preset_benchmark_v5",
+    "characterPresetIds": ["character_dancer"],
+    "outfitPresetIds": ["outfit_dancer_black"],
+    "stylePresetId": "style_benchmark_editorial",
+    "qualityPresetId": "quality_benchmark_v5",
+    "cameraPresetId": null,
+    "lightingPresetId": null
+  },
+  "continuity": {
+    "characterIdentity": "locked",
+    "outfit": "locked",
+    "location": "locked",
+    "props": "locked",
+    "screenDirection": "free"
+  },
+  "shots": [
+    {
+      "id": "shot_001",
+      "index": 1,
+      "intent": "수직 오버헤드에서 바닥의 기하와 접힌 신체가 만드는 비대칭 구도를 보여준다.",
+      "rhythmRole": "establishing",
+      "direction": {
+        "shotSize": "full-body",
+        "cameraHeight": "high above the floor",
+        "cameraAngle": "90-degree downward angle",
+        "viewpoint": "vertical overhead view",
+        "bodyOrientation": "reclining diagonally across the floor, face upward",
+        "pose": "one knee bent with its foot planted, opposite leg extended, arms opened at unequal angles",
+        "action": "holding a floor-based dance shape",
+        "gaze": "up toward the overhead lens",
+        "expression": "quiet concentration",
+        "subjectPlacement": "lower-left quadrant with generous clearance around all extremities",
+        "depth": "flat floor plane with intersecting seams and a diagonal shadow",
+        "lighting": "high skylight illumination with soft directional shadows toward the lower right",
+        "visibilityRequirements": [
+          "Entire body and all extremities remain inside the frame.",
+          "The face points upward and remains visible.",
+          "Bent and extended legs have distinct silhouettes."
+        ]
+      },
+      "continuity": {
+        "location": "same geometric contemporary art museum gallery with pale concrete planes, rectangular portals, floor seams, and high skylights",
+        "outfitState": "selected outfit unchanged",
+        "props": [],
+        "screenDirection": "body diagonal from lower left toward upper right",
+        "carriesFrom": null
+      },
+      "generation": {
+        "mainPrompt": "geometric contemporary art museum, pale concrete floor, intersecting floor seams, vertical overhead shot, full-body framing, asymmetric composition, open floor across upper right, skylight illumination, diagonal soft shadows",
+        "supplement": "The extended leg follows a floor seam. Clear floor separates the arms from the torso.",
+        "characters": [
+          {
+            "characterPresetId": "character_dancer",
+            "visibleFeaturesPrompt": "",
+            "scenePrompt": "reclining diagonally on the floor in the lower-left quadrant, one knee bent with foot planted, opposite leg extended, arms spread at unequal angles, face upward, looking toward the camera, concentrated expression",
+            "undesiredPrompt": "",
+            "position": {"x": 0.31, "y": 0.69}
+          }
+        ],
+        "undesiredPrompt": "",
+        "seed": null
+      }
+    },
+    {
+      "id": "shot_002",
+      "index": 2,
+      "intent": "바닥 가까운 시점에서 깊은 측면 런지와 수직 건축의 규모를 강조한다.",
+      "rhythmRole": "hero",
+      "direction": {
+        "shotSize": "full-body",
+        "cameraHeight": "just above floor level",
+        "cameraAngle": "steep upward angle",
+        "viewpoint": "oblique side view",
+        "bodyOrientation": "side-on facing screen left, chest slightly rotated toward camera",
+        "pose": "deep lateral lunge, left knee bent, right leg extended, arms reaching along different diagonals",
+        "action": "settling weight over the bent leg",
+        "gaze": "along the lower arm toward screen left",
+        "expression": "focused resolve",
+        "subjectPlacement": "right third with open space to the left",
+        "depth": "near floor plane, middle-distance action plane, tall portal and ceiling far behind",
+        "lighting": "the same skylights create an upper rim and pale floor bounce",
+        "visibilityRequirements": [
+          "Both feet and their floor contact remain visible.",
+          "The bent knee aligns with its planted foot.",
+          "Both hands are separated from the torso and portal edges."
+        ]
+      },
+      "continuity": {
+        "location": "same geometric contemporary art museum gallery with pale concrete planes, rectangular portals, floor seams, and high skylights",
+        "outfitState": "selected outfit unchanged",
+        "props": [],
+        "screenDirection": "lunge and gaze toward screen left",
+        "carriesFrom": null
+      },
+      "generation": {
+        "mainPrompt": "geometric contemporary art museum, towering rectangular portal, pale concrete walls, floor-level camera, steep low angle, oblique side view, full-body framing, asymmetric right-third composition, skylight rim light, reflected floor light",
+        "supplement": "Both feet rest on the same floor plane. The portal rises behind the extended arm.",
+        "characters": [
+          {
+            "characterPresetId": "character_dancer",
+            "visibleFeaturesPrompt": "",
+            "scenePrompt": "positioned on the right, deep lateral lunge toward screen left, left knee bent over planted foot, right leg extended, torso slightly turned toward camera, left arm reaching low to the left, right arm raised diagonally, gaze along left arm, focused expression",
+            "undesiredPrompt": "",
+            "position": {"x": 0.69, "y": 0.57}
+          }
+        ],
+        "undesiredPrompt": "",
+        "seed": null
+      }
+    },
+    {
+      "id": "shot_003",
+      "index": 3,
+      "intent": "전경 벽체와 먼 출입구 사이에서 이동 동작의 깊이를 읽히게 한다.",
+      "rhythmRole": "action",
+      "direction": {
+        "shotSize": "full-body",
+        "cameraHeight": "waist level",
+        "cameraAngle": "level angle",
+        "viewpoint": "diagonal view through a rectangular opening",
+        "bodyOrientation": "three-quarter back facing screen right",
+        "pose": "long traveling step with trailing heel lifted and arms opened below shoulder height",
+        "action": "crossing the gallery toward screen right",
+        "gaze": "toward the visible travel path",
+        "expression": "not readable from this rear view",
+        "subjectPlacement": "left of center inside the clear opening",
+        "depth": "thick wall edge in the near left foreground, clear middle plane, distant nested portals",
+        "lighting": "the same skylights illuminate the middle floor while the near wall edge remains shaded",
+        "visibilityRequirements": [
+          "Foreground architecture does not obscure the body or hands.",
+          "Both legs remain distinguishable.",
+          "A distant portal is clearly visible beyond the action."
+        ]
+      },
+      "continuity": {
+        "location": "same geometric contemporary art museum gallery with pale concrete planes, rectangular portals, floor seams, and high skylights",
+        "outfitState": "selected outfit unchanged",
+        "props": [],
+        "screenDirection": "travel from screen left to screen right",
+        "carriesFrom": null
+      },
+      "generation": {
+        "mainPrompt": "geometric contemporary art museum, rectangular architectural opening, thick shaded concrete edge in left foreground, nested portals in distant background, full-body framing, level camera, diagonal spatial perspective, asymmetric composition, skylit middle floor",
+        "supplement": "The foreground wall occupies the left margin without overlapping the body. A distant portal remains visible through the opening.",
+        "characters": [
+          {
+            "characterPresetId": "character_dancer",
+            "visibleFeaturesPrompt": "",
+            "scenePrompt": "left of center in the middle distance, three-quarter back view, traveling toward screen right with a long step, leading foot planted, trailing heel lifted, arms opened below shoulder height, head aligned with the travel path",
+            "undesiredPrompt": "",
+            "position": {"x": 0.43, "y": 0.6}
+          }
+        ],
+        "undesiredPrompt": "",
+        "seed": null
+      }
+    },
+    {
+      "id": "shot_004",
+      "index": 4,
+      "intent": "얼굴과 접힌 팔을 화면 우상단에 크게 배치해 이례적인 모서리 구도를 만든다.",
+      "rhythmRole": "portrait",
+      "direction": {
+        "shotSize": "close-up",
+        "cameraHeight": "eye level",
+        "cameraAngle": "slightly downward angle",
+        "viewpoint": "three-quarter facial view",
+        "bodyOrientation": "shoulders diagonal, face turned toward screen left",
+        "pose": "one elbow bent with a hand resting beside the opposite collarbone",
+        "action": "pausing after a shoulder turn",
+        "gaze": "downward toward screen left",
+        "expression": "composed, lips gently parted",
+        "subjectPlacement": "upper-right corner emphasis, tight headroom, open lower-left area",
+        "depth": "close focus plane against a softly receding diagonal wall",
+        "lighting": "the same skylight gives soft side light across the face with floor-reflected fill",
+        "visibilityRequirements": [
+          "Face and visible hand are fully inside the frame.",
+          "Hand does not cover the mouth or eyes.",
+          "Torso is intentionally cropped below the upper chest."
+        ]
+      },
+      "continuity": {
+        "location": "same geometric contemporary art museum gallery with pale concrete planes, rectangular portals, floor seams, and high skylights",
+        "outfitState": "selected outfit unchanged",
+        "props": [],
+        "screenDirection": "face and gaze toward lower screen left",
+        "carriesFrom": null
+      },
+      "generation": {
+        "mainPrompt": "geometric contemporary art museum, softly receding pale concrete wall, close-up, three-quarter view, upper-right corner composition, tight headroom, broad lower-left negative space, soft skylight side lighting",
+        "supplement": "The visible hand rests beside the collarbone below the face. The chest is cropped by the right edge.",
+        "characters": [
+          {
+            "characterPresetId": "character_dancer",
+            "visibleFeaturesPrompt": "",
+            "scenePrompt": "face and upper chest large in the upper-right corner, shoulders slanted, face turned toward screen left, gaze lowered leftward, one hand resting beside the opposite collarbone, fingers relaxed, composed expression, lips gently parted",
+            "undesiredPrompt": "",
+            "position": {"x": 0.77, "y": 0.25}
+          }
+        ],
+        "undesiredPrompt": "",
+        "seed": null
+      }
+    },
+    {
+      "id": "shot_005",
+      "index": 5,
+      "intent": "벽을 짚는 손과 상체의 반대 방향 회전으로 접촉과 긴장을 보여준다.",
+      "rhythmRole": "detail",
+      "direction": {
+        "shotSize": "detail",
+        "cameraHeight": "shoulder level",
+        "cameraAngle": "level angle",
+        "viewpoint": "oblique close view along a wall surface",
+        "bodyOrientation": "upper torso rotated away from the contacting wall",
+        "pose": "one palm flat against the wall, fingers spread, elbow softly bent",
+        "action": "maintaining palm contact during a small torso rotation",
+        "gaze": "outside the crop",
+        "expression": "outside the crop",
+        "subjectPlacement": "contact point in the left third, cropped upper torso along the lower-right edge",
+        "depth": "sharp contact plane with the wall receding toward the upper right",
+        "lighting": "the same skylight grazes the wall and casts a small contact shadow beneath the fingers",
+        "visibilityRequirements": [
+          "Palm, fingers, wrist, and connected forearm are visible.",
+          "The hand visibly contacts the wall.",
+          "Head and lower body are intentionally outside the frame."
+        ]
+      },
+      "continuity": {
+        "location": "same geometric contemporary art museum gallery with pale concrete planes, rectangular portals, floor seams, and high skylights",
+        "outfitState": "selected outfit unchanged",
+        "props": [],
+        "screenDirection": "arm extends from lower right toward left",
+        "carriesFrom": null
+      },
+      "generation": {
+        "mainPrompt": "geometric contemporary art museum, pale concrete wall texture, tight detail framing, oblique view along wall surface, asymmetric composition, grazing skylight, small contact shadows",
+        "supplement": "The palm lies flat on the wall. The visible forearm connects the hand to the cropped torso at the lower right.",
+        "characters": [
+          {
+            "characterPresetId": "character_dancer",
+            "visibleFeaturesPrompt": "",
+            "scenePrompt": "cropped upper torso at lower right, one arm extending toward screen left, palm pressed flat against the wall, fingers spread naturally, wrist aligned with forearm, elbow slightly bent, torso rotating away from the wall, head and lower body out of frame",
+            "undesiredPrompt": "",
+            "position": {"x": 0.64, "y": 0.7}
+          }
+        ],
+        "undesiredPrompt": "",
+        "seed": null
+      }
+    },
+    {
+      "id": "shot_006",
+      "index": 6,
+      "intent": "비대칭 한 발 균형과 넓은 빈 공간으로 화보를 마무리한다.",
+      "rhythmRole": "resolution",
+      "direction": {
+        "shotSize": "full-body",
+        "cameraHeight": "chest level",
+        "cameraAngle": "gentle downward angle",
+        "viewpoint": "three-quarter side view",
+        "bodyOrientation": "facing screen right with torso inclined slightly forward",
+        "pose": "balanced on one leg, opposite knee lifted to hip height, one arm extended forward and the other lowered backward",
+        "action": "holding a controlled single-leg balance",
+        "gaze": "toward the forward fingertips",
+        "expression": "calm concentration",
+        "subjectPlacement": "left third with ample right-side negative space",
+        "depth": "clear floor around the balance point, angular wall recess farther back",
+        "lighting": "the same skylights produce a soft lateral highlight and a long oblique floor shadow",
+        "visibilityRequirements": [
+          "Supporting foot and its floor contact are visible.",
+          "Raised leg is distinct from the supporting leg.",
+          "Both hands and the complete head remain inside the frame."
+        ]
+      },
+      "continuity": {
+        "location": "same geometric contemporary art museum gallery with pale concrete planes, rectangular portals, floor seams, and high skylights",
+        "outfitState": "selected outfit unchanged",
+        "props": [],
+        "screenDirection": "forward reach toward screen right",
+        "carriesFrom": null
+      },
+      "generation": {
+        "mainPrompt": "geometric contemporary art museum, angular concrete wall recess, clear pale floor, full-body framing, three-quarter side view, gentle downward angle, asymmetric left-third composition, open space on the right, soft lateral skylight, oblique floor shadow",
+        "supplement": "The supporting foot is planted beneath the pelvis. Open floor surrounds the raised leg and both hands.",
+        "characters": [
+          {
+            "characterPresetId": "character_dancer",
+            "visibleFeaturesPrompt": "",
+            "scenePrompt": "in the left third facing screen right, balancing on one planted leg, opposite knee lifted to hip height, torso inclined slightly forward, one arm reaching forward at shoulder height, other arm extended low behind, looking toward forward fingertips, calm concentrated expression",
+            "undesiredPrompt": "",
+            "position": {"x": 0.32, "y": 0.55}
+          }
+        ],
+        "undesiredPrompt": "",
+        "seed": null
+      }
+    }
+  ]
+}

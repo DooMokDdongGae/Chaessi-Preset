@@ -1,0 +1,188 @@
+{
+  "caseId": "simple-editorial",
+  "promptHash": "1506ab0daaae6f2e8b64c9008982e3f246a785db8293df53321ecc9bdec60b1c",
+  "process": {
+    "success": true,
+    "exitCode": 0,
+    "durationMs": 50650,
+    "retryCount": 0,
+    "cacheBypass": true,
+    "timedOut": false,
+    "diagnostic": "2026-09-10T12:31:26.280929Z  WARN codex_skills::interface: ignoring interface.icon_small: icon path with '..' must resolve under plugin assets/\n2026-09-10T12:31:26.280973Z  WARN codex_skills::interface: ignoring interface.icon_large: icon path with '..' must resolve under plugin assets/\n2026-09-10T12:31:26.291498Z  WARN codex_core::shell_snapshot: Failed to create shell snapshot for powershell: Shell snapshot not supported yet for PowerShell\n2026-09-10T12:31:26.716476Z  WARN codex_skills::interface: ignoring interface.icon_small: icon path with '..' must resolve under plugin assets/\n2026-09-10T12:31:26.716502Z  WARN codex_skills::interface: ignoring interface.icon_large: icon path with '..' must resolve under plugin assets/",
+    "usage": {
+      "inputTokens": 18768,
+      "cachedInputTokens": 0,
+      "outputTokens": 2558
+    }
+  },
+  "evaluation": {
+    "pass": false,
+    "contract": {
+      "ok": true
+    },
+    "countExact": true,
+    "requestExact": true,
+    "presetsExact": true,
+    "actorCountsExact": true,
+    "audit": {
+      "ok": true,
+      "errors": [],
+      "warnings": [],
+      "requiresSemanticReview": [
+        "user request coverage",
+        "preset content fidelity",
+        "visual similarity beyond exact signatures",
+        "camera/crop/action fit beyond known contradictions",
+        "expression/intent fit",
+        "physical plausibility and occlusion",
+        "prompt vocabulary quality"
+      ]
+    },
+    "preflight": {
+      "ok": false,
+      "shots": [
+        {
+          "shotId": "shot_001",
+          "ok": true,
+          "guard": {
+            "ok": true,
+            "requiresSemanticReview": false,
+            "issues": []
+          },
+          "payload": {
+            "ok": true,
+            "errors": [],
+            "warnings": []
+          },
+          "error": null
+        },
+        {
+          "shotId": "shot_002",
+          "ok": false,
+          "guard": {
+            "ok": false,
+            "requiresSemanticReview": true,
+            "issues": [
+              {
+                "type": "implicit-extra-actor",
+                "term": "guest",
+                "declaredActors": 1,
+                "minimumActors": 2,
+                "location": "actors[0].modifier",
+                "resolution": "warning"
+              }
+            ]
+          },
+          "payload": null,
+          "error": "semantic guard requires review"
+        },
+        {
+          "shotId": "shot_003",
+          "ok": false,
+          "guard": {
+            "ok": false,
+            "requiresSemanticReview": true,
+            "issues": [
+              {
+                "type": "implicit-extra-actor",
+                "term": "guest",
+                "declaredActors": 1,
+                "minimumActors": 2,
+                "location": "actors[0].modifier",
+                "resolution": "warning"
+              }
+            ]
+          },
+          "payload": null,
+          "error": "semantic guard requires review"
+        },
+        {
+          "shotId": "shot_004",
+          "ok": false,
+          "guard": {
+            "ok": false,
+            "requiresSemanticReview": true,
+            "issues": [
+              {
+                "type": "implicit-extra-actor",
+                "term": "guest",
+                "declaredActors": 1,
+                "minimumActors": 2,
+                "location": "actors[0].modifier",
+                "resolution": "warning"
+              }
+            ]
+          },
+          "payload": null,
+          "error": "semantic guard requires review"
+        },
+        {
+          "shotId": "shot_005",
+          "ok": false,
+          "guard": {
+            "ok": false,
+            "requiresSemanticReview": true,
+            "issues": [
+              {
+                "type": "implicit-extra-actor",
+                "term": "guest",
+                "declaredActors": 1,
+                "minimumActors": 2,
+                "location": "base.mainPrompt",
+                "resolution": "warning"
+              },
+              {
+                "type": "implicit-extra-actor",
+                "term": "guest",
+                "declaredActors": 1,
+                "minimumActors": 2,
+                "location": "actors[0].modifier",
+                "resolution": "warning"
+              }
+            ]
+          },
+          "payload": null,
+          "error": "semantic guard requires review"
+        },
+        {
+          "shotId": "shot_006",
+          "ok": false,
+          "guard": {
+            "ok": false,
+            "requiresSemanticReview": true,
+            "issues": [
+              {
+                "type": "implicit-extra-actor",
+                "term": "guest",
+                "declaredActors": 1,
+                "minimumActors": 2,
+                "location": "actors[0].modifier",
+                "resolution": "warning"
+              }
+            ]
+          },
+          "payload": null,
+          "error": "semantic guard requires review"
+        }
+      ]
+    },
+    "semantics": {
+      "cameraVariation": 6,
+      "placementVariation": 6,
+      "actionVariation": 6,
+      "expressionVariation": 6,
+      "duplicateAcceptable": true,
+      "sequenceContinuity": true,
+      "interactionAccuracy": true,
+      "difficultCoverage": true,
+      "requestCoverage": true
+    },
+    "blockingErrors": [
+      "shot_002: semantic guard requires review",
+      "shot_003: semantic guard requires review",
+      "shot_004: semantic guard requires review",
+      "shot_005: semantic guard requires review",
+      "shot_006: semantic guard requires review"
+    ]
+  }
+}

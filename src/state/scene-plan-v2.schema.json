@@ -1,0 +1,133 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Chaessi scene-plan/v2",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema", "request", "mode", "count", "presetSelections", "continuity", "shots"],
+  "properties": {
+    "schema": { "type": "string", "const": "chaessi-scene-plan/v2" },
+    "request": { "type": "string", "minLength": 1 },
+    "mode": { "type": "string", "enum": ["single", "editorial", "sequence"] },
+    "count": { "type": "integer", "minimum": 1 },
+    "presetSelections": { "$ref": "#/definitions/presetSelections" },
+    "continuity": { "$ref": "#/definitions/continuityPolicy" },
+    "shots": { "type": "array", "minItems": 1, "items": { "$ref": "#/definitions/shot" } }
+  },
+  "definitions": {
+    "nullableId": { "anyOf": [{ "type": "string", "pattern": "^[A-Za-z0-9_-]+$" }, { "type": "null" }] },
+    "presetSelections": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["basePresetId", "characterPresetIds", "outfitPresetIds", "stylePresetId", "qualityPresetId", "cameraPresetId", "lightingPresetId"],
+      "properties": {
+        "basePresetId": { "type": "string", "pattern": "^[A-Za-z0-9_-]+$" },
+        "characterPresetIds": { "type": "array", "items": { "type": "string", "pattern": "^[A-Za-z0-9_-]+$" } },
+        "outfitPresetIds": { "type": "array", "items": { "type": "string", "pattern": "^[A-Za-z0-9_-]+$" } },
+        "stylePresetId": { "$ref": "#/definitions/nullableId" },
+        "qualityPresetId": { "$ref": "#/definitions/nullableId" },
+        "cameraPresetId": { "$ref": "#/definitions/nullableId" },
+        "lightingPresetId": { "$ref": "#/definitions/nullableId" }
+      }
+    },
+    "continuityPolicy": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["characterIdentity", "outfit", "location", "props", "screenDirection"],
+      "properties": {
+        "characterIdentity": { "type": "string", "enum": ["locked", "tracked", "free"] },
+        "outfit": { "type": "string", "enum": ["locked", "tracked", "free"] },
+        "location": { "type": "string", "enum": ["locked", "tracked", "free"] },
+        "props": { "type": "string", "enum": ["locked", "tracked", "free"] },
+        "screenDirection": { "type": "string", "enum": ["locked", "tracked", "free"] }
+      }
+    },
+    "direction": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["shotSize", "cameraHeight", "cameraAngle", "viewpoint", "bodyOrientation", "pose", "action", "gaze", "expression", "subjectPlacement", "depth", "lighting", "visibilityRequirements"],
+      "properties": {
+        "shotSize": { "type": "string", "enum": ["establishing", "wide", "full-body", "cowboy", "medium", "close-up", "detail"] },
+        "cameraHeight": { "type": "string", "minLength": 1 },
+        "cameraAngle": { "type": "string", "minLength": 1 },
+        "viewpoint": { "type": "string", "minLength": 1 },
+        "bodyOrientation": { "type": "string", "minLength": 1 },
+        "pose": { "type": "string", "minLength": 1 },
+        "action": { "type": "string", "minLength": 1 },
+        "gaze": { "type": "string", "minLength": 1 },
+        "expression": { "type": "string", "minLength": 1 },
+        "subjectPlacement": { "type": "string", "minLength": 1 },
+        "depth": { "type": "string", "minLength": 1 },
+        "lighting": { "type": "string", "minLength": 1 },
+        "visibilityRequirements": { "type": "array", "items": { "type": "string", "minLength": 1 } }
+      }
+    },
+    "prop": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "state"],
+      "properties": {
+        "id": { "type": "string", "pattern": "^[A-Za-z0-9_-]+$" },
+        "state": { "type": "string", "minLength": 1 }
+      }
+    },
+    "shotContinuity": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["location", "outfitState", "props", "screenDirection", "carriesFrom"],
+      "properties": {
+        "location": { "type": "string", "minLength": 1 },
+        "outfitState": { "type": "string", "minLength": 1 },
+        "props": { "type": "array", "items": { "$ref": "#/definitions/prop" } },
+        "screenDirection": { "type": "string", "minLength": 1 },
+        "carriesFrom": { "anyOf": [{ "type": "string", "pattern": "^shot_[0-9]{3,}$" }, { "type": "null" }] }
+      }
+    },
+    "position": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["x", "y"],
+      "properties": {
+        "x": { "type": "number", "minimum": 0, "maximum": 1 },
+        "y": { "type": "number", "minimum": 0, "maximum": 1 }
+      }
+    },
+    "character": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["characterPresetId", "visibleFeaturesPrompt", "scenePrompt", "undesiredPrompt", "position"],
+      "properties": {
+        "characterPresetId": { "type": "string", "pattern": "^[A-Za-z0-9_-]+$" },
+        "visibleFeaturesPrompt": { "type": "string" },
+        "scenePrompt": { "type": "string", "minLength": 1 },
+        "undesiredPrompt": { "type": "string" },
+        "position": { "anyOf": [{ "$ref": "#/definitions/position" }, { "type": "null" }] }
+      }
+    },
+    "generation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["mainPrompt", "supplement", "characters", "undesiredPrompt", "seed"],
+      "properties": {
+        "mainPrompt": { "type": "string", "minLength": 1 },
+        "supplement": { "type": "string" },
+        "characters": { "type": "array", "items": { "$ref": "#/definitions/character" } },
+        "undesiredPrompt": { "type": "string" },
+        "seed": { "anyOf": [{ "type": "integer", "minimum": 0, "maximum": 4294967295 }, { "type": "null" }] }
+      }
+    },
+    "shot": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "index", "intent", "rhythmRole", "direction", "continuity", "generation"],
+      "properties": {
+        "id": { "type": "string", "pattern": "^shot_[0-9]{3,}$" },
+        "index": { "type": "integer", "minimum": 1 },
+        "intent": { "type": "string", "minLength": 1 },
+        "rhythmRole": { "type": "string", "enum": ["establishing", "hero", "portrait", "action", "service", "transition", "detail", "resolution"] },
+        "direction": { "$ref": "#/definitions/direction" },
+        "continuity": { "$ref": "#/definitions/shotContinuity" },
+        "generation": { "$ref": "#/definitions/generation" }
+      }
+    }
+  }
+}

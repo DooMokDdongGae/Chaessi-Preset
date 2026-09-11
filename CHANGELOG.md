@@ -1,5 +1,37 @@
 # Changelog
 
+## v3.3.0
+
+### Added
+
+- Image Maker workspace for natural-language scene requests alongside the existing Preset Workshop.
+- Codex Image Director Bridge using the installed Codex CLI and ChatGPT login, with `gpt-5.6-terra` and medium reasoning as the validated runtime default.
+- Editorial and Sequence planning with arbitrary user-selected shot counts, readable Shot Cards, Director Intent, continuity information, and actor-level positioning.
+- Full multi-shot preflight before NovelAI generation, human-readable review reasons, safe rewrites, stale-plan protection, and sequential generation with partial-failure records.
+- Result Gallery with prompt, metadata, payload, seed, resolution, and links back to each Director Shot.
+- Director Plan cache, manual Paste/Import fallback, Recent Runs, request reuse, and plan reuse with mandatory new preflight.
+- Local Danbooru tag resolution with natural-language fallback when an exact or high-confidence tag is unavailable. Large external Danbooru datasets are not bundled.
+
+### Changed
+
+- Character subject (`girl`/`boy`) and Outfit gender category are independent. Cross-category clothing choices are accepted while actual preset type mismatches remain blocked.
+- Renderer-added people, props, or style decorations are recorded as observations and do not automatically make a structurally correct Director/Composer run fail.
+- Public packaging includes the Image Director instruction required by the Codex Bridge while continuing to exclude runtime data, credentials, tests, benchmarks, local datasets, and development artifacts.
+
+### Security and privacy
+
+- Reuses the existing Electron `safeStorage` NovelAI token path; Image Maker does not introduce a second token store.
+- Runs Codex with `shell: false`, an ephemeral session, a read-only sandbox, bounded output, and a timeout.
+- Keeps the Local API bound to `127.0.0.1`, validates store IDs and artifact paths, and rejects secret-like values in run artifacts and API responses.
+- Does not package NovelAI tokens, Codex/ChatGPT credentials, `.env`, personal presets, generations, Image Maker runs, benchmark results, or local Danbooru data.
+
+### Requirements and notes
+
+- Automatic Director planning requires Codex CLI signed in with ChatGPT. Chaessi does not require a separate OpenAI API key.
+- Without Codex, Preset Workshop remains available and Image Maker accepts a pasted or imported `scene-plan/v2`.
+- NovelAI rendering can differ from the Director Plan; the renderer may add people, props, or style-specific details.
+- Released as the public `v3.3.0` tag with the verified portable artifact.
+
 ## v3.2.1
 
 ### Added

@@ -1,0 +1,79 @@
+{
+  "schema": "chaessi-scene-plan/v2",
+  "request": "햇빛이 드는 현대적인 호텔 로비에서 성인 여성 벨홉 한 명이 프런트 데스크 옆에 서서 닫힌 객실 장부를 들고 있는 세련된 장면",
+  "mode": "single",
+  "count": 1,
+  "presetSelections": {
+    "basePresetId": "preset_2cc76fdfa1a8",
+    "characterPresetIds": ["character_ab4f6e6420b8"],
+    "outfitPresetIds": ["character_edbb8ce63b7b"],
+    "stylePresetId": null,
+    "qualityPresetId": null,
+    "cameraPresetId": null,
+    "lightingPresetId": null
+  },
+  "continuity": {
+    "characterIdentity": "locked",
+    "outfit": "locked",
+    "location": "locked",
+    "props": "tracked",
+    "screenDirection": "free"
+  },
+  "shots": [
+    {
+      "id": "shot_001",
+      "index": 1,
+      "intent": "한 명의 호텔 벨홉과 프런트 공간을 명확한 중경 구도로 보여준다.",
+      "rhythmRole": "hero",
+      "direction": {
+        "shotSize": "medium",
+        "cameraHeight": "eye level",
+        "cameraAngle": "gentle three-quarter angle",
+        "viewpoint": "from the open hotel lobby",
+        "bodyOrientation": "front three-quarter",
+        "pose": "upright relaxed stance",
+        "action": "holding a closed leather room ledger at waist height",
+        "gaze": "looking toward the viewer",
+        "expression": "calm professional smile",
+        "subjectPlacement": "left third of the frame",
+        "depth": "shallow foreground depth with the reception desk in the background",
+        "lighting": "soft daylight through tall lobby windows",
+        "visibilityRequirements": [
+          "adult face remains readable",
+          "bellhop jacket and hat remain visible",
+          "closed leather room ledger remains visible"
+        ]
+      },
+      "continuity": {
+        "location": "modern hotel lobby",
+        "outfitState": "bellhop uniform fully worn",
+        "props": [
+          {
+            "id": "room_ledger",
+            "state": "closed and held at waist height"
+          }
+        ],
+        "screenDirection": "facing slightly right",
+        "carriesFrom": null
+      },
+      "generation": {
+        "mainPrompt": "1girl, solo, modern hotel lobby, reception desk, tall windows, soft daylight",
+        "supplement": "One adult woman stands alone beside the reception desk, holding a closed leather room ledger at waist height.",
+        "characters": [
+          {
+            "characterPresetId": "character_ab4f6e6420b8",
+            "visibleFeaturesPrompt": "",
+            "scenePrompt": "standing, holding book, looking at viewer, calm professional smile, left side",
+            "undesiredPrompt": "",
+            "position": {
+              "x": 0.3,
+              "y": 0.55
+            }
+          }
+        ],
+        "undesiredPrompt": "2girls, 1boy, multiple people, background characters, crowd",
+        "seed": 25050901
+      }
+    }
+  ]
+}

@@ -54,15 +54,119 @@ V5 Precise Reference, Vibe Transfer, ControlNet, and SMEA/SMEA DYN are unavailab
 
 Precise Reference, Vibe Transfer, ControlNet, SMEA/SMEA DYN은 현재 NovelAI V5에서 지원되지 않습니다. V5 Curated, raw payload 직접 생성, scene composition, video 기능은 Chaessi Preset v3.2.0에 포함하지 않았습니다.
 
-## Current Version and Download / 현재 버전과 다운로드
+## Public Version and Download / 공개 버전과 다운로드
 
-- Current version / 현재 버전: **v3.2.1**
-- Download / 다운로드: [GitHub Release v3.2.1](https://github.com/DooMokDdongGae/Chaessi-Preset/releases/tag/v3.2.1)
-- Windows Portable app: `Chaessi-Preset-v3.2.1-x64.exe`
-- Size / 크기: `97,838,057 bytes`
-- SHA256: `906081D3517E3B056FA3B7C73326F80E9D6B6B57C78CD13DE8E60ECCB0CF004F`
+- Current public version / 현재 공개 버전: **v3.3.0**
+- Download / 다운로드: [GitHub Release v3.3.0](https://github.com/DooMokDdongGae/Chaessi-Preset/releases/tag/v3.3.0)
+- Windows Portable app: `Chaessi-Preset-v3.3.0-x64.exe`
+- Size / 크기: `97,880,518 bytes`
+- SHA256: `00B907031D4F573A93256E84A2B67B9B4647E2C80539491FA8D36757C6A0F79B`
 
 이 배포본은 Windows용 Portable Electron 앱입니다. 설치 프로그램이 아니므로 EXE를 다운로드해 직접 실행합니다. 기존 사용자 데이터는 EXE와 분리된 Electron userData에 저장되므로 새 EXE로 교체해도 프리셋과 History가 자동으로 삭제되지 않습니다.
+
+## v3.3.0
+
+Chaessi Preset v3.3.0은 기존 Preset Workshop을 보존하면서 Image Maker와 Codex Image Director를 추가한 정식 공개 버전입니다. Image Maker는 기존 기능과 호환되는 큰 신규 기능이므로 minor version으로 배포합니다.
+
+## Preset Workshop
+
+기존 Preset Workshop은 그대로 유지됩니다. V4.5/V5 Text to Image, Image to Image, Inpaint, preset 관리, Position Pad와 History는 Image Maker와 별개의 top-level workspace에서 계속 사용할 수 있습니다.
+
+```text
+Chaessi Preset
+├─ Preset Workshop
+└─ Image Maker
+```
+
+## Image Maker
+
+Image Maker는 자연어 요청에서 여러 장면의 구도 계획을 만들고, 생성 비용을 쓰기 전에 각 장면을 검사한 뒤 기존 Chaessi/NovelAI 생성 경로로 순차 실행합니다.
+
+```text
+User request
+→ Codex Image Director
+→ scene-plan/v2
+→ Shot Cards
+→ Preflight
+→ Chaessi Composer
+→ NovelAI
+→ Gallery
+```
+
+역할은 명확히 나뉩니다.
+
+- **Codex**: 카메라, 배치, 포즈, 행동, 시선과 장면 흐름을 계획합니다.
+- **Chaessi**: 선택한 preset과 Director plan을 prompt 및 NovelAI payload로 구성합니다.
+- **NovelAI**: 실제 이미지를 생성합니다.
+
+![Image Maker main screen](docs/images/image-maker/image-maker-main.png)
+
+### Image Maker requirements / 사용 조건
+
+- 기존 이미지 생성과 동일한 NovelAI 계정 및 access token
+- 자동 Director를 사용할 경우 [Codex CLI](https://learn.chatgpt.com/docs/codex/cli)
+- Codex CLI에서 ChatGPT 로그인 완료
+
+별도의 OpenAI API key는 Chaessi에 입력하지 않습니다. Codex CLI를 설치한 뒤 터미널에서 `codex login`으로 브라우저 로그인을 마치고, `codex login status`로 상태를 확인할 수 있습니다. 공식 OpenAI 문서도 Codex CLI의 첫 실행 또는 `codex login`에서 **Sign in with ChatGPT**를 선택하는 흐름을 안내합니다.
+
+Image Maker의 runtime Director 기본값은 **GPT-5.6 Terra / Medium**입니다. 이는 장면 계획 전용 설정이며 개발 작업에 사용하는 Codex 모델 설정과 독립적입니다. Codex 사용 가능 여부는 앱에서 다음처럼 표시됩니다.
+
+```text
+Connected
+Login required
+Codex unavailable
+Usage limit reached
+```
+
+Codex CLI가 없거나 로그인·사용량 문제로 자동 Director를 사용할 수 없어도 Preset Workshop은 정상 동작합니다. Image Maker에서는 **Paste Plan**, **Import Plan**, **Use Pasted Plan**으로 `scene-plan/v2`를 공급할 수 있습니다.
+
+### Image Maker quick start / 빠른 시작
+
+1. Chaessi Preset을 실행하고 NovelAI token을 저장합니다.
+2. **Image Maker**를 엽니다.
+3. Character, Outfit, Style, Quality를 선택합니다.
+4. 만들고 싶은 장면을 자연어로 입력합니다.
+5. Editorial 또는 Sequence를 선택하고 이미지 수를 입력합니다.
+6. **Create Director Plan**을 누릅니다.
+7. Shot Cards에서 카메라, 배치, 행동과 Director Intent를 확인합니다.
+8. **Run Preflight**를 실행합니다.
+9. 모든 shot이 READY이면 **Generate**를 누릅니다.
+10. Gallery에서 결과와 prompt, metadata, payload를 확인합니다.
+
+![Director Shot Cards](docs/images/image-maker/director-plan.png)
+
+### Editorial and Sequence
+
+- **Editorial**: 같은 컨셉을 유지하면서 서로 다른 구도의 이미지 여러 장을 계획합니다.
+- **Sequence**: 앞 장면에서 다음 장면으로 행동과 소품 상태가 이어지는 이미지를 계획합니다.
+
+사용자가 입력한 count만큼 shot을 만들며, 생성은 순차 실행됩니다. 중간 실패가 발생해도 이미 완료된 결과는 유지됩니다. 자동 retry는 하지 않습니다.
+
+### Director Plan, Preflight, and cache
+
+Director Plan은 생성 전에 사람이 읽을 수 있는 Shot Cards로 표시됩니다. **Preflight는 이미지 생성이 아니며 NovelAI 비용을 사용하기 전에 Director plan, preset, subject mapping, position과 payload를 검사하는 단계**입니다. NEEDS REVIEW 또는 FAILED가 있으면 Generate가 잠깁니다.
+
+![Preflight READY](docs/images/image-maker/preflight.png)
+
+Codex Director 호출은 **Create Director Plan**과 **Regenerate Plan**에서만 발생합니다. Shot 보기, Preflight, Gallery, Recent Runs, Metadata와 Payload 확인은 Codex를 호출하지 않습니다. 동일 입력의 검증된 plan을 재사용하면 **Cached**로 표시되며 새 Director 호출이 발생하지 않습니다.
+
+### Character and Outfit policy
+
+Character subject와 Outfit category는 독립적입니다. `girl`/`boy`는 actor count와 Anchor subject를 나타내며, Outfit의 남성/여성 분류는 검색과 표시를 위한 metadata입니다. 따라서 male character + female outfit, female character + male outfit 모두 허용됩니다. Character selector에 Outfit preset을 넣는 것과 같은 실제 preset type mismatch는 계속 차단합니다.
+
+### Results and renderer differences
+
+Gallery는 shot 순서대로 generation ID, seed와 resolution을 보여주며 각 결과에서 Director Shot, prompt, metadata와 payload를 다시 확인할 수 있습니다.
+
+![Image Maker result gallery](docs/images/image-maker/gallery.png)
+
+NovelAI 결과는 Director Plan과 완전히 같지 않을 수 있습니다. 추가 인물·소품·스타일 고유 장식, outfit 또는 framing 편차는 renderer observation이며 그 자체로 pipeline 실패가 아닙니다. 필요하면 Undesired Prompt, negative weighting, style/seed 변경, 재생성 또는 Inpaint로 보정합니다.
+
+### Authentication, privacy, and local data
+
+Image Maker는 기존 Electron `safeStorage → NovelAI token provider → local server` 경로를 재사용하며 별도 NovelAI token을 저장하지 않습니다. Codex credential과 ChatGPT session credential도 앱 artifact, DOM, payload, metadata 또는 run manifest에 복사하지 않습니다. Local API는 `127.0.0.1`에만 열립니다.
+
+Portable EXE와 사용자 데이터는 분리됩니다. preset, generation History, encrypted token과 Image Maker run/cache는 Electron `app.getPath("userData")` 아래에 남으므로 EXE를 교체해도 자동 삭제되지 않습니다.
 
 ## v3.2.1 Visual Character Position Pad
 
@@ -222,7 +326,7 @@ Current release build:
 현재 릴리즈 빌드:
 
 ```text
-dist/Chaessi-Preset-v3.2.1-x64.exe
+dist/Chaessi-Preset-v3.3.0-x64.exe
 ```
 
 The EXE is portable. You can move it to another folder and run it from there. User presets, character presets, token storage, and generation history are stored separately from the EXE, so replacing the EXE does not remove saved app data.

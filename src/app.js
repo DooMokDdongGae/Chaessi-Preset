@@ -6,6 +6,7 @@ import { createLatestRequestGuard } from "./ui/latest-request.js";
 import { createPagedListController } from "./ui/paged-list.js";
 import { createHistorySelectionController } from "./ui/history-selection.js";
 import { createCharacterPositionPad } from "./ui/character-position-pad.js";
+import { createImageMakerController } from "./ui/image-maker-controller.js";
 import {
   getAdjacentHistoryIdAfterRemoval,
   getHistoryNavigation,
@@ -39,6 +40,7 @@ let generationModeController = null;
 let preciseReferenceController = null;
 let imageIntakeController = null;
 let characterPositionPadController = null;
+let imageMakerController = null;
 const promptTokenizers = { t5: null, qwen: null };
 let promptTokenCounterTimer = null;
 let promptTokenizerError = null;
@@ -130,6 +132,8 @@ async function init() {
     onPositionChange: applyCharacterPositionChange,
     onSelect: selectCharacterPosition,
   });
+  imageMakerController = createImageMakerController({ getJson, postJson, showToast });
+  imageMakerController.bind();
   generationModeController = createGenerationModeController({
     showToast,
     getLatestImagePath: () => state.lastGenerationResponse?.generation?.image_path
@@ -164,6 +168,7 @@ async function init() {
   await refreshTokenStatus();
   await refreshAccountUsage();
   await loadCharacterPresetCategories();
+  await imageMakerController.initialize();
   const defaultResponse = await getJson("/api/preset/default");
   state.currentPreset = defaultResponse.preset;
   renderPresetForm();

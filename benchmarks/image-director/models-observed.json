@@ -1,0 +1,50 @@
+{
+  "schema": "chaessi-codex-model-inventory/v1",
+  "observedAt": "2026-09-10T12:57:46.448427900Z",
+  "codexCliVersion": "0.153.4",
+  "authentication": "chatgpt",
+  "currentDeveloperDefault": {
+    "model": "gpt-6-astra",
+    "reasoningEffort": "low"
+  },
+  "visibleModels": [
+    {
+      "model": "gpt-6-astra",
+      "catalogDefaultEffort": "low",
+      "supportedEfforts": ["low", "medium", "high", "xhigh", "max", "ultra"]
+    },
+    {
+      "model": "gpt-5.6-sol",
+      "catalogDefaultEffort": "low",
+      "supportedEfforts": ["low", "medium", "high", "xhigh", "max", "ultra"]
+    },
+    {
+      "model": "gpt-5.6-terra",
+      "catalogDefaultEffort": "medium",
+      "supportedEfforts": ["low", "medium", "high", "xhigh", "max", "ultra"]
+    },
+    {
+      "model": "gpt-5.6-luna",
+      "catalogDefaultEffort": "medium",
+      "supportedEfforts": ["low", "medium", "high", "xhigh", "max"]
+    },
+    {
+      "model": "gpt-5.5",
+      "catalogDefaultEffort": "medium",
+      "supportedEfforts": ["low", "medium", "high", "xhigh"]
+    }
+  ],
+  "benchmarkedConfigurations": [
+    "gpt-5.6-luna:low",
+    "gpt-5.6-luna:medium",
+    "gpt-5.6-terra:low",
+    "gpt-5.6-terra:medium",
+    "gpt-6-astra:low"
+  ],
+  "selectionMethod": "codex exec --model <MODEL> -c model_reasoning_effort=\"<EFFORT>\"",
+  "notes": [
+    "Visible availability comes from the current ChatGPT-authenticated Codex model catalog on this machine.",
+    "gpt-5.6-sol and gpt-5.5 were not invoked because the staged search stopped when gpt-5.6-terra:medium met every acceptance criterion.",
+    "No NovelAI request was sent."
+  ]
+}

@@ -1,0 +1,18 @@
+{
+  "schema": "chaessi-image-request/v1",
+  "request": "햇빛이 드는 현대적인 호텔 로비에서 성인 여성 벨홉 한 명이 프런트 데스크 옆에 서서 닫힌 객실 장부를 들고 있는 세련된 장면",
+  "count": 1,
+  "presets": {
+    "basePresetId": "preset_2cc76fdfa1a8",
+    "characterPresetId": "character_ab4f6e6420b8",
+    "outfitPresetId": "character_edbb8ce63b7b",
+    "stylePresetId": null,
+    "qualityPresetId": null,
+    "cameraPresetId": null,
+    "lightingPresetId": null
+  },
+  "generation": {
+    "model": "nai-diffusion-5-full",
+    "seed": 25050901
+  }
+}

@@ -1,0 +1,120 @@
+{
+  "schema": "chaessi-scene-plan/v2",
+  "request": "채씨 캐릭터와 호텔 유니폼을 유지한 세련된 호텔 로비 광고 화보 6장. 카메라, 포즈, 표정이 겹치지 않게 한다.",
+  "mode": "editorial",
+  "count": 6,
+  "presetSelections": {
+    "basePresetId": "preset_hotel_editorial",
+    "characterPresetIds": ["character_chaessi"],
+    "outfitPresetIds": ["outfit_hotel_uniform"],
+    "stylePresetId": "style_luxury_editorial",
+    "qualityPresetId": "quality_v5_standard",
+    "cameraPresetId": null,
+    "lightingPresetId": "lighting_warm_lobby"
+  },
+  "continuity": {
+    "characterIdentity": "locked",
+    "outfit": "locked",
+    "location": "locked",
+    "props": "tracked",
+    "screenDirection": "free"
+  },
+  "shots": [
+    {
+      "id": "shot_001",
+      "index": 1,
+      "intent": "로비의 규모와 호텔 직원으로서의 캐릭터를 소개한다.",
+      "rhythmRole": "establishing",
+      "direction": {
+        "shotSize": "establishing", "cameraHeight": "slightly low", "cameraAngle": "wide three-quarter angle", "viewpoint": "from the entrance toward reception", "bodyOrientation": "standing front three-quarter", "pose": "upright formal stance", "action": "holding a closed guest ledger at waist height", "gaze": "looking toward an arriving guest", "expression": "professional welcoming smile", "subjectPlacement": "right third with open lobby space on the left", "depth": "luggage cart foreground, character midground, reception background", "lighting": "warm chandelier key light with polished-floor reflections", "visibilityRequirements": ["hotel uniform silhouette", "guest ledger", "reception desk and lobby depth"]
+      },
+      "continuity": { "location": "luxury hotel lobby", "outfitState": "hotel uniform fully worn", "props": [{"id": "prop_guest_ledger", "state": "closed and held at waist"}], "screenDirection": "character faces screen left", "carriesFrom": null },
+      "generation": {
+        "mainPrompt": "1girl, luxury hotel lobby, establishing shot, slightly low angle, reception desk, chandelier, polished marble floor, warm reflected light",
+        "supplement": "Chaessi stands on the right side of the lobby and faces an arriving guest off frame. A closed guest ledger is held at her waist. A luggage cart creates foreground depth without blocking her uniform.",
+        "characters": [{"characterPresetId": "character_chaessi", "visibleFeaturesPrompt": "", "scenePrompt": "right side, midground, formal stance, holding closed guest ledger, welcoming smile", "undesiredPrompt": ""}],
+        "undesiredPrompt": "", "seed": 41001
+      }
+    },
+    {
+      "id": "shot_002",
+      "index": 2,
+      "intent": "서비스 동작과 유니폼 디테일을 자연스럽게 보여준다.",
+      "rhythmRole": "action",
+      "direction": {
+        "shotSize": "full-body", "cameraHeight": "waist height", "cameraAngle": "side angle", "viewpoint": "parallel to the reception counter", "bodyOrientation": "walking in profile", "pose": "mid-step with balanced posture", "action": "carrying the closed ledger toward reception", "gaze": "looking ahead toward the desk", "expression": "focused, gentle expression", "subjectPlacement": "center-left moving toward screen right", "depth": "decorative plant foreground edge, character midground, desk background", "lighting": "warm side light from wall sconces", "visibilityRequirements": ["full uniform and footwear", "walking stride", "ledger held securely"]
+      },
+      "continuity": { "location": "luxury hotel lobby", "outfitState": "hotel uniform fully worn", "props": [{"id": "prop_guest_ledger", "state": "closed and carried in both hands"}], "screenDirection": "character moves screen right", "carriesFrom": null },
+      "generation": {
+        "mainPrompt": "1girl, luxury hotel lobby, full body, side view, walking, reception counter, warm wall sconces, shallow foreground framing",
+        "supplement": "Chaessi walks toward the reception desk from left to right. She carries the same closed guest ledger in both hands. A plant touches the frame edge but leaves her stride and footwear unobstructed.",
+        "characters": [{"characterPresetId": "character_chaessi", "visibleFeaturesPrompt": "", "scenePrompt": "center-left, midground, profile, walking, holding closed guest ledger, focused expression", "undesiredPrompt": ""}],
+        "undesiredPrompt": "", "seed": 41002
+      }
+    },
+    {
+      "id": "shot_003",
+      "index": 3,
+      "intent": "프런트 업무의 정교한 손동작을 광고 디테일로 강조한다.",
+      "rhythmRole": "service",
+      "direction": {
+        "shotSize": "cowboy", "cameraHeight": "counter height", "cameraAngle": "front three-quarter angle", "viewpoint": "guest side of the reception desk", "bodyOrientation": "leaning slightly toward the counter", "pose": "stable standing pose behind the desk", "action": "opening the ledger and indicating a line with one hand", "gaze": "looking down at the indicated line", "expression": "attentive small smile", "subjectPlacement": "center", "depth": "ledger foreground, character midground, key wall background", "lighting": "soft frontal fill with warm rim light", "visibilityRequirements": ["hand and indicated ledger line", "face and attentive expression", "upper uniform details"]
+      },
+      "continuity": { "location": "luxury hotel lobby", "outfitState": "hotel uniform fully worn", "props": [{"id": "prop_guest_ledger", "state": "open on reception counter"}], "screenDirection": "character faces slightly screen left", "carriesFrom": null },
+      "generation": {
+        "mainPrompt": "1girl, luxury hotel reception, cowboy shot, front three-quarter view, open guest ledger, key wall, soft frontal fill, warm rim light",
+        "supplement": "The same guest ledger lies open in the foreground on the reception counter. Chaessi indicates one line with her hand and looks directly at that line. The desk edge does not hide the hand gesture.",
+        "characters": [{"characterPresetId": "character_chaessi", "visibleFeaturesPrompt": "", "scenePrompt": "center, behind counter, leaning slightly forward, pointing at open ledger, attentive smile", "undesiredPrompt": ""}],
+        "undesiredPrompt": "", "seed": 41003
+      }
+    },
+    {
+      "id": "shot_004",
+      "index": 4,
+      "intent": "브랜드 화보의 친근한 인상을 표정 중심으로 전달한다.",
+      "rhythmRole": "portrait",
+      "direction": {
+        "shotSize": "close-up", "cameraHeight": "eye level", "cameraAngle": "slight three-quarter angle", "viewpoint": "from beside the reception desk", "bodyOrientation": "shoulders angled away with face turned back", "pose": "still portrait pose", "action": "pausing after closing the ledger off frame", "gaze": "looking at viewer", "expression": "confident warm smile", "subjectPlacement": "left of center", "depth": "face foreground, chandelier bokeh background", "lighting": "soft key light with chandelier bokeh and subtle hair rim", "visibilityRequirements": ["both eyes and smile", "recognizable hair and face", "clean bokeh around the face"]
+      },
+      "continuity": { "location": "luxury hotel lobby", "outfitState": "hotel uniform fully worn", "props": [{"id": "prop_guest_ledger", "state": "closed on reception counter outside the crop"}], "screenDirection": "face turns screen left toward camera", "carriesFrom": null },
+      "generation": {
+        "mainPrompt": "1girl, luxury hotel lobby, close-up portrait, slight three-quarter view, chandelier bokeh, soft key light, subtle rim light",
+        "supplement": "Chaessi turns her face toward the camera while her shoulders remain angled away. Both eyes and her warm smile are unobstructed. The chandelier becomes soft background bokeh around her hair.",
+        "characters": [{"characterPresetId": "character_chaessi", "visibleFeaturesPrompt": "", "scenePrompt": "face foreground, looking at viewer, confident warm smile, shoulders angled away", "undesiredPrompt": ""}],
+        "undesiredPrompt": "", "seed": 41004
+      }
+    },
+    {
+      "id": "shot_005",
+      "index": 5,
+      "intent": "로비 공간과 상호작용하는 동적인 전환 샷을 만든다.",
+      "rhythmRole": "action",
+      "direction": {
+        "shotSize": "wide", "cameraHeight": "high angle", "cameraAngle": "diagonal overhead angle", "viewpoint": "from the mezzanine toward the lobby floor", "bodyOrientation": "turning around beside the luggage cart", "pose": "pivoting with one foot planted", "action": "guiding the luggage cart into position", "gaze": "looking toward the cart path", "expression": "alert, energetic expression", "subjectPlacement": "lower right quadrant", "depth": "balustrade foreground, character and cart midground, geometric marble background", "lighting": "chandelier pools of light across the floor", "visibilityRequirements": ["turning body line", "both hands on luggage cart", "clear path through the lobby"]
+      },
+      "continuity": { "location": "luxury hotel lobby", "outfitState": "hotel uniform fully worn", "props": [{"id": "prop_guest_ledger", "state": "closed on reception counter"}, {"id": "prop_luggage_cart", "state": "guided across the lobby floor"}], "screenDirection": "character turns toward screen left", "carriesFrom": null },
+      "generation": {
+        "mainPrompt": "1girl, luxury hotel lobby, wide shot, high angle, diagonal composition, luggage cart, geometric marble floor, pools of warm light",
+        "supplement": "Seen from the mezzanine, Chaessi guides a luggage cart across the lower right of the lobby. Both hands remain visible on the cart handle. The open marble path shows the direction of motion.",
+        "characters": [{"characterPresetId": "character_chaessi", "visibleFeaturesPrompt": "", "scenePrompt": "lower right, high-angle wide view, pivoting, both hands on luggage cart, energetic expression", "undesiredPrompt": ""}],
+        "undesiredPrompt": "", "seed": 41005
+      }
+    },
+    {
+      "id": "shot_006",
+      "index": 6,
+      "intent": "유니폼과 서비스 소품을 정제된 마무리 이미지로 압축한다.",
+      "rhythmRole": "detail",
+      "direction": {
+        "shotSize": "detail", "cameraHeight": "chest height", "cameraAngle": "oblique close angle", "viewpoint": "from the counter corner", "bodyOrientation": "hands and torso angled across frame", "pose": "hands arranging a key card sleeve", "action": "placing a key card into its sleeve", "gaze": "face outside the crop", "expression": "face outside the crop", "subjectPlacement": "hands centered with uniform fabric along upper frame", "depth": "key card foreground, uniform and desk surface midground", "lighting": "narrow side light emphasizing paper and fabric texture", "visibilityRequirements": ["both hands", "key card and sleeve", "hotel uniform fabric detail"]
+      },
+      "continuity": { "location": "luxury hotel lobby", "outfitState": "hotel uniform fully worn", "props": [{"id": "prop_guest_ledger", "state": "closed on reception counter outside the detail crop"}, {"id": "prop_key_card", "state": "being placed into a sleeve"}], "screenDirection": "hands move toward screen right", "carriesFrom": null },
+      "generation": {
+        "mainPrompt": "1girl, luxury hotel reception, detail shot, hands, key card sleeve, uniform fabric, polished counter, narrow side lighting, shallow depth of field",
+        "supplement": "Both hands place a hotel key card into its paper sleeve at the center of the frame. The uniform fabric remains visible above the hands. The face and unrelated desk objects stay outside the intentional crop.",
+        "characters": [{"characterPresetId": "character_chaessi", "visibleFeaturesPrompt": "1girl, visible hands, visible torso", "scenePrompt": "hands centered, arranging key card sleeve, face outside crop", "undesiredPrompt": ""}],
+        "undesiredPrompt": "", "seed": 41006
+      }
+    }
+  ]
+}

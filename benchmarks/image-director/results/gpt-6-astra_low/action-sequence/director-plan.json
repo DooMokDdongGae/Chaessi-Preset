@@ -1,0 +1,312 @@
+{
+  "schema": "chaessi-scene-plan/v2",
+  "request": "한 명의 여성 기록 보관 담당자가 조용한 기록실에 들어와 선반에서 장부를 꺼내고, 책상으로 옮겨 펼친 뒤 기록을 대조하고 메모를 남기는 6컷 연속 장면.",
+  "mode": "sequence",
+  "count": 6,
+  "presetSelections": {
+    "basePresetId": "preset_benchmark_v5",
+    "characterPresetIds": ["character_archivist"],
+    "outfitPresetIds": ["outfit_archivist"],
+    "stylePresetId": "style_benchmark_editorial",
+    "qualityPresetId": "quality_benchmark_v5",
+    "cameraPresetId": null,
+    "lightingPresetId": null
+  },
+  "continuity": {
+    "characterIdentity": "locked",
+    "outfit": "locked",
+    "location": "locked",
+    "props": "tracked",
+    "screenDirection": "tracked"
+  },
+  "shots": [
+    {
+      "id": "shot_001",
+      "index": 1,
+      "intent": "기록실에 들어오는 동작과 선반에서 책상으로 이어질 공간을 소개한다.",
+      "rhythmRole": "establishing",
+      "direction": {
+        "shotSize": "wide",
+        "cameraHeight": "Chest level",
+        "cameraAngle": "Oblique angle from inside the room",
+        "viewpoint": "Interior view toward the doorway",
+        "bodyOrientation": "Three-quarter rear view facing into the room",
+        "pose": "One foot across the threshold, arms relaxed",
+        "action": "기록 보관 담당자가 열린 문을 통과해 기록실로 들어온다.",
+        "gaze": "선반 쪽으로 향함",
+        "expression": "후면 시점으로 표정은 읽히지 않음",
+        "subjectPlacement": "Left third with open space toward frame right",
+        "depth": "Doorway in foreground, shelving in middle ground, desk in background",
+        "lighting": "왼쪽 창의 부드러운 주광과 책상 위 램프의 따뜻한 빛이 유지된다.",
+        "visibilityRequirements": ["문턱을 넘는 발", "열린 출입문", "장부가 꽂힌 선반", "책상의 위치"]
+      },
+      "continuity": {
+        "location": "동일한 기록실: 왼쪽 출입문과 창, 중앙 선반, 오른쪽 책상",
+        "outfitState": "선택된 outfit_archivist 의상을 동일하게 착용",
+        "props": [
+          {"id": "ledger_01", "state": "중앙 선반의 가슴 높이 칸에 닫힌 채 꽂혀 있음"},
+          {"id": "reference_01", "state": "오른쪽 책상 위에 펼쳐진 대조용 기록지"},
+          {"id": "notepad_01", "state": "책상 오른쪽에 놓인 빈 메모지"},
+          {"id": "pen_01", "state": "메모지 오른쪽에 놓여 있음"}
+        ],
+        "screenDirection": "출입문에서 중앙 선반을 향해 화면 왼쪽에서 오른쪽으로 이동",
+        "carriesFrom": null
+      },
+      "generation": {
+        "mainPrompt": "quiet archive room, open doorway at frame left, central shelving, closed ledger on a chest-height shelf, desk at frame right, reference sheet and blank notepad on desk, pen beside notepad, wide shot, soft daylight from left window, warm desk lamp",
+        "supplement": "The central shelf stands between the doorway and the desk.",
+        "characters": [
+          {
+            "characterPresetId": "character_archivist",
+            "visibleFeaturesPrompt": "",
+            "scenePrompt": "entering through the open doorway, stepping across the threshold toward frame right, three-quarter rear view, arms relaxed, head oriented toward the shelving",
+            "undesiredPrompt": "",
+            "position": {"x": 0.3, "y": 0.56}
+          }
+        ],
+        "undesiredPrompt": "",
+        "seed": null
+      }
+    },
+    {
+      "id": "shot_002",
+      "index": 2,
+      "intent": "장부가 있는 선반에 다가가 멈추는 행동을 보여준다.",
+      "rhythmRole": "transition",
+      "direction": {
+        "shotSize": "cowboy",
+        "cameraHeight": "Waist level",
+        "cameraAngle": "Side angle along the shelf aisle",
+        "viewpoint": "Aisle-side view",
+        "bodyOrientation": "Right-facing profile",
+        "pose": "Finishing a short step with hands lowered",
+        "action": "선반으로 다가가 장부 앞에 멈춘다.",
+        "gaze": "가슴 높이에 꽂힌 장부의 책등",
+        "expression": "차분한 집중",
+        "subjectPlacement": "Left-center with shelving at frame right",
+        "depth": "Clear aisle in foreground and shelf spines in middle ground",
+        "lighting": "동일한 창 주광이 측면을 비추고 책상 램프는 화면 밖에 유지된다.",
+        "visibilityRequirements": ["선반 앞에 다가선 자세", "장부 책등", "장부에 닿지 않은 양손"]
+      },
+      "continuity": {
+        "location": "동일한 기록실: 왼쪽 출입문과 창, 중앙 선반, 오른쪽 책상",
+        "outfitState": "선택된 outfit_archivist 의상을 동일하게 착용",
+        "props": [
+          {"id": "ledger_01", "state": "같은 가슴 높이 선반 칸에 닫힌 채 꽂혀 있고 손은 아직 닿지 않음"},
+          {"id": "reference_01", "state": "책상 위에 펼쳐진 상태 유지, 화면 밖"},
+          {"id": "notepad_01", "state": "책상 오른쪽에 빈 상태로 유지, 화면 밖"},
+          {"id": "pen_01", "state": "메모지 오른쪽에 유지, 화면 밖"}
+        ],
+        "screenDirection": "화면 왼쪽에서 오른쪽으로 접근한 뒤 오른쪽 선반을 향해 정지",
+        "carriesFrom": "shot_001"
+      },
+      "generation": {
+        "mainPrompt": "archive shelf aisle, cowboy shot, waist-level side angle, shelf spines at frame right, closed ledger at chest height, soft window daylight from left",
+        "supplement": "A narrow gap remains between the lowered hands and the shelf.",
+        "characters": [
+          {
+            "characterPresetId": "character_archivist",
+            "visibleFeaturesPrompt": "",
+            "scenePrompt": "approaching the shelf toward frame right, finishing a short step, right-facing profile, both hands lowered, looking at the ledger spine, calm focused expression",
+            "undesiredPrompt": "",
+            "position": {"x": 0.4, "y": 0.53}
+          }
+        ],
+        "undesiredPrompt": "",
+        "seed": null
+      }
+    },
+    {
+      "id": "shot_003",
+      "index": 3,
+      "intent": "같은 장부를 선반에서 꺼내는 양손 접촉을 명확히 보여준다.",
+      "rhythmRole": "action",
+      "direction": {
+        "shotSize": "medium",
+        "cameraHeight": "Chest level",
+        "cameraAngle": "Oblique side angle toward the shelf opening",
+        "viewpoint": "Shelf-aisle view with unobstructed hand contact",
+        "bodyOrientation": "Three-quarter profile toward frame right",
+        "pose": "Elbows bent, right hand gripping the spine and left palm supporting the bottom",
+        "action": "닫힌 장부를 선반에서 앞으로 빼낸다.",
+        "gaze": "장부와 선반 사이의 간격",
+        "expression": "신중한 집중",
+        "subjectPlacement": "Left half with the ledger near frame center",
+        "depth": "Hands and ledger in the focal plane, shelf recess behind",
+        "lighting": "같은 창빛이 장부 가장자리와 손에 부드럽게 닿는다.",
+        "visibilityRequirements": ["오른손의 책등 접촉", "왼손의 장부 하단 지지", "선반 밖으로 나온 장부", "장부가 빠진 선반 틈"]
+      },
+      "continuity": {
+        "location": "동일한 기록실: 왼쪽 출입문과 창, 중앙 선반, 오른쪽 책상",
+        "outfitState": "선택된 outfit_archivist 의상을 동일하게 착용",
+        "props": [
+          {"id": "ledger_01", "state": "같은 선반 칸에서 완전히 꺼내져 닫힌 채 양손에 들려 있음"},
+          {"id": "reference_01", "state": "책상 위에 펼쳐진 상태 유지, 화면 밖"},
+          {"id": "notepad_01", "state": "책상 오른쪽에 빈 상태로 유지, 화면 밖"},
+          {"id": "pen_01", "state": "메모지 오른쪽에 유지, 화면 밖"}
+        ],
+        "screenDirection": "오른쪽 선반에서 화면 중앙 쪽으로 장부를 당김",
+        "carriesFrom": "shot_002"
+      },
+      "generation": {
+        "mainPrompt": "archive shelving, medium shot, oblique side view, closed ledger just outside a shelf opening, visible empty shelf gap, soft lateral window light",
+        "supplement": "The left palm supports the ledger's bottom edge. The right hand grips its spine. The ledger is clear of the shelf.",
+        "characters": [
+          {
+            "characterPresetId": "character_archivist",
+            "visibleFeaturesPrompt": "",
+            "scenePrompt": "three-quarter profile facing right, carefully drawing the closed ledger out of the shelf, right hand around the spine, left palm beneath the bottom edge, watching the clearance, focused expression",
+            "undesiredPrompt": "",
+            "position": {"x": 0.38, "y": 0.52}
+          }
+        ],
+        "undesiredPrompt": "",
+        "seed": null
+      }
+    },
+    {
+      "id": "shot_004",
+      "index": 4,
+      "intent": "장부를 책상으로 옮긴 뒤 펼치는 도착 순간을 보여준다.",
+      "rhythmRole": "action",
+      "direction": {
+        "shotSize": "medium",
+        "cameraHeight": "Slightly above desk level",
+        "cameraAngle": "Downward oblique angle across the desktop",
+        "viewpoint": "Near desk-corner view",
+        "bodyOrientation": "Three-quarter side view facing frame right",
+        "pose": "Standing at the desk with a slight forward lean",
+        "action": "양손으로 옮긴 장부를 책상 중앙에 내려놓은 뒤 오른손으로 표지를 열고 왼손으로 하단을 고정한다.",
+        "gaze": "열리는 장부 페이지",
+        "expression": "차분한 주의",
+        "subjectPlacement": "Upper-left area with desktop filling the lower half",
+        "depth": "Open ledger in foreground, shelf opening in background",
+        "lighting": "같은 창빛에 책상 램프의 따뜻한 빛이 더해져 페이지를 밝힌다.",
+        "visibilityRequirements": ["책상 위에 지지된 장부", "표지를 여는 오른손", "하단을 고정하는 왼손", "장부 옆 대조용 기록지"]
+      },
+      "continuity": {
+        "location": "동일한 기록실: 왼쪽 출입문과 창, 중앙 선반, 오른쪽 책상",
+        "outfitState": "선택된 outfit_archivist 의상을 동일하게 착용",
+        "props": [
+          {"id": "ledger_01", "state": "선반에서 오른쪽 책상으로 운반되어 중앙에 놓였고 표지가 열려 페이지가 드러남"},
+          {"id": "reference_01", "state": "장부 왼쪽에 펼쳐져 있음"},
+          {"id": "notepad_01", "state": "장부 오른쪽에 빈 상태로 놓여 있음"},
+          {"id": "pen_01", "state": "메모지 오른쪽에 놓여 있음"}
+        ],
+        "screenDirection": "선반에서 오른쪽 책상으로 이동 완료, 몸은 계속 화면 오른쪽을 향함",
+        "carriesFrom": "shot_003"
+      },
+      "generation": {
+        "mainPrompt": "archive desk, medium shot, downward oblique view across desktop, ledger opening at desk center, reference sheet on its left, blank notepad on its right, pen beside notepad, shelving in background, soft left window light, warm desk lamp on pages",
+        "supplement": "The ledger rests fully on the desktop. The right hand opens the cover. The left hand steadies the bottom edge.",
+        "characters": [
+          {
+            "characterPresetId": "character_archivist",
+            "visibleFeaturesPrompt": "",
+            "scenePrompt": "standing at the desk after carrying the ledger over, three-quarter side view facing right, leaning slightly forward, opening the ledger cover with the right hand while the left hand steadies its bottom edge, looking down at the exposed pages",
+            "undesiredPrompt": "",
+            "position": {"x": 0.36, "y": 0.4}
+          }
+        ],
+        "undesiredPrompt": "",
+        "seed": null
+      }
+    },
+    {
+      "id": "shot_005",
+      "index": 5,
+      "intent": "펼친 장부와 대조용 기록의 행을 양손으로 짚어 비교한다.",
+      "rhythmRole": "detail",
+      "direction": {
+        "shotSize": "detail",
+        "cameraHeight": "Above desktop",
+        "cameraAngle": "Steep downward angle",
+        "viewpoint": "Overhead-oblique desktop view",
+        "bodyOrientation": "Torso oriented toward the desk, head outside frame",
+        "pose": "Forearms extended over two adjacent documents",
+        "action": "왼손 검지로 대조용 기록지의 행을 짚고 오른손 검지로 장부의 대응 행을 짚어 대조한다.",
+        "gaze": "프레임 밖으로 시선은 보이지 않음",
+        "expression": "얼굴이 프레임 밖이므로 표정은 보이지 않음",
+        "subjectPlacement": "Forearms entering from the upper edge, documents centered",
+        "depth": "Shallow desktop plane with both indicated rows in focus",
+        "lighting": "동일한 창의 확산광과 램프 빛이 두 문서에 함께 닿는다.",
+        "visibilityRequirements": ["두 문서의 나란한 배치", "양쪽 검지와 대응 행의 접촉점", "장부의 펼친 상태"]
+      },
+      "continuity": {
+        "location": "동일한 기록실: 왼쪽 출입문과 창, 중앙 선반, 오른쪽 책상",
+        "outfitState": "선택된 outfit_archivist 의상을 동일하게 착용",
+        "props": [
+          {"id": "ledger_01", "state": "책상 중앙에 펼쳐져 있고 오른손 검지가 한 기록 행을 짚음"},
+          {"id": "reference_01", "state": "장부 왼쪽에 펼쳐져 있고 왼손 검지가 대응 행을 짚음"},
+          {"id": "notepad_01", "state": "장부 오른쪽에 빈 상태로 유지"},
+          {"id": "pen_01", "state": "메모지 오른쪽에 놓인 상태 유지"}
+        ],
+        "screenDirection": "책상 위 기준 기록지는 왼쪽, 장부는 중앙, 메모지는 오른쪽; 팔은 화면 위쪽에서 진입",
+        "carriesFrom": "shot_004"
+      },
+      "generation": {
+        "mainPrompt": "detail shot of archive desktop, steep downward view, open ledger centered, reference sheet to the left, blank notepad to the right, pen beside notepad, rows of handwritten records, soft window fill and warm lamp light",
+        "supplement": "The left index fingertip touches a row on the reference sheet. The right index fingertip touches a corresponding row in the ledger.",
+        "characters": [
+          {
+            "characterPresetId": "character_archivist",
+            "visibleFeaturesPrompt": "",
+            "scenePrompt": "only forearms and hands visible entering from the upper frame edge, left index finger indicating the reference sheet, right index finger indicating a ledger row, comparing adjacent records, head outside frame",
+            "undesiredPrompt": "",
+            "position": {"x": 0.5, "y": 0.25}
+          }
+        ],
+        "undesiredPrompt": "",
+        "seed": null
+      }
+    },
+    {
+      "id": "shot_006",
+      "index": 6,
+      "intent": "대조를 마친 뒤 장부 옆 메모지에 기록을 남기며 장면을 마무리한다.",
+      "rhythmRole": "resolution",
+      "direction": {
+        "shotSize": "medium",
+        "cameraHeight": "Upper chest level",
+        "cameraAngle": "Gentle downward side angle",
+        "viewpoint": "Desk-side three-quarter view",
+        "bodyOrientation": "Three-quarter profile facing frame right",
+        "pose": "Standing with a slight forward lean, left palm stabilizing the notepad",
+        "action": "오른손으로 펜을 들어 메모지에 짧은 메모를 쓰고 왼손으로 종이를 고정한다.",
+        "gaze": "펜촉이 닿는 메모지",
+        "expression": "차분하게 집중한 표정",
+        "subjectPlacement": "Left-center with writing area at lower right",
+        "depth": "Face and writing hands within the focal zone, shelving softly receding",
+        "lighting": "같은 창빛이 얼굴 측면을 밝히고 램프 빛이 메모지와 펼친 장부를 비춘다.",
+        "visibilityRequirements": ["펜촉과 메모지의 접촉", "종이를 고정하는 왼손", "새로 쓰인 메모", "옆에 그대로 펼쳐진 장부"]
+      },
+      "continuity": {
+        "location": "동일한 기록실: 왼쪽 출입문과 창, 중앙 선반, 오른쪽 책상",
+        "outfitState": "선택된 outfit_archivist 의상을 동일하게 착용",
+        "props": [
+          {"id": "ledger_01", "state": "책상 중앙의 같은 위치에 같은 페이지를 펼친 상태로 유지"},
+          {"id": "reference_01", "state": "장부 왼쪽에 펼쳐진 상태로 유지, 손은 떨어짐"},
+          {"id": "notepad_01", "state": "장부 오른쪽에서 왼손으로 고정되어 짧은 메모가 쓰이고 있음"},
+          {"id": "pen_01", "state": "메모지 오른쪽에서 집어 들어 오른손에 쥐었고 펜촉이 메모지에 닿음"}
+        ],
+        "screenDirection": "오른쪽을 향한 몸 방향 유지, 책상 내 행동 초점이 중앙 장부에서 오른쪽 메모지로 이동",
+        "carriesFrom": "shot_005"
+      },
+      "generation": {
+        "mainPrompt": "archive desk, medium shot, gentle downward side view, open ledger at desk center, reference sheet on the left, notepad on the right with a short handwritten note, softly receding shelves, soft lateral daylight, warm desk lamp illuminating paper",
+        "supplement": "The pen tip touches the notepad. The left palm holds the paper away from the writing line. The ledger remains open beside the notepad.",
+        "characters": [
+          {
+            "characterPresetId": "character_archivist",
+            "visibleFeaturesPrompt": "",
+            "scenePrompt": "standing at the desk in three-quarter profile facing right, leaning slightly forward, writing a short note with a pen in the right hand, left palm stabilizing the notepad, looking down at the pen tip, calm focused expression",
+            "undesiredPrompt": "",
+            "position": {"x": 0.4, "y": 0.48}
+          }
+        ],
+        "undesiredPrompt": "",
+        "seed": null
+      }
+    }
+  ]
+}

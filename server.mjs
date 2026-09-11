@@ -40,6 +40,8 @@ import { createPresetStore } from "./src/services/preset-store.js";
 import { createCharacterPresetStore } from "./src/services/character-preset-store.js";
 import { createCharacterPresetCategoryStore } from "./src/services/character-preset-category-store.js";
 import { createGenerationStore } from "./src/services/generation-store.js";
+import { createImageMakerApi } from "./src/services/image-maker-api.js";
+import { createCodexDirectorBridge } from "./src/services/codex-director-bridge.js";
 import { createSectionPresetStore } from "./src/services/section-preset-store.js";
 import {
   assertNoSecretMaterial,
@@ -66,7 +68,7 @@ import { parseNovelAiPngMetadata } from "./src/importers/nai-metadata.js";
 import { parseImageMetadata } from "./src/importers/image-metadata.js";
 
 const HEALTH_APP_NAME = "Chaessi Preset";
-const APP_VERSION = "3.2.1";
+const APP_VERSION = "3.3.0";
 const PORT = Number(process.env.PORT || 4174);
 const ROOT = path.dirname(fileURLToPath(import.meta.url));
 const DATA_ROOT = path.resolve(process.env.CHAESSI_USER_DATA_DIR || ROOT);
@@ -91,6 +93,19 @@ const presetStore = createPresetStore({ rootDir: DATA_ROOT });
 const characterPresetStore = createCharacterPresetStore({ rootDir: DATA_ROOT });
 const characterPresetCategoryStore = createCharacterPresetCategoryStore({ rootDir: DATA_ROOT });
 const generationStore = createGenerationStore({ rootDir: DATA_ROOT });
+const codexDirectorBridge = createCodexDirectorBridge({
+  dataRoot: DATA_ROOT,
+  presetStore,
+  characterPresetStore,
+});
+const imageMakerApi = createImageMakerApi({
+  dataRoot: DATA_ROOT,
+  presetStore,
+  characterPresetStore,
+  generationStore,
+  directorBridge: codexDirectorBridge,
+  baseUrl: `http://127.0.0.1:${PORT}`,
+});
 const basePromptStore = createSectionPresetStore({ rootDir: DATA_ROOT, section: "base-prompts" });
 const undesiredPromptStore = createSectionPresetStore({ rootDir: DATA_ROOT, section: "undesired-prompts" });
 const paramsPresetStore = createSectionPresetStore({ rootDir: DATA_ROOT, section: "params-presets" });
@@ -276,6 +291,52 @@ const server = http.createServer(async (req, res) => {
 
     if (req.method === "GET" && url.pathname === "/api/generations") {
       sendJson(res, 200, { ok: true, items: await generationStore.listGenerations() });
+      return;
+    }
+
+    if (req.method === "GET" && url.pathname === "/api/image-maker/catalog") {
+      sendJson(res, 200, { ok: true, catalog: await imageMakerApi.listCatalog() });
+      return;
+    }
+
+    if (req.method === "GET" && url.pathname === "/api/image-maker/director/status") {
+      sendJson(res, 200, { ok: true, director: await imageMakerApi.getDirectorStatus() });
+      return;
+    }
+
+    if (req.method === "POST" && url.pathname === "/api/image-maker/director-plan") {
+      const body = await readJsonBody(req);
+      sendJson(res, 200, { ok: true, director: await imageMakerApi.createDirectorPlan(body) });
+      return;
+    }
+
+    if (req.method === "POST" && url.pathname === "/api/image-maker/preflight") {
+      const body = await readJsonBody(req);
+      sendJson(res, 200, { ok: true, run: await imageMakerApi.preflight(body) });
+      return;
+    }
+
+    if (req.method === "POST" && url.pathname === "/api/image-maker/generate") {
+      const body = await readJsonBody(req);
+      sendJson(res, 202, { ok: true, run: imageMakerApi.startGeneration(body) });
+      return;
+    }
+
+    if (req.method === "GET" && url.pathname === "/api/image-maker/runs") {
+      sendJson(res, 200, { ok: true, items: await imageMakerApi.listRuns() });
+      return;
+    }
+
+    const imageMakerDetail = /^\/api\/image-maker\/runs\/([^/]+)\/shots\/([^/]+)\/(prompt|metadata|payload)$/.exec(url.pathname);
+    if (req.method === "GET" && imageMakerDetail) {
+      const [, runId, shotId, kind] = imageMakerDetail.map((value) => value && decodeURIComponent(value));
+      sendJson(res, 200, { ok: true, detail: await imageMakerApi.getShotDetail(runId, shotId, kind) });
+      return;
+    }
+
+    const imageMakerRun = /^\/api\/image-maker\/runs\/([^/]+)$/.exec(url.pathname);
+    if (req.method === "GET" && imageMakerRun) {
+      sendJson(res, 200, { ok: true, run: await imageMakerApi.getRun(decodeURIComponent(imageMakerRun[1])) });
       return;
     }
 
@@ -1085,6 +1146,8 @@ function isAllowedClientSource(pathname) {
     || pathname === "/src/state/character-preset-categories.js"
     || pathname === "/src/state/model-profiles.js"
     || pathname === "/src/state/model-state.js"
+    || pathname === "/src/ui/image-maker-controller.js"
+    || pathname === "/src/ui/image-maker-state.js"
     || pathname.startsWith("/src/api/")
     || pathname.startsWith("/src/ui/");
 }

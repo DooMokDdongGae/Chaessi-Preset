@@ -1,0 +1,252 @@
+{
+  "schema": "chaessi-scene-plan/v2",
+  "request": "호텔 프런트에서 여성 매니저와 남성 컨시어지가 함께 장부를 확인하고 인계하는 2인 광고 화보 6장. 두 사람의 상호작용과 좌우 배치를 명확하게 보여준다.",
+  "mode": "editorial",
+  "count": 6,
+  "presetSelections": {
+    "basePresetId": "preset_benchmark_v5",
+    "characterPresetIds": ["character_manager", "character_concierge"],
+    "outfitPresetIds": ["outfit_manager_suit", "outfit_concierge_uniform"],
+    "stylePresetId": "style_benchmark_editorial",
+    "qualityPresetId": "quality_benchmark_v5",
+    "cameraPresetId": null,
+    "lightingPresetId": null
+  },
+  "continuity": {
+    "characterIdentity": "locked",
+    "outfit": "locked",
+    "location": "locked",
+    "props": "tracked",
+    "screenDirection": "locked"
+  },
+  "shots": [
+    {
+      "id": "shot_001",
+      "index": 1,
+      "intent": "프런트 공간과 좌측 매니저·우측 컨시어지의 공동 장부 검토를 소개한다.",
+      "rhythmRole": "establishing",
+      "direction": {
+        "shotSize": "wide",
+        "cameraHeight": "eye level",
+        "cameraAngle": "gentle downward tilt",
+        "viewpoint": "oblique view across the reception counter",
+        "bodyOrientation": "Both torsos angled inward toward the shared ledger.",
+        "pose": "Standing close together behind the counter with a small gap between shoulders.",
+        "action": "The manager holds the left page flat while the concierge rests a hand beside the right page.",
+        "gaze": "Both look down at the open ledger.",
+        "expression": "Quiet concentration.",
+        "subjectPlacement": "balanced left and right thirds, shared focus at lower center",
+        "depth": "counter edge in foreground, reception wall in background",
+        "lighting": "Soft window light from screen left with warm ceiling fill.",
+        "visibilityRequirements": ["Both faces in downward three-quarter view", "Separate left and right positions", "Open ledger and both hand contact areas", "Recognizable reception counter"]
+      },
+      "continuity": {
+        "location": "Hotel front reception counter",
+        "outfitState": "Selected outfits unchanged.",
+        "props": [{"id": "shared_ledger", "state": "Open flat on the counter between both actors."}],
+        "screenDirection": "Manager screen left; concierge screen right.",
+        "carriesFrom": null
+      },
+      "generation": {
+        "mainPrompt": "hotel reception interior, wide shot, oblique view across reception counter, gentle downward camera tilt, open ledger on counter, soft window light from left, warm ceiling fill",
+        "supplement": "The open ledger lies between the two sets of hands. The counter edge stays below the ledger.",
+        "characters": [
+          {"characterPresetId": "character_manager", "visibleFeaturesPrompt": "", "scenePrompt": "standing on screen left, torso angled inward, left palm holding the left page flat, looking down at the ledger, focused expression", "undesiredPrompt": "", "position": {"x": 0.32, "y": 0.5}},
+          {"characterPresetId": "character_concierge", "visibleFeaturesPrompt": "", "scenePrompt": "standing on screen right, torso angled inward, right hand resting beside the right page, looking down at the ledger, focused expression", "undesiredPrompt": "", "position": {"x": 0.68, "y": 0.5}}
+        ],
+        "undesiredPrompt": "",
+        "seed": null
+      }
+    },
+    {
+      "id": "shot_002",
+      "index": 2,
+      "intent": "매니저가 짚은 장부 항목을 컨시어지가 따라 읽는 업무 상호작용을 강조한다.",
+      "rhythmRole": "service",
+      "direction": {
+        "shotSize": "medium",
+        "cameraHeight": "slightly above eye level",
+        "cameraAngle": "downward thirty-degree angle",
+        "viewpoint": "diagonal counter-corner view",
+        "bodyOrientation": "Manager angled right; concierge angled left toward the pages.",
+        "pose": "Manager upright with one forearm extended; concierge leaning slightly toward the ledger.",
+        "action": "Manager points to one entry with the right index finger; concierge steadies the outer right page edge with the left hand.",
+        "gaze": "Both follow the manager's fingertip.",
+        "expression": "Manager attentive; concierge thoughtfully engaged.",
+        "subjectPlacement": "tight left-right grouping with lower-center working space",
+        "depth": "sharp hands and pages beneath clear faces, softly receding background",
+        "lighting": "Same left window light, more visible illumination across the page surface.",
+        "visibilityRequirements": ["Pointing fingertip and indicated page area", "Concierge hand separated from pointing hand", "Both faces", "Open pages"]
+      },
+      "continuity": {
+        "location": "Hotel front reception counter",
+        "outfitState": "Selected outfits unchanged.",
+        "props": [{"id": "shared_ledger", "state": "Open on counter; one entry indicated on the left page, right edge steadied."}],
+        "screenDirection": "Manager screen left; concierge screen right.",
+        "carriesFrom": null
+      },
+      "generation": {
+        "mainPrompt": "hotel reception counter, medium shot, elevated diagonal view, downward thirty-degree angle, open ledger, clear page surface, soft window light from left, warm ceiling fill",
+        "supplement": "The pointing fingertip touches the left page. The supporting hand rests at the far right edge, leaving the central pages visible.",
+        "characters": [
+          {"characterPresetId": "character_manager", "visibleFeaturesPrompt": "", "scenePrompt": "screen left, upright with torso angled right, right index finger pointing to an entry on the left page, gaze following fingertip, attentive expression", "undesiredPrompt": "", "position": {"x": 0.3, "y": 0.46}},
+          {"characterPresetId": "character_concierge", "visibleFeaturesPrompt": "", "scenePrompt": "screen right, leaning slightly inward, left hand steadying the outer right page edge, looking at the indicated entry, thoughtful expression", "undesiredPrompt": "", "position": {"x": 0.7, "y": 0.48}}
+        ],
+        "undesiredPrompt": "",
+        "seed": null
+      }
+    },
+    {
+      "id": "shot_003",
+      "index": 3,
+      "intent": "컨시어지의 페이지 넘김과 매니저의 확인을 손 중심으로 보여준다.",
+      "rhythmRole": "detail",
+      "direction": {
+        "shotSize": "detail",
+        "cameraHeight": "above counter level",
+        "cameraAngle": "steep downward angle",
+        "viewpoint": "close diagonal overhead view of the countertop",
+        "bodyOrientation": "Both bodies directed toward the counter; only forearms and hands within frame.",
+        "pose": "Forearms approach the ledger from separate left and right sides.",
+        "action": "Concierge lifts one right-page corner with the right thumb and index finger; manager holds the left page stack flat with the left hand.",
+        "gaze": "Outside the crop.",
+        "expression": "Outside the crop.",
+        "subjectPlacement": "left and right edge anchors around a large central ledger",
+        "depth": "shallow countertop plane with a raised page corner",
+        "lighting": "Same left window light casting a small shadow beneath the lifted page.",
+        "visibilityRequirements": ["Both distinct sets of hands", "Pinched page corner", "Left page stabilization", "Heads intentionally outside frame"]
+      },
+      "continuity": {
+        "location": "Hotel front reception counter",
+        "outfitState": "Selected outfits unchanged.",
+        "props": [{"id": "shared_ledger", "state": "Open on counter; one right page partly lifted, left stack held flat."}],
+        "screenDirection": "Manager screen left; concierge screen right.",
+        "carriesFrom": null
+      },
+      "generation": {
+        "mainPrompt": "hotel reception countertop, hand detail, close diagonal overhead view, open ledger filling center, forearms and hands crop, soft light from left, small page shadow",
+        "supplement": "A single page corner rises above the right page stack. The left page stack stays flat beneath a resting palm.",
+        "characters": [
+          {"characterPresetId": "character_manager", "visibleFeaturesPrompt": "", "scenePrompt": "forearm entering from screen left, left palm holding the left page stack flat, head and torso outside frame", "undesiredPrompt": "", "position": {"x": 0.24, "y": 0.5}},
+          {"characterPresetId": "character_concierge", "visibleFeaturesPrompt": "", "scenePrompt": "forearm entering from screen right, right thumb and index finger pinching and lifting a single right-page corner, head and torso outside frame", "undesiredPrompt": "", "position": {"x": 0.76, "y": 0.5}}
+        ],
+        "undesiredPrompt": "",
+        "seed": null
+      }
+    },
+    {
+      "id": "shot_004",
+      "index": 4,
+      "intent": "공동 검토를 마친 두 사람의 눈맞춤과 신뢰감 있는 표정을 담는다.",
+      "rhythmRole": "portrait",
+      "direction": {
+        "shotSize": "close-up",
+        "cameraHeight": "eye level",
+        "cameraAngle": "level angle",
+        "viewpoint": "tight counter-side two-shot",
+        "bodyOrientation": "Shoulders turned inward, faces in opposing three-quarter views.",
+        "pose": "Both remain upright near the counter with relaxed shoulders.",
+        "action": "Both pause their shared review and exchange an acknowledging look.",
+        "gaze": "Manager looks right toward concierge; concierge looks left toward manager.",
+        "expression": "Small, assured smiles.",
+        "subjectPlacement": "paired faces on left and right thirds with a narrow central gap",
+        "depth": "shared facial focus plane, reception background softly blurred",
+        "lighting": "Same left window light with soft side illumination and warm ceiling fill.",
+        "visibilityRequirements": ["Both eyes and smiles", "Clear reciprocal gaze", "Hands and ledger intentionally outside the lower crop"]
+      },
+      "continuity": {
+        "location": "Hotel front reception counter",
+        "outfitState": "Selected outfits unchanged.",
+        "props": [{"id": "shared_ledger", "state": "Open on counter below the frame; temporarily not visible in the facial crop."}],
+        "screenDirection": "Manager screen left; concierge screen right.",
+        "carriesFrom": null
+      },
+      "generation": {
+        "mainPrompt": "hotel reception background, tight two-shot, close-up, eye-level camera, opposing three-quarter facial views, shallow depth of field, soft side light from left, warm ceiling fill",
+        "supplement": "Both faces occupy the same focus plane. The lower crop ends above the counter.",
+        "characters": [
+          {"characterPresetId": "character_manager", "visibleFeaturesPrompt": "", "scenePrompt": "screen left, shoulders angled inward, head turned right toward the concierge, reciprocal eye contact, small assured smile", "undesiredPrompt": "", "position": {"x": 0.29, "y": 0.47}},
+          {"characterPresetId": "character_concierge", "visibleFeaturesPrompt": "", "scenePrompt": "screen right, shoulders angled inward, head turned left toward the manager, reciprocal eye contact, small acknowledging smile", "undesiredPrompt": "", "position": {"x": 0.71, "y": 0.47}}
+        ],
+        "undesiredPrompt": "",
+        "seed": null
+      }
+    },
+    {
+      "id": "shot_005",
+      "index": 5,
+      "intent": "닫힌 장부를 좌측 매니저에게서 우측 컨시어지로 전달하는 접촉점을 명확히 보여준다.",
+      "rhythmRole": "action",
+      "direction": {
+        "shotSize": "medium",
+        "cameraHeight": "chest level",
+        "cameraAngle": "slight upward angle",
+        "viewpoint": "view through the open end of the reception counter",
+        "bodyOrientation": "Both torsos turned inward toward each other.",
+        "pose": "Manager extends both forearms; concierge bends both elbows to receive the ledger.",
+        "action": "Manager supports the left end of the closed horizontal ledger while concierge supports the right end with both hands.",
+        "gaze": "Both look down toward the transfer.",
+        "expression": "Calm, attentive expressions.",
+        "subjectPlacement": "left-right balance, transfer centered at lower chest height",
+        "depth": "unobstructed central transfer plane, counter receding along the lower side",
+        "lighting": "Same left window light highlighting the ledger edge and hand contact, warm ceiling fill.",
+        "visibilityRequirements": ["All supporting hands", "Closed ledger between actors", "Both faces", "Clear space beneath the transfer"]
+      },
+      "continuity": {
+        "location": "Hotel front reception counter",
+        "outfitState": "Selected outfits unchanged.",
+        "props": [{"id": "shared_ledger", "state": "Closed, horizontal, held above the counter end; manager supports left end and concierge receives right end."}],
+        "screenDirection": "Manager screen left; concierge screen right.",
+        "carriesFrom": null
+      },
+      "generation": {
+        "mainPrompt": "hotel reception, medium shot, chest-height camera, slight upward angle, open counter end, closed ledger at lower chest height, soft window light from left, warm ceiling fill",
+        "supplement": "The closed ledger bridges the central gap horizontally. The supporting hands occupy separate ends. Open space remains visible beneath the ledger.",
+        "characters": [
+          {"characterPresetId": "character_manager", "visibleFeaturesPrompt": "", "scenePrompt": "screen left, torso turned right, both forearms extended, both hands supporting the left end of the closed ledger, looking down at the handoff, calm attentive expression", "undesiredPrompt": "", "position": {"x": 0.3, "y": 0.5}},
+          {"characterPresetId": "character_concierge", "visibleFeaturesPrompt": "", "scenePrompt": "screen right, torso turned left, elbows bent, both hands receiving and supporting the right end of the closed ledger, looking down at the handoff, calm attentive expression", "undesiredPrompt": "", "position": {"x": 0.7, "y": 0.5}}
+        ],
+        "undesiredPrompt": "",
+        "seed": null
+      }
+    },
+    {
+      "id": "shot_006",
+      "index": 6,
+      "intent": "인계된 장부를 함께 바라보며 이동을 준비하는 두 사람으로 화보를 마무리한다.",
+      "rhythmRole": "resolution",
+      "direction": {
+        "shotSize": "cowboy",
+        "cameraHeight": "waist level",
+        "cameraAngle": "level angle",
+        "viewpoint": "diagonal view along the open end of the reception counter",
+        "bodyOrientation": "Both oriented toward screen right; manager remains to the left and slightly behind.",
+        "pose": "Concierge takes a short step right while manager pivots to follow.",
+        "action": "Concierge carries the closed ledger horizontally at waist height with both hands; manager makes an open right-hand gesture beside its left edge without contact.",
+        "gaze": "Both glance down toward the carried ledger.",
+        "expression": "Relaxed, satisfied smiles.",
+        "subjectPlacement": "group offset left with clear movement space on the right",
+        "depth": "slightly staggered planes, clear foreground passage, counter receding into background",
+        "lighting": "Same left window light providing soft edge illumination, warm ceiling fill maintaining visible faces.",
+        "visibilityRequirements": ["Ledger securely supported by both hands", "Manager's separate open-hand gesture", "Both three-quarter faces", "Visible step and rightward movement space"]
+      },
+      "continuity": {
+        "location": "Hotel front reception counter",
+        "outfitState": "Selected outfits unchanged.",
+        "props": [{"id": "shared_ledger", "state": "Closed and fully supported by the concierge at waist height; manager's hand nearby without contact."}],
+        "screenDirection": "Manager screen left; concierge screen right.",
+        "carriesFrom": null
+      },
+      "generation": {
+        "mainPrompt": "hotel reception counter, cowboy shot, waist-height level camera, diagonal view along counter end, clear passage, movement space on right, soft window light from left, warm ceiling fill",
+        "supplement": "The closed ledger rests horizontally in both carrying hands. The open gesturing hand remains separate from its left edge. The leading step extends into clear floor space.",
+        "characters": [
+          {"characterPresetId": "character_manager", "visibleFeaturesPrompt": "", "scenePrompt": "screen left and slightly behind, pivoting toward screen right, open right hand gesturing beside the ledger's left edge without touching, looking down at the ledger, relaxed satisfied smile", "undesiredPrompt": "", "position": {"x": 0.28, "y": 0.5}},
+          {"characterPresetId": "character_concierge", "visibleFeaturesPrompt": "", "scenePrompt": "screen right, taking a short step right, carrying the closed ledger horizontally at waist height with both hands, face visible in three-quarter view, glancing down at the ledger, relaxed satisfied smile", "undesiredPrompt": "", "position": {"x": 0.61, "y": 0.5}}
+        ],
+        "undesiredPrompt": "",
+        "seed": null
+      }
+    }
+  ]
+}

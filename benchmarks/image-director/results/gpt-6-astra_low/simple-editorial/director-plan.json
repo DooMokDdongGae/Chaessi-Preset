@@ -1,0 +1,270 @@
+{
+  "schema": "chaessi-scene-plan/v2",
+  "request": "고급 호텔 로비에서 근무하는 여성 직원 한 명의 세련된 광고 화보 6장. 같은 인물과 의상, 장소를 유지하면서 구도와 행동을 의미 있게 변화시킨다.",
+  "mode": "editorial",
+  "count": 6,
+  "presetSelections": {
+    "basePresetId": "preset_benchmark_v5",
+    "characterPresetIds": ["character_aria"],
+    "outfitPresetIds": ["outfit_hotel_uniform"],
+    "stylePresetId": "style_benchmark_editorial",
+    "qualityPresetId": "quality_benchmark_v5",
+    "cameraPresetId": null,
+    "lightingPresetId": null
+  },
+  "continuity": {
+    "characterIdentity": "locked",
+    "outfit": "locked",
+    "location": "locked",
+    "props": "tracked",
+    "screenDirection": "free"
+  },
+  "shots": [
+    {
+      "id": "shot_001",
+      "index": 1,
+      "intent": "로비의 수직 공간과 직원의 차분한 존재감을 함께 소개한다.",
+      "rhythmRole": "establishing",
+      "direction": {
+        "shotSize": "wide",
+        "cameraHeight": "waist height",
+        "cameraAngle": "slight upward angle",
+        "viewpoint": "oblique view from the entrance",
+        "bodyOrientation": "three-quarter turn toward frame left",
+        "pose": "standing with hands loosely joined at waist",
+        "action": "holding a relaxed reception stance",
+        "gaze": "toward the entrance at frame left",
+        "expression": "small welcoming smile",
+        "subjectPlacement": "lower right third with generous upper architectural space",
+        "depth": "open marble foreground, reception desk in middle distance, tall windows behind",
+        "lighting": "soft daylight from left windows with warm ceiling accents",
+        "visibilityRequirements": ["complete standing silhouette", "joined hands", "reception desk and tall lobby windows"]
+      },
+      "continuity": {
+        "location": "Luxury hotel lobby with ivory marble floor, walnut reception desk, brass trim, and tall windows along the left wall.",
+        "outfitState": "Selected outfit unchanged and neatly arranged.",
+        "props": [{"id": "service_folder", "state": "Closed on the reception desk, too distant for visible detail."}],
+        "screenDirection": "Stationary, oriented toward frame left.",
+        "carriesFrom": null
+      },
+      "generation": {
+        "mainPrompt": "luxury hotel lobby, ivory marble floor, walnut reception desk, brass trim, tall left-wall windows, wide shot, slight low angle, vertical architectural composition, soft window daylight, warm ceiling accents",
+        "supplement": "The reception desk occupies the middle distance behind the open floor.",
+        "characters": [{
+          "characterPresetId": "character_aria",
+          "visibleFeaturesPrompt": "",
+          "scenePrompt": "standing in the lower right third, three-quarter turn toward frame left, hands loosely joined at waist, looking toward the entrance, small welcoming smile, full body visible",
+          "undesiredPrompt": "",
+          "position": {"x": 0.67, "y": 0.65}
+        }],
+        "undesiredPrompt": "",
+        "seed": null
+      }
+    },
+    {
+      "id": "shot_002",
+      "index": 2,
+      "intent": "로비를 가로지르는 자연스러운 걸음으로 업무 중의 활력을 보여준다.",
+      "rhythmRole": "action",
+      "direction": {
+        "shotSize": "full-body",
+        "cameraHeight": "hip height",
+        "cameraAngle": "level angle",
+        "viewpoint": "side view across the lobby aisle",
+        "bodyOrientation": "profile facing frame right",
+        "pose": "mid-stride with arms swinging naturally",
+        "action": "walking across the open aisle",
+        "gaze": "ahead toward frame right",
+        "expression": "calm and focused",
+        "subjectPlacement": "left of center with lead room on the right",
+        "depth": "clear foreground aisle with reception desk behind",
+        "lighting": "left-wall daylight creates a soft trailing edge highlight; warm ceiling accents remain",
+        "visibilityRequirements": ["both feet within frame", "separated walking legs", "unobstructed profile"]
+      },
+      "continuity": {
+        "location": "Luxury hotel lobby with ivory marble floor, walnut reception desk, brass trim, and tall windows along the left wall.",
+        "outfitState": "Selected outfit unchanged and neatly arranged.",
+        "props": [{"id": "service_folder", "state": "Closed on the reception desk in the background."}],
+        "screenDirection": "Walking from frame left to frame right.",
+        "carriesFrom": null
+      },
+      "generation": {
+        "mainPrompt": "luxury hotel lobby, ivory marble floor, walnut reception desk, brass trim, full-body framing, level side view, open aisle, lead room on right, soft daylight edge light, warm ceiling accents",
+        "supplement": "The walking path crosses the clear floor in front of the reception desk.",
+        "characters": [{
+          "characterPresetId": "character_aria",
+          "visibleFeaturesPrompt": "",
+          "scenePrompt": "left of center, profile facing right, walking rightward mid-stride, natural arm swing, looking ahead, calm focused expression, both feet visible",
+          "undesiredPrompt": "",
+          "position": {"x": 0.4, "y": 0.53}
+        }],
+        "undesiredPrompt": "",
+        "seed": null
+      }
+    },
+    {
+      "id": "shot_003",
+      "index": 3,
+      "intent": "안내 폴더를 다루는 손과 집중한 얼굴로 업무의 정갈함을 표현한다.",
+      "rhythmRole": "service",
+      "direction": {
+        "shotSize": "medium",
+        "cameraHeight": "chest height",
+        "cameraAngle": "gentle downward angle",
+        "viewpoint": "three-quarter view along the reception counter",
+        "bodyOrientation": "angled toward frame left behind the desk",
+        "pose": "slight forward inclination with both hands over an open folder",
+        "action": "holding the folder flat with the left hand while smoothing the right page with the right hand",
+        "gaze": "down toward the open page",
+        "expression": "quiet concentration",
+        "subjectPlacement": "center-right with counter extending toward lower left",
+        "depth": "folder in near foreground, face in middle plane, lobby softly receding",
+        "lighting": "soft daylight from the left falls across the desktop and face, warm ambient fill",
+        "visibilityRequirements": ["both hands", "open folder", "hand-to-page contact", "face above the counter"]
+      },
+      "continuity": {
+        "location": "Luxury hotel lobby with ivory marble floor, walnut reception desk, brass trim, and tall windows along the left wall.",
+        "outfitState": "Selected outfit unchanged and neatly arranged.",
+        "props": [{"id": "service_folder", "state": "Open flat on the reception desk beneath both hands."}],
+        "screenDirection": "Stationary behind desk, angled toward frame left.",
+        "carriesFrom": null
+      },
+      "generation": {
+        "mainPrompt": "luxury hotel lobby reception counter, walnut desktop, brass trim, medium shot, gentle downward angle, diagonal counter composition, soft left window daylight, warm ambient fill, softly receding lobby",
+        "supplement": "The open folder lies flat on the counter. Both hands contact the pages without obscuring the face.",
+        "characters": [{
+          "characterPresetId": "character_aria",
+          "visibleFeaturesPrompt": "",
+          "scenePrompt": "center-right behind the desk, slight forward inclination, left hand holding an open folder flat, right palm smoothing the right page, looking down at the page, quiet concentrated expression",
+          "undesiredPrompt": "",
+          "position": {"x": 0.6, "y": 0.46}
+        }],
+        "undesiredPrompt": "",
+        "seed": null
+      }
+    },
+    {
+      "id": "shot_004",
+      "index": 4,
+      "intent": "창가의 부드러운 빛으로 친근하고 자신감 있는 표정을 강조한다.",
+      "rhythmRole": "portrait",
+      "direction": {
+        "shotSize": "close-up",
+        "cameraHeight": "eye level",
+        "cameraAngle": "level angle",
+        "viewpoint": "three-quarter facial view from the window side",
+        "bodyOrientation": "shoulders angled away with head gently turned toward the lens",
+        "pose": "relaxed shoulders and upright head",
+        "action": "pausing beside the window",
+        "gaze": "directly toward the lens",
+        "expression": "subtle confident smile",
+        "subjectPlacement": "face slightly left of center, shoulder crop at lower edge",
+        "depth": "shallow focus with blurred walnut and brass background",
+        "lighting": "broad soft window light across the face with warm background highlights",
+        "visibilityRequirements": ["both eyes", "unobstructed expression", "head and shoulders only"]
+      },
+      "continuity": {
+        "location": "Luxury hotel lobby with ivory marble floor, walnut reception desk, brass trim, and tall windows along the left wall.",
+        "outfitState": "Selected outfit unchanged and neatly arranged.",
+        "props": [{"id": "service_folder", "state": "On the reception desk outside the close-up frame."}],
+        "screenDirection": "Stationary with head turned toward the lens.",
+        "carriesFrom": null
+      },
+      "generation": {
+        "mainPrompt": "hotel lobby window-side portrait, close-up, eye-level three-quarter view, head and shoulders crop, shallow depth of field, blurred walnut and brass background, broad soft window light, warm background highlights",
+        "supplement": "",
+        "characters": [{
+          "characterPresetId": "character_aria",
+          "visibleFeaturesPrompt": "",
+          "scenePrompt": "face slightly left of center, shoulders angled away, head gently turned toward the lens, direct eye contact, subtle confident smile, relaxed shoulders",
+          "undesiredPrompt": "",
+          "position": {"x": 0.45, "y": 0.43}
+        }],
+        "undesiredPrompt": "",
+        "seed": null
+      }
+    },
+    {
+      "id": "shot_005",
+      "index": 5,
+      "intent": "폴더를 정렬하는 손의 디테일로 세심한 서비스 태도를 보여준다.",
+      "rhythmRole": "detail",
+      "direction": {
+        "shotSize": "detail",
+        "cameraHeight": "just above counter height",
+        "cameraAngle": "steep downward angle",
+        "viewpoint": "oblique overhead view of the desktop",
+        "bodyOrientation": "torso parallel to the counter edge",
+        "pose": "hands resting on opposite side edges of the closed folder",
+        "action": "aligning the closed folder parallel to the counter edge",
+        "gaze": "outside the crop",
+        "expression": "outside the crop",
+        "subjectPlacement": "hands and folder centered in the lower middle",
+        "depth": "tight desktop plane with a narrow torso crop at the upper edge",
+        "lighting": "left window light reveals hand contours and walnut texture with soft warm fill",
+        "visibilityRequirements": ["both hands and wrists", "folder side-edge contact", "counter edge", "face excluded"]
+      },
+      "continuity": {
+        "location": "Luxury hotel lobby with ivory marble floor, walnut reception desk, brass trim, and tall windows along the left wall.",
+        "outfitState": "Selected outfit unchanged and neatly arranged.",
+        "props": [{"id": "service_folder", "state": "Closed on the desk, held at opposite side edges and aligned parallel to the counter."}],
+        "screenDirection": "Hands arranged on opposite sides of the folder.",
+        "carriesFrom": null
+      },
+      "generation": {
+        "mainPrompt": "walnut hotel reception desktop, brass counter trim, hand detail framing, oblique overhead view, closed service folder, soft lateral window light, subtle wood texture, tight crop",
+        "supplement": "The closed folder is parallel to the counter edge. The hands touch opposite side edges of the folder.",
+        "characters": [{
+          "characterPresetId": "character_aria",
+          "visibleFeaturesPrompt": "",
+          "scenePrompt": "only hands, wrists and a narrow torso section visible, hands centered over the desk, gently aligning a closed folder by its opposite side edges, head outside the frame",
+          "undesiredPrompt": "",
+          "position": {"x": 0.5, "y": 0.48}
+        }],
+        "undesiredPrompt": "",
+        "seed": null
+      }
+    },
+    {
+      "id": "shot_006",
+      "index": 6,
+      "intent": "열린 손으로 로비 동선을 안내하는 마무리 광고 컷을 만든다.",
+      "rhythmRole": "hero",
+      "direction": {
+        "shotSize": "cowboy",
+        "cameraHeight": "chest height",
+        "cameraAngle": "level angle",
+        "viewpoint": "three-quarter view from beside the reception desk",
+        "bodyOrientation": "torso angled toward frame right",
+        "pose": "upright stance with right elbow softly bent and left arm relaxed",
+        "action": "extending the right forearm toward the open aisle with palm facing upward",
+        "gaze": "following the open aisle toward frame right",
+        "expression": "warm restrained smile",
+        "subjectPlacement": "left third with open negative space on the right",
+        "depth": "clear gesture space in middle plane, lobby aisle receding to the right",
+        "lighting": "left-window side light with marble bounce and warm ceiling accents",
+        "visibilityRequirements": ["open palm and complete forearm", "visible face in three-quarter view", "clear aisle beside the gesture", "crop at mid-thigh"]
+      },
+      "continuity": {
+        "location": "Luxury hotel lobby with ivory marble floor, walnut reception desk, brass trim, and tall windows along the left wall.",
+        "outfitState": "Selected outfit unchanged and neatly arranged.",
+        "props": [{"id": "service_folder", "state": "Closed on the reception desk outside the crop."}],
+        "screenDirection": "Stationary, guiding gesture toward frame right.",
+        "carriesFrom": null
+      },
+      "generation": {
+        "mainPrompt": "luxury hotel lobby, ivory marble floor, walnut reception desk edge, brass trim, cowboy shot, level three-quarter view, open negative space on right, aisle receding rightward, soft window side light, marble bounce light, warm ceiling accents",
+        "supplement": "The open palm extends into clear space beside the aisle.",
+        "characters": [{
+          "characterPresetId": "character_aria",
+          "visibleFeaturesPrompt": "",
+          "scenePrompt": "placed on the left third, cropped at mid-thigh, torso angled right, right elbow softly bent, right forearm extended toward the aisle with open palm facing upward, left arm relaxed, looking along the aisle to the right, warm restrained smile",
+          "undesiredPrompt": "",
+          "position": {"x": 0.34, "y": 0.51}
+        }],
+        "undesiredPrompt": "",
+        "seed": null
+      }
+    }
+  ]
+}

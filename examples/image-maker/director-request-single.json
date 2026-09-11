@@ -1,0 +1,25 @@
+{
+  "schema": "chaessi-image-director-request/v1",
+  "request": "기존 프리셋의 캐릭터가 비 오는 밤 호텔 창가에서 도시를 바라보는 한 장의 광고 화보",
+  "count": 1,
+  "mode": "single",
+  "presetSelections": {
+    "basePresetId": "preset_2cc76fdfa1a8",
+    "characterPresetIds": [],
+    "outfitPresetIds": [],
+    "stylePresetId": null,
+    "qualityPresetId": null,
+    "cameraPresetId": null,
+    "lightingPresetId": null
+  },
+  "directing": {
+    "keepCharacterConsistent": true,
+    "keepOutfitConsistent": true,
+    "varyCamera": false,
+    "varyPose": false,
+    "varyExpression": false,
+    "preserveLocation": true,
+    "trackProps": false,
+    "additionalConstraints": "창틀을 잡은 손과 비 내리는 창밖이 동시에 보여야 한다."
+  }
+}

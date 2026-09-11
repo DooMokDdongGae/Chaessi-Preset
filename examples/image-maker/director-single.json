@@ -1,0 +1,63 @@
+{
+  "schema": "chaessi-scene-plan/v2",
+  "request": "기존 프리셋의 캐릭터가 비 오는 밤 호텔 창가에서 도시를 바라보는 한 장의 광고 화보",
+  "mode": "single",
+  "count": 1,
+  "presetSelections": {
+    "basePresetId": "preset_2cc76fdfa1a8",
+    "characterPresetIds": [],
+    "outfitPresetIds": [],
+    "stylePresetId": null,
+    "qualityPresetId": null,
+    "cameraPresetId": null,
+    "lightingPresetId": null
+  },
+  "continuity": {
+    "characterIdentity": "locked",
+    "outfit": "locked",
+    "location": "locked",
+    "props": "free",
+    "screenDirection": "free"
+  },
+  "shots": [
+    {
+      "id": "shot_001",
+      "index": 1,
+      "intent": "인물과 비 내리는 호텔 야경을 한 장에서 선명하게 소개한다.",
+      "rhythmRole": "hero",
+      "direction": {
+        "shotSize": "medium",
+        "cameraHeight": "eye level",
+        "cameraAngle": "three-quarter angle",
+        "viewpoint": "inside the lobby facing the window",
+        "bodyOrientation": "torso angled toward the window, face turned toward the city",
+        "pose": "standing beside the window with relaxed shoulders",
+        "action": "one hand lightly touches the window frame",
+        "gaze": "looking at the city lights",
+        "expression": "calm, reflective expression",
+        "subjectPlacement": "left third of the frame",
+        "depth": "character in the foreground, rain-streaked glass and city in the background",
+        "lighting": "warm lobby side light balanced with cool blue city reflections",
+        "visibilityRequirements": [
+          "face profile remains readable",
+          "hand contact with the window frame remains visible",
+          "rain and city reflections remain visible"
+        ]
+      },
+      "continuity": {
+        "location": "hotel lobby window",
+        "outfitState": "base preset outfit unchanged and fully worn",
+        "props": [],
+        "screenDirection": "character faces screen right",
+        "carriesFrom": null
+      },
+      "generation": {
+        "mainPrompt": "1girl, hotel lobby, rain-streaked window, city at night, medium shot, three-quarter view, warm side lighting, cool reflected light",
+        "supplement": "An adult woman stands on the left side of the lobby window. One hand rests on the frame while she looks toward the distant city lights. Rain patterns and blue reflections remain visible behind her.",
+        "characters": [],
+        "undesiredPrompt": "",
+        "seed": 12345
+      }
+    }
+  ]
+}

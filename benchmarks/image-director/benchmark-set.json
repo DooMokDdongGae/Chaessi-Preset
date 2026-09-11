@@ -1,0 +1,150 @@
+{
+  "schema": "chaessi-image-director-benchmark/v1",
+  "canvas": {
+    "width": 832,
+    "height": 1216,
+    "aspectRatio": "52:76"
+  },
+  "optionalPresetSummaries": {
+    "style": {
+      "id": "style_benchmark_editorial",
+      "name": "Benchmark Editorial Style",
+      "category": "그림체",
+      "version": "benchmark-v1"
+    },
+    "quality": {
+      "id": "quality_benchmark_v5",
+      "name": "Benchmark V5 Quality",
+      "category": "품질",
+      "version": "benchmark-v1"
+    }
+  },
+  "cases": [
+    {
+      "id": "simple-editorial",
+      "request": "고급 호텔 로비에서 근무하는 여성 직원 한 명의 세련된 광고 화보 6장. 같은 인물과 의상, 장소를 유지하면서 구도와 행동을 의미 있게 변화시킨다.",
+      "mode": "editorial",
+      "count": 6,
+      "presetSelections": {
+        "basePresetId": "preset_benchmark_v5",
+        "characterPresetIds": ["character_aria"],
+        "outfitPresetIds": ["outfit_hotel_uniform"],
+        "stylePresetId": "style_benchmark_editorial",
+        "qualityPresetId": "quality_benchmark_v5",
+        "cameraPresetId": null,
+        "lightingPresetId": null
+      },
+      "actors": [
+        {
+          "id": "character_aria",
+          "sex": "girl",
+          "identity": "adult woman, dark brown bob cut, amber eyes",
+          "outfitPresetId": "outfit_hotel_uniform",
+          "outfit": "burgundy hotel uniform jacket, white blouse, navy pencil skirt"
+        }
+      ],
+      "constraints": [
+        "Keep the same hotel lobby, identity, and outfit in every shot.",
+        "Use six visually distinct but minimally directed editorial compositions.",
+        "No other people are part of the intended scene."
+      ]
+    },
+    {
+      "id": "two-actor-editorial",
+      "request": "호텔 프런트에서 여성 매니저와 남성 컨시어지가 함께 장부를 확인하고 인계하는 2인 광고 화보 6장. 두 사람의 상호작용과 좌우 배치를 명확하게 보여준다.",
+      "mode": "editorial",
+      "count": 6,
+      "presetSelections": {
+        "basePresetId": "preset_benchmark_v5",
+        "characterPresetIds": ["character_manager", "character_concierge"],
+        "outfitPresetIds": ["outfit_manager_suit", "outfit_concierge_uniform"],
+        "stylePresetId": "style_benchmark_editorial",
+        "qualityPresetId": "quality_benchmark_v5",
+        "cameraPresetId": null,
+        "lightingPresetId": null
+      },
+      "actors": [
+        {
+          "id": "character_manager",
+          "sex": "girl",
+          "identity": "adult woman, long black hair, gray eyes",
+          "outfitPresetId": "outfit_manager_suit",
+          "outfit": "charcoal tailored suit, ivory blouse"
+        },
+        {
+          "id": "character_concierge",
+          "sex": "boy",
+          "identity": "adult man, short auburn hair, green eyes",
+          "outfitPresetId": "outfit_concierge_uniform",
+          "outfit": "navy concierge jacket, gold trim, white shirt"
+        }
+      ],
+      "constraints": [
+        "Every shot contains exactly both declared actors in preset order.",
+        "Keep character prompt order and normalized x positions left-to-right consistent.",
+        "Show a clear shared-ledger interaction or coordinated attention in every shot.",
+        "Vary framing, placement, or action without changing identities or outfits."
+      ]
+    },
+    {
+      "id": "action-sequence",
+      "request": "한 명의 여성 기록 보관 담당자가 조용한 기록실에 들어와 선반에서 장부를 꺼내고, 책상으로 옮겨 펼친 뒤 기록을 대조하고 메모를 남기는 6컷 연속 장면.",
+      "mode": "sequence",
+      "count": 6,
+      "presetSelections": {
+        "basePresetId": "preset_benchmark_v5",
+        "characterPresetIds": ["character_archivist"],
+        "outfitPresetIds": ["outfit_archivist"],
+        "stylePresetId": "style_benchmark_editorial",
+        "qualityPresetId": "quality_benchmark_v5",
+        "cameraPresetId": null,
+        "lightingPresetId": null
+      },
+      "actors": [
+        {
+          "id": "character_archivist",
+          "sex": "girl",
+          "identity": "adult woman, wavy chestnut hair, blue eyes, round glasses",
+          "outfitPresetId": "outfit_archivist",
+          "outfit": "cream cardigan, pale blue shirt, dark slacks"
+        }
+      ],
+      "constraints": [
+        "Use exactly six chronological actions: enter, approach shelf, remove ledger, carry to desk and open, compare records, write a note.",
+        "Track the same ledger and its state across every shot.",
+        "Every shot after shot_001 carries state from an earlier shot.",
+        "Keep identity, outfit, and archive room continuous."
+      ]
+    },
+    {
+      "id": "difficult-direction",
+      "request": "기하학적 현대 미술관에서 남성 무용수 한 명의 비대칭 화보 6장. 강한 오버헤드, 바닥 가까운 로우 앵글, 화면 모서리의 비정상적 배치, 전경 구조물과 먼 배경의 층위를 포함하되 인물과 의상은 유지한다.",
+      "mode": "editorial",
+      "count": 6,
+      "presetSelections": {
+        "basePresetId": "preset_benchmark_v5",
+        "characterPresetIds": ["character_dancer"],
+        "outfitPresetIds": ["outfit_dancer_black"],
+        "stylePresetId": "style_benchmark_editorial",
+        "qualityPresetId": "quality_benchmark_v5",
+        "cameraPresetId": null,
+        "lightingPresetId": null
+      },
+      "actors": [
+        {
+          "id": "character_dancer",
+          "sex": "boy",
+          "identity": "adult man, cropped black hair, sharp dark eyes",
+          "outfitPresetId": "outfit_dancer_black",
+          "outfit": "black contemporary dance costume, fitted long sleeves"
+        }
+      ],
+      "constraints": [
+        "Across the set, include at least one strong overhead shot and one floor-level low-angle shot.",
+        "Use an unusual edge or corner placement in at least one shot.",
+        "Use foreground architecture and a clearly distant background in at least one shot.",
+        "Maintain asymmetric composition without inventing another actor."
+      ]
+    }
+  ]
+}
