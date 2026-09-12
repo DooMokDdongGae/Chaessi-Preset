@@ -9,6 +9,8 @@ import {
 import { createComposerPresetCatalog } from "./preset-catalog-v2.js";
 import { createImageMakerMultiRunStore } from "./image-maker-multi-run-store.js";
 import { preflightImageMakerLocalApi, runImageMakerRequest } from "./image-maker-runner.js";
+import { IMAGE_MAKER_WORKFLOW_REQUEST_SCHEMA } from "../state/image-maker-multi-request.js";
+import { resolveWorkshopImageMakerAssets } from "./image-maker-workshop-context.js";
 
 export async function runMultiImageMakerRequest({
   request,
@@ -21,6 +23,9 @@ export async function runMultiImageMakerRequest({
   fetchFn = globalThis.fetch,
   requestTimeoutMs = 180_000,
   randomUint32,
+  workshopContext = null,
+  presetStore = null,
+  characterPresetStore = null,
 } = {}) {
   const root = await resolveRoot(dataRoot);
   const store = createImageMakerMultiRunStore({ rootDir: root });
@@ -33,6 +38,9 @@ export async function runMultiImageMakerRequest({
     validateImageMakerMultiRequest(request);
     validateDirectorPlanForMultiRequest(request, directorPlan);
     const resolved = resolveMultiShotSeeds(request, directorPlan, randomUint32 ? { randomUint32 } : {});
+    const workflowAssets = request.schema === IMAGE_MAKER_WORKFLOW_REQUEST_SCHEMA
+      ? await resolveWorkshopImageMakerAssets({ request: resolved.request, workshopContext, presetStore, characterPresetStore })
+      : null;
     await store.writeArtifact(run, "request.json", resolved.request);
     await store.writeArtifact(run, "director-plan.json", resolved.plan);
 
@@ -65,6 +73,7 @@ export async function runMultiImageMakerRequest({
           tagResolver,
           fetchFn,
           requestTimeoutMs,
+          assetsOverride: workflowAssets,
         });
         preflightShots.push({
           shotId: shot.id,
@@ -119,11 +128,11 @@ export async function runMultiImageMakerRequest({
     if (!preflightReport.ok || hasFailure) return multiResult(run, manifest);
     if (dryRun) return multiResult(run, manifest);
 
-    const assets = await createComposerPresetCatalog({ rootDir: root }).resolveSelections(resolved.plan.presetSelections);
+    const assets = workflowAssets || await createComposerPresetCatalog({ rootDir: root }).resolveSelections(resolved.plan.presetSelections);
     await preflightImageMakerLocalApi({
       baseUrl,
-      basePresetId: resolved.request.presets.basePresetId,
-      expectedBasePreset: assets.basePreset,
+      basePresetId: request.schema === IMAGE_MAKER_WORKFLOW_REQUEST_SCHEMA ? null : resolved.request.presets.basePresetId,
+      expectedBasePreset: request.schema === IMAGE_MAKER_WORKFLOW_REQUEST_SCHEMA ? null : assets.basePreset,
       fetchFn,
       requestTimeoutMs,
     });
@@ -144,6 +153,7 @@ export async function runMultiImageMakerRequest({
           tagResolver,
           fetchFn,
           requestTimeoutMs,
+          assetsOverride: workflowAssets,
         });
         shotResults.push({
           shotId: shot.id,
@@ -203,6 +213,9 @@ export async function runMultiImageMakerRequest({
 }
 
 function toSingleRequest(request, seed) {
+  if (request.schema === IMAGE_MAKER_WORKFLOW_REQUEST_SCHEMA) {
+    return { ...structuredClone(request), count: 1, generation: { ...structuredClone(request.generation), seed } };
+  }
   return {
     schema: "chaessi-image-request/v1",
     request: request.request,

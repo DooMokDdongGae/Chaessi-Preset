@@ -103,12 +103,12 @@ test("E — two-shot editorial preflight is ready and makes no generation reques
   } finally { await rm(fixture.root, { recursive: true, force: true }); }
 });
 
-test("F — v3.3.0 preserves Workshop, History, Position Pad, and Image Maker wiring", async () => {
+test("F — v3.3.1 Workshop, History, Position Pad, and Image Maker wiring coexist", async () => {
   const [pkg, html, app, server, electron] = await Promise.all([
     readJson("package.json"), readText("index.html"), readText("src/app.js"),
     readText("server.mjs"), readText("electron/server-process.mjs"),
   ]);
-  assert.equal(pkg.version, "3.3.0");
+  assert.equal(pkg.version, "3.3.1");
   for (const marker of ["presetWorkspace", "imageMakerWorkspace", "characterPositionPad", "historyBulkDeleteDialog", "imageViewerPreviousButton"]) {
     assert.match(html, new RegExp(`id=[\"']${marker}[\"']`));
   }

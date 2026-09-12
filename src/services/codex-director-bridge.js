@@ -6,10 +6,12 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { validateScenePlanV2 } from "../state/image-director-contract.js";
 import {
+  IMAGE_MAKER_WORKFLOW_REQUEST_SCHEMA,
   multiRequestPresetSelections,
   validateDirectorPlanForMultiRequest,
   validateImageMakerMultiRequest,
 } from "../state/image-maker-multi-request.js";
+import { resolveWorkshopImageMakerAssets } from "./image-maker-workshop-context.js";
 import {
   assertNoSecretMaterial,
   ensureDir,
@@ -59,7 +61,7 @@ export function createCodexDirectorBridge({
       return inspectCodexClient({ executable, invoke, model, reasoningEffort });
     },
 
-    async createPlan({ request, regenerate = false, operationId = null, signal = null } = {}) {
+    async createPlan({ request, workshopContext = null, regenerate = false, operationId = null, signal = null } = {}) {
       validateImageMakerMultiRequest(request);
       const invocationId = normalizeOperationId(operationId) || createInvocationId(now());
       const runDir = path.join(runRoot, invocationId);
@@ -70,7 +72,7 @@ export function createCodexDirectorBridge({
       let instructionHash;
       try {
         [context, instruction] = await Promise.all([
-          buildDirectorContext({ request, presetStore, characterPresetStore }),
+          buildDirectorContext({ request, workshopContext, presetStore, characterPresetStore }),
           readFile(instructionPath, "utf8"),
         ]);
         instructionHash = sha256(instruction);
@@ -153,8 +155,40 @@ export function createCodexDirectorBridge({
   };
 }
 
-export async function buildDirectorContext({ request, presetStore, characterPresetStore }) {
+export async function buildDirectorContext({ request, workshopContext = null, presetStore, characterPresetStore }) {
   validateImageMakerMultiRequest(request);
+  if (request.schema === IMAGE_MAKER_WORKFLOW_REQUEST_SCHEMA) {
+    const assets = await resolveWorkshopImageMakerAssets({ request, workshopContext, presetStore, characterPresetStore });
+    const presetSelections = multiRequestPresetSelections(request);
+    const width = request.generation.width;
+    const height = request.generation.height;
+    const actors = assets.characterPresets.map((identity, index) => ({
+      id: identity.id,
+      sex: String(identity.category).includes("남성") ? "boy" : "girl",
+      identity: summarizeComponent(identity, { includePrompt: true, maxTags: 28 }),
+      guidance: summarizeComponent(assets.outfitPresets[index], { includePrompt: true, maxTags: 40 }),
+    }));
+    const canvas = { width, height, aspectRatio: reduceRatio(width, height), orientation: width === height ? "square" : width > height ? "landscape" : "portrait" };
+    const generationContext = { model: request.generation.model, mode: request.generation.mode, canvas };
+    const promptContext = {
+      request: request.request, mode: request.mode, count: request.count, presetSelections, actors,
+      optionalPresetBlocks: assets.presetBlocks, generationContext,
+      seedPolicy: request.generation.seed === null ? "Leave each generation.seed null." : `Use sequential seeds beginning at ${request.generation.seed}.`,
+      priority: ["explicit user request", "explicit preset blocks", "inferred missing details"],
+    };
+    const publicArtifact = {
+      schema: "chaessi-codex-director-context/v2",
+      request: { text: request.request, mode: request.mode, count: request.count }, presetSelections, actors,
+      optionalPresetBlocks: assets.presetBlocks, generationContext,
+      excluded: ["full prompt", "undesired content", "renderer parameters", "authentication material"],
+    };
+    assertNoSecretMaterial(publicArtifact, "Codex Director context");
+    return {
+      promptContext, publicArtifact,
+      presets: { cacheIdentity: request.presetBlocks.map((block) => ({ ...block })) },
+      canvas: { ...canvas, planningRevision: request.generation.planningRevision },
+    };
+  }
   const ids = request.presets;
   const [base, character, outfit, style, quality] = await Promise.all([
     presetStore.getPreset(ids.basePresetId),
@@ -342,6 +376,17 @@ function summarizePrompt(prompt, maxTags) {
 }
 
 function redactRequestForArtifact(request) {
+  if (request.schema === IMAGE_MAKER_WORKFLOW_REQUEST_SCHEMA) return {
+    schema: request.schema, request: request.request, count: request.count, mode: request.mode,
+    presetBlocks: structuredClone(request.presetBlocks || []),
+    generation: {
+      model: request.generation.model, mode: request.generation.mode,
+      width: request.generation.width, height: request.generation.height,
+      seed: request.generation.seed,
+      planningRevision: request.generation.planningRevision,
+      renderRevision: request.generation.renderRevision,
+    },
+  };
   return {
     schema: request.schema, request: request.request, count: request.count, mode: request.mode,
     presets: { ...request.presets }, generation: { model: request.generation.model, baseSeed: request.generation.baseSeed },

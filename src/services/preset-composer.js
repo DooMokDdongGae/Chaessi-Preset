@@ -1,7 +1,7 @@
 import { validateScenePlan } from "../state/scene-plan.js";
 import { NOVELAI_V5_FULL_MODEL } from "../state/model-profiles.js";
-import { validatePreset } from "../adapters/novelai-v45-full.js";
-import { buildModeGeneratePayload } from "../adapters/novelai-v45-generation-modes.js";
+import { validatePayloadSafety, validatePreset } from "../adapters/novelai-v45-full.js";
+import { buildModeGeneratePayload, validateModeGeneratePayload } from "../adapters/novelai-v45-generation-modes.js";
 import { validateV5Payload } from "../adapters/novelai-v5-full.js";
 import { resolvePresetRandomPrompts } from "./prompt-random-resolver.js";
 import { assertNoSecretMaterial } from "./file-store-utils.js";
@@ -36,17 +36,18 @@ export function composeScenePlan(plan, basePreset, { randomFn = Math.random } = 
   };
 }
 
-export function prepareResolvedPreset(preset) {
+export function prepareResolvedPreset(preset, { modeRequest = { mode: "text-to-image" } } = {}) {
   assertNoSecretMaterial(preset, "resolved preset");
   const presetValidation = validatePreset(preset);
   requireValid(presetValidation, "Resolved preset");
-  if (preset.params.model !== NOVELAI_V5_FULL_MODEL) throw new Error("MVP supports V5 text-to-image only.");
   if (!Number.isInteger(preset.params.seed) || preset.params.seed < 0 || preset.params.seed > 4294967295) throw new Error("Resolved seed must be fixed.");
   if (JSON.stringify(preset.prompt_parts).includes("||")) throw new Error("Resolved preset contains random blocks.");
-  if (preset.prompt_parts.characters.length > 32) throw new Error("V5 supports at most 32 character slots.");
-  const payload = buildModeGeneratePayload(preset, { mode: "text-to-image" });
-  const payloadValidation = validateV5Payload(payload);
-  requireValid(payloadValidation, "V5 payload");
+  if (preset.prompt_parts.characters.length > (preset.params.model === NOVELAI_V5_FULL_MODEL ? 32 : 6)) throw new Error("The selected model has too many character slots.");
+  const payload = buildModeGeneratePayload(preset, modeRequest);
+  const payloadValidation = modeRequest.mode !== "text-to-image"
+    ? validateModeGeneratePayload(payload, modeRequest)
+    : preset.params.model === NOVELAI_V5_FULL_MODEL ? validateV5Payload(payload) : validatePayloadSafety(payload);
+  requireValid(payloadValidation, "Generation payload");
   assertNoSecretMaterial(payload, "payload");
   return { payload, presetValidation, payloadValidation };
 }

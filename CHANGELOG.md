@@ -1,6 +1,22 @@
 # Changelog
 
-## v3.3.0
+## [3.3.1] — Unreleased
+
+### Changed
+
+- Image Maker now starts with a natural-language request, Editorial/Sequence, count, and one Generate action.
+- Fixed Base, Character, Outfit, Style, Quality, and Base Seed inputs were replaced by optional repeatable preset blocks sourced from the existing Chaessi preset stores and categories.
+- Generate now orchestrates Director planning, full Preflight, and sequential NovelAI generation. Manual plan creation, import, raw JSON, and explicit Preflight remain under Advanced recovery tools.
+- Image Maker consumes the current Preset Workshop model, mode, canvas, seed, and renderer settings through the existing V4.5/V5 T2I, I2I, and Inpaint builders.
+- Renderer-only setting changes invalidate Preflight while retaining the Director Plan; planning-relevant canvas, mode, request, preset, and count changes refresh the plan.
+- Result cards prioritize the actual final Positive, Character, and Negative prompt, with copy support. Shot Plan, Metadata, and Payload are secondary technical details.
+
+### Compatibility
+
+- Preserves the v3.3.0 Codex Bridge, scene-plan/v2, Composer v2, Position Pad, generationStore, History, safeStorage, manual plan fallback, and Character/Outfit independence policy.
+- The published v3.3.0 tag and release asset are unchanged.
+
+## [3.3.0]
 
 ### Added
 
@@ -30,7 +46,7 @@
 - Automatic Director planning requires Codex CLI signed in with ChatGPT. Chaessi does not require a separate OpenAI API key.
 - Without Codex, Preset Workshop remains available and Image Maker accepts a pasted or imported `scene-plan/v2`.
 - NovelAI rendering can differ from the Director Plan; the renderer may add people, props, or style-specific details.
-- Released as the public `v3.3.0` tag with the verified portable artifact.
+- v3.3.0 was validated as `v3.3.0-rc.1` before the final public release.
 
 ## v3.2.1
 

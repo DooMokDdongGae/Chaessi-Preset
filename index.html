@@ -422,7 +422,7 @@
           <div>
             <span class="eyebrow">MULTI-SHOT DIRECTOR</span>
             <h2>Image Maker</h2>
-            <p>장면을 설명하고, 인물과 스타일을 선택한 뒤 Director의 구도를 확인하세요.</p>
+            <p>원하는 장면을 설명하고 Generate를 누르세요. 필요한 preset만 선택적으로 추가할 수 있습니다.</p>
           </div>
           <button type="button" id="imageMakerNewRequestButton">New Request</button>
         </div>
@@ -455,30 +455,21 @@
             </div>
           </section>
 
-          <section class="tool-surface image-maker-preset-grid">
-            <label>Base
-              <select id="imageMakerBasePreset"></select>
-            </label>
-            <label>Character
-              <select id="imageMakerCharacterPreset"></select>
-            </label>
-            <label>Outfit
-              <select id="imageMakerOutfitPreset"></select>
-            </label>
-            <label>Style <span class="field-note">optional</span>
-              <select id="imageMakerStylePreset"></select>
-            </label>
-            <label>Quality <span class="field-note">optional</span>
-              <select id="imageMakerQualityPreset"></select>
-            </label>
-            <label>Base seed <span class="field-note">optional</span>
-              <input id="imageMakerBaseSeed" type="number" min="0" step="1" placeholder="Random" />
-            </label>
+          <section class="tool-surface image-maker-preset-options">
+            <header><div><strong>Optional Presets</strong><p>현재 Preset Workshop 설정을 그대로 사용합니다. 필요한 요소만 추가하세요.</p></div><button type="button" id="imageMakerAddPresetButton">Add Preset</button></header>
+            <div id="imageMakerPresetBlocks" class="image-maker-preset-blocks"></div>
           </section>
+        </div>
+        <div class="image-maker-primary-action">
+          <p>Generate가 Director Plan과 Preflight를 자동으로 준비한 뒤 NovelAI 생성을 시작합니다.</p>
+          <button type="button" class="primary-generate-button" id="imageMakerGenerateButton">Generate 4 Images</button>
         </div>
       </section>
 
-      <section class="panel image-maker-plan-panel">
+      <details class="panel image-maker-advanced-workflow" id="imageMakerAdvancedWorkflow">
+        <summary>Advanced · Director Plan, Preflight &amp; Manual Recovery</summary>
+        <div class="details-body">
+      <section class="image-maker-plan-panel">
         <div class="panel-heading">
           <div>
             <h2>Director Plan</h2>
@@ -507,7 +498,7 @@
         <div class="image-maker-shot-grid" id="imageMakerShotList"></div>
       </section>
 
-      <section class="panel image-maker-run-panel">
+      <section class="image-maker-run-panel">
         <div class="panel-heading">
           <div>
             <h2>Preflight &amp; Generate</h2>
@@ -515,7 +506,6 @@
           </div>
           <div class="actions">
             <button type="button" id="imageMakerPreflightButton" disabled>Run Preflight</button>
-            <button type="button" class="primary-generate-button" id="imageMakerGenerateButton" disabled>Generate Images</button>
           </div>
         </div>
         <div class="image-maker-run-summary" id="imageMakerRunSummary" data-status="idle">
@@ -524,6 +514,8 @@
         <div class="image-maker-review-list" id="imageMakerReviewList"></div>
         <div class="image-maker-progress-list" id="imageMakerProgressList"></div>
       </section>
+        </div>
+      </details>
 
       <section class="panel image-maker-results-panel" id="imageMakerResultsPanel" hidden>
         <div class="panel-heading">

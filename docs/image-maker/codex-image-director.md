@@ -20,6 +20,11 @@ preset 수정, payload 생성, generation 저장, GUI 제어는 수행하지 않
 4. 실행 설정: 모델·sampler·steps·CFG·UC·품질·seed는 Chaessi preset/Composer가 소유한다.
    Director는 사용자가 명시한 shot seed 외에는 생성 설정을 발명하지 않는다.
 
+연출 판단의 우선순위는 **사용자의 자연어 요청 → 사용자가 추가한 optional preset block →
+Director의 합리적 추론**이다. 현재 Preset Workshop의 모델, 생성 모드, canvas 크기는 계획에
+필요한 읽기 전용 context일 뿐이며 Director가 값을 선택하거나 변경하지 않는다. sampler,
+steps, guidance, seed, negative 설정과 I2I/Inpaint 원본 데이터는 Director 입력에 포함하지 않는다.
+
 출력은 설명이나 Markdown 없이 `chaessi-scene-plan/v2` JSON 객체 하나다. 출력 전에
 `validateScenePlanV2()`의 구조와 아래 의미 검토를 충족해야 한다.
 
@@ -111,6 +116,9 @@ preset 수정, payload 생성, generation 저장, GUI 제어는 수행하지 않
 - C15 USER-CONVENTION: Character의 `girl`/`boy` subject와 Outfit의 여성/남성 분류는 독립적이다.
   선택된 Outfit을 actor subject와 비교해 경고·교체·fallback하지 않는다. 남성 actor의 feminine
   dress, 여성 actor의 men's suit도 정상 선택이며, 정확한 Outfit preset ID를 그대로 보존한다.
+- C16 Image Maker v3 workflow에서 preset block은 0개 이상이다. block이 없으면 자연어 요청으로
+  장면을 설계하고, 있으면 scope(`global` 또는 `actor-N`)와 category 의미를 존중한다. block 순서나
+  카테고리를 generation parameter로 해석하지 않는다.
 
 ## scene-plan/v2 작성 절차
 

@@ -1,5 +1,5 @@
 export const APP_NAME = "chaessi-payload-manager";
-export const APP_VERSION = "3.3.0";
+export const APP_VERSION = "3.3.1";
 
 export { NOVELAI_V45_FULL_MODEL, NOVELAI_V5_FULL_MODEL } from "./model-profiles.js";
 import { NOVELAI_V45_FULL_MODEL } from "./model-profiles.js";

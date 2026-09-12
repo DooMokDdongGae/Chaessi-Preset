@@ -27,9 +27,9 @@ export function createImageMakerApi({
       return directorBridge.getStatus();
     },
 
-    async createDirectorPlan({ request, regenerate = false, operationId } = {}) {
+    async createDirectorPlan({ request, workshopContext, regenerate = false, operationId } = {}) {
       if (!directorBridge) throw apiError("CODEX_NOT_AVAILABLE", "Codex Director Bridge is not configured.");
-      return directorBridge.createPlan({ request, regenerate: Boolean(regenerate), operationId });
+      return directorBridge.createPlan({ request, workshopContext, regenerate: Boolean(regenerate), operationId });
     },
 
     async listCatalog() {
@@ -50,6 +50,14 @@ export function createImageMakerApi({
       })).filter((item) => item.id && item.enabled);
       return {
         base,
+        categories: [
+          { id: "Full Preset", store: "preset", name: "Full Preset" },
+          ...[...new Set(component.map((item) => item.category).filter(Boolean))].map((category) => ({ id: category, store: "character-preset", name: category })),
+        ],
+        presets: [
+          ...base.map((item) => ({ ...item, store: "preset", category: "Full Preset" })),
+          ...component.map((item) => ({ ...item, store: "character-preset" })),
+        ],
         character: filterRole(component, "character"),
         outfit: filterRole(component, "outfit"),
         style: filterRole(component, "style"),
@@ -57,19 +65,19 @@ export function createImageMakerApi({
       };
     },
 
-    async preflight({ request, directorPlan, operationId } = {}) {
+    async preflight({ request, directorPlan, workshopContext, operationId } = {}) {
       const runId = operationRunId("ui_preflight", operationId);
-      const outcome = await runner({ request, directorPlan, dataRoot, baseUrl, dryRun: true, runId });
+      const outcome = await runner({ request, directorPlan, workshopContext, presetStore, characterPresetStore, dataRoot, baseUrl, dryRun: true, runId });
       return publicRun(outcome.manifest);
     },
 
-    startGeneration({ request, directorPlan, operationId } = {}) {
+    startGeneration({ request, directorPlan, workshopContext, operationId } = {}) {
       const runId = operationRunId("ui_generate", operationId);
       const existing = jobs.get(runId);
       if (existing) return { runId, status: existing.status, duplicate: true };
       const job = { runId, status: "prepared", error: null };
       jobs.set(runId, job);
-      job.promise = runner({ request, directorPlan, dataRoot, baseUrl, dryRun: false, runId })
+      job.promise = runner({ request, directorPlan, workshopContext, presetStore, characterPresetStore, dataRoot, baseUrl, dryRun: false, runId })
         .then((outcome) => { job.status = outcome.status; return outcome; })
         .catch((error) => { job.status = "failed"; job.error = safeError(error); return null; });
       return { runId, status: "prepared", duplicate: false };

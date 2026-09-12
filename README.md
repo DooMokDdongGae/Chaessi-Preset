@@ -59,14 +59,13 @@ Precise Reference, Vibe Transfer, ControlNet, SMEA/SMEA DYN은 현재 NovelAI V5
 - Current public version / 현재 공개 버전: **v3.3.0**
 - Download / 다운로드: [GitHub Release v3.3.0](https://github.com/DooMokDdongGae/Chaessi-Preset/releases/tag/v3.3.0)
 - Windows Portable app: `Chaessi-Preset-v3.3.0-x64.exe`
-- Size / 크기: `97,880,518 bytes`
 - SHA256: `00B907031D4F573A93256E84A2B67B9B4647E2C80539491FA8D36757C6A0F79B`
 
 이 배포본은 Windows용 Portable Electron 앱입니다. 설치 프로그램이 아니므로 EXE를 다운로드해 직접 실행합니다. 기존 사용자 데이터는 EXE와 분리된 Electron userData에 저장되므로 새 EXE로 교체해도 프리셋과 History가 자동으로 삭제되지 않습니다.
 
-## v3.3.0
+## v3.3.1 development
 
-Chaessi Preset v3.3.0은 기존 Preset Workshop을 보존하면서 Image Maker와 Codex Image Director를 추가한 정식 공개 버전입니다. Image Maker는 기존 기능과 호환되는 큰 신규 기능이므로 minor version으로 배포합니다.
+현재 작업본은 **v3.3.1** Image Maker 사용성 보정입니다. 공개된 v3.3.0 tag와 asset은 변경하지 않습니다.
 
 ## Preset Workshop
 
@@ -124,14 +123,13 @@ Codex CLI가 없거나 로그인·사용량 문제로 자동 Director를 사용�
 
 1. Chaessi Preset을 실행하고 NovelAI token을 저장합니다.
 2. **Image Maker**를 엽니다.
-3. Character, Outfit, Style, Quality를 선택합니다.
-4. 만들고 싶은 장면을 자연어로 입력합니다.
-5. Editorial 또는 Sequence를 선택하고 이미지 수를 입력합니다.
-6. **Create Director Plan**을 누릅니다.
-7. Shot Cards에서 카메라, 배치, 행동과 Director Intent를 확인합니다.
-8. **Run Preflight**를 실행합니다.
-9. 모든 shot이 READY이면 **Generate**를 누릅니다.
-10. Gallery에서 결과와 prompt, metadata, payload를 확인합니다.
+3. 만들고 싶은 장면을 자연어로 입력합니다.
+4. Editorial 또는 Sequence를 선택하고 이미지 수를 입력합니다.
+5. 필요할 때만 **Add Preset**으로 Global 또는 Actor별 preset을 추가합니다.
+6. **Generate**를 누릅니다. Director Plan과 Preflight는 자동으로 실행됩니다.
+7. Gallery에서 이미지와 실제 최종 prompt를 확인하거나 복사합니다.
+
+Image Maker의 모델, 해상도, Steps, Scale, Sampler, Seed, UC와 생성 모드는 현재 Preset Workshop 설정을 그대로 사용합니다. 같은 값을 Image Maker에서 다시 설정하지 않습니다. Manual Plan, Import Plan, raw JSON과 개별 Preflight는 Advanced recovery 도구에 남아 있습니다.
 
 ![Director Shot Cards](docs/images/image-maker/director-plan.png)
 

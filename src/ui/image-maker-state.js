@@ -33,7 +33,14 @@ export function projectDirectorStatus(status = null, error = null) {
   };
 }
 
-export function createImageMakerRequestValue({ request, basePresetId, characterPresetId, outfitPresetId, stylePresetId = null, qualityPresetId = null, mode, count, model = "nai-diffusion-5-full", baseSeed = null }) {
+export function createImageMakerRequestValue({ request, presetBlocks = [], mode, count, generation = null, basePresetId, characterPresetId, outfitPresetId, stylePresetId = null, qualityPresetId = null, model = "nai-diffusion-5-full", baseSeed = null }) {
+  if (generation) return {
+    schema: "chaessi-image-request/v3", request: String(request || "").trim(), count: Number(count), mode,
+    presetBlocks: presetBlocks.map((block) => ({
+      scope: block.scope, store: block.store, category: block.category, presetId: block.presetId,
+    })),
+    generation: structuredClone(generation),
+  };
   return {
     schema: "chaessi-image-request/v2", request: String(request || "").trim(), count: Number(count), mode,
     presets: { basePresetId, characterPresetId, outfitPresetId, stylePresetId: stylePresetId || null, qualityPresetId: qualityPresetId || null, cameraPresetId: null, lightingPresetId: null },
@@ -48,15 +55,50 @@ export function revisionFor(value, prefix = "rev") {
   return `${prefix}_${(hash >>> 0).toString(36)}`;
 }
 
+export function createWorkshopGenerationSummary(preset, mode = "text-to-image", modeState = {}) {
+  const params = preset?.params || {};
+  const width = Number(modeState.width ?? params.width);
+  const height = Number(modeState.height ?? params.height);
+  return {
+    model: String(params.model || ""), mode,
+    width, height,
+    seed: Number.isInteger(params.seed) && params.seed >= 0 ? params.seed : null,
+    planningRevision: revisionFor([params.model, mode, width, height], "settings"),
+    renderRevision: revisionFor([
+      params.model, mode, width, height, params.steps, params.scale, params.cfg_rescale,
+      params.sampler, params.seed, params.ucPreset, params.qualityToggle, params.transparentBackground,
+      modeState.strength, modeState.noise, modeState.i2i_strength, modeState.i2i_noise,
+      modeState.add_original_image, modeState.generation_padding,
+    ], "settings"),
+  };
+}
+
+export function planningRequestRevision(request) {
+  if (request?.schema !== "chaessi-image-request/v3") return revisionFor(request, "request");
+  return revisionFor({
+    schema: request.schema, request: request.request, count: request.count, mode: request.mode,
+    presetBlocks: request.presetBlocks,
+    generation: {
+      model: request.generation?.model, mode: request.generation?.mode,
+      width: request.generation?.width, height: request.generation?.height,
+      planningRevision: request.generation?.planningRevision,
+    },
+  }, "planning");
+}
+
 export function evaluateImageMakerFreshness({ currentRequest, plan, planRequestRevision = null, preflightPlanRevision = null, preflightStatus = null } = {}) {
   const requestRevision = revisionFor(currentRequest, "request");
-  const currentPlanRevision = plan ? revisionFor({ requestRevision: planRequestRevision, plan }, "plan") : null;
-  const planStale = Boolean(plan && planRequestRevision !== requestRevision);
-  const preflightStale = Boolean(plan && preflightPlanRevision && preflightPlanRevision !== currentPlanRevision);
+  const planningRevision = planningRequestRevision(currentRequest);
+  const currentPlanRevision = plan ? revisionFor({ planningRevision, plan }, "plan") : null;
+  const currentPreflightRevision = plan
+    ? (currentRequest?.schema === "chaessi-image-request/v3" ? revisionFor({ requestRevision, plan }, "preflight") : currentPlanRevision)
+    : null;
+  const planStale = Boolean(plan && planRequestRevision !== planningRevision);
+  const preflightStale = Boolean(plan && preflightPlanRevision && preflightPlanRevision !== currentPreflightRevision);
   return {
-    requestRevision, planRevision: currentPlanRevision, planStale, preflightStale,
+    requestRevision, planningRevision, planRevision: currentPlanRevision, preflightRevision: currentPreflightRevision, planStale, preflightStale,
     canPreflight: Boolean(plan) && !planStale,
-    canGenerate: Boolean(plan) && !planStale && !preflightStale && preflightPlanRevision === currentPlanRevision && preflightStatus === "ready",
+    canGenerate: Boolean(plan) && !planStale && !preflightStale && preflightPlanRevision === currentPreflightRevision && preflightStatus === "ready",
   };
 }
 

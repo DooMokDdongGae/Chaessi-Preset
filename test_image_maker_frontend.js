@@ -110,7 +110,7 @@ test("frontend wiring exposes the Image Maker screen, hidden technical details a
     readFile(new URL("./src/app.js", import.meta.url), "utf8"),
     readFile(new URL("./server.mjs", import.meta.url), "utf8"),
   ]);
-  for (const id of ["imageMakerWorkspace", "imageMakerRequest", "imageMakerCharacterPreset", "imageMakerPlanJson", "imageMakerCreatePlanButton", "imageMakerRegeneratePlanButton", "imageMakerShotList", "imageMakerPreflightButton", "imageMakerGenerateButton", "imageMakerGallery", "imageMakerDetailDialog"]) assert.ok(html.includes(`id="${id}"`), id);
+  for (const id of ["imageMakerWorkspace", "imageMakerRequest", "imageMakerPresetBlocks", "imageMakerAddPresetButton", "imageMakerPlanJson", "imageMakerCreatePlanButton", "imageMakerRegeneratePlanButton", "imageMakerShotList", "imageMakerPreflightButton", "imageMakerGenerateButton", "imageMakerGallery", "imageMakerDetailDialog"]) assert.ok(html.includes(`id="${id}"`), id);
   assert.ok(html.includes("<details class=\"image-maker-plan-source\">"));
   assert.ok(app.includes("createImageMakerController"));
   for (const route of ["/api/image-maker/catalog", "/api/image-maker/director-plan", "/api/image-maker/preflight", "/api/image-maker/generate", "/api/image-maker/runs"]) assert.ok(server.includes(route), route);

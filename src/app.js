@@ -132,7 +132,17 @@ async function init() {
     onPositionChange: applyCharacterPositionChange,
     onSelect: selectCharacterPosition,
   });
-  imageMakerController = createImageMakerController({ getJson, postJson, showToast });
+  imageMakerController = createImageMakerController({
+    getJson, postJson, showToast,
+    getWorkshopContext: ({ includeModePayload = false } = {}) => {
+      syncPresetFromForm();
+      const mode = generationModeController?.getMode?.() || "text-to-image";
+      return {
+        preset: structuredClone(state.currentPreset), mode,
+        modeRequest: includeModePayload ? generationModeController.getGenerateRequest() : { mode },
+      };
+    },
+  });
   imageMakerController.bind();
   generationModeController = createGenerationModeController({
     showToast,

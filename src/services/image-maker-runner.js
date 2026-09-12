@@ -1,11 +1,12 @@
 import path from "node:path";
 import { access, readFile, realpath } from "node:fs/promises";
 import { createHash } from "node:crypto";
-import { validateV5Payload } from "../adapters/novelai-v5-full.js";
 import {
   validateDirectorPlanForImageRequest,
   validateImageMakerRequest,
 } from "../state/image-maker-request.js";
+import { IMAGE_MAKER_WORKFLOW_REQUEST_SCHEMA, validateImageMakerMultiRequest } from "../state/image-maker-multi-request.js";
+import { validateScenePlanV2 } from "../state/image-director-contract.js";
 import { guardScenePlanV2Shot } from "./actor-count-semantic-guard.js";
 import { createComposerPresetCatalog } from "./preset-catalog-v2.js";
 import { compileScenePlanV2Shot } from "./preset-composer-v2.js";
@@ -32,6 +33,7 @@ export async function runImageMakerRequest({
   tagResolver = null,
   fetchFn = globalThis.fetch,
   requestTimeoutMs = 180_000,
+  assetsOverride = null,
 } = {}) {
   const root = await resolveDataRoot(dataRoot);
   const store = createImageMakerRunStore({ rootDir: root, runsRoot });
@@ -43,11 +45,13 @@ export async function runImageMakerRequest({
   await store.writeManifest(run, { ...manifest, status: "prepared" });
 
   try {
-    validateImageMakerRequest(request);
+    if (request.schema === IMAGE_MAKER_WORKFLOW_REQUEST_SCHEMA) validateImageMakerMultiRequest(request);
+    else validateImageMakerRequest(request);
     stages.request = "passed";
     await store.writeArtifact(run, ARTIFACTS.request, request);
 
-    validateDirectorPlanForImageRequest(request, directorPlan);
+    if (request.schema === IMAGE_MAKER_WORKFLOW_REQUEST_SCHEMA) validateScenePlanV2(directorPlan);
+    else validateDirectorPlanForImageRequest(request, directorPlan);
     stages.director = "passed";
     await store.writeArtifact(run, ARTIFACTS.directorPlan, directorPlan);
 
@@ -73,21 +77,22 @@ export async function runImageMakerRequest({
     }
 
     const catalog = createComposerPresetCatalog({ rootDir: root });
-    const assets = await catalog.resolveSelections(guarded.plan.presetSelections);
+    const assets = assetsOverride || await catalog.resolveSelections(guarded.plan.presetSelections);
     stages.preset = "passed";
-    const sourcePresetHash = await hashBasePreset(root, request.presets.basePresetId);
+    const sourcePresetHash = assetsOverride ? hashJson(assets.basePreset) : await hashBasePreset(root, request.presets.basePresetId);
 
     const prepared = compileScenePlanV2Shot(guarded.plan, assets, {
       tagResolver,
       positionPolicy: "same",
       rewriteSafeImplicitActors: true,
+      modeRequest: assets.modeRequest || { mode: request.generation?.mode || "text-to-image" },
     });
     stages.composer = "passed";
     if (prepared.validation.semanticGuard.requiresSemanticReview) {
       throw runnerError("SEMANTIC_GUARD", "semantic-review-required", "Composer found an unresolved actor-count cue.");
     }
-    const payloadValidation = validateV5Payload(prepared.payload);
-    if (!payloadValidation.ok) throw runnerError("PAYLOAD", "invalid-v5-payload", "V5 payload validation failed.", payloadValidation);
+    const payloadValidation = prepared.validation.payload;
+    if (!payloadValidation.ok) throw runnerError("PAYLOAD", "invalid-generation-payload", "Generation payload validation failed.", payloadValidation);
     stages.payload = "passed";
     await store.writeArtifact(run, ARTIFACTS.resolvedPreset, prepared.resolvedPreset);
     await store.writeArtifact(run, ARTIFACTS.payload, prepared.payload);
@@ -116,8 +121,8 @@ export async function runImageMakerRequest({
 
     const { api } = await preflightImageMakerLocalApi({
       baseUrl,
-      basePresetId: request.presets.basePresetId,
-      expectedBasePreset: assets.basePreset,
+      basePresetId: assetsOverride ? null : request.presets.basePresetId,
+      expectedBasePreset: assetsOverride ? null : assets.basePreset,
       fetchFn,
       requestTimeoutMs,
     });
@@ -136,7 +141,7 @@ export async function runImageMakerRequest({
 
     const generation = await verifyStoredGeneration(root, response.generation, prepared.payload);
     stages.storage = "passed";
-    const finalPresetHash = await hashBasePreset(root, request.presets.basePresetId);
+    const finalPresetHash = assetsOverride ? hashJson(assets.basePreset) : await hashBasePreset(root, request.presets.basePresetId);
     if (finalPresetHash !== sourcePresetHash) throw runnerError("STORAGE", "source-preset-changed", "The source preset changed during generation.");
     const generationResult = {
       status: "completed",
@@ -195,9 +200,11 @@ export async function preflightImageMakerLocalApi({
   if (health.ok !== true || health.app !== "Chaessi Preset") throw runnerError("NAI_RESPONSE", "wrong-local-api", "The selected Local API is not Chaessi Preset.");
   const tokenStatus = await fetchJson(fetchFn, new URL("/api/settings/token-status", api), { method: "GET" }, requestTimeoutMs, "AUTH");
   if (tokenStatus.ok !== true || tokenStatus.configured !== true) throw runnerError("AUTH", "novelai-auth-missing", "NovelAI authentication is not configured in the Local API.");
-  const remotePreset = await fetchJson(fetchFn, new URL(`/api/presets/${encodeURIComponent(basePresetId)}`, api), { method: "GET" }, requestTimeoutMs, "PRESET");
-  if (remotePreset.ok !== true || !sameJson(remotePreset.preset, expectedBasePreset)) {
-    throw runnerError("PRESET", "data-root-mismatch", "The Local API base preset does not match the explicitly selected data root.");
+  if (basePresetId && expectedBasePreset) {
+    const remotePreset = await fetchJson(fetchFn, new URL(`/api/presets/${encodeURIComponent(basePresetId)}`, api), { method: "GET" }, requestTimeoutMs, "PRESET");
+    if (remotePreset.ok !== true || !sameJson(remotePreset.preset, expectedBasePreset)) {
+      throw runnerError("PRESET", "data-root-mismatch", "The Local API base preset does not match the explicitly selected data root.");
+    }
   }
   return { ok: true, api, health: { app: health.app, version: health.version }, auth: { configured: true, source: tokenStatus.source } };
 }
@@ -271,13 +278,21 @@ async function verifyStoredGeneration(root, generation, expectedPayload) {
     required[key] = relative.split(path.sep).join("/");
   }
   const savedPayload = JSON.parse(await readFile(inside(root, path.resolve(root, required.payloadPath)), "utf8"));
-  if (!sameJson(savedPayload, expectedPayload)) throw runnerError("STORAGE", "stored-payload-mismatch", "Stored generation payload does not match the prepared payload.");
+  if (!sameJson(comparablePayload(savedPayload), comparablePayload(expectedPayload))) throw runnerError("STORAGE", "stored-payload-mismatch", "Stored generation payload does not match the prepared payload.");
   return required;
+}
+function comparablePayload(value) {
+  const copy = structuredClone(value);
+  if (copy?.parameters?.image) copy.parameters.image = "[GENERATION_ASSET]";
+  if (copy?.parameters?.mask) copy.parameters.mask = "[GENERATION_ASSET]";
+  if (Array.isArray(copy?.parameters?.director_reference_images)) copy.parameters.director_reference_images = copy.parameters.director_reference_images.map(() => "[GENERATION_ASSET]");
+  return copy;
 }
 async function hashBasePreset(root, id) {
   const file = inside(root, path.join(root, "data", "presets", id, "preset.json"));
   return createHash("sha256").update(await readFile(file)).digest("hex");
 }
+function hashJson(value) { return createHash("sha256").update(canonicalJson(value)).digest("hex"); }
 function inside(root, candidate) {
   const resolved = path.resolve(candidate);
   const relative = path.relative(root, resolved);

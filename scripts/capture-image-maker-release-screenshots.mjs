@@ -40,10 +40,7 @@ try {
       document.getElementById("imageMakerWorkspaceTab").classList.add("is-active");
       true
     `);
-    await waitFor(() => evaluate(cdp, `
-      ["imageMakerBasePreset", "imageMakerCharacterPreset", "imageMakerOutfitPreset", "imageMakerStylePreset", "imageMakerQualityPreset"]
-        .every((id) => document.getElementById(id)?.options?.length > 1)
-    `), 20_000);
+    await waitFor(() => evaluate(cdp, "Boolean(document.getElementById('imageMakerAddPresetButton'))"), 20_000);
 
     const request = JSON.parse(await readFile(path.join(fixtureRoot, "data", "image-maker-runs", "release_demo_gallery", "request.json"), "utf8"));
     const plan = JSON.parse(await readFile(path.join(fixtureRoot, "data", "image-maker-runs", "release_demo_gallery", "director-plan.json"), "utf8"));
@@ -54,6 +51,7 @@ try {
 
     await evaluate(cdp, `
       (() => {
+        document.getElementById("imageMakerAdvancedWorkflow").open = true;
         const detail = document.querySelector("#imageMakerPlanJson")?.closest("details");
         if (detail) detail.open = true;
         const area = document.getElementById("imageMakerPlanJson");
@@ -113,12 +111,6 @@ async function populateRequest(cdp, value) {
       };
       set("imageMakerRequest", ${JSON.stringify(value.request)});
       set("imageMakerCount", ${JSON.stringify(String(value.count))});
-      set("imageMakerBasePreset", ${JSON.stringify(value.presets.basePresetId)});
-      set("imageMakerCharacterPreset", ${JSON.stringify(value.presets.characterPresetId)});
-      set("imageMakerOutfitPreset", ${JSON.stringify(value.presets.outfitPresetId)});
-      set("imageMakerStylePreset", ${JSON.stringify(value.presets.stylePresetId)});
-      set("imageMakerQualityPreset", ${JSON.stringify(value.presets.qualityPresetId)});
-      set("imageMakerBaseSeed", ${JSON.stringify(String(value.generation.baseSeed))});
       document.querySelector('input[name="imageMakerMode"][value="${value.mode}"]').click();
       return true;
     })()

@@ -1,5 +1,4 @@
 import { validateScenePlanV2 } from "../state/image-director-contract.js";
-import { NOVELAI_V5_FULL_MODEL } from "../state/model-profiles.js";
 import { createCharacterPart } from "../state/preset-schema.js";
 import { guardActorCountSemantics } from "./actor-count-semantic-guard.js";
 import { resolvePresetRandomPrompts } from "./prompt-random-resolver.js";
@@ -15,6 +14,7 @@ export function compileScenePlanV2Shot(plan, assets, {
   randomFn = Math.random,
   positionPolicy = "same",
   rewriteSafeImplicitActors = true,
+  modeRequest = assets?.modeRequest || { mode: "text-to-image" },
 } = {}) {
   const scenePlanValidation = validateScenePlanV2(plan);
   validateAssetBinding(plan.presetSelections, assets);
@@ -59,6 +59,7 @@ export function compileScenePlanV2Shot(plan, assets, {
     stripAllSubjectCounts(baseSource.prompt),
     assets.qualityPreset?.prompt,
     assets.lightingPreset?.prompt,
+    assets.globalPrompt,
     stripAllSubjectCounts(globalResolved.text),
     semanticGuard.rewrittenFields["base.supplement"],
   );
@@ -66,6 +67,7 @@ export function compileScenePlanV2Shot(plan, assets, {
     baseSource.undesired,
     assets.qualityPreset?.undesired,
     assets.lightingPreset?.undesired,
+    assets.globalUndesired,
     shot.generation.undesiredPrompt,
   );
 
@@ -100,10 +102,9 @@ export function compileScenePlanV2Shot(plan, assets, {
   const preset = structuredClone(assets.basePreset);
   preset.prompt_parts = { base: basePrompt, undesired: baseUndesired, characters: mapped.characters };
   if (shot.generation.seed !== null) preset.params.seed = shot.generation.seed;
-  if (preset.params.model !== NOVELAI_V5_FULL_MODEL) throw composerError("wrong-model", "Composer v2 requires V5 Full.");
   const resolvedPreset = resolvePresetRandomPrompts(preset, randomFn);
   assertNoPipeSyntax(resolvedPreset);
-  const prepared = prepareResolvedPreset(resolvedPreset);
+  const prepared = prepareResolvedPreset(resolvedPreset, { modeRequest: builderModeRequest(modeRequest) });
 
   return {
     schema: PREPARED_GENERATION_V2_SCHEMA,
@@ -113,7 +114,7 @@ export function compileScenePlanV2Shot(plan, assets, {
     naiSlotMap: mapped.slotMap,
     resolvedPreset,
     payload: prepared.payload,
-    requestBody: { preset: structuredClone(resolvedPreset) },
+    requestBody: { preset: structuredClone(resolvedPreset), ...structuredClone(modeRequest) },
     validation: {
       scenePlan: scenePlanValidation,
       preset: prepared.presetValidation,
@@ -136,6 +137,12 @@ export function compileScenePlanV2Shot(plan, assets, {
         : `Implicit extra actor cue at ${issue.location}: ${issue.term}.`),
     ],
   };
+}
+
+function builderModeRequest(value = {}) {
+  return value.mode_state && typeof value.mode_state === "object"
+    ? { mode: value.mode, ...structuredClone(value.mode_state) }
+    : structuredClone(value);
 }
 
 export function compileDirectorSlot(shot, cameraPreset) {

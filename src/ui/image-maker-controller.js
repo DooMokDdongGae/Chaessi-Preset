@@ -2,6 +2,7 @@ import {
   cleanPublicMessage,
   collectReviewMessages,
   createImageMakerRequestValue,
+  createWorkshopGenerationSummary,
   evaluateImageMakerFreshness,
   projectDirectorState,
   projectDirectorStatus,
@@ -11,15 +12,15 @@ import {
   projectRunHistoryItem,
   projectShotCards,
   projectShotOverview,
-  revisionFor,
+  planningRequestRevision,
 } from "./image-maker-state.js";
 
-export function createImageMakerController({ getJson, postJson, showToast, pollIntervalMs = 700 } = {}) {
+export function createImageMakerController({ getJson, postJson, showToast, getWorkshopContext, pollIntervalMs = 700 } = {}) {
   const byId = (id) => document.getElementById(id);
   const model = {
     plan: null, request: null, preflight: null, run: null, displayPlan: null,
     busy: false, activity: null, planRequestRevision: null, preflightPlanRevision: null,
-    planSource: null, director: null, runCache: new Map(),
+    planSource: null, director: null, runCache: new Map(), catalog: null, presetBlocks: [], workshopContext: null,
   };
 
   return {
@@ -34,6 +35,9 @@ export function createImageMakerController({ getJson, postJson, showToast, pollI
       byId("imageMakerPlanFile").addEventListener("change", importPlanFile);
       byId("imageMakerPreflightButton").addEventListener("click", runPreflight);
       byId("imageMakerGenerateButton").addEventListener("click", generate);
+      byId("imageMakerAddPresetButton").addEventListener("click", addPresetBlock);
+      byId("imageMakerPresetBlocks").addEventListener("change", updatePresetBlock);
+      byId("imageMakerPresetBlocks").addEventListener("click", removePresetBlock);
       byId("imageMakerNewRequestButton").addEventListener("click", reset);
       byId("imageMakerRefreshRunsButton").addEventListener("click", loadRuns);
       byId("imageMakerGallery").addEventListener("click", openShotDetail);
@@ -41,7 +45,7 @@ export function createImageMakerController({ getJson, postJson, showToast, pollI
       byId("imageMakerReviewList").addEventListener("click", navigateToShot);
       byId("imageMakerShotOverview").addEventListener("click", navigateToShot);
       byId("imageMakerProgressList").addEventListener("click", navigateToShot);
-      for (const id of ["imageMakerRequest", "imageMakerCount", "imageMakerBasePreset", "imageMakerCharacterPreset", "imageMakerOutfitPreset", "imageMakerStylePreset", "imageMakerQualityPreset", "imageMakerBaseSeed"]) {
+      for (const id of ["imageMakerRequest", "imageMakerCount"]) {
         byId(id).addEventListener("input", handleRequestChange);
       }
       document.querySelectorAll('input[name="imageMakerMode"]').forEach((input) => input.addEventListener("change", handleRequestChange));
@@ -82,11 +86,8 @@ export function createImageMakerController({ getJson, postJson, showToast, pollI
   }
 
   function renderCatalog(catalog) {
-    fillSelect("imageMakerBasePreset", catalog.base, "Select a V5 base preset", false, (item) => !item.model || item.model === "nai-diffusion-5-full");
-    fillSelect("imageMakerCharacterPreset", catalog.character, "Select a character", false);
-    fillSelect("imageMakerOutfitPreset", catalog.outfit, "Select an outfit", false);
-    fillSelect("imageMakerStylePreset", catalog.style, "Use base preset style", true);
-    fillSelect("imageMakerQualityPreset", catalog.quality, "Use base preset quality", true);
+    model.catalog = catalog;
+    renderPresetBlocks();
   }
 
   function fillSelect(id, items, placeholder, optional, filter = () => true) {
@@ -95,28 +96,73 @@ export function createImageMakerController({ getJson, postJson, showToast, pollI
     if (!optional && values.length === 1) byId(id).value = values[0].id;
   }
 
-  function currentRequest() {
+  function addPresetBlock() {
+    const first = model.catalog?.categories?.[0];
+    if (!first) return showToast("추가할 수 있는 preset이 없습니다.", true);
+    model.presetBlocks.push({ scope: "global", store: first.store, category: first.category || first.id, presetId: "" });
+    renderPresetBlocks(); handleRequestChange();
+  }
+
+  function updatePresetBlock(event) {
+    const row = event.target.closest?.("[data-preset-block]"); if (!row) return;
+    const index = Number(row.dataset.presetBlock); const block = model.presetBlocks[index]; if (!block) return;
+    if (event.target.matches("[data-block-scope]")) block.scope = event.target.value;
+    if (event.target.matches("[data-block-category]")) {
+      const [store, category] = event.target.value.split("::");
+      Object.assign(block, { store, category, presetId: "" }); renderPresetBlocks();
+    }
+    if (event.target.matches("[data-block-preset]")) block.presetId = event.target.value;
+    handleRequestChange();
+  }
+
+  function removePresetBlock(event) {
+    const button = event.target.closest?.("[data-remove-preset-block]"); if (!button) return;
+    model.presetBlocks.splice(Number(button.dataset.removePresetBlock), 1); renderPresetBlocks(); handleRequestChange();
+  }
+
+  function renderPresetBlocks() {
+    const categories = model.catalog?.categories || [];
+    const presets = model.catalog?.presets || [];
+    byId("imageMakerPresetBlocks").innerHTML = model.presetBlocks.map((block, index) => {
+      const options = presets.filter((item) => item.store === block.store && item.category === block.category);
+      return `<div class="image-maker-preset-block" data-preset-block="${index}">
+        <label>Scope<select data-block-scope><option value="global"${block.scope === "global" ? " selected" : ""}>Global</option>${Array.from({ length: 32 }, (_, actor) => `<option value="actor-${actor + 1}"${block.scope === `actor-${actor + 1}` ? " selected" : ""}>Actor ${actor + 1}</option>`).join("")}</select></label>
+        <label>Category<select data-block-category>${categories.map((item) => { const category = item.category || item.id; return `<option value="${escapeHtml(`${item.store}::${category}`)}"${item.store === block.store && category === block.category ? " selected" : ""}>${escapeHtml(item.name || category)}</option>`; }).join("")}</select></label>
+        <label>Preset<select data-block-preset><option value="">Select preset</option>${options.map((item) => `<option value="${escapeHtml(item.id)}"${item.id === block.presetId ? " selected" : ""}>${escapeHtml(item.name || item.id)}</option>`).join("")}</select></label>
+        <button type="button" data-remove-preset-block="${index}" aria-label="Remove preset">Remove</button>
+      </div>`;
+    }).join("") || `<p class="image-maker-empty-blocks">현재 Preset Workshop 설정으로 생성합니다. 필요한 경우에만 preset을 추가하세요.</p>`;
+  }
+
+  function captureWorkflow(includeModePayload = false) {
+    const workshopContext = getWorkshopContext?.({ includeModePayload });
+    if (!workshopContext?.preset) throw new Error("Preset Workshop 설정을 읽을 수 없습니다.");
+    const mode = workshopContext.mode || workshopContext.modeRequest?.mode || "text-to-image";
+    const generation = createWorkshopGenerationSummary(workshopContext.preset, mode, workshopContext.modeRequest?.mode_state);
+    const request = currentRequest(generation);
+    return { request, workshopContext: { preset: workshopContext.preset, modeRequest: workshopContext.modeRequest || { mode } } };
+  }
+
+  function currentRequest(generation = null) {
     return createImageMakerRequestValue({
-      request: byId("imageMakerRequest").value, basePresetId: byId("imageMakerBasePreset").value,
-      characterPresetId: byId("imageMakerCharacterPreset").value, outfitPresetId: byId("imageMakerOutfitPreset").value,
-      stylePresetId: byId("imageMakerStylePreset").value, qualityPresetId: byId("imageMakerQualityPreset").value,
+      request: byId("imageMakerRequest").value, presetBlocks: model.presetBlocks,
       mode: document.querySelector('input[name="imageMakerMode"]:checked')?.value,
-      count: byId("imageMakerCount").value, baseSeed: byId("imageMakerBaseSeed").value,
+      count: byId("imageMakerCount").value, generation: generation || captureWorkflow(false).request?.generation,
     });
   }
 
   function freshness() {
     return evaluateImageMakerFreshness({
-      currentRequest: currentRequest(), plan: model.plan, planRequestRevision: model.planRequestRevision,
+      currentRequest: captureWorkflow(false).request, plan: model.plan, planRequestRevision: model.planRequestRevision,
       preflightPlanRevision: model.preflightPlanRevision, preflightStatus: model.preflight?.status,
     });
   }
 
   function preparePlan() {
     try {
-      const request = currentRequest(); requireRequest(request);
-      const plan = JSON.parse(byId("imageMakerPlanJson").value); requireMatchingPlan(request, plan);
-      acceptPlan(request, plan, { source: "manual" });
+      const { request, workshopContext } = captureWorkflow(false); requireRequest(request);
+      const plan = normalizePlanForWorkflow(request, JSON.parse(byId("imageMakerPlanJson").value)); requireMatchingPlan(request, plan);
+      acceptPlan(request, plan, { source: "manual", workshopContext });
       setPlanStatus(`${plan.shots.length}개 shot을 Manual Plan에서 준비했습니다.`, "ok");
     } catch (error) { setPlanStatus(cleanPublicMessage(error.message), "error"); showToast(cleanPublicMessage(error.message), true); }
   }
@@ -124,7 +170,8 @@ export function createImageMakerController({ getJson, postJson, showToast, pollI
   async function createDirectorPlan(regenerate) {
     if (model.busy) return;
     let request;
-    try { request = currentRequest(); requireRequest(request); }
+    let workshopContext;
+    try { ({ request, workshopContext } = captureWorkflow(false)); requireRequest(request); }
     catch (error) { setPlanStatus(cleanPublicMessage(error.message), "error"); showToast(cleanPublicMessage(error.message), true); return; }
     const previous = structuredClone({
       plan: model.plan, request: model.request, preflight: model.preflight, run: model.run,
@@ -134,9 +181,9 @@ export function createImageMakerController({ getJson, postJson, showToast, pollI
     setPlanStatus(regenerate ? "Codex가 같은 조건으로 새 연출안을 만들고 있습니다…" : "Codex가 Director Plan을 만들고 있습니다…", "");
     renderRunSummary("directing", "Creating Director Plan", "현재 plan은 새 plan 검증이 끝날 때까지 유지됩니다.");
     try {
-      const response = await postJson("/api/image-maker/director-plan", { request, regenerate, operationId: operationId() });
+      const response = await postJson("/api/image-maker/director-plan", { request, workshopContext, regenerate, operationId: operationId() });
       const result = response.director; requireMatchingPlan(request, result.plan);
-      acceptPlan(request, result.plan, { source: result.cached ? "cached" : "fresh", director: result.client });
+      acceptPlan(request, result.plan, { source: result.cached ? "cached" : "fresh", director: result.client, workshopContext });
       const state = projectDirectorState(result);
       setPlanStatus(state.message, "ok");
       renderRunSummary(state.status, "Plan Ready", "구도를 확인한 뒤 Preflight를 실행하세요.");
@@ -150,9 +197,10 @@ export function createImageMakerController({ getJson, postJson, showToast, pollI
     } finally { model.busy = false; model.activity = null; syncButtons(); }
   }
 
-  function acceptPlan(request, plan, { source, director = null } = {}) {
+  function acceptPlan(request, plan, { source, director = null, workshopContext = null } = {}) {
     model.request = structuredClone(request); model.plan = structuredClone(plan); model.displayPlan = model.plan;
-    model.planRequestRevision = revisionFor(request, "request"); model.preflight = null; model.preflightPlanRevision = null;
+    model.planRequestRevision = planningRequestRevision(request); model.preflight = null; model.preflightPlanRevision = null;
+    model.workshopContext = workshopContext || model.workshopContext;
     model.run = null; model.planSource = source; if (director) model.director = projectDirectorStatus(director);
     byId("imageMakerPlanJson").value = JSON.stringify(plan, null, 2);
     renderPlanMeta(plan); renderShots(plan); renderReview({ shots: [] });
@@ -193,13 +241,17 @@ export function createImageMakerController({ getJson, postJson, showToast, pollI
   }
 
   async function runPreflight() {
-    const state = freshness();
+    let workflow;
+    try { workflow = captureWorkflow(true); requireRequest(workflow.request); }
+    catch (error) { showToast(cleanPublicMessage(error.message), true); return; }
+    const state = evaluateImageMakerFreshness({ currentRequest: workflow.request, plan: model.plan, planRequestRevision: model.planRequestRevision, preflightPlanRevision: model.preflightPlanRevision, preflightStatus: model.preflight?.status });
     if (model.busy || !state.canPreflight) { handleRequestChange(); return; }
+    model.request = workflow.request; model.workshopContext = workflow.workshopContext;
     model.busy = true; model.activity = "preflighting"; syncButtons();
     renderRunSummary("preflighting", "Preflighting", `0 / ${model.request.count} shots checked`);
     try {
-      const response = await postJson("/api/image-maker/preflight", { operationId: operationId(), request: model.request, directorPlan: model.plan });
-      model.preflight = response.run; model.preflightPlanRevision = freshness().planRevision;
+      const response = await postJson("/api/image-maker/preflight", { operationId: operationId(), request: model.request, directorPlan: model.plan, workshopContext: model.workshopContext });
+      model.preflight = response.run; model.preflightPlanRevision = evaluateImageMakerFreshness({ currentRequest: model.request, plan: model.plan, planRequestRevision: model.planRequestRevision }).preflightRevision;
       const result = projectPreflightState(response.run);
       renderRunSummary(result.status, result.title, result.message); renderShotStatuses(response.run); renderReview(response.run);
     } catch (error) { renderRunSummary("failed", "FAILED", cleanPublicMessage(error.message)); }
@@ -207,11 +259,28 @@ export function createImageMakerController({ getJson, postJson, showToast, pollI
   }
 
   async function generate() {
-    const state = freshness();
-    if (model.busy || !state.canGenerate) { handleRequestChange(); return; }
-    model.busy = true; model.activity = "generating"; syncButtons(); byId("imageMakerReviewList").innerHTML = "";
+    if (model.busy) return;
+    let workflow;
+    try { workflow = captureWorkflow(true); requireRequest(workflow.request); }
+    catch (error) { showToast(cleanPublicMessage(error.message), true); return; }
+    model.busy = true; byId("imageMakerReviewList").innerHTML = "";
     try {
-      const response = await postJson("/api/image-maker/generate", { operationId: operationId(), request: model.request, directorPlan: model.plan });
+      let state = evaluateImageMakerFreshness({ currentRequest: workflow.request, plan: model.plan, planRequestRevision: model.planRequestRevision, preflightPlanRevision: model.preflightPlanRevision, preflightStatus: model.preflight?.status });
+      if (!model.plan || state.planStale) {
+        model.activity = "directing"; syncButtons(); renderRunSummary("directing", "Creating Director Plan", "Codex가 장면 구도를 만들고 있습니다.");
+        const response = await postJson("/api/image-maker/director-plan", { request: workflow.request, workshopContext: workflow.workshopContext, regenerate: false, operationId: operationId() });
+        requireMatchingPlan(workflow.request, response.director.plan);
+        acceptPlan(workflow.request, response.director.plan, { source: response.director.cached ? "cached" : "fresh", director: response.director.client, workshopContext: workflow.workshopContext });
+      }
+      model.request = workflow.request; model.workshopContext = workflow.workshopContext;
+      model.activity = "preflighting"; syncButtons(); renderRunSummary("preflighting", "Checking before generation", "모든 shot을 비용 없이 검사하고 있습니다.");
+      const checked = await postJson("/api/image-maker/preflight", { operationId: operationId(), request: model.request, directorPlan: model.plan, workshopContext: model.workshopContext });
+      model.preflight = checked.run;
+      model.preflightPlanRevision = evaluateImageMakerFreshness({ currentRequest: model.request, plan: model.plan, planRequestRevision: model.planRequestRevision }).preflightRevision;
+      const preflight = projectPreflightState(checked.run); renderRunSummary(preflight.status, preflight.title, preflight.message); renderShotStatuses(checked.run); renderReview(checked.run);
+      if (!preflight.canGenerate) return;
+      model.activity = "generating"; syncButtons();
+      const response = await postJson("/api/image-maker/generate", { operationId: operationId(), request: model.request, directorPlan: model.plan, workshopContext: model.workshopContext });
       await pollRun(response.run.runId);
     } catch (error) { renderRunSummary("failed", "Generation Failed", cleanPublicMessage(error.message)); }
     finally { model.busy = false; model.activity = null; syncButtons(); loadRuns(); }
@@ -262,12 +331,14 @@ export function createImageMakerController({ getJson, postJson, showToast, pollI
       return `<article class="image-maker-result-card">
         <button type="button" class="image-maker-result-image" data-image-maker-open-image="${escapeHtml(item.imageUrl)}"><img src="${escapeHtml(item.imageUrl)}" alt="Shot ${index + 1}" /></button>
         <div class="result-primary"><span>SHOT ${String(index + 1).padStart(2, "0")}</span><strong>Seed ${escapeHtml(item.seed)}</strong><small>${escapeHtml(resolution)}</small></div>
-        <div class="actions compact-actions">
+        <div class="image-maker-prompt-actions"><strong>Final NovelAI Prompt</strong><span>실제 생성에 사용된 Positive / Negative prompt</span>
+          <div class="actions compact-actions"><button type="button" class="primary-generate-button" data-image-maker-detail="prompt" data-run-id="${escapeHtml(run.runId)}" data-shot-id="${escapeHtml(item.shotId)}">View Prompt</button><button type="button" data-copy-prompt data-run-id="${escapeHtml(run.runId)}" data-shot-id="${escapeHtml(item.shotId)}">Copy Prompt</button></div>
+        </div>
+        <details class="image-maker-result-technical"><summary>Technical details</summary><div class="actions compact-actions">
           <button type="button" data-view-shot-plan="${escapeHtml(item.shotId)}">View Shot Plan</button>
-          <button type="button" data-image-maker-detail="prompt" data-run-id="${escapeHtml(run.runId)}" data-shot-id="${escapeHtml(item.shotId)}">Prompt</button>
           <button type="button" data-image-maker-detail="metadata" data-run-id="${escapeHtml(run.runId)}" data-shot-id="${escapeHtml(item.shotId)}">Metadata</button>
           <button type="button" data-image-maker-detail="payload" data-run-id="${escapeHtml(run.runId)}" data-shot-id="${escapeHtml(item.shotId)}">Payload</button>
-        </div></article>`;
+        </div></details></article>`;
     }).join("");
     byId("imageMakerRendererNote").hidden = items.length === 0;
   }
@@ -277,11 +348,15 @@ export function createImageMakerController({ getJson, postJson, showToast, pollI
     if (planButton) { navigateToShot({ target: { closest: () => ({ dataset: { goShot: planButton.dataset.viewShotPlan } }) } }); return; }
     const image = event.target.closest?.("[data-image-maker-open-image]");
     if (image) { window.open(image.dataset.imageMakerOpenImage, "_blank", "noopener"); return; }
-    const button = event.target.closest?.("[data-image-maker-detail]"); if (!button) return;
+    const button = event.target.closest?.("[data-image-maker-detail],[data-copy-prompt]"); if (!button) return;
     try {
-      const response = await getJson(`/api/image-maker/runs/${encodeURIComponent(button.dataset.runId)}/shots/${encodeURIComponent(button.dataset.shotId)}/${button.dataset.imageMakerDetail}`);
-      byId("imageMakerDetailTitle").textContent = `${friendlyShotId(button.dataset.shotId)} · ${titleCase(button.dataset.imageMakerDetail)}`;
-      byId("imageMakerDetailContent").textContent = JSON.stringify(response.detail, null, 2); byId("imageMakerDetailDialog").showModal();
+      const kind = button.dataset.copyPrompt !== undefined ? "prompt" : button.dataset.imageMakerDetail;
+      const response = await getJson(`/api/image-maker/runs/${encodeURIComponent(button.dataset.runId)}/shots/${encodeURIComponent(button.dataset.shotId)}/${kind}`);
+      if (button.dataset.copyPrompt !== undefined) {
+        const value = formatPromptDetail(response.detail); await navigator.clipboard.writeText(value); showToast("Final prompt를 복사했습니다."); return;
+      }
+      byId("imageMakerDetailTitle").textContent = kind === "prompt" ? `${friendlyShotId(button.dataset.shotId)} · Final Prompt` : `${friendlyShotId(button.dataset.shotId)} · ${titleCase(kind)}`;
+      byId("imageMakerDetailContent").textContent = kind === "prompt" ? formatPromptDetail(response.detail) : JSON.stringify(response.detail, null, 2); byId("imageMakerDetailDialog").showModal();
     } catch (error) { showToast(cleanPublicMessage(error.message), true); }
   }
 
@@ -327,21 +402,21 @@ export function createImageMakerController({ getJson, postJson, showToast, pollI
 
   function reusePlan(run) {
     if (!run.request || !run.directorPlan) throw new Error("This run does not contain a reusable Director Plan.");
-    applyRequestToControls(run.request); requireMatchingPlan(run.request, run.directorPlan);
-    acceptPlan(run.request, run.directorPlan, { source: "reused" });
+    applyRequestToControls(run.request);
+    const workflow = captureWorkflow(false); const plan = normalizePlanForWorkflow(workflow.request, run.directorPlan);
+    requireMatchingPlan(workflow.request, plan);
+    acceptPlan(workflow.request, plan, { source: "reused", workshopContext: workflow.workshopContext });
     setPlanStatus("과거 Director Plan을 가져왔습니다. 생성 전에 Preflight를 다시 실행하세요.", "ok");
   }
 
   function applyRequestToControls(request) {
     byId("imageMakerRequest").value = request.request || ""; byId("imageMakerCount").value = String(request.count || 1);
-    byId("imageMakerBasePreset").value = request.presets?.basePresetId || ""; byId("imageMakerCharacterPreset").value = request.presets?.characterPresetId || "";
-    byId("imageMakerOutfitPreset").value = request.presets?.outfitPresetId || ""; byId("imageMakerStylePreset").value = request.presets?.stylePresetId || "";
-    byId("imageMakerQualityPreset").value = request.presets?.qualityPresetId || ""; byId("imageMakerBaseSeed").value = request.generation?.baseSeed ?? "";
+    model.presetBlocks = structuredClone(request.presetBlocks || []); renderPresetBlocks();
     const mode = document.querySelector(`input[name="imageMakerMode"][value="${request.mode}"]`); if (mode) mode.checked = true;
   }
 
   function reset() {
-    clearActivePlan(); byId("imageMakerRequest").value = ""; byId("imageMakerPlanJson").value = ""; byId("imageMakerCount").value = "4"; byId("imageMakerBaseSeed").value = "";
+    clearActivePlan(); model.presetBlocks = []; renderPresetBlocks(); byId("imageMakerRequest").value = ""; byId("imageMakerPlanJson").value = ""; byId("imageMakerCount").value = "4";
     document.querySelector('input[name="imageMakerMode"][value="editorial"]').checked = true;
     byId("imageMakerGallery").innerHTML = ""; byId("imageMakerResultsPanel").hidden = true; byId("imageMakerRendererNote").hidden = true;
     setPlanStatus("Director Plan을 준비하면 shot 구도를 여기서 확인할 수 있습니다.", ""); renderRunSummary("idle", "Idle", "Director Plan을 먼저 준비하세요."); syncButtons();
@@ -354,6 +429,7 @@ export function createImageMakerController({ getJson, postJson, showToast, pollI
   }
 
   function handleRequestChange() {
+    renderPresetBlocks();
     if (!model.plan) { syncButtons(); return; }
     const state = freshness();
     if (state.planStale) {
@@ -367,28 +443,47 @@ export function createImageMakerController({ getJson, postJson, showToast, pollI
   }
 
   function syncButtons() {
-    const state = freshness();
+    let state = { planStale: true, canPreflight: false, canGenerate: false };
+    try { state = freshness(); } catch {}
     byId("imageMakerCreatePlanButton").disabled = model.busy || Boolean(model.plan && !state.planStale);
     byId("imageMakerRegeneratePlanButton").disabled = model.busy || !model.plan || state.planStale;
     byId("imageMakerRegeneratePlanButton").hidden = !model.plan;
     byId("imageMakerCreatePlanButton").textContent = model.activity === "directing" ? "Creating…" : model.plan && !state.planStale ? "Plan Ready" : "Create Director Plan";
     byId("imageMakerRegeneratePlanButton").textContent = "Regenerate Plan";
     byId("imageMakerPreflightButton").disabled = model.busy || !state.canPreflight;
-    byId("imageMakerGenerateButton").disabled = model.busy || !state.canGenerate;
-    const count = Number(currentRequest().count) || 0;
-    byId("imageMakerGenerateButton").textContent = model.activity === "generating" ? `Generating 0 / ${count}` : `Generate ${count} Image${count === 1 ? "" : "s"}`;
+    const count = Number(byId("imageMakerCount").value) || 0;
+    const requestReady = Boolean(byId("imageMakerRequest").value.trim()) && Number.isSafeInteger(count) && count > 0;
+    byId("imageMakerGenerateButton").disabled = model.busy || !requestReady;
+    byId("imageMakerGenerateButton").textContent = model.activity === "directing" ? "Creating Director Plan…" : model.activity === "preflighting" ? "Checking…" : model.activity === "generating" ? `Generating 0 / ${count}` : `Generate ${count} Image${count === 1 ? "" : "s"}`;
   }
 
   function requireRequest(request) {
     if (!request.request) throw new Error("무엇을 만들지 입력하세요.");
     if (!Number.isSafeInteger(request.count) || request.count < 1) throw new Error("Count는 1 이상의 정수여야 합니다.");
-    if (!request.presets.basePresetId || !request.presets.characterPresetId || !request.presets.outfitPresetId) throw new Error("Base, Character, Outfit preset을 선택하세요.");
+    if (request.schema === "chaessi-image-request/v3" && request.presetBlocks.some((block) => !block.presetId)) throw new Error("추가한 preset block에서 preset을 선택하세요.");
   }
   function requireMatchingPlan(request, plan) {
     if (plan?.schema !== "chaessi-scene-plan/v2") throw new Error("scene-plan/v2 JSON이 필요합니다.");
     if (plan.mode !== request.mode || plan.count !== request.count || plan.shots?.length !== request.count) throw new Error("Plan의 mode와 shot 수가 현재 Request와 일치해야 합니다.");
-    const selected = request.presets; const presets = plan.presetSelections || {};
-    if (presets.basePresetId !== selected.basePresetId || presets.characterPresetIds?.[0] !== selected.characterPresetId || presets.outfitPresetIds?.[0] !== selected.outfitPresetId) throw new Error("Plan의 Base, Character, Outfit preset이 현재 선택과 일치해야 합니다.");
+    if (request.schema !== "chaessi-image-request/v3") {
+      const selected = request.presets; const presets = plan.presetSelections || {};
+      if (presets.basePresetId !== selected.basePresetId || presets.characterPresetIds?.[0] !== selected.characterPresetId || presets.outfitPresetIds?.[0] !== selected.outfitPresetId) throw new Error("Plan의 Base, Character, Outfit preset이 현재 선택과 일치해야 합니다.");
+    }
+  }
+  function normalizePlanForWorkflow(request, source) {
+    const plan = structuredClone(source);
+    if (request.schema !== "chaessi-image-request/v3") return plan;
+    const actorCount = plan.shots?.[0]?.generation?.characters?.length || 1;
+    plan.presetSelections = {
+      basePresetId: "image_maker_active_workshop",
+      characterPresetIds: Array.from({ length: actorCount }, (_, index) => `image_maker_actor_${index + 1}`),
+      outfitPresetIds: Array.from({ length: actorCount }, (_, index) => `image_maker_modifier_${index + 1}`),
+      stylePresetId: null, qualityPresetId: null, cameraPresetId: null, lightingPresetId: null,
+    };
+    for (const shot of plan.shots || []) for (let index = 0; index < (shot.generation?.characters || []).length; index += 1) {
+      shot.generation.characters[index].characterPresetId = plan.presetSelections.characterPresetIds[index];
+    }
+    return plan;
   }
   function setPlanStatus(text, status) { byId("imageMakerPlanStatus").textContent = text; byId("imageMakerPlanStatus").className = `summary ${status}`.trim(); }
   function renderRunSummary(status, title, message) { const root = byId("imageMakerRunSummary"); root.dataset.status = status; root.innerHTML = `<strong>${escapeHtml(title)}</strong><span>${escapeHtml(message)}</span>`; }
@@ -415,4 +510,8 @@ function friendlyShotId(value) { const number = String(value || "").match(/(\d+)
 function statusLabel(value) { return ({ ready: "READY", completed: "✓ COMPLETED", failed: "FAILED", "needs-review": "REVIEW", waiting: "WAITING", pending: "PENDING" })[value] || String(value || "").toUpperCase(); }
 function generationTitle(value) { return ({ prepared: "Preparing", ready: "Ready", generating: "Generating", completed: "Completed", "partial-failure": "Partial Failure", failed: "Failed" })[value] || titleCase(value); }
 function titleCase(value) { return String(value || "").replaceAll("-", " ").replace(/\b\w/g, (character) => character.toUpperCase()); }
+function formatPromptDetail(detail = {}) {
+  const characters = (detail.characters || []).map((item) => `Character ${item.slot}:\n${item.prompt || ""}${item.undesired ? `\nUndesired: ${item.undesired}` : ""}`).join("\n\n");
+  return [`Positive:\n${detail.base || ""}`, characters, `Negative:\n${detail.undesired || ""}`].filter(Boolean).join("\n\n");
+}
 function escapeHtml(value) { return String(value ?? "").replaceAll("&", "&amp;").replaceAll("<", "&lt;").replaceAll(">", "&gt;").replaceAll('"', "&quot;"); }
