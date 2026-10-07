@@ -1,0 +1,3 @@
+# PDFs use byte offsets and must never undergo newline conversion.
+*.pdf binary
+*.png binary

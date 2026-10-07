@@ -61,6 +61,13 @@ export function cloneBuiltInCharacterPresetCategories() {
     name: category.name,
     order,
     builtIn: true,
-    subcategories: [...category.subcategories],
+    subcategories: sortClothingSubcategories(category.name, category.subcategories),
   }));
+}
+
+export function sortClothingSubcategories(categoryName, subcategories) {
+  const values = [...subcategories];
+  if (![FEMALE_CLOTHING_CATEGORY, MALE_CLOTHING_CATEGORY].includes(normalizeCharacterPresetCategoryName(categoryName))) return values;
+  const koreanName = value => String(value).split("/").at(-1).trim().normalize("NFC");
+  return values.sort((a, b) => koreanName(a).localeCompare(koreanName(b), "ko") || a.localeCompare(b, "ko"));
 }

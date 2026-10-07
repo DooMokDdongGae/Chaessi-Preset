@@ -21,17 +21,13 @@
         <div class="health model-badge" id="headerModelLabel" data-model="nai-diffusion-4-5-full" role="status" aria-live="polite" tabindex="0">NovelAI Diffusion V4.5 Full</div>
         <div class="health" id="anlasBalanceStatus">Anlas —</div>
         <div class="health" id="staminaStatus">V5 Stamina —</div>
-        <div class="health" id="healthStatus">checking</div>
+        <button type="button" class="health" id="healthStatus" title="App info and manuals">checking</button>
+        <button type="button" id="openWildcardsButton">Wildcards</button>
         <button id="apiSettingsButton" type="button">API Settings</button>
       </div>
     </header>
 
-    <nav class="app-view-tabs" aria-label="Workspace">
-      <button type="button" class="is-active" id="presetWorkspaceTab">Preset Workshop</button>
-      <button type="button" id="imageMakerWorkspaceTab">Image Maker</button>
-    </nav>
-
-    <main class="workspace" id="presetWorkspace">
+    <main class="workspace">
       <section class="current-strip" id="currentPresetSummary">
         <div><strong>Preset</strong><span id="summaryName">Untitled</span></div>
         <div><strong>Model</strong><span id="summaryModel">nai-diffusion-4-5-full</span></div>
@@ -69,6 +65,7 @@
                 <label>
                   <span class="prompt-field-heading">
                     <span>Base prompt</span>
+                    <button type="button" data-insert-wildcard="basePrompt">Wildcard</button>
                     <span class="prompt-token-counter is-loading" id="basePromptTokenCounter">Loading tokenizer...</span>
                   </span>
                   <textarea id="basePrompt"></textarea>
@@ -76,6 +73,7 @@
                 <label>
                   <span class="prompt-field-heading">
                     <span>Undesired</span>
+                    <button type="button" data-insert-wildcard="undesiredPrompt">Wildcard</button>
                     <span class="prompt-token-counter is-loading" id="undesiredPromptTokenCounter">Loading tokenizer...</span>
                   </span>
                   <textarea id="undesiredPrompt"></textarea>
@@ -369,6 +367,7 @@
                 <button id="generateButton" class="primary-generate-button">Generate One Image</button>
                 <div class="summary" id="generateStatus">Idle.</div>
               </div>
+              <details id="resolvedGenerationDetails" hidden><summary>Selected prompt for this request</summary><pre id="resolvedGenerationPrompt" class="resolved-generation-prompt"></pre></details>
               <div class="generation-layout">
                 <div class="result-preview-frame">
                   <img id="generatedImage" alt="" />
@@ -414,126 +413,6 @@
           </section>
         </aside>
       </div>
-    </main>
-
-    <main class="workspace image-maker-workspace" id="imageMakerWorkspace" hidden>
-      <section class="panel image-maker-hero">
-        <div class="panel-heading">
-          <div>
-            <span class="eyebrow">MULTI-SHOT DIRECTOR</span>
-            <h2>Image Maker</h2>
-            <p>원하는 장면을 설명하고 Generate를 누르세요. 필요한 preset만 선택적으로 추가할 수 있습니다.</p>
-          </div>
-          <button type="button" id="imageMakerNewRequestButton">New Request</button>
-        </div>
-
-        <div class="image-maker-director-bar">
-          <div class="image-maker-director-status" id="imageMakerDirectorStatus" data-status="checking" role="status" aria-live="polite">
-            <span class="director-status-dot" aria-hidden="true"></span>
-            <div><small>DIRECTOR</small><strong>Checking Director</strong><span>Codex 연결 상태를 확인하고 있습니다.</span></div>
-          </div>
-          <button type="button" id="imageMakerDirectorRefreshButton">Refresh status</button>
-        </div>
-
-        <div class="image-maker-request-grid">
-          <section class="tool-surface image-maker-request-copy">
-            <label>무엇을 만들까요?
-              <textarea id="imageMakerRequest" rows="5" placeholder="호텔 로비에서 일하는 여성 직원의 세련된 화보"></textarea>
-            </label>
-            <div class="image-maker-mode-row">
-              <label class="image-maker-mode-card">
-                <input type="radio" name="imageMakerMode" value="editorial" checked />
-                <span><strong>Editorial</strong><small>서로 독립적인 다양한 구도</small></span>
-              </label>
-              <label class="image-maker-mode-card">
-                <input type="radio" name="imageMakerMode" value="sequence" />
-                <span><strong>Sequence</strong><small>시간적으로 이어지는 장면</small></span>
-              </label>
-              <label class="image-maker-count">Count
-                <input id="imageMakerCount" type="number" min="1" step="1" value="4" inputmode="numeric" />
-              </label>
-            </div>
-          </section>
-
-          <section class="tool-surface image-maker-preset-options">
-            <header><div><strong>Optional Presets</strong><p>현재 Preset Workshop 설정을 그대로 사용합니다. 필요한 요소만 추가하세요.</p></div><button type="button" id="imageMakerAddPresetButton">Add Preset</button></header>
-            <div id="imageMakerPresetBlocks" class="image-maker-preset-blocks"></div>
-          </section>
-        </div>
-        <div class="image-maker-primary-action">
-          <p>Generate가 Director Plan과 Preflight를 자동으로 준비한 뒤 NovelAI 생성을 시작합니다.</p>
-          <button type="button" class="primary-generate-button" id="imageMakerGenerateButton">Generate 4 Images</button>
-        </div>
-      </section>
-
-      <details class="panel image-maker-advanced-workflow" id="imageMakerAdvancedWorkflow">
-        <summary>Advanced · Director Plan, Preflight &amp; Manual Recovery</summary>
-        <div class="details-body">
-      <section class="image-maker-plan-panel">
-        <div class="panel-heading">
-          <div>
-            <h2>Director Plan</h2>
-            <p>Codex로 장면을 설계하거나, 기존 scene-plan/v2를 붙여넣어 사용할 수 있습니다.</p>
-          </div>
-          <div class="actions">
-            <button type="button" class="primary-generate-button" id="imageMakerCreatePlanButton">Create Director Plan</button>
-            <button type="button" id="imageMakerRegeneratePlanButton" hidden>Regenerate</button>
-            <button type="button" id="imageMakerImportPlanButton">Import Plan</button>
-            <button type="button" id="imageMakerPreparePlanButton">Use Pasted Plan</button>
-          </div>
-        </div>
-        <div class="image-maker-plan-meta">
-          <div class="image-maker-plan-mode" id="imageMakerPlanMode"></div>
-          <span class="image-maker-plan-source-badge" id="imageMakerPlanSourceBadge">No plan</span>
-        </div>
-        <input id="imageMakerPlanFile" type="file" accept="application/json,.json" hidden />
-        <details class="image-maker-plan-source">
-          <summary>Director Plan JSON</summary>
-          <div class="details-body">
-            <textarea id="imageMakerPlanJson" rows="10" spellcheck="false" placeholder="Paste chaessi-scene-plan/v2 JSON here"></textarea>
-          </div>
-        </details>
-        <div class="summary" id="imageMakerPlanStatus">Director Plan을 준비하면 shot 구도를 여기서 확인할 수 있습니다.</div>
-        <nav class="image-maker-shot-overview" id="imageMakerShotOverview" aria-label="Shot overview"></nav>
-        <div class="image-maker-shot-grid" id="imageMakerShotList"></div>
-      </section>
-
-      <section class="image-maker-run-panel">
-        <div class="panel-heading">
-          <div>
-            <h2>Preflight &amp; Generate</h2>
-            <p>모든 shot이 준비된 뒤에만 NovelAI 생성을 시작합니다.</p>
-          </div>
-          <div class="actions">
-            <button type="button" id="imageMakerPreflightButton" disabled>Run Preflight</button>
-          </div>
-        </div>
-        <div class="image-maker-run-summary" id="imageMakerRunSummary" data-status="idle">
-          <strong>Idle</strong><span>Director Plan을 먼저 준비하세요.</span>
-        </div>
-        <div class="image-maker-review-list" id="imageMakerReviewList"></div>
-        <div class="image-maker-progress-list" id="imageMakerProgressList"></div>
-      </section>
-        </div>
-      </details>
-
-      <section class="panel image-maker-results-panel" id="imageMakerResultsPanel" hidden>
-        <div class="panel-heading">
-          <div><h2>Results</h2><p>Shot 순서대로 저장된 generation 결과입니다.</p></div>
-        </div>
-        <p class="image-maker-renderer-note" id="imageMakerRendererNote" hidden>Rendered details may differ from the Director plan.</p>
-        <div class="image-maker-gallery" id="imageMakerGallery"></div>
-      </section>
-
-      <section class="panel image-maker-history-panel">
-        <details>
-          <summary>Recent Image Maker Runs</summary>
-          <div class="details-body">
-            <button type="button" id="imageMakerRefreshRunsButton">Refresh Runs</button>
-            <div class="image-maker-run-history" id="imageMakerRunHistory"></div>
-          </div>
-        </details>
-      </section>
     </main>
 
     <dialog class="image-intake-dialog" id="imageIntakeDialog">
@@ -614,15 +493,6 @@
           <button id="historyBulkDeleteCancelButton" value="cancel">Cancel</button>
           <button id="historyBulkDeleteConfirmButton" class="danger-button" type="button">Delete</button>
         </div>
-      </form>
-    </dialog>
-    <dialog class="image-maker-detail-dialog" id="imageMakerDetailDialog">
-      <form method="dialog">
-        <header class="dialog-header">
-          <div><h2 id="imageMakerDetailTitle">Shot details</h2><p>Stored generation artifact</p></div>
-          <button value="cancel">Close</button>
-        </header>
-        <pre id="imageMakerDetailContent"></pre>
       </form>
     </dialog>
 
@@ -775,6 +645,31 @@
       <strong>Drop image to choose destination</strong>
     </div>
     <div class="mask-brush-cursor" id="maskBrushCursor" hidden aria-hidden="true"></div>
+    <dialog id="wildcardDialog" class="wildcard-dialog">
+      <div class="dialog-header"><div><h2>Wildcards</h2><p>Save many candidates. Each generation chooses one at random.</p></div><button type="button" id="wildcardClose">Close</button></div>
+      <div class="wildcard-layout">
+        <section class="wildcard-library"><label>Search <input id="wildcardSearch" type="search" /></label><button type="button" id="wildcardNew">+ New Wildcard</button><div id="wildcardList" class="wildcard-list"></div></section>
+        <section class="wildcard-editor">
+          <label>Name <input id="wildcardName" maxlength="120" /></label>
+          <label>Reference key <input id="wildcardKey" placeholder="tops" maxlength="64" /></label>
+          <p class="summary" id="wildcardReference">Example: __tops__</p>
+          <label>Candidates - one per line <textarea id="wildcardEntries" spellcheck="false" placeholder="white shirt&#10;black shirt&#10;blue shirt"></textarea></label>
+          <div class="summary" id="wildcardCount">0 candidates</div>
+          <p class="summary">Equal chance for every unique candidate. Repeats are possible. Empty lines and duplicate lines are removed on save. Keys stay fixed after saving. Candidates may use ||A|B||, but cannot reference other Wildcards.</p>
+          <div class="actions"><button type="button" id="wildcardImport">Import TXT</button><input id="wildcardFile" type="file" accept=".txt,text/plain" hidden /><button type="button" id="wildcardExport">Export TXT</button><button type="button" id="wildcardSample">Sample</button><button type="button" id="wildcardDelete" class="danger-button">Delete</button><button type="button" id="wildcardSave">Save</button><button type="button" id="wildcardInsert">Insert into prompt</button></div>
+          <div id="wildcardStatus" class="summary" role="status" aria-live="polite">Create a Wildcard or select one from the list.</div>
+        </section>
+      </div>
+    </dialog>
+    <dialog id="aboutDialog" class="about-dialog">
+      <div class="dialog-header"><div><h2>App info &amp; Manuals</h2><p id="aboutVersion">Chaessi Preset 3.4.0</p></div><button type="button" id="aboutCloseButton">Close</button></div>
+      <p>Open a guide below. 한국어 또는 English를 선택하세요.</p>
+      <div class="manual-grid">
+        <section><h3>App guide / 전체 앱 설명서</h3><p>From your first prompt to presets, image tools, and History.</p><div class="actions"><a href="/manuals/app-ko.pdf" target="_blank" rel="noopener">한국어 PDF</a><a href="/manuals/app-en.pdf" target="_blank" rel="noopener">English PDF</a></div></section>
+        <section><h3>Wildcard guide / Wildcard 설명서</h3><p>Create a list, insert a reference, and generate with a selected candidate.</p><div class="actions"><a href="/manuals/wildcard-ko.pdf" target="_blank" rel="noopener">한국어 PDF</a><a href="/manuals/wildcard-en.pdf" target="_blank" rel="noopener">English PDF</a></div></section>
+      </div>
+      <p class="summary">Guides are included with the app and open locally. Save the PDF from the viewer if you want a copy.</p>
+    </dialog>
     <script type="module" src="/src/app.js"></script>
   </body>
 </html>

@@ -40,14 +40,13 @@ import { createPresetStore } from "./src/services/preset-store.js";
 import { createCharacterPresetStore } from "./src/services/character-preset-store.js";
 import { createCharacterPresetCategoryStore } from "./src/services/character-preset-category-store.js";
 import { createGenerationStore } from "./src/services/generation-store.js";
-import { createImageMakerApi } from "./src/services/image-maker-api.js";
-import { createCodexDirectorBridge } from "./src/services/codex-director-bridge.js";
 import { createSectionPresetStore } from "./src/services/section-preset-store.js";
 import {
   assertNoSecretMaterial,
   storeError,
 } from "./src/services/file-store-utils.js";
-import { resolvePresetRandomPrompts } from "./src/services/prompt-random-resolver.js";
+import { createWildcardStore } from "./src/services/wildcard-store.js";
+import { resolveGenerationPrompts, createPreparedPromptStore } from "./src/services/generation-prompt-resolver.js";
 import { fetchNovelAiAccountUsage, projectNovelAiAccountUsage } from "./src/services/novelai-account-usage.js";
 import { extractFinalNovelAiPng } from "./src/services/novelai-msgpack-stream.js";
 import { createNovelAiMultipartBody } from "./src/services/novelai-multipart-request.js";
@@ -68,7 +67,7 @@ import { parseNovelAiPngMetadata } from "./src/importers/nai-metadata.js";
 import { parseImageMetadata } from "./src/importers/image-metadata.js";
 
 const HEALTH_APP_NAME = "Chaessi Preset";
-const APP_VERSION = "3.3.1";
+const APP_VERSION = "3.4.0";
 const PORT = Number(process.env.PORT || 4174);
 const ROOT = path.dirname(fileURLToPath(import.meta.url));
 const DATA_ROOT = path.resolve(process.env.CHAESSI_USER_DATA_DIR || ROOT);
@@ -82,6 +81,7 @@ const MIGRATABLE_DATA_DIRS = [
   "base-prompts",
   "undesired-prompts",
   "params-presets",
+  "wildcards",
 ];
 
 loadLocalEnvFallback();
@@ -93,22 +93,11 @@ const presetStore = createPresetStore({ rootDir: DATA_ROOT });
 const characterPresetStore = createCharacterPresetStore({ rootDir: DATA_ROOT });
 const characterPresetCategoryStore = createCharacterPresetCategoryStore({ rootDir: DATA_ROOT });
 const generationStore = createGenerationStore({ rootDir: DATA_ROOT });
-const codexDirectorBridge = createCodexDirectorBridge({
-  dataRoot: DATA_ROOT,
-  presetStore,
-  characterPresetStore,
-});
-const imageMakerApi = createImageMakerApi({
-  dataRoot: DATA_ROOT,
-  presetStore,
-  characterPresetStore,
-  generationStore,
-  directorBridge: codexDirectorBridge,
-  baseUrl: `http://127.0.0.1:${PORT}`,
-});
 const basePromptStore = createSectionPresetStore({ rootDir: DATA_ROOT, section: "base-prompts" });
 const undesiredPromptStore = createSectionPresetStore({ rootDir: DATA_ROOT, section: "undesired-prompts" });
 const paramsPresetStore = createSectionPresetStore({ rootDir: DATA_ROOT, section: "params-presets" });
+const wildcardStore = createWildcardStore({ rootDir: DATA_ROOT });
+const preparedPrompts = createPreparedPromptStore();
 
 const server = http.createServer(async (req, res) => {
   try {
@@ -177,6 +166,28 @@ const server = http.createServer(async (req, res) => {
       const result = await handleGenerate(body);
       sendJson(res, 200, result);
       return;
+    }
+
+    if (req.method === "POST" && url.pathname === "/api/novelai/prepare") {
+      const body = await readJsonBody(req);
+      const preset = stripPresetUiState(body?.preset);
+      const validation = validatePreset(preset);
+      if (!validation.ok || validation.warnings.length) throw httpError(400, "invalid_preset", "Invalid preset.", [...validation.errors, ...validation.warnings].join("; "));
+      const resolved = resolveGenerationPrompts(preset, await wildcardStore.all());
+      const id = randomUUID();
+      preparedPrompts.put(id, resolved);
+      sendJson(res, 200, { ok: true, prepared_id: id, preset: resolved });
+      return;
+    }
+
+    if (url.pathname === "/api/wildcards") {
+      if (req.method === "GET") { sendJson(res, 200, { ok: true, items: await wildcardStore.list() }); return; }
+      if (req.method === "POST") { sendJson(res, 200, { ok: true, wildcard: await wildcardStore.save(await readJsonBody(req)) }); return; }
+    }
+    if (url.pathname.startsWith("/api/wildcards/")) {
+      const id = decodeURIComponent(url.pathname.slice("/api/wildcards/".length));
+      if (req.method === "GET") { sendJson(res, 200, { ok: true, wildcard: await wildcardStore.get(id) }); return; }
+      if (req.method === "DELETE") { sendJson(res, 200, { ok: true, result: await wildcardStore.delete(id) }); return; }
     }
 
     if (req.method === "POST" && url.pathname === "/api/import/raw-json") {
@@ -291,52 +302,6 @@ const server = http.createServer(async (req, res) => {
 
     if (req.method === "GET" && url.pathname === "/api/generations") {
       sendJson(res, 200, { ok: true, items: await generationStore.listGenerations() });
-      return;
-    }
-
-    if (req.method === "GET" && url.pathname === "/api/image-maker/catalog") {
-      sendJson(res, 200, { ok: true, catalog: await imageMakerApi.listCatalog() });
-      return;
-    }
-
-    if (req.method === "GET" && url.pathname === "/api/image-maker/director/status") {
-      sendJson(res, 200, { ok: true, director: await imageMakerApi.getDirectorStatus() });
-      return;
-    }
-
-    if (req.method === "POST" && url.pathname === "/api/image-maker/director-plan") {
-      const body = await readJsonBody(req);
-      sendJson(res, 200, { ok: true, director: await imageMakerApi.createDirectorPlan(body) });
-      return;
-    }
-
-    if (req.method === "POST" && url.pathname === "/api/image-maker/preflight") {
-      const body = await readJsonBody(req);
-      sendJson(res, 200, { ok: true, run: await imageMakerApi.preflight(body) });
-      return;
-    }
-
-    if (req.method === "POST" && url.pathname === "/api/image-maker/generate") {
-      const body = await readJsonBody(req);
-      sendJson(res, 202, { ok: true, run: imageMakerApi.startGeneration(body) });
-      return;
-    }
-
-    if (req.method === "GET" && url.pathname === "/api/image-maker/runs") {
-      sendJson(res, 200, { ok: true, items: await imageMakerApi.listRuns() });
-      return;
-    }
-
-    const imageMakerDetail = /^\/api\/image-maker\/runs\/([^/]+)\/shots\/([^/]+)\/(prompt|metadata|payload)$/.exec(url.pathname);
-    if (req.method === "GET" && imageMakerDetail) {
-      const [, runId, shotId, kind] = imageMakerDetail.map((value) => value && decodeURIComponent(value));
-      sendJson(res, 200, { ok: true, detail: await imageMakerApi.getShotDetail(runId, shotId, kind) });
-      return;
-    }
-
-    const imageMakerRun = /^\/api\/image-maker\/runs\/([^/]+)$/.exec(url.pathname);
-    if (req.method === "GET" && imageMakerRun) {
-      sendJson(res, 200, { ok: true, run: await imageMakerApi.getRun(decodeURIComponent(imageMakerRun[1])) });
       return;
     }
 
@@ -547,7 +512,9 @@ function requestElectronTokenStorage(payload) {
 }
 
 async function handleGenerate(body) {
-  const preset = stripPresetUiState(body?.preset);
+  const preset = body?.prepared_id
+    ? preparedPrompts.take(body.prepared_id)
+    : stripPresetUiState(body?.preset);
   const presetValidation = validatePreset(preset);
   if (!presetValidation.ok) {
     throw httpError(400, "invalid_preset", "Invalid internal preset schema.", presetValidation.errors.join("; "));
@@ -560,7 +527,7 @@ async function handleGenerate(body) {
   const modeState = mode === GENERATION_MODES.TEXT_TO_IMAGE
     ? { mode }
     : { ...(body?.mode_state || {}), mode };
-  const resolvedPreset = resolvePresetRandomPrompts(preset);
+  const resolvedPreset = body?.prepared_id ? preset : resolveGenerationPrompts(preset, await wildcardStore.all());
   let payload = buildModeGeneratePayload(resolvedPreset, modeState);
   const payloadSafety = mode === GENERATION_MODES.TEXT_TO_IMAGE
     ? payload.model === NOVELAI_V5_FULL_MODEL ? validateV5Payload(payload) : validatePayloadSafety(payload)
@@ -1119,6 +1086,7 @@ async function serveStaticFile(req, res, pathname) {
   const allowedRoots = [
     { prefix: "/src/", root: path.join(ROOT, "src") },
     { prefix: "/assets/", root: path.join(ROOT, "assets") },
+    { prefix: "/manuals/", root: path.join(ROOT, "manuals") },
     { prefix: "/data/presets/", root: path.join(DATA_ROOT, "data", "presets") },
     { prefix: "/data/character-presets/", root: path.join(DATA_ROOT, "data", "character-presets") },
     { prefix: "/data/generations/", root: path.join(DATA_ROOT, "data", "generations") },
@@ -1126,6 +1094,7 @@ async function serveStaticFile(req, res, pathname) {
 
   const match = allowedRoots.find((item) => decodedPath.startsWith(item.prefix));
   if (!match) return false;
+  if (match.prefix === "/manuals/" && !/^\/manuals\/(app|wildcard)-(ko|en)\.pdf$/.test(decodedPath)) return false;
   if (match.prefix === "/data/presets/" && !isPresetThumbnailPath(decodedPath)) return false;
   if (match.prefix === "/data/character-presets/" && !isPresetThumbnailPath(decodedPath)) return false;
 
@@ -1146,8 +1115,6 @@ function isAllowedClientSource(pathname) {
     || pathname === "/src/state/character-preset-categories.js"
     || pathname === "/src/state/model-profiles.js"
     || pathname === "/src/state/model-state.js"
-    || pathname === "/src/ui/image-maker-controller.js"
-    || pathname === "/src/ui/image-maker-state.js"
     || pathname.startsWith("/src/api/")
     || pathname.startsWith("/src/ui/");
 }
@@ -1180,6 +1147,7 @@ function getContentType(filePath) {
     ".jpg": "image/jpeg",
     ".jpeg": "image/jpeg",
     ".svg": "image/svg+xml",
+    ".pdf": "application/pdf",
   }[extension] || "application/octet-stream";
 }
 

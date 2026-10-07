@@ -5,6 +5,7 @@ import {
   CHARACTER_PRESET_CATEGORY_SCHEMA,
   cloneBuiltInCharacterPresetCategories,
   normalizeCharacterPresetCategoryName,
+  sortClothingSubcategories,
 } from "../state/character-preset-categories.js";
 import {
   assertNoSecretMaterial,
@@ -67,6 +68,7 @@ export function createCharacterPresetCategoryStore({ rootDir }) {
         "Subcategory already exists in this category.",
       );
       category.subcategories.push(subcategoryName);
+      category.subcategories = sortClothingSubcategories(category.name, category.subcategories);
       await writeConfig(categories);
       return {
         schema: CHARACTER_PRESET_CATEGORY_SCHEMA,
@@ -167,7 +169,7 @@ export function mergeWithBuiltIns(storedCategories = []) {
       }
     }
   }
-  return merged.map((category, order) => ({ ...category, order }));
+  return merged.map((category, order) => ({ ...category, order, subcategories: sortClothingSubcategories(category.name, category.subcategories) }));
 }
 
 function assertUniqueName(existingNames, candidate, type, message) {

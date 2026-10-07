@@ -31,6 +31,15 @@ function createWindow({ serverStatus = "starting" } = {}) {
     },
   });
 
+  window.webContents.setWindowOpenHandler(({ url }) => {
+    const target = new URL(url);
+    if (target.origin !== getServerBaseUrl() || !/^\/manuals\/(app|wildcard)-(ko|en)\.pdf$/.test(target.pathname)) return { action: "deny" };
+    return { action: "allow", overrideBrowserWindowOptions: {
+      width: 1000, height: 820, title: "Chaessi Preset Manual", autoHideMenuBar: true,
+      webPreferences: { contextIsolation: true, nodeIntegration: false, sandbox: true },
+    } };
+  });
+
   if (serverStatus === "ready") {
     window.loadURL(getServerBaseUrl()).catch((error) => {
       window.loadURL(createShellHtml({

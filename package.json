@@ -1,7 +1,7 @@
 {
   "name": "chaessi-preset",
   "productName": "Chaessi Preset",
-  "version": "3.3.1",
+  "version": "3.4.0",
   "description": "Local preset and payload manager for NovelAI V4.5 Full and V5 Full generation workflows.",
   "author": "Chaessi Preset",
   "license": "MIT",
@@ -13,7 +13,8 @@
     "electron:dev": "electron .",
     "electron:pack": "electron-builder --dir",
     "electron:dist": "electron-builder --win portable",
-    "release:screenshots": "node scripts/capture-image-maker-release-screenshots.mjs"
+    "test:wildcard": "node --test tests/wildcard.test.mjs tests/wildcard-endpoint.test.mjs",
+    "test:regression": "node scripts/run-regressions.mjs"
   },
   "devDependencies": {
     "electron": "^42.3.0",
@@ -36,6 +37,7 @@
       "electron/**/*",
       "src/**/*",
       "assets/**/*",
+      "manuals/*.pdf",
       "!**/.env",
       "!**/.env.*",
       "!secrets/**",
@@ -45,7 +47,6 @@
       "!data/tmp/**",
       "!data/**",
       "!docs/**",
-      "docs/image-maker/codex-image-director.md",
       "!test_*.js",
       "!*.py",
       "!*.txt",

@@ -1,0 +1,54 @@
+# Chaessi Preset 3.4.0 verification
+
+Baseline: **v3.2.1**. This release adds Wildcards and guides to that workbench. It does not include the v3.3.x Image Maker workspace; earlier releases remain available.
+
+## Implemented scope
+
+- File-based shared Wildcard library, `__key__` references, one candidate per line, search, editing, samples, TXT import/export, insertion into Base/Undesired/Character fields.
+- Independent uniform selection over all unique entries. Empty/duplicate lines normalize on save. Saved keys remain fixed. Candidate random blocks are supported; nested Wildcard references are rejected.
+- Server-owned generation preparation with a five-minute, bounded, single-use cache. The exact prepared preset is used for transport and storage. Saved editing presets remain reusable.
+- Generation snapshots omit inactive model templates, disabled characters and imported source snapshots. No Wildcard definition, selection mapping or candidate library is added to image metadata or History.
+- Base Prompt Preset loading applies its actual name. Clothing subcategories use the Korean part of bilingual labels for sorting, including persisted/custom entries.
+- Version button opens App info & Manuals. Four bundled PDFs open in sandboxed local Electron PDF windows.
+
+## Automated checks
+
+- `node --test tests/wildcard.test.mjs tests/wildcard-endpoint.test.mjs`: **8/8 passed**.
+- Coverage: 1,000 candidate indexes including first/middle/last; independent repeated references; all prompt fields; legacy pipe blocks; missing/empty keys; source immutability; store persistence, duplicate-key conflicts and deletion; prepared result expiry/reuse/eviction; Korean ordering.
+- HTTP integration covers **V4.5/V5 × T2I/I2I/Inpaint (6 paths)**. Test-only provider responses use the existing ZIP/MessagePack decoders. Captured outbound bodies match History; prepared prompts remain fixed after editing the library.
+- `node scripts/run-regressions.mjs`: **21/21 existing v3.2.1 regression scripts passed**, covering both models, generation modes, image intake, Inpaint masks, Precise Reference, token counters, character categories, direct History lookup, paging, bulk delete and navigation.
+
+## Actual UI and live provider checks
+
+- Headless Edge used the actual app served from the worktree and isolated test data. No production presets/History were changed.
+- Created multiple Wildcards; inserted references into Base and opened Character insertion; saved reusable references in a Main Preset; loaded a Base Prompt Preset and verified Name; verified Korean order in both clothing filters.
+- Imported **500 candidates** through the file input, removed duplicate/blank lines, exported 500 lines, sampled and deleted the test library through the UI.
+- Real NovelAI **V4.5 T2I and V5 T2I** generated successfully with two Wildcards and a legacy random block. The transport body, History final prompt, and returned PNG NovelAI metadata were compared and matched, including V5 quality tags. Undesired metadata matched the outgoing negative prompt. Original editor references remained unchanged.
+- PNG metadata is read using the app's actual PNG importer. The final image bytes are not rewritten. "EXIF" here refers to the available NovelAI image metadata; this does not fabricate an EXIF chunk if the response has none.
+- Live checks used the app's existing encrypted token reader. Credentials were passed in memory only and were never retained in request captures, logs or committed artifacts.
+- Live I2I/Inpaint provider calls were not needed for this change; their six combined model/mode paths were verified through HTTP integration and existing mode regressions. Real generated results were also routed through the UI into I2I and Inpaint.
+- `node scripts/verify-electron-manuals.mjs`: all **4 PDFs opened in the actual Electron PDF viewer** via App info & Manuals. MIME type, HTTP success and local viewer URLs were verified; viewer screenshots were inspected.
+
+## Manuals
+
+- `manuals/app-ko.pdf` and `manuals/app-en.pdf`: 13 pages each.
+- `manuals/wildcard-ko.pdf` and `manuals/wildcard-en.pdf`: 7 pages each.
+- Real app screenshots, short numbered steps, matching button names, embedded Korean font, bookmarks and page numbers.
+- All 40 pages rendered with Poppler and were visually reviewed. Text extraction/page counts and authoring overflow checks passed.
+- Rebuild with `scripts/build-manuals.py` using ReportLab and pypdf. Screenshot sources are in `manuals/screenshots/`. UI/live helpers are opt-in developer scripts; normal tests never contact NovelAI.
+
+## Release verification
+
+Version is **3.4.0**. Publication was explicitly approved. Final automated checks, packaged runtime/PDF checks and distribution audits are recorded below before publication. Earlier tags and release assets remain unchanged.
+
+### Final release checks
+
+- README is one file with a top table of contents and four Korean/English user/developer sections. Relative guide links and all four anchors were checked.
+- Final Wildcard suite: 8/8 passed. Existing regression suite: 21/21 passed.
+- Final actual UI check passed multiple Wildcards, 500-candidate import/export, insertion, reusable preset references, loaded Name and both Korean clothing filters. No additional live provider calls were made during publication; the earlier V4.5/V5 T2I request/History/PNG comparisons remain the live evidence.
+- Official Windows x64 portable build succeeded. The packaged desktop runtime used isolated user data, displayed v3.4.0, and opened all four PDF guides in its actual PDF viewer.
+- The portable launcher itself started its local server and desktop window endpoint successfully. Full PDF viewer checks were completed with the packaged executable from the same build.
+- 65 packaged source/asset files match the approved workbench bytes; no runtime data, environment files, credentials or test artifacts are shipped. Public sources use portable verification paths, with no personal absolute paths in README or PDFs.
+- PDF text/privacy checks: 13/13/7/7 pages. All guides are bundled and also attached as separate release assets.
+- Runtime npm dependency audit: zero reported vulnerabilities. The unchanged development/build dependency tree has npm audit advisories; those development tools are excluded from the application bundle.
+- EXE size: 102,763,826 bytes. SHA-256: C9EC62222A84583AE0E4EB42A04F8E204489AA75E089C7A3447F0E2129785D40.

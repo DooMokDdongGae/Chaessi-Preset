@@ -1,5 +1,17 @@
 # Changelog
 
+## v3.4.0
+
+- Add a local Wildcard library with one candidate per line, search, TXT import/export, samples, and insertion into Base, Undesired, and Character prompts using `__key__`.
+- Resolve Wildcards and existing `||A|B||` random blocks once per generation on the server. Prepared prompts remain fixed through token checks, NovelAI transport, and History storage.
+- Keep reusable references in saved presets while recording resolved text only in generation snapshots; omit inactive model templates and imported source snapshots from History.
+- Show the loaded Base Prompt Preset's actual name in Name.
+- Sort male and female clothing subcategories by their Korean names, including saved and custom entries.
+- Add App info & Manuals to the version button, with four bundled illustrated PDFs: app and Wildcard guides in Korean and English.
+- Preserve V4.5/V5 generation adapters, image intake, Inpaint, Precise Reference, character positioning, and History controls.
+
+This release uses the v3.2.1 workbench baseline. The v3.3.x Image Maker workspace is not included; earlier releases remain available.
+
 ## [3.3.1] — Unreleased
 
 ### Changed

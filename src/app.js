@@ -6,7 +6,6 @@ import { createLatestRequestGuard } from "./ui/latest-request.js";
 import { createPagedListController } from "./ui/paged-list.js";
 import { createHistorySelectionController } from "./ui/history-selection.js";
 import { createCharacterPositionPad } from "./ui/character-position-pad.js";
-import { createImageMakerController } from "./ui/image-maker-controller.js";
 import {
   getAdjacentHistoryIdAfterRemoval,
   getHistoryNavigation,
@@ -27,11 +26,12 @@ import {
 } from "./ui/prompt-token-counter.js";
 import { getModelProfile, NOVELAI_V45_FULL_MODEL } from "./state/model-profiles.js";
 import { switchPresetModel, syncActiveModelState } from "./state/model-state.js";
-import { resolvePresetRandomPrompts } from "./services/prompt-random-resolver.js";
+import { createWildcardController } from "./ui/wildcard-controller.js";
 import {
   DEFAULT_CHARACTER_PRESET_CATEGORY,
   cloneBuiltInCharacterPresetCategories,
   normalizeCharacterPresetCategoryName,
+  sortClothingSubcategories,
 } from "./state/character-preset-categories.js";
 
 const $ = (id) => document.getElementById(id);
@@ -40,7 +40,6 @@ let generationModeController = null;
 let preciseReferenceController = null;
 let imageIntakeController = null;
 let characterPositionPadController = null;
-let imageMakerController = null;
 const promptTokenizers = { t5: null, qwen: null };
 let promptTokenCounterTimer = null;
 let promptTokenizerError = null;
@@ -122,6 +121,9 @@ const importFields = {
 init().catch((error) => showToast(error.message, true));
 
 async function init() {
+  createWildcardController({ showToast });
+  $("healthStatus").addEventListener("click", () => $("aboutDialog").showModal());
+  $("aboutCloseButton").addEventListener("click", () => $("aboutDialog").close());
   characterPositionPadController = createCharacterPositionPad({
     root: $("characterPositionPadPanel"),
     pad: $("characterPositionPad"),
@@ -132,18 +134,6 @@ async function init() {
     onPositionChange: applyCharacterPositionChange,
     onSelect: selectCharacterPosition,
   });
-  imageMakerController = createImageMakerController({
-    getJson, postJson, showToast,
-    getWorkshopContext: ({ includeModePayload = false } = {}) => {
-      syncPresetFromForm();
-      const mode = generationModeController?.getMode?.() || "text-to-image";
-      return {
-        preset: structuredClone(state.currentPreset), mode,
-        modeRequest: includeModePayload ? generationModeController.getGenerateRequest() : { mode },
-      };
-    },
-  });
-  imageMakerController.bind();
   generationModeController = createGenerationModeController({
     showToast,
     getLatestImagePath: () => state.lastGenerationResponse?.generation?.image_path
@@ -178,7 +168,6 @@ async function init() {
   await refreshTokenStatus();
   await refreshAccountUsage();
   await loadCharacterPresetCategories();
-  await imageMakerController.initialize();
   const defaultResponse = await getJson("/api/preset/default");
   state.currentPreset = defaultResponse.preset;
   renderPresetForm();
@@ -420,6 +409,7 @@ function bindImageIntake() {
 async function refreshHealth() {
   const health = await getJson("/api/health");
   $("healthStatus").textContent = `v${health.version || "0.0.0"}`;
+  $("aboutVersion").textContent = `Chaessi Preset ${health.version || "3.4.0"}`;
 }
 
 async function refreshTokenStatus() {
@@ -1076,6 +1066,7 @@ async function applyCharacterPreset({ dialog = false } = {}) {
 
 function applyCharacterPresetToBasePrompt(preset) {
   syncPresetFromForm();
+  state.currentPreset.metadata.name = preset.name || "Base Prompt";
   state.currentPreset.prompt_parts.base = preset.prompt || "";
   state.currentPreset.prompt_parts.undesired = preset.undesired || "";
   renderPresetForm();
@@ -1138,6 +1129,12 @@ function schedulePromptTokenCounterUpdate(delay = 80) {
 }
 
 function renderPromptTokenCounters() {
+  const parts = state.currentPreset?.prompt_parts;
+  const activeTexts = parts ? [parts.base, parts.undesired, ...parts.characters.filter(c => c.enabled !== false).flatMap(c => [c.prompt, c.undesired])] : [];
+  if (activeTexts.some(text => /__[^\s]+?__/.test(text))) {
+    setAllPromptTokenCounters("Wildcard | counted after selection at Generate", "is-unavailable");
+    return;
+  }
   const profile = getActiveTokenProfile();
   const promptTokenizer = profile === NOVELAI_V5_FULL_TOKEN_PROFILE ? promptTokenizers.qwen : promptTokenizers.t5;
   if (!promptTokenizer || !state.currentPreset) {
@@ -1229,12 +1226,20 @@ async function generateImage() {
     if (isV5) await refreshAccountUsage();
     setSummary($("generateStatus"), "Generating one image...", false);
     const modeRequest = generationModeController.getGenerateRequest();
-    const resolvedPreset = resolvePresetRandomPrompts(state.currentPreset);
+    const prepared = await postJson("/api/novelai/prepare", { preset: state.currentPreset });
+    const resolvedPreset = prepared.preset;
     reportResolvedPromptLimits(resolvedPreset);
+    $("resolvedGenerationPrompt").textContent = [
+      `Base: ${resolvedPreset.prompt_parts.base}`,
+      `Undesired: ${resolvedPreset.prompt_parts.undesired}`,
+      ...resolvedPreset.prompt_parts.characters.map((c, i) => `Character ${i + 1}: ${c.prompt}\nUndesired: ${c.undesired}`),
+    ].join("\n\n");
+    $("resolvedGenerationDetails").hidden = false;
     const profile = getModelProfile(state.currentPreset.params?.model);
     const preciseReferences = profile.capabilities.preciseReference ? preciseReferenceController.getGenerateRequest() : [];
     const requestBody = {
       preset: resolvedPreset,
+      prepared_id: prepared.prepared_id,
       ...(modeRequest.mode === "text-to-image" ? {} : modeRequest),
       ...(preciseReferences.length ? { precise_references: preciseReferences } : {}),
     };
@@ -1923,6 +1928,7 @@ function renderCharacterCard(character, index, scope) {
         </div>
       </header>
       <div class="character-tabs">
+        <button type="button" data-character-wildcard>Wildcard</button>
         <button type="button" class="${activeTab === "prompt" ? "is-active" : ""}" data-character-tab="prompt">Prompt</button>
         <button type="button" class="${activeTab === "undesired" ? "is-active" : ""}" data-character-tab="undesired">Undesired Content</button>
       </div>
@@ -2511,7 +2517,7 @@ function getAllCharacterPresetCategories(items = state.characterPresets) {
     const subCategory = normalizeCharacterPresetSubCategory(item);
     if (subCategory && !category.subcategories.includes(subCategory)) category.subcategories.push(subCategory);
   }
-  return categories;
+  return categories.map(category => ({ ...category, subcategories: sortClothingSubcategories(category.name, category.subcategories) }));
 }
 
 function getCharacterPresetSubcategories(category, items = state.characterPresets) {
