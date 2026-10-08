@@ -121,13 +121,13 @@ try {
   await open(0); await filter("여성 의상", casual, [presets[0].id]); await close();
   await card(0).locator("[data-toggle-character]").click();
   await card(0).locator('[data-move-character="down"]').click();
-  await open(0); await filter("남성 의상", casual, [presets[2].id]); await close();
-  await open(1); await filter("여성 의상", casual, [presets[0].id]); await close();
+  await open(0); await filter("여성 의상", casual, [presets[0].id]); await close();
+  await open(1); await filter("남성 의상", casual, [presets[2].id]); await close();
   await card(0).locator("[data-remove-character]").click();
   await open(0); await filter("여성 의상", casual, [presets[0].id]); await close();
   await page.locator("#addCharacterButton").click();
-  await open(1); await filter("", "", presets.map(p => p.id)); await close();
-  pass("Model/tab/enable changes preserve selection; move and delete follow the character; a newly added slot starts clean");
+  await open(1); await filter("남성 의상", casual, [presets[2].id]); await close();
+  pass("Model/tab/enable changes, reorder/delete/add do not reset numbered-field preferences");
 
   await page.locator("#savePresetButton").click(); await page.locator("#confirmSavePresetButton").click();
   await page.locator("#presetSaveDialog").waitFor({ state: "hidden" });
@@ -139,8 +139,14 @@ try {
   await page.locator("#openPresetLoadButton").click();
   await page.locator(`[data-load-preset="${list.items[0].id}"]`).click();
   await page.locator("#presetLoadDialog").waitFor({ state: "hidden" });
-  await open(0); await filter("", "", presets.map(p => p.id)); await close();
-  pass("Saving retains the current choices and reusable prompts without UI fields; loading a main preset resets editor preferences");
+  await open(0); await filter("여성 의상", casual, [presets[0].id]); await close();
+  await open(1); await filter("남성 의상", casual, [presets[2].id]); await close();
+  await page.reload();
+  await page.waitForFunction(() => document.querySelector("#presetName").value.length > 0);
+  await page.locator("#addCharacterButton").click(); await page.locator("#addCharacterButton").click();
+  await open(0); await filter("여성 의상", casual, [presets[0].id]); await close();
+  await open(1); await filter("남성 의상", casual, [presets[2].id]); await close();
+  pass("Saving omits UI fields; loading a main preset and reloading the app preserve both numbered-field preferences");
 
   await page.locator("#openWildcardsButton").click(); await page.locator("#wildcardNew").click();
   await page.locator("#wildcardKey").fill("colors"); await page.locator("#wildcardEntries").fill("blue\nred");

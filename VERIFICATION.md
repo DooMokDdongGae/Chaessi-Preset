@@ -1,5 +1,19 @@
 # Chaessi Preset verification
 
+## Persistent-category correction — PRIVATE, 2026-10-09
+
+The requested scope includes app restart and loading main/History presets. The session-only behavior in the published v3.4.1 implementation below is superseded by this PRIVATE correction; no existing Public Release has been changed.
+
+- Numbered-field category preferences now live in the Electron/browser profile's localStorage (`chaessi.character-preset-categories.v1`). Only category/subcategory pairs are stored, for up to 32 fields. Main/History preset loading and temporary UI state resets do not overwrite them.
+- `npm run test:character-preset-preferences`: **5/5 passed**, covering independent fields including field 32, explicit replacement/All categories, defensive copies, invalid stored data and storage failures.
+- `npm run test:character-preset-ui`: **8/8 passed**, covering independent filters and cards, Character/Base loading, direct changes, reorder/delete/re-add, model/tab/enable changes, main preset loading, page reload, reusable prompts and Wildcard preparation.
+- `npm run test:character-preset-restart`: **4/4 passed in the actual Electron app**. Quit/relaunch with an isolated profile retains two selections; loading a different real stored main preset and applying a real stored History preset preserve them; explicitly selecting another category and All categories persists across a second quit/relaunch. No renderer errors.
+- Existing Wildcard unit/HTTP integration: **8/8 passed**. Existing regression scripts: **21/21 passed**. Local HTTP and temporary-file checks ran with normal permissions after the sandbox blocked them.
+- Synthetic local fixtures only; no live NovelAI generation, production data or saved credentials were used. Preset/generation schemas, generation adapters and PDFs are unchanged. README is the v3.4.0 original.
+- Preferences are tied to numbered fields, not to character content imported into those fields. Clearing the app's browser profile would clear these local preferences. Storage failure is reported in the UI rather than silently promising restart persistence.
+
+The user approved publishing this verified correction as v3.4.2. PUBLIC work only updates release metadata, builds and publishes; no feature, regression or PDF verification is rerun. The README and guides shipped with v3.4.1 are reused unchanged.
+
 ## v3.4.1 PRIVATE verification — 2026-10-09
 
 Baseline: v3.4.0 private source (`03c9d9f`), whose tracked files match the published v3.4.0 source except the historical CHANGELOG. No user presets, credentials, or production History were changed.

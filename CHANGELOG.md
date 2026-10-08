@@ -1,5 +1,12 @@
 # Changelog
 
+## v3.4.2
+
+- Correct the category-memory scope introduced in v3.4.1: store each numbered Character Prompt field's category and subcategory in the app's persistent browser profile, separately from presets and temporary UI state.
+- Restore choices after app restart, loading any main preset, and applying a History preset. Preferences remain associated with field numbers across reorder, deletion, re-addition, model changes and changing character counts; only a direct category choice updates that field's preference.
+- Keep Base Prompt browsing independent and saved presets, NovelAI requests, History schemas and PDFs unchanged. Reuse the README and guides shipped with v3.4.1 without modification.
+- Publish the previously verified PRIVATE correction as v3.4.2 without rerunning feature, regression or PDF verification. Earlier Releases remain unchanged.
+
 ## v3.4.1
 
 - Remember the last browsed Preset category and subcategory separately for each Character Prompt during the current editing session. Reopening the picker restores that slot's choice until the user changes it.

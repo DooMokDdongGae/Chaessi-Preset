@@ -6,6 +6,7 @@ import { createLatestRequestGuard } from "./ui/latest-request.js";
 import { createPagedListController } from "./ui/paged-list.js";
 import { createHistorySelectionController } from "./ui/history-selection.js";
 import { createCharacterPositionPad } from "./ui/character-position-pad.js";
+import { createCharacterPresetPreferences } from "./ui/character-preset-preferences.js";
 import {
   getAdjacentHistoryIdAfterRemoval,
   getHistoryNavigation,
@@ -49,6 +50,7 @@ let pendingImageViewerCloseEvents = 0;
 const ACCOUNT_USAGE_FOCUS_REFRESH_MS = 60_000;
 const historyPages = createPagedListController(50);
 const characterPresetPages = createPagedListController(50);
+const characterPresetPreferences = createCharacterPresetPreferences();
 const historyViewGuard = createLatestRequestGuard();
 const historySelection = createHistorySelectionController();
 const state = {
@@ -2422,7 +2424,7 @@ function initializeCharacterPresetCategoryControls() {
   syncCharacterCategoryFilterOptions(state.characterPresets);
 }
 
-// Browsing preferences belong to each editor slot, not to saved/generated prompts.
+// Save numbered-field preferences separately from presets and temporary editor UI state.
 function rememberCharacterPresetCategoryFilter() {
   const filter = {
     category: state.dialogCharacterCategoryFilter,
@@ -2432,16 +2434,15 @@ function rememberCharacterPresetCategoryFilter() {
     state.basePresetCategoryFilter = filter;
     return;
   }
-  syncCharacterUiStateLength(state.currentPreset.prompt_parts?.characters || []);
-  const slot = state.characterUiState[state.characterPresetContextIndex];
-  if (slot) slot.presetCategoryFilter = filter;
+  if (!characterPresetPreferences.set(state.characterPresetContextIndex, filter)) {
+    showToast("Could not save Preset category preferences on this device. This selection may not survive an app restart.", true);
+  }
 }
 
 function restoreCharacterPresetCategoryFilter() {
-  syncCharacterUiStateLength(state.currentPreset.prompt_parts?.characters || []);
   const filter = state.characterPresetContextType === "base"
     ? state.basePresetCategoryFilter
-    : state.characterUiState[state.characterPresetContextIndex]?.presetCategoryFilter;
+    : characterPresetPreferences.get(state.characterPresetContextIndex);
   state.dialogCharacterCategoryFilter = filter?.category || "";
   state.dialogCharacterSubCategoryFilter = filter?.subCategory || "";
 }

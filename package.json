@@ -1,7 +1,7 @@
 {
   "name": "chaessi-preset",
   "productName": "Chaessi Preset",
-  "version": "3.4.1",
+  "version": "3.4.2",
   "description": "Local preset and payload manager for NovelAI V4.5 Full and V5 Full generation workflows.",
   "author": "Chaessi Preset",
   "license": "MIT",
@@ -15,7 +15,9 @@
     "electron:dist": "electron-builder --win portable",
     "test:wildcard": "node --test tests/wildcard.test.mjs tests/wildcard-endpoint.test.mjs",
     "test:regression": "node scripts/run-regressions.mjs",
-    "test:character-preset-ui": "node scripts/verify-character-preset-categories.mjs"
+    "test:character-preset-ui": "node scripts/verify-character-preset-categories.mjs",
+    "test:character-preset-preferences": "node --test tests/character-preset-preferences.test.mjs",
+    "test:character-preset-restart": "node scripts/verify-character-preset-restart.mjs"
   },
   "devDependencies": {
     "electron": "^42.3.0",
