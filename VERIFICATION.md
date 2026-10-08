@@ -1,4 +1,21 @@
-# Chaessi Preset 3.4.0 verification
+# Chaessi Preset verification
+
+## v3.4.1 PRIVATE verification — 2026-10-09
+
+Baseline: v3.4.0 private source (`03c9d9f`), whose tracked files match the published v3.4.0 source except the historical CHANGELOG. No user presets, credentials, or production History were changed.
+
+- Actual local app in headless Edge, isolated synthetic data: `npm run test:character-preset-ui`, **8/8 UI scenarios passed**.
+- Verified reopening restores category, subcategory and matching cards; two slots remain independent; loading a Character Preset preserves the slot's filter and exact prompt.
+- Verified direct category/subcategory changes, categories with no children, All categories and All subcategories; Base Prompt filter isolation and actual loaded Name/Prompt.
+- Verified model/tab/enable changes, character reorder/delete/add, saving without UI fields, and resetting preferences on main preset load. The UI preference is session-only and is not persisted in preset files.
+- Verified Wildcard creation through the UI and preparation of saved Character/Base references and legacy `||...||` syntax. The new UI test does not contact NovelAI or use saved credentials.
+- Existing Wildcard unit/HTTP integration suite: **8/8 passed**, including V4.5/V5 × T2I/I2I/Inpaint final request/History matching against a mocked provider.
+- Existing regression suite: **21/21 passed** (categories, both models and generation modes, History, image intake, Inpaint, references, token counters and UI controls).
+- No renderer JavaScript errors. Browsing preferences reuse existing per-character UI state; preset schemas, generation adapters, Wildcard logic and bundled PDFs are unchanged.
+
+PRIVATE verification is complete. Publication requires user approval; PUBLIC work must use this verified commit without repeating feature or regression tests. v3.4.0 tags and Release remain untouched.
+
+## v3.4.0 verification (historical)
 
 Baseline: **v3.2.1**. This release adds Wildcards and guides to that workbench. It does not include the v3.3.x Image Maker workspace; earlier releases remain available.
 

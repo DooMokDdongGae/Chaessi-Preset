@@ -1,5 +1,12 @@
 # Changelog
 
+## v3.4.1
+
+- Remember the last browsed Preset category and subcategory separately for each Character Prompt during the current editing session. Reopening the picker restores that slot's choice until the user changes it.
+- Keep browsing preferences with the existing per-slot UI state when characters are moved or removed. New slots start at All categories; loading a different main preset or applying a History preset resets the slot preferences. Preferences are not written to saved presets, NovelAI payloads, or History.
+- Keep the Base Prompt picker preference independent of Character Prompt slots, preserving its own last selection and the loaded preset name behavior.
+- Preserve v3.4.0 Wildcards, random prompt syntax, generation adapters, manuals, and preset storage formats.
+
 ## v3.4.0
 
 - Add a local Wildcard library with one candidate per line, search, TXT import/export, samples, and insertion into Base, Undesired, and Character prompts using `__key__`.

@@ -77,6 +77,7 @@ const state = {
   selectedDialogCharacterPresetId: "",
   dialogCharacterCategoryFilter: "",
   dialogCharacterSubCategoryFilter: "",
+  basePresetCategoryFilter: { category: "", subCategory: "" },
   modeByModel: {},
   selectedCharacterPositionIndex: 0,
 };
@@ -224,6 +225,7 @@ function bindActions() {
     state.dialogCharacterCategoryFilter = $("dialogCharacterCategoryFilter").value;
     if (!getCharacterPresetSubcategories(state.dialogCharacterCategoryFilter).length) state.dialogCharacterSubCategoryFilter = "";
     syncCharacterSubCategoryFilter();
+    rememberCharacterPresetCategoryFilter();
     const filtered = getFilteredDialogCharacterPresets();
     if (state.selectedDialogCharacterPresetId && !filtered.some((item) => item.id === state.selectedDialogCharacterPresetId)) {
       state.selectedDialogCharacterPresetId = "";
@@ -232,6 +234,7 @@ function bindActions() {
   });
   $("dialogCharacterSubCategoryFilter").addEventListener("change", () => {
     state.dialogCharacterSubCategoryFilter = $("dialogCharacterSubCategoryFilter").value;
+    rememberCharacterPresetCategoryFilter();
     const filtered = getFilteredDialogCharacterPresets();
     if (state.selectedDialogCharacterPresetId && !filtered.some((item) => item.id === state.selectedDialogCharacterPresetId)) {
       state.selectedDialogCharacterPresetId = "";
@@ -908,9 +911,10 @@ async function saveCharacterPresetRequest(preset, { includeThumbnail = true } = 
 async function openBasePromptPresetDialog() {
   syncPresetFromForm();
   await loadCharacterPresetCategories();
-  initializeCharacterPresetCategoryControls();
   state.characterPresetContextType = "base";
   state.characterPresetContextIndex = null;
+  restoreCharacterPresetCategoryFilter();
+  initializeCharacterPresetCategoryControls();
   state.selectedDialogCharacterPresetId = "";
   clearCharacterThumbnailPreview({ markCleared: false });
   updateCharacterPresetDialog();
@@ -921,9 +925,10 @@ async function openBasePromptPresetDialog() {
 async function openCharacterPresetDialog(index) {
   syncPresetFromForm();
   await loadCharacterPresetCategories();
-  initializeCharacterPresetCategoryControls();
   state.characterPresetContextType = "slot";
   state.characterPresetContextIndex = index;
+  restoreCharacterPresetCategoryFilter();
+  initializeCharacterPresetCategoryControls();
   state.selectedDialogCharacterPresetId = "";
   clearCharacterThumbnailPreview({ markCleared: false });
   updateCharacterPresetDialog();
@@ -2415,6 +2420,30 @@ function initializeCharacterPresetCategoryControls() {
   $("characterPresetSubCategoryInput").value = "";
   syncCharacterSubCategoryInput();
   syncCharacterCategoryFilterOptions(state.characterPresets);
+}
+
+// Browsing preferences belong to each editor slot, not to saved/generated prompts.
+function rememberCharacterPresetCategoryFilter() {
+  const filter = {
+    category: state.dialogCharacterCategoryFilter,
+    subCategory: state.dialogCharacterSubCategoryFilter,
+  };
+  if (state.characterPresetContextType === "base") {
+    state.basePresetCategoryFilter = filter;
+    return;
+  }
+  syncCharacterUiStateLength(state.currentPreset.prompt_parts?.characters || []);
+  const slot = state.characterUiState[state.characterPresetContextIndex];
+  if (slot) slot.presetCategoryFilter = filter;
+}
+
+function restoreCharacterPresetCategoryFilter() {
+  syncCharacterUiStateLength(state.currentPreset.prompt_parts?.characters || []);
+  const filter = state.characterPresetContextType === "base"
+    ? state.basePresetCategoryFilter
+    : state.characterUiState[state.characterPresetContextIndex]?.presetCategoryFilter;
+  state.dialogCharacterCategoryFilter = filter?.category || "";
+  state.dialogCharacterSubCategoryFilter = filter?.subCategory || "";
 }
 
 function updateCharacterPresetDialogStatusCopy() {

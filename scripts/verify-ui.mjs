@@ -35,7 +35,8 @@ try {
   const page = await browser.newPage({ viewport: { width: 1440, height: 1000 }, deviceScaleFactor: 1 });
   const errors = [];
   page.on("pageerror", error => errors.push(error.message));
-  await page.goto(base); await page.waitForFunction(() => document.querySelector("#healthStatus").textContent.includes("3.4.0"));
+  const appVersion = JSON.parse(await readFile(path.join(root, "package.json"), "utf8")).version;
+  await page.goto(base); await page.waitForFunction(version => document.querySelector("#healthStatus").textContent.includes(version), appVersion);
   await page.waitForFunction(() => document.querySelector("#presetName").value.length > 0);
   await page.locator("#presetName").fill("Wildcard example");
   await page.locator("#basePrompt").fill("1girl, solo, __tops__, __poses__, ||outdoors|indoors||, simple background");
