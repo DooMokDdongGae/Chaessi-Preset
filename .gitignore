@@ -78,3 +78,6 @@ venv/
 Thumbs.db
 .vscode/
 .idea/
+
+# Offline Help Center screenshots
+!assets/manuals/*/*.png

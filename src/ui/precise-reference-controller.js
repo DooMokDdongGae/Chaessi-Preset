@@ -237,7 +237,7 @@ function renderReferenceCard(reference, index) {
     <img src="${escapeAttribute(reference.previewUrl)}" alt="Precise Reference ${index + 1}" />
     <div class="precise-reference-fields">
       <div class="section-row">
-        <strong>${escapeHtml(reference.fileName)}</strong>
+        <strong data-no-i18n>${escapeHtml(reference.fileName)}</strong>
         <label class="inline"><input type="checkbox" data-reference-id="${reference.id}" data-reference-field="enabled" ${reference.enabled ? "checked" : ""} /> Enabled</label>
       </div>
       <small>${reference.originalWidth}x${reference.originalHeight} to ${reference.transmittedWidth}x${reference.transmittedHeight}</small>

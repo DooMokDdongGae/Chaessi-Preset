@@ -34,6 +34,7 @@ async function launch() {
   assert.equal(path.resolve(await app.evaluate(({ app }) => app.getPath("userData"))).toLowerCase(), path.resolve(folder).toLowerCase());
   page = await app.firstWindow(); page.on("pageerror", error => errors.push(error.message));
   await page.waitForFunction(() => document.querySelector("#presetName")?.value.length > 0);
+  await page.locator('#uiLanguage').selectOption('en');
   await page.locator("#addCharacterButton").click(); await page.locator("#addCharacterButton").click();
 }
 async function stop() {
@@ -75,10 +76,12 @@ try {
   await page.locator("#presetLoadDialog").waitFor({ state: "hidden" });
   assert.equal(await page.locator('#characterCards [data-character-field="name"]').first().inputValue(), "Loaded A");
   await verifyBoth(); pass("Loading a different main preset changes prompts but preserves both numbered-field preferences");
+  await page.locator('[data-workspace-view="history"]').click();
   await page.locator("#loadHistoryButton").click();
   const reuse = page.locator(`[data-generation-id="${history.id}"] .history-reuse-details summary`);
   await reuse.click(); await page.locator(`[data-apply-generation-preset="${history.id}"]`).click();
   await page.waitForFunction(() => document.querySelector('#characterCards [data-character-field="name"]')?.value === "History A");
+  await page.locator('[data-workspace-view="workbench"]').click();
   await verifyBoth(); pass("Applying an actual stored History preset changes prompts without resetting either category");
   await choose(0, "조명"); await choose(1, "");
   await stop(); await launch(); await verify(0, "조명"); await verify(1, "");

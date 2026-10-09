@@ -1,5 +1,15 @@
 # Changelog
 
+## v3.5.0
+
+- Introduce a resizable prompt/result workbench with focused-field expansion, a large prompt editor, Character organization, and improved History search and browsing.
+- Add Korean, English and Japanese UI switching without resetting current work, plus remembered locale-aware name and creation/modification date sorting.
+- Add integrated offline help in all three languages, including Wildcards, contents, search, text sizing, real screenshots, zoom and contextual navigation. Preserve the four archived v3.4.0 PDFs.
+- Prefer V5 for fresh work while restoring existing V4.5 presets and model settings. Preserve V4.5/V5 T2I/I2I/Inpaint, Wildcards, legacy random blocks, Position Pad, references, preset/History schemas and persistent numbered-slot categories.
+- Separate destructive controls and show the target and impact before deletion; retain cancellation and bulk History deletion.
+- Keep every feature free. Add optional one-time USD $3 coffee support for DooMokDdongGae in App Info and the six-section KO/EN/JA README; configure the GitHub Sponsor link to Buy Me a Coffee.
+- Verify the final source with unit, mock HTTP, regression and actual Electron workflows. Publish the Windows x64 portable executable as a Release asset, without adding an EXE or LFS requirement to PUBLIC Git.
+
 ## v3.4.2
 
 - Correct the category-memory scope introduced in v3.4.1: store each numbered Character Prompt field's category and subcategory in the app's persistent browser profile, separately from presets and temporary UI state.

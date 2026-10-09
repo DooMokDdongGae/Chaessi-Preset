@@ -1,5 +1,16 @@
 # Chaessi Preset verification
 
+## v3.5.0 final release verification — 2026-10-09
+
+- Existing regressions: **21/21 PASS**. Wildcard unit/mock HTTP: **8/8 PASS**. Slot preference unit checks: **5/5 PASS**. Language/sorting/help unit checks: **5/5 PASS**. Static translation coverage: **PASS**.
+- Actual Electron workbench: **21/21 PASS**, including presets, focused/large editing, Wildcards, Position Pad, History and V4.5/V5 × T2I/I2I/Inpaint with a mock provider.
+- Actual Electron multilingual/help/state/deletion scenarios: **15/15 PASS**. Character picker in isolated Edge: **8/8 PASS**. Actual Electron quit/restart and main/History preset compatibility: **4/4 PASS**.
+- Built Electron application: **6/6 PASS**, including v3.5.0, isolated data, exact KO/EN/JA support labels, fixed external-browser URL, three-language help/images and rejection of unrelated URLs. No renderer errors.
+- Package/source bytes checked for equality; 33 local help screenshots, four archived v3.4.0 PDFs, tokenizer assets, MIT/Apache/third-party notices included. Environment, credentials, user data and development artifacts excluded.
+- Final build is unsigned. Support is optional, one-time USD $3 per coffee, without feature restrictions.
+- Initial UI runs stopped on a missing local Electron path and an obsolete hard-coded version assertion. The runtime path and version-aware test were corrected; all affected scenarios passed on rerun. No application functionality changed for these corrections.
+- **Not run:** new live NovelAI calls or real payments. Generation verification in this release task used a mock provider; tests did not access production user data. Other PCs and high-DPI behavior were not newly tested.
+
 ## Persistent-category correction — PRIVATE, 2026-10-09
 
 The requested scope includes app restart and loading main/History presets. The session-only behavior in the published v3.4.1 implementation below is superseded by this PRIVATE correction; no existing Public Release has been changed.

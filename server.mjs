@@ -67,7 +67,7 @@ import { parseNovelAiPngMetadata } from "./src/importers/nai-metadata.js";
 import { parseImageMetadata } from "./src/importers/image-metadata.js";
 
 const HEALTH_APP_NAME = "Chaessi Preset";
-const APP_VERSION = "3.4.2";
+const APP_VERSION = "3.5.0";
 const PORT = Number(process.env.PORT || 4174);
 const ROOT = path.dirname(fileURLToPath(import.meta.url));
 const DATA_ROOT = path.resolve(process.env.CHAESSI_USER_DATA_DIR || ROOT);
@@ -113,7 +113,8 @@ const server = http.createServer(async (req, res) => {
     }
 
     if (req.method === "GET" && url.pathname === "/api/preset/default") {
-      sendJson(res, 200, { ok: true, preset: createDefaultPreset() });
+      // Only a fresh workbench defaults to V5. Legacy normalization stays V4.5.
+      sendJson(res, 200, { ok: true, preset: createDefaultPreset({ params: { model: NOVELAI_V5_FULL_MODEL, ...getModelProfile(NOVELAI_V5_FULL_MODEL).defaults } }) });
       return;
     }
 

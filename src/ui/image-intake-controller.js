@@ -1,3 +1,4 @@
+import { formatUIError } from './i18n.js';
 import {
   getImageDestinationAvailability,
   hasImportableNovelAiMetadata,
@@ -152,6 +153,7 @@ export function createImageIntakeController({
   }
 
   function setStatus(message, ok = false, error = false) {
+    if (error) message = formatUIError(message);
     elements.status.textContent = message;
     elements.status.classList.toggle("ok", ok);
     elements.status.classList.toggle("error", error);

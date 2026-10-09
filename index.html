@@ -6,6 +6,8 @@
     <title>Chaessi Preset / Payload Manager</title>
     <link rel="stylesheet" href="/styles.css" />
     <link rel="stylesheet" href="/src/ui/precise-reference.css" />
+    <link rel="stylesheet" href="/src/ui/workbench.css" />
+    <link rel="stylesheet" href="/src/ui/multilingual.css" />
   </head>
   <body>
     <header class="app-header">
@@ -13,7 +15,7 @@
         <img class="brand-symbol" src="/assets/branding/chaessi-symbol.png" alt="" />
         <div>
           <h1>Chaessi Preset</h1>
-          <p>Local Preset Workshop</p>
+          <p>Prompt & Image Workbench</p>
         </div>
       </div>
       <div class="header-tools">
@@ -21,7 +23,7 @@
         <div class="health model-badge" id="headerModelLabel" data-model="nai-diffusion-4-5-full" role="status" aria-live="polite" tabindex="0">NovelAI Diffusion V4.5 Full</div>
         <div class="health" id="anlasBalanceStatus">Anlas —</div>
         <div class="health" id="staminaStatus">V5 Stamina —</div>
-        <button type="button" class="health" id="healthStatus" title="App info and manuals">checking</button>
+        <button type="button" class="health" id="healthStatus" title="App info and help">checking</button>
         <button type="button" id="openWildcardsButton">Wildcards</button>
         <button id="apiSettingsButton" type="button">API Settings</button>
       </div>
@@ -66,6 +68,7 @@
                   <span class="prompt-field-heading">
                     <span>Base prompt</span>
                     <button type="button" data-insert-wildcard="basePrompt">Wildcard</button>
+                    <button type="button" data-expand-prompt="basePrompt">Expand editor</button>
                     <span class="prompt-token-counter is-loading" id="basePromptTokenCounter">Loading tokenizer...</span>
                   </span>
                   <textarea id="basePrompt"></textarea>
@@ -74,6 +77,7 @@
                   <span class="prompt-field-heading">
                     <span>Undesired</span>
                     <button type="button" data-insert-wildcard="undesiredPrompt">Wildcard</button>
+                    <button type="button" data-expand-prompt="undesiredPrompt">Expand editor</button>
                     <span class="prompt-token-counter is-loading" id="undesiredPromptTokenCounter">Loading tokenizer...</span>
                   </span>
                   <textarea id="undesiredPrompt"></textarea>
@@ -662,13 +666,22 @@
       </div>
     </dialog>
     <dialog id="aboutDialog" class="about-dialog">
-      <div class="dialog-header"><div><h2>App info &amp; Manuals</h2><p id="aboutVersion">Chaessi Preset 3.4.2</p></div><button type="button" id="aboutCloseButton">Close</button></div>
-      <p>Open a guide below. 한국어 또는 English를 선택하세요.</p>
-      <div class="manual-grid">
+      <div class="dialog-header"><div><h2>App info &amp; Help</h2><p id="aboutVersion">Chaessi Preset 3.5.0</p></div><button type="button" id="aboutCloseButton">Close</button></div>
+      <p>Read the complete guide, including Wildcards, without internet.</p>
+      <button type="button" id="openIntegratedManual">Open Help Center</button>
+      <section class="support-card" aria-labelledby="supportHeading">
+        <h3 id="supportHeading">Support Chaessi Preset</h3>
+        <p class="summary" data-no-i18n>DooMokDdongGae</p>
+        <p>Chaessi Preset is free to use.</p>
+        <p>If Chaessi Preset helps you, please consider a one-time donation of $3 for a coffee.</p>
+        <a id="supportCoffeeLink" class="support-coffee-link" href="https://buymeacoffee.com/magiconcert" target="_blank" rel="noopener noreferrer">☕ Buy Me a Coffee</a>
+        <p class="summary">Support is optional. All features are available without donating.</p>
+        <p class="summary">Opens Buy Me a Coffee in your browser. Check the amount and choose one-time support there.</p>
+      </section>
+      <details><summary>Previous PDF guides (v3.4.0)</summary><div class="manual-grid">
         <section><h3>App guide / 전체 앱 설명서</h3><p>From your first prompt to presets, image tools, and History.</p><div class="actions"><a href="/manuals/app-ko.pdf" target="_blank" rel="noopener">한국어 PDF</a><a href="/manuals/app-en.pdf" target="_blank" rel="noopener">English PDF</a></div></section>
         <section><h3>Wildcard guide / Wildcard 설명서</h3><p>Create a list, insert a reference, and generate with a selected candidate.</p><div class="actions"><a href="/manuals/wildcard-ko.pdf" target="_blank" rel="noopener">한국어 PDF</a><a href="/manuals/wildcard-en.pdf" target="_blank" rel="noopener">English PDF</a></div></section>
-      </div>
-      <p class="summary">Guides are included with the app and open locally. Save the PDF from the viewer if you want a copy.</p>
+      </div></details>
     </dialog>
     <script type="module" src="/src/app.js"></script>
   </body>

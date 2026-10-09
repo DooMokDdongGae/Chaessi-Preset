@@ -19,8 +19,9 @@ try {
   assert.equal(runtime.packaged, packaged);
   assert.equal(path.resolve(runtime.userData).toLowerCase(), path.resolve(folder).toLowerCase(), "verification must use isolated user data");
   const page = await app.firstWindow();
-  await page.waitForFunction(() => document.querySelector("#healthStatus")?.textContent === "v3.4.0");
+  await page.waitForFunction(() => /^v\d+\.\d+\.\d+$/.test(document.querySelector("#healthStatus")?.textContent || ""));
   await page.locator("#healthStatus").click();
+  await page.locator('#aboutDialog details > summary').click();
   for (const name of ["app-ko", "app-en", "wildcard-ko", "wildcard-en"]) {
     const windowWait = app.waitForEvent("window");
     await page.locator(`#aboutDialog a[href='/manuals/${name}.pdf']`).click();

@@ -7,6 +7,11 @@ import { createPagedListController } from "./ui/paged-list.js";
 import { createHistorySelectionController } from "./ui/history-selection.js";
 import { createCharacterPositionPad } from "./ui/character-position-pad.js";
 import { createCharacterPresetPreferences } from "./ui/character-preset-preferences.js";
+import { createWorkbenchController } from "./ui/workbench-controller.js";
+import { installLanguageUI, getLanguage, t, formatUIError } from "./ui/i18n.js";
+import { createSortControl, sortPresets } from "./ui/preset-sorting.js";
+import { confirmDeletion } from "./ui/delete-confirmation.js";
+import { createManualReader } from "./ui/manual-reader.js";
 import {
   getAdjacentHistoryIdAfterRemoval,
   getHistoryNavigation,
@@ -36,11 +41,16 @@ import {
 } from "./state/character-preset-categories.js";
 
 const $ = (id) => document.getElementById(id);
+const builtInCategoryLabels = new Set(cloneBuiltInCharacterPresetCategories().flatMap(category => [category.name, ...category.subcategories]));
+function categoryDisplayName(value) { return builtInCategoryLabels.has(value) ? t(value) : value; }
+function categoryMarkup(value) { return `<span data-no-i18n ${builtInCategoryLabels.has(value) ? `data-category-label="${escapeHtml(value)}"` : ''}>${escapeHtml(categoryDisplayName(value))}</span>`; }
+function categoryOption(value) { return `<option data-no-i18n ${builtInCategoryLabels.has(value) ? `data-category-label="${escapeHtml(value)}"` : ''} value="${escapeHtml(value)}">${escapeHtml(categoryDisplayName(value))}</option>`; }
 let rawJsonImportTimer = null;
 let generationModeController = null;
 let preciseReferenceController = null;
 let imageIntakeController = null;
 let characterPositionPadController = null;
+let workbenchController = null;
 const promptTokenizers = { t5: null, qwen: null };
 let promptTokenCounterTimer = null;
 let promptTokenizerError = null;
@@ -80,6 +90,7 @@ const state = {
   dialogCharacterCategoryFilter: "",
   dialogCharacterSubCategoryFilter: "",
   basePresetCategoryFilter: { category: "", subCategory: "" },
+  characterPresetSearches: {},
   modeByModel: {},
   selectedCharacterPositionIndex: 0,
 };
@@ -124,6 +135,27 @@ const importFields = {
 init().catch((error) => showToast(error.message, true));
 
 async function init() {
+  workbenchController = createWorkbenchController();
+  installLanguageUI();
+  createManualReader();
+  createSortControl('characterPresetSort', document.querySelector('.library-search').parentElement, () => {
+    renderDialogCharacterPresetCards(getFilteredDialogCharacterPresets());
+  });
+  const characterTools = document.createElement('div'); characterTools.className = 'preset-library-tools';
+  document.querySelector('.library-search').before(characterTools);
+  characterTools.append(document.querySelector('.library-search'), $('characterPresetSort').closest('label'));
+  const presetTools = document.createElement('div'); presetTools.className = 'preset-library-tools';
+  presetTools.innerHTML = '<label>Search presets<input type="search" id="presetSearch" placeholder="Preset name…"></label>';
+  $('presetLoadList').before(presetTools);
+  createSortControl('mainPresetSort', presetTools, renderPresetLibrary);
+  document.addEventListener('chaessi:language-change', () => {
+    syncCharacterPresetSaveCategoryOptions(state.characterPresets);
+    syncCharacterCategoryFilterOptions(state.characterPresets);
+    renderDialogCharacterPresetCards(getFilteredDialogCharacterPresets());
+    if ($('characterPresetCategoryManagerDialog').open) renderCharacterPresetCategoryManager();
+  });
+  $('presetSearch').addEventListener('input', renderPresetLibrary);
+  $('paramModel').prepend($('paramModel').querySelector('[value="nai-diffusion-5-full"]'));
   createWildcardController({ showToast });
   $("healthStatus").addEventListener("click", () => $("aboutDialog").showModal());
   $("aboutCloseButton").addEventListener("click", () => $("aboutDialog").close());
@@ -156,9 +188,11 @@ async function init() {
     inspectMetadata: async (file) => (await postImage("/api/import/image", file)).import_result,
     routeToSource: async (item, mode) => {
       await generationModeController.loadSourceItem(item, mode);
+      workbenchController.showWorkbench(); workbenchController.selectPane("result");
     },
     routeToReferences: async (items) => {
       await preciseReferenceController.addIntakeItems(items);
+      workbenchController.showWorkbench(); workbenchController.selectPane("result");
       if (state.currentPreset?.params?.model === "nai-diffusion-5-full") showToast("V5 Full Precise Reference is not supported. References are preserved for V4.5.", true);
     },
     applyMetadata: applyIntakeMetadata,
@@ -219,6 +253,45 @@ function bindActions() {
   $("dialogDeleteCharacterPresetButton").addEventListener("click", () => deleteCharacterPreset({ dialog: true }));
   $("dialogCharacterPresetCards").addEventListener("click", handleDialogCharacterPresetClick);
   $("dialogCharacterPresetLoadMoreButton").addEventListener("click", loadMoreDialogCharacterPresets);
+  $("characterPresetSearch").addEventListener("input", () => {
+    state.characterPresetSearches[state.characterPresetContextType === "base" ? "base" : state.characterPresetContextIndex] = $("characterPresetSearch").value;
+    renderDialogCharacterPresetCards(getFilteredDialogCharacterPresets());
+  });
+  for (const id of ["historySearch", "historyModelFilter", "historyModeFilter"]) {
+    $(id).addEventListener("input", () => {
+      historyPages.reset(getFilteredHistory());
+      renderHistoryList();
+    });
+  }
+  $("viewerReuseActions").addEventListener("click", async event => {
+    const action = event.target.dataset.viewerReuse;
+    const id = state.imageViewerContext?.kind === "history" ? state.imageViewerContext.id : "";
+    if (!action || !id) return;
+    try {
+      if (action === "preset") await applyGenerationPreset(id);
+      if (action === "seed") await applyGenerationSeed(id);
+      if (action === "params") await applyGenerationParams(id);
+      if (action === "preview") {
+        const stored = (await getJson(`/api/generations/${encodeURIComponent(id)}`)).generation;
+        const imagePath = stored.output?.image_filename || stored.image_path;
+        state.lastGenerationResponse = { generation: { id, image_path: imagePath }, summary: stored.generation };
+        state.lastGeneratedImage = toBrowserPath(imagePath);
+        $("generatedImage").src = state.lastGeneratedImage;
+        $("latestResultActions").hidden = false;
+        $("generationSummary").innerHTML = renderGenerationSummary(state.lastGenerationResponse);
+        showResolvedGenerationPrompt(stored.internal_preset);
+        setSummary($("generateStatus"), "History image shown. Prompt edits unchanged.", true);
+        updateCurrentSummary();
+      }
+      if (action === "source") {
+        const item = state.generations.find(item => item.id === id);
+        await generationModeController.loadSourceFromUrl(toBrowserPath(item.image_path), `${id}.png`);
+        document.querySelector('[data-generation-mode="image-to-image"]')?.click();
+      }
+      closeImageViewer(); workbenchController.showWorkbench();
+      workbenchController.selectPane(action === "source" || action === "preview" ? "result" : "edit");
+    } catch (error) { showToast(error.message, true); }
+  });
   $("manageCharacterPresetCategoriesButton").addEventListener("click", openCharacterPresetCategoryManager);
   $("categoryManagerParentCategorySelect").addEventListener("change", renderCategoryManagerSubcategories);
   $("categoryManagerAddCategoryButton").addEventListener("click", addManagedCharacterPresetCategory);
@@ -319,9 +392,6 @@ function bindActions() {
   });
   $("saveTokenButton").addEventListener("click", saveNovelAiToken);
   $("clearTokenButton").addEventListener("click", clearSavedNovelAiToken);
-  $("apiSettingsButton").addEventListener("click", () => {
-    document.querySelector(".api-settings-surface")?.scrollIntoView({ behavior: "smooth", block: "center" });
-  });
   window.addEventListener("focus", () => {
     if (Date.now() - lastAccountUsageRefreshAt >= ACCOUNT_USAGE_FOCUS_REFRESH_MS) void refreshAccountUsage();
   });
@@ -414,7 +484,7 @@ function bindImageIntake() {
 async function refreshHealth() {
   const health = await getJson("/api/health");
   $("healthStatus").textContent = `v${health.version || "0.0.0"}`;
-  $("aboutVersion").textContent = `Chaessi Preset ${health.version || "3.4.0"}`;
+  $("aboutVersion").textContent = `Chaessi Preset ${health.version || "3.5.0"}`;
 }
 
 async function refreshTokenStatus() {
@@ -476,6 +546,7 @@ async function saveNovelAiToken() {
 }
 
 async function clearSavedNovelAiToken() {
+  if (!await confirmDeletion({ name: 'NovelAI Token', impact: 'The saved NovelAI token will be removed. You will need to enter it again to generate.' })) return;
   return withButton($("clearTokenButton"), "Clearing", async () => {
     await deleteJson("/api/settings/token/novelai");
     $("tokenInput").value = "";
@@ -673,13 +744,21 @@ async function openPresetLoadDialog() {
 async function loadPresetList() {
   const response = await getJson("/api/presets");
   state.presets = response.items || [];
-  $("presetLoadList").innerHTML = state.presets.map(renderPresetLoadCard).join("")
+  renderPresetLibrary();
+}
+
+function renderPresetLibrary() {
+  const query = $('presetSearch').value.trim().toLocaleLowerCase(getLanguage());
+  const items = sortPresets(state.presets.filter(item => !query || String(item.name || '').toLocaleLowerCase(getLanguage()).includes(query)), $('mainPresetSort').value);
+  $("presetLoadList").innerHTML = items.map(renderPresetLoadCard).join("")
     || "<div class=\"summary\">No saved presets yet.</div>";
   document.querySelectorAll("[data-load-preset]").forEach((button) => {
     button.addEventListener("click", () => loadPresetById(button.dataset.loadPreset));
   });
   document.querySelectorAll("[data-delete-preset]").forEach((button) => {
     button.addEventListener("click", async () => {
+      const item = state.presets.find(item => item.id === button.dataset.deletePreset);
+      if (!await confirmDeletion({ name: item?.name || button.dataset.deletePreset, image: item?.thumbnail_path ? toBrowserPath(item.thumbnail_path) : '' })) return;
       await deleteJson(`/api/presets/${encodeURIComponent(button.dataset.deletePreset)}`);
       await loadPresetList();
       showToast("Preset deleted.");
@@ -706,7 +785,7 @@ function renderPresetLoadCard(item) {
     <article class="preset-card">
       ${thumb}
       <div>
-        <strong>${escapeHtml(item.name || "Untitled Preset")}</strong>
+        <strong data-no-i18n>${escapeHtml(item.name || "Untitled Preset")}</strong>
         <small>${escapeHtml(item.updated_at || "")}</small>
         <small>${escapeHtml(item.model || "nai-diffusion-4-5-full")}</small>
         <div class="actions">
@@ -835,6 +914,7 @@ async function deleteSectionPreset(kind) {
   const config = sectionConfig[kind];
   const id = $(config.listId).value;
   if (!id) return showToast("Select a section preset first.", true);
+  if (!await confirmDeletion({ name: $(config.listId).selectedOptions[0]?.textContent || id })) return;
   await deleteJson(`${config.endpoint}/${encodeURIComponent(id)}`);
   await loadSectionList(kind);
   showToast("Section preset deleted.");
@@ -915,6 +995,7 @@ async function openBasePromptPresetDialog() {
   await loadCharacterPresetCategories();
   state.characterPresetContextType = "base";
   state.characterPresetContextIndex = null;
+  $("characterPresetSearch").value = state.characterPresetSearches.base || "";
   restoreCharacterPresetCategoryFilter();
   initializeCharacterPresetCategoryControls();
   state.selectedDialogCharacterPresetId = "";
@@ -929,6 +1010,7 @@ async function openCharacterPresetDialog(index) {
   await loadCharacterPresetCategories();
   state.characterPresetContextType = "slot";
   state.characterPresetContextIndex = index;
+  $("characterPresetSearch").value = state.characterPresetSearches[index] || "";
   restoreCharacterPresetCategoryFilter();
   initializeCharacterPresetCategoryControls();
   state.selectedDialogCharacterPresetId = "";
@@ -1039,12 +1121,8 @@ async function loadCharacterList({ dialog = false } = {}) {
     syncCharacterPresetSaveCategoryOptions(response.items || []);
     syncCharacterCategoryFilterOptions(response.items || []);
     renderDialogCharacterPresetCards(getFilteredDialogCharacterPresets());
-    const selectedCopy = state.selectedDialogCharacterPresetId
-      ? ` Select a card to load it into ${getCharacterPresetDialogTargetLabel()}, or Save to overwrite the selected preset.`
-      : ` Select a card to load it into ${getCharacterPresetDialogTargetLabel()}, or use Save As to create a new preset.`;
     const filteredCount = getFilteredDialogCharacterPresets().length;
-    const filterCopy = state.dialogCharacterCategoryFilter ? ` ${filteredCount} shown in ${state.dialogCharacterCategoryFilter}.` : "";
-    setSummary($("characterPresetDialogStatus"), `${response.items?.length || 0} character presets loaded.${filterCopy}${selectedCopy}`, true);
+    setSummary($("characterPresetDialogStatus"), `${response.items?.length || 0} character presets loaded. ${filteredCount} shown. Select a card to load into ${getCharacterPresetDialogTargetLabel()}.`, true);
   }
 }
 
@@ -1106,6 +1184,8 @@ async function deleteCharacterPreset({ dialog = false } = {}) {
   const list = dialog ? $("dialogCharacterPresetList") : $("characterPresetList");
   const id = dialog ? state.selectedDialogCharacterPresetId || list.value : list.value;
   if (!id) return showToast("Select a character preset first.", true);
+  const item = state.characterPresets.find(item => item.id === id);
+  if (!await confirmDeletion({ name: item?.name || id, image: item?.thumbnail_path ? toBrowserPath(item.thumbnail_path) : '' })) return;
   await deleteJson(`/api/character-presets/${encodeURIComponent(id)}`);
   if (dialog && state.selectedDialogCharacterPresetId === id) state.selectedDialogCharacterPresetId = "";
   await loadCharacterList({ dialog });
@@ -1236,12 +1316,7 @@ async function generateImage() {
     const prepared = await postJson("/api/novelai/prepare", { preset: state.currentPreset });
     const resolvedPreset = prepared.preset;
     reportResolvedPromptLimits(resolvedPreset);
-    $("resolvedGenerationPrompt").textContent = [
-      `Base: ${resolvedPreset.prompt_parts.base}`,
-      `Undesired: ${resolvedPreset.prompt_parts.undesired}`,
-      ...resolvedPreset.prompt_parts.characters.map((c, i) => `Character ${i + 1}: ${c.prompt}\nUndesired: ${c.undesired}`),
-    ].join("\n\n");
-    $("resolvedGenerationDetails").hidden = false;
+    showResolvedGenerationPrompt(resolvedPreset);
     const profile = getModelProfile(state.currentPreset.params?.model);
     const preciseReferences = profile.capabilities.preciseReference ? preciseReferenceController.getGenerateRequest() : [];
     const requestBody = {
@@ -1269,6 +1344,7 @@ async function generateImage() {
 async function deleteLatestGeneration() {
   const generation = state.lastGenerationResponse?.generation;
   if (!generation?.id) return showToast("No latest generation to delete.", true);
+  if (!await confirmDeletion({ name: generation.id, impact: 'This History image, metadata and associated files will be permanently deleted.', image: state.lastGeneratedImage })) return;
   await deleteJson(`/api/generations/${encodeURIComponent(generation.id)}`);
   $("generatedImage").removeAttribute("src");
   $("latestResultActions").hidden = true;
@@ -1280,14 +1356,35 @@ async function deleteLatestGeneration() {
   setSummary($("generateStatus"), "Generation deleted with image, sidecar, and payload.", true);
 }
 
+function showResolvedGenerationPrompt(preset) {
+  const parts = preset?.prompt_parts;
+  $("resolvedGenerationDetails").hidden = !parts;
+  $("resolvedGenerationPrompt").textContent = parts ? [
+    `Base: ${parts.base || ""}`,
+    `Undesired: ${parts.undesired || ""}`,
+    ...(parts.characters || []).map((c, i) => `Character ${i + 1}: ${c.prompt}\nUndesired: ${c.undesired}`),
+  ].join("\n\n") : "";
+}
+
 async function loadHistory(showMessage = true) {
   const response = await getJson("/api/generations");
   state.generations = response.items || [];
   historySelection.reconcile(state.generations.map((item) => item.id));
-  historyPages.reset(state.generations);
+  const visibleCount = historyPages.snapshot().visibleCount;
+  historyPages.reset(getFilteredHistory());
+  while (historyPages.snapshot().hasMore && historyPages.snapshot().visibleCount < visibleCount) historyPages.loadMore();
   renderHistoryList();
   reconcileHistoryViewerWithList();
   if (showMessage) showToast("History loaded.");
+}
+
+function getFilteredHistory() {
+  const query = $("historySearch").value.trim().toLocaleLowerCase();
+  const model = $("historyModelFilter").value;
+  const mode = $("historyModeFilter").value;
+  return state.generations.filter(item => (!model || item.model === model || item.model === `${model}-inpainting`)
+    && (!mode || (item.mode || "text-to-image") === mode)
+    && (!query || [item.seed, item.model, item.mode, item.created_at, item.id].join(" ").toLocaleLowerCase().includes(query)));
 }
 
 async function viewHistoryGeneration(id) {
@@ -1329,6 +1426,7 @@ async function viewHistoryGeneration(id) {
 function renderHistoryList() {
   const page = historyPages.snapshot();
   const selection = historySelection.snapshot();
+  $("historyFilterCount").textContent = `${page.totalCount} / ${state.generations.length} records`;
   $("historyList").classList.toggle("is-selection-mode", selection.active);
   $("historyList").innerHTML = page.items.map(renderHistoryItem).join("") || "<div class=\"summary\">No generations yet.</div>";
   updateHistorySelection(
@@ -1375,6 +1473,7 @@ async function handleHistoryListClick(event) {
       if (!item) return;
       await generationModeController.loadSourceFromUrl(toBrowserPath(item.image_path), `${item.id}.png`);
       document.querySelector('[data-generation-mode="image-to-image"]')?.click();
+      workbenchController.showWorkbench(); workbenchController.selectPane("result");
       document.getElementById("panel-generate")?.scrollIntoView({ behavior: "smooth", block: "start" });
       return;
     }
@@ -1393,6 +1492,8 @@ async function handleHistoryListClick(event) {
 
 async function deleteHistoryGeneration(id) {
   if (historySelection.snapshot().busy) return showToast("History deletion is already in progress.", true);
+  const item = state.generations.find(item => item.id === id);
+  if (!await confirmDeletion({ name: id, impact: 'This History image, metadata and associated files will be permanently deleted.', image: item?.image_path ? toBrowserPath(item.image_path) : '' })) return;
   const previousItems = [...state.generations];
   const activeViewerId = getActiveHistoryViewerId();
   await deleteJson(`/api/generations/${encodeURIComponent(id)}`);
@@ -1458,6 +1559,7 @@ function openHistoryBulkDeleteDialog() {
   $("historyBulkDeleteCancelButton").disabled = false;
   $("historyBulkDeleteCancelButton").textContent = "Cancel";
   $("historyBulkDeleteDialog").showModal();
+  $('historyBulkDeleteCancelButton').focus();
 }
 
 async function confirmHistoryBulkDelete() {
@@ -1517,7 +1619,7 @@ async function applyHistoryRemoval(previousItems, removedIds, activeViewerId) {
   const removedSelectedHistory = removed.has(state.selectedHistoryGenerationId);
   state.generations = previousItems.filter((item) => !removed.has(item.id));
   historySelection.reconcile(state.generations.map((item) => item.id));
-  historyPages.reset(state.generations);
+  historyPages.reset(getFilteredHistory());
 
   if (removedSelectedHistory) {
     state.selectedHistoryGenerationId = "";
@@ -1646,6 +1748,7 @@ async function applyGenerationSeed(id) {
   state.currentPreset.params.seed = seed;
   renderPresetForm();
   showToast(`Seed ${seed} applied to current preset.`);
+  workbenchController.showWorkbench(); workbenchController.selectPane("edit");
 }
 
 async function applyGenerationParams(id) {
@@ -1683,6 +1786,7 @@ async function applyGenerationParams(id) {
   };
   renderPresetForm();
   showToast("Generation params applied to current preset.");
+  workbenchController.showWorkbench(); workbenchController.selectPane("edit");
 }
 
 async function applyGenerationPreset(id) {
@@ -1697,6 +1801,7 @@ async function applyGenerationPreset(id) {
   state.characterUiState = [];
   renderPresetForm();
   showToast("Generation preset applied to current preset.");
+  workbenchController.showWorkbench(); workbenchController.selectPane("edit");
 }
 
 function renderImportResult() {
@@ -1766,6 +1871,7 @@ function getEditedImportResult() {
 }
 
 function renderPresetForm() {
+  const focus = workbenchController?.captureFocus();
   state.currentPreset = sanitizePresetSnapshot(state.currentPreset);
   const preset = state.currentPreset;
   fields.presetName.value = preset.metadata?.name || "";
@@ -1800,6 +1906,7 @@ function renderPresetForm() {
   renderCharacterPositionPad();
   schedulePromptTokenCounterUpdate();
   updateCurrentSummary();
+  workbenchController?.restoreFocus(focus);
 }
 
 function syncPresetFromForm() {
@@ -1919,14 +2026,18 @@ function renderCharacterCard(character, index, scope) {
   const centers = Array.isArray(character.centers) && character.centers.length ? character.centers : [{ x: 0.5, y: 0.5 }];
   const center = centers[0] || { x: 0.5, y: 0.5 };
   const activeTab = getCharacterActiveTab(index);
+  const category = characterPresetPreferences.get(index);
+  const categoryLabel = [category.category, category.subCategory].filter(Boolean).map(categoryMarkup).join(" › ") || "All categories";
+  const collapsed = state.characterUiState[index]?.collapsed === true;
   return `
-    <article class="character-card" data-character-scope="${scope}" data-character-index="${index}">
+    <article class="character-card${collapsed ? " is-collapsed" : ""}${character.enabled === false ? " is-disabled" : ""}" data-character-scope="${scope}" data-character-index="${index}">
       <header>
         <div class="character-title">
           <strong>Character ${index + 1}</strong>
           <input data-character-field="name" type="text" value="${escapeHtml(character.name || `Character ${index + 1}`)}" />
         </div>
         <div class="actions">
+          <button type="button" data-collapse-character aria-expanded="${!collapsed}" aria-label="Fold Character ${index + 1}">${collapsed ? "Expand" : "Fold"}</button>
           <button type="button" data-move-character="up" ${index === 0 ? "disabled" : ""}>Up</button>
           <button type="button" data-move-character="down" ${index === (state.currentPreset.prompt_parts?.characters?.length || 0) - 1 ? "disabled" : ""}>Down</button>
           <button type="button" data-toggle-character>${character.enabled === false ? "Off" : "On"}</button>
@@ -1934,10 +2045,14 @@ function renderCharacterCard(character, index, scope) {
           <button type="button" data-remove-character="${index}">Delete</button>
         </div>
       </header>
+      <div class="character-category-memory" data-category-memory="${index}">${categoryLabel}</div>
+      <p class="character-folded-preview">${escapeHtml(character.prompt || "Empty prompt")}</p>
+      <div class="character-edit-body">
       <div class="character-tabs">
         <button type="button" data-character-wildcard>Wildcard</button>
         <button type="button" class="${activeTab === "prompt" ? "is-active" : ""}" data-character-tab="prompt">Prompt</button>
         <button type="button" class="${activeTab === "undesired" ? "is-active" : ""}" data-character-tab="undesired">Undesired Content</button>
+        <button type="button" data-expand-prompt="" title="Open a large prompt editor">Expand editor</button>
       </div>
       <textarea class="character-pane ${activeTab === "prompt" ? "is-active" : ""}" data-character-field="prompt" spellcheck="false">${escapeHtml(character.prompt || "")}</textarea>
       <textarea class="character-pane ${activeTab === "undesired" ? "is-active" : ""}" data-character-field="undesired" spellcheck="false">${escapeHtml(character.undesired || "")}</textarea>
@@ -1949,6 +2064,7 @@ function renderCharacterCard(character, index, scope) {
           <label>Y <input data-character-field="y" type="number" min="0" max="1" step="${positionStep}" value="${escapeHtml(center.y ?? 0.5)}" ${$("characterPositionMode")?.value === "custom" ? "" : "disabled"} /></label>
         </div>
       </details>
+      </div>
     </article>
   `;
 }
@@ -1967,11 +2083,22 @@ function renderImportCharacterCard(character, index) {
 }
 
 function bindCharacterCardActions() {
+  document.querySelectorAll("#characterCards [data-collapse-character]").forEach(button => {
+    button.addEventListener("click", () => {
+      const card = button.closest(".character-card");
+      const index = Number(card.dataset.characterIndex);
+      const collapsed = !card.classList.contains("is-collapsed");
+      state.characterUiState[index] = { ...state.characterUiState[index], collapsed };
+      card.classList.toggle("is-collapsed", collapsed);
+      button.textContent = collapsed ? "Expand" : "Fold"; button.setAttribute("aria-expanded", String(!collapsed));
+    });
+  });
   document.querySelectorAll('#characterCards [data-character-field]').forEach((field) => {
     field.addEventListener("input", () => {
       fields.charactersJson.value = safeJson(getCharactersFromCards());
       syncPresetFromForm();
       const card = field.closest(".character-card");
+      if (field.dataset.characterField === "prompt") card.querySelector(".character-folded-preview").textContent = field.value || "Empty prompt";
       const index = Number(card?.dataset.characterIndex);
       if ((field.dataset.characterField === "x" || field.dataset.characterField === "y") && Number.isInteger(index)) {
         selectCharacterPosition(index);
@@ -1987,7 +2114,10 @@ function bindCharacterCardActions() {
       const characters = getCharactersFromCards();
       setCharacterActiveTab(index, button.dataset.characterTab);
       state.currentPreset.prompt_parts.characters = sanitizeCharacters(characters);
-      renderPresetForm();
+      const card = button.closest(".character-card");
+      card.querySelectorAll("[data-character-tab]").forEach(tab => tab.classList.toggle("is-active", tab === button));
+      card.querySelectorAll("textarea").forEach(input => input.classList.toggle("is-active", input.dataset.characterField === button.dataset.characterTab));
+      card.querySelector(`textarea[data-character-field="${button.dataset.characterTab}"]`).focus();
     });
   });
   document.querySelectorAll("#characterCards [data-move-character]").forEach((button) => {
@@ -2019,7 +2149,10 @@ function bindCharacterCardActions() {
     });
   });
   document.querySelectorAll("[data-remove-character]").forEach((button) => {
-    button.addEventListener("click", () => {
+    button.addEventListener("click", async () => {
+      const index = Number(button.dataset.removeCharacter);
+      const name = button.closest('.character-card').querySelector('[data-character-field="name"]').value;
+      if (!await confirmDeletion({ name: name || `Character ${index + 1}`, impact: 'This Character slot and its unsaved prompt will be removed. Saved presets are kept.' })) return;
       const characters = getCharactersFromCards();
       const removedIndex = Number(button.dataset.removeCharacter);
       characters.splice(removedIndex, 1);
@@ -2174,7 +2307,7 @@ function renderHistoryItem(item) {
   return `
     <article class="history-card${selection.active ? " is-selection-mode" : ""}${selected ? " is-bulk-selected" : ""}" data-generation-id="${escapeHtml(item.id)}">
       ${selection.active ? `<button type="button" class="history-select-toggle" data-select-generation="${escapeHtml(item.id)}" aria-label="Select History item" aria-pressed="${selected}">✓</button>` : ""}
-      <img src="${escapeHtml(toBrowserPath(item.image_path))}" alt="" data-view-generation="${escapeHtml(item.id)}" />
+      <img src="${escapeHtml(toBrowserPath(item.image_path))}" alt="Generated image, seed ${escapeHtml(item.seed ?? "unknown")}" loading="lazy" data-view-generation="${escapeHtml(item.id)}" />
       <div>
         <span class="history-mode">${escapeHtml(formatGenerationMode(item.mode))}</span>
         <strong>Seed ${escapeHtml(item.seed ?? "unknown")}</strong>
@@ -2232,6 +2365,7 @@ function openStoredGenerationViewer(generation) {
 }
 
 function openImageViewer({ title, imagePath, meta = "", id = "", kind = "generic", generation = null }) {
+  $("viewerReuseActions").hidden = kind !== "history";
   if (kind !== "history") {
     historyViewGuard.cancel();
     state.historyLoadingGenerationId = "";
@@ -2275,6 +2409,7 @@ async function deleteViewedGeneration() {
   if (historySelection.snapshot().busy) return showToast("History deletion is already in progress.", true);
   const context = state.imageViewerContext;
   if (!context?.id) return showToast("No viewed generation to delete.", true);
+  if (!await confirmDeletion({ name: context.id, impact: 'This History image, metadata and associated files will be permanently deleted.', image: $('imageViewerImage').src })) return;
   const previousItems = [...state.generations];
   const activeViewerId = getActiveHistoryViewerId();
   await deleteJson(`/api/generations/${encodeURIComponent(context.id)}`);
@@ -2344,6 +2479,8 @@ function updateCurrentSummary() {
 }
 
 function setSummary(element, text, ok = false, error = false) {
+  if (error) text = formatUIError(text);
+  element.title = text;
   element.textContent = text;
   element.classList.toggle("ok", ok);
   element.classList.toggle("error", error);
@@ -2365,6 +2502,7 @@ async function withButton(button, label, fn, onError) {
 }
 
 function showToast(message, isError = false) {
+  if (isError) message = formatUIError(message);
   const toast = $("toast");
   toast.textContent = message;
   toast.style.borderColor = isError ? "rgba(251, 113, 133, 0.55)" : "rgba(103, 232, 249, 0.35)";
@@ -2391,8 +2529,8 @@ function clampUnit(value, fallback) {
 }
 
 function renderSelect(select, items) {
-  select.innerHTML = items
-    .map((item) => `<option value="${escapeHtml(item.id)}">${escapeHtml(item.name || item.id)} - ${escapeHtml(item.updated_at || "")}</option>`)
+  select.innerHTML = sortPresets(items)
+    .map((item) => `<option data-no-i18n value="${escapeHtml(item.id)}">${escapeHtml(item.name || item.id)} - ${escapeHtml(item.updated_at || "")}</option>`)
     .join("");
 }
 
@@ -2437,6 +2575,8 @@ function rememberCharacterPresetCategoryFilter() {
   if (!characterPresetPreferences.set(state.characterPresetContextIndex, filter)) {
     showToast("Could not save Preset category preferences on this device. This selection may not survive an app restart.", true);
   }
+  const badge = document.querySelector(`[data-category-memory="${state.characterPresetContextIndex}"]`);
+  if (badge) badge.innerHTML = [filter.category, filter.subCategory].filter(Boolean).map(categoryMarkup).join(" › ") || "All categories";
 }
 
 function restoreCharacterPresetCategoryFilter() {
@@ -2466,7 +2606,7 @@ function syncCharacterPresetSaveCategoryOptions(items, preferredValue) {
   const selected = preferredValue ?? select.value ?? DEFAULT_CHARACTER_PRESET_CATEGORY;
   const categories = getAllCharacterPresetCategories(items).map((category) => category.name);
   select.innerHTML = categories
-    .map((category) => `<option value="${escapeHtml(category)}">${escapeHtml(category)}</option>`)
+    .map(categoryOption)
     .join("");
   select.value = categories.includes(normalizeCharacterPresetCategory(selected))
     ? normalizeCharacterPresetCategory(selected)
@@ -2478,7 +2618,7 @@ function syncCharacterCategoryFilterOptions(items) {
   const categories = getAllCharacterPresetCategories(items).map((category) => category.name);
   $("dialogCharacterCategoryFilter").innerHTML = [
     `<option value="">All categories</option>`,
-    ...categories.map((category) => `<option value="${escapeHtml(category)}">${escapeHtml(category)}</option>`),
+    ...categories.map(categoryOption),
   ].join("");
   if (!categories.includes(state.dialogCharacterCategoryFilter)) state.dialogCharacterCategoryFilter = "";
   $("dialogCharacterCategoryFilter").value = state.dialogCharacterCategoryFilter;
@@ -2493,7 +2633,7 @@ function syncCharacterSubCategoryInput(preferredValue) {
   input.disabled = !subcategories.length;
   input.innerHTML = [
     `<option value="">None</option>`,
-    ...subcategories.map((category) => `<option value="${escapeHtml(category)}">${escapeHtml(category)}</option>`),
+    ...subcategories.map(categoryOption),
   ].join("");
   input.value = subcategories.includes(selected) ? selected : "";
 }
@@ -2504,7 +2644,7 @@ function syncCharacterSubCategoryFilter() {
   $("dialogCharacterSubCategoryFilter").disabled = !subcategories.length;
   $("dialogCharacterSubCategoryFilter").innerHTML = [
     `<option value="">All subcategories</option>`,
-    ...subcategories.map((category) => `<option value="${escapeHtml(category)}">${escapeHtml(category)}</option>`),
+    ...subcategories.map(categoryOption),
   ].join("");
   if (!subcategories.includes(state.dialogCharacterSubCategoryFilter)) state.dialogCharacterSubCategoryFilter = "";
   $("dialogCharacterSubCategoryFilter").value = state.dialogCharacterSubCategoryFilter;
@@ -2521,7 +2661,9 @@ function getFilteredDialogCharacterPresets() {
   if (category && state.dialogCharacterSubCategoryFilter) {
     items = items.filter((item) => normalizeCharacterPresetSubCategory(item) === state.dialogCharacterSubCategoryFilter);
   }
-  return items;
+  const query = $("characterPresetSearch").value.trim().toLocaleLowerCase();
+  items = query ? items.filter(item => [item.name, item.category, item.subCategory, t(item.category || ''), t(item.subCategory || '')].join(" ").toLocaleLowerCase(getLanguage()).includes(query)) : items;
+  return sortPresets(items, $('characterPresetSort')?.value);
 }
 
 function normalizeCharacterPresetCategory(value) {
@@ -2547,7 +2689,9 @@ function getAllCharacterPresetCategories(items = state.characterPresets) {
     const subCategory = normalizeCharacterPresetSubCategory(item);
     if (subCategory && !category.subcategories.includes(subCategory)) category.subcategories.push(subCategory);
   }
-  return categories.map(category => ({ ...category, subcategories: sortClothingSubcategories(category.name, category.subcategories) }));
+  const collator = new Intl.Collator(getLanguage(), { numeric: true, sensitivity: 'base' });
+  return categories.map(category => ({ ...category, subcategories: [...category.subcategories].sort((a, b) => collator.compare(categoryDisplayName(a), categoryDisplayName(b))) }))
+    .sort((a, b) => collator.compare(categoryDisplayName(a.name), categoryDisplayName(b.name)));
 }
 
 function getCharacterPresetSubcategories(category, items = state.characterPresets) {
@@ -2575,14 +2719,14 @@ function renderCharacterPresetCategoryManager(preferredCategory) {
   const categories = state.characterPresetCategories;
   $("categoryManagerCategoryList").innerHTML = categories.map((category) => `
     <li>
-      <strong>${escapeHtml(category.name)}</strong>
+      <strong>${categoryMarkup(category.name)}</strong>
       <span>${category.builtIn ? "Built-in" : "Custom"} | ${category.subcategories.length} subcategories</span>
     </li>
   `).join("");
   const parentSelect = $("categoryManagerParentCategorySelect");
   const selected = preferredCategory || parentSelect.value || categories[0]?.name || "";
   parentSelect.innerHTML = categories
-    .map((category) => `<option value="${escapeHtml(category.name)}">${escapeHtml(category.name)}</option>`)
+    .map(category => categoryOption(category.name))
     .join("");
   parentSelect.value = categories.some((category) => category.name === selected) ? selected : categories[0]?.name || "";
   renderCategoryManagerSubcategories();
@@ -2591,7 +2735,7 @@ function renderCharacterPresetCategoryManager(preferredCategory) {
 function renderCategoryManagerSubcategories() {
   const category = state.characterPresetCategories.find((item) => item.name === $("categoryManagerParentCategorySelect").value);
   $("categoryManagerSubCategoryList").innerHTML = category?.subcategories.length
-    ? category.subcategories.map((name) => `<li>${escapeHtml(name)}</li>`).join("")
+    ? category.subcategories.map((name) => `<li>${categoryMarkup(name)}</li>`).join("")
     : "<li>No subcategories yet.</li>";
 }
 
@@ -2675,15 +2819,14 @@ function renderDialogCharacterPresetCard(item, selectedId) {
   const name = item.name || item.id;
   const category = normalizeCharacterPresetCategory(item.category);
   const subCategory = normalizeCharacterPresetSubCategory(item);
-  const categoryLabel = subCategory ? `${category} / ${subCategory}` : category;
+  const categoryLabel = [category, subCategory].filter(Boolean).map(categoryMarkup).join(' / ');
   return `
     <article class="character-preset-card ${item.id === selectedId ? "is-selected" : ""}" data-dialog-character-preset-id="${escapeHtml(item.id)}">
       <div class="character-preset-thumb">${thumb}</div>
       <div>
-        <strong>${escapeHtml(name)}</strong>
-        <span class="character-preset-category">${escapeHtml(categoryLabel)}</span>
+        <strong data-no-i18n>${escapeHtml(name)}</strong>
+        <span class="character-preset-category">${categoryLabel}</span>
         <small>Updated ${escapeHtml(item.updated_at || "unknown")}</small>
-        <small>${escapeHtml(item.id || "")}</small>
         <div class="actions">
           <button type="button" data-dialog-character-load="${escapeHtml(item.id)}">Load</button>
           <button type="button" data-dialog-character-delete="${escapeHtml(item.id)}">Delete</button>

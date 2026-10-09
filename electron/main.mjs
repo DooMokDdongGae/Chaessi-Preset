@@ -1,4 +1,4 @@
-import { app, BrowserWindow, Menu } from "electron";
+import { app, BrowserWindow, Menu, shell } from "electron";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import {
@@ -13,6 +13,7 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const projectRoot = path.resolve(__dirname, "..");
 const appIconPath = path.join(projectRoot, "assets", "branding", "chaessi-preset.ico");
+const supportUrl = "https://buymeacoffee.com/magiconcert";
 
 function createWindow({ serverStatus = "starting" } = {}) {
   const window = new BrowserWindow({
@@ -32,7 +33,14 @@ function createWindow({ serverStatus = "starting" } = {}) {
   });
 
   window.webContents.setWindowOpenHandler(({ url }) => {
-    const target = new URL(url);
+    if (url === supportUrl) {
+      shell.openExternal(supportUrl).catch(() => {
+        console.error("[Chaessi Preset] Could not open the support page in the browser.");
+      });
+      return { action: "deny" };
+    }
+    let target;
+    try { target = new URL(url); } catch { return { action: "deny" }; }
     if (target.origin !== getServerBaseUrl() || !/^\/manuals\/(app|wildcard)-(ko|en)\.pdf$/.test(target.pathname)) return { action: "deny" };
     return { action: "allow", overrideBrowserWindowOptions: {
       width: 1000, height: 820, title: "Chaessi Preset Manual", autoHideMenuBar: true,

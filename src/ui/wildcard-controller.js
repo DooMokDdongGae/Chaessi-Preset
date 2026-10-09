@@ -1,4 +1,6 @@
 import { deleteJson, getJson, postJson } from "../api/client.js";
+import { translateText, t, formatUIError } from './i18n.js';
+import { confirmDeletion } from './delete-confirmation.js';
 
 export function createWildcardController({ showToast }) {
   const $ = id => document.getElementById(id);
@@ -39,7 +41,7 @@ export function createWildcardController({ showToast }) {
     if (!list.children.length) list.textContent = "No Wildcards. Click + New Wildcard.";
   }
   async function refresh() { items = (await getJson("/api/wildcards")).items; render(); }
-  function canDiscard() { return !dirty || window.confirm("Discard unsaved Wildcard changes?"); }
+  function canDiscard() { return !dirty || window.confirm(translateText("Discard unsaved Wildcard changes?")); }
   async function run(fn) {
     if (busy) return;
     busy = true;
@@ -47,7 +49,7 @@ export function createWildcardController({ showToast }) {
     const disabled = controls.map(control => control.disabled);
     controls.forEach(control => { control.disabled = true; });
     try { await fn(); }
-    catch (error) { status(error.message); showToast(error.message, true); }
+    catch (error) { status(formatUIError(error.message)); showToast(error.message, true); }
     finally {
       controls.forEach((control, i) => { control.disabled = disabled[i]; });
       $("wildcardDelete").disabled = !current;
@@ -91,7 +93,7 @@ export function createWildcardController({ showToast }) {
     dialog.close(); input.focus(); showToast(`Inserted __${item.key}__.`);
   }));
   $("wildcardDelete").addEventListener("click", () => run(async () => {
-    if (!current || !window.confirm(`Delete ${current.name}? Presets containing __${current.key}__ will need another Wildcard.`)) return;
+    if (!current || !await confirmDeletion({ name: `${current.name} · __${current.key}__`, impact: t('Presets containing __{key}__ will need another Wildcard. Existing generated images are kept.', { key: current.key }) })) return;
     await deleteJson(`/api/wildcards/${encodeURIComponent(current.id)}`); fill(); await refresh(); status("Wildcard deleted.");
   }));
   $("wildcardImport").addEventListener("click", () => $("wildcardFile").click());

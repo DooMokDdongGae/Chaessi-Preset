@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import { spawn } from "node:child_process";
 import { once } from "node:events";
-import { mkdir, writeFile } from "node:fs/promises";
+import { mkdir, writeFile, readFile } from "node:fs/promises";
 import net from "node:net";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
@@ -10,6 +10,7 @@ import { createCharacterPresetStore } from "../src/services/character-preset-sto
 
 // An isolated local app and synthetic presets; no saved credentials or live NovelAI calls.
 const root = fileURLToPath(new URL("../", import.meta.url));
+const { version } = JSON.parse(await readFile(path.join(root, "package.json"), "utf8"));
 const evidence = path.join(root, ".cache", "category-verification", `run-${Date.now()}`);
 const require = createRequire(import.meta.url);
 const { chromium } = require(process.env.CHAESSI_PLAYWRIGHT || "playwright");
@@ -51,7 +52,8 @@ try {
   page.on("pageerror", error => errors.push(error.message));
   await page.goto(base);
   await page.waitForFunction(() => document.querySelector("#presetName").value.length > 0);
-  assert.match(await page.locator("#healthStatus").textContent(), /3\.4\.1/);
+  await page.locator('#uiLanguage').selectOption('en');
+  assert.equal(await page.locator("#healthStatus").textContent(), `v${version}`);
   const card = i => page.locator(`#characterCards [data-character-index="${i}"]`);
   const category = page.locator("#dialogCharacterCategoryFilter");
   const subcategory = page.locator("#dialogCharacterSubCategoryFilter");
@@ -124,6 +126,7 @@ try {
   await open(0); await filter("여성 의상", casual, [presets[0].id]); await close();
   await open(1); await filter("남성 의상", casual, [presets[2].id]); await close();
   await card(0).locator("[data-remove-character]").click();
+  await page.locator('#deleteConfirmAccept').click();
   await open(0); await filter("여성 의상", casual, [presets[0].id]); await close();
   await page.locator("#addCharacterButton").click();
   await open(1); await filter("남성 의상", casual, [presets[2].id]); await close();
@@ -161,7 +164,7 @@ try {
   assert.match(saved.prompt_parts.characters[0].prompt, /__colors__/);
   pass("Wildcard management, saved references and existing random syntax still resolve through the app's preparation endpoint");
   assert.deepEqual(errors, []); pass("No renderer JavaScript errors");
-  await writeFile(path.join(evidence, "results.json"), JSON.stringify({ version: "3.4.1", checks, errors }, null, 2));
+  await writeFile(path.join(evidence, "results.json"), JSON.stringify({ version, checks, errors }, null, 2));
   console.log(`${checks.length}/${checks.length} UI scenarios passed. Evidence: ${evidence}`);
 } catch (error) {
   await page?.screenshot({ path: path.join(evidence, "failure.png"), fullPage: true }).catch(() => {});
