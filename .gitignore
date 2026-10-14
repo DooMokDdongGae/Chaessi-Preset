@@ -81,3 +81,5 @@ Thumbs.db
 
 # Offline Help Center screenshots
 !assets/manuals/*/*.png
+
+!assets/manuals/examples/*.webp

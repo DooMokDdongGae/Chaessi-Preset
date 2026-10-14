@@ -1,3 +1,5 @@
+import { applyQualityToPrompt } from "../adapters/novelai-v5-full.js";
+
 export const NOVELAI_V45_FULL_TOKEN_PROFILE = Object.freeze({
   model: "nai-diffusion-4-5-full",
   tokenizer: "google-t5-small-compatible",
@@ -38,6 +40,7 @@ export function analyzePresetPromptTokens(
 ) {
   const promptParts = preset?.prompt_parts ?? {};
   const params = preset?.params ?? {};
+  const medium = params.model === "nai-diffusion-5-full" && params.effort === "medium";
   const characters = Array.isArray(promptParts.characters)
     ? promptParts.characters.slice(0, profile.model === "nai-diffusion-5-full" ? 32 : 6).filter((character) => character?.enabled !== false)
     : [];
@@ -57,7 +60,7 @@ export function analyzePresetPromptTokens(
   ));
 
   const rawUndesiredVariants = expandRandomPrompt(
-    promptParts.undesired,
+    medium ? "" : promptParts.undesired,
     profile.randomCombinationLimit,
     tokenizer,
   );
@@ -65,11 +68,11 @@ export function analyzePresetPromptTokens(
     rawBaseVariants,
     rawUndesiredVariants,
     tokenizer,
-    params.ucPreset,
+    medium ? 0 : params.ucPreset,
     profile,
   );
   const characterUndesired = characters.map((character) => countPromptText(
-    character?.undesired,
+    medium ? "" : character?.undesired,
     tokenizer,
     profile.randomCombinationLimit,
   ));
@@ -94,8 +97,9 @@ export function analyzePresetPromptTokens(
 function applyQuality(text, params, profile) {
   if (profile.qualitySuffixes) {
     const suffix = profile.qualitySuffixes[params.qualityPreset] ?? profile.qualitySuffixes.standard;
-    const parts = [text, params.transparentBackground ? "transparent background" : "", suffix].filter(Boolean);
-    return parts.join(", ");
+    let prompt = applyQualityToPrompt(text, [params.transparentBackground ? "transparent background" : "", suffix].filter(Boolean).join(", "));
+    if (params.dataset === "furry" && !prompt.startsWith("fur dataset") && !prompt.startsWith("background dataset")) prompt = `fur dataset, ${prompt}`;
+    return prompt;
   }
   return params.qualityToggle === false ? text : `${text}${profile.qualitySuffix}`;
 }

@@ -7,7 +7,7 @@ import path from "node:path";
 import { createDefaultPreset } from "../src/state/preset-schema.js";
 import { encodeRgbPng } from "../src/services/generation-image-utils.js";
 
-test("HTTP store, frozen preparation, and final request/History across V4.5/V5 T2I/I2I/Inpaint", async () => {
+test("HTTP store, frozen preparation, and High/Medium request/History across V5 T2I/I2I/Inpaint; V4.5 read compatibility", async () => {
   const root = await mkdtemp(path.join(os.tmpdir(), "chaessi-wildcard-http-"));
   const base = "http://127.0.0.1:4188";
   const child = spawn(process.execPath, ["--import", "./tests/mock-novelai.mjs", "server.mjs"], { cwd: new URL("../", import.meta.url), windowsHide: true, env: { ...process.env, PORT: "4188", CHAESSI_USER_DATA_DIR: root, NAI_ACCESS_TOKEN: "test-local-only" }, stdio: "ignore" });
@@ -24,17 +24,25 @@ test("HTTP store, frozen preparation, and final request/History across V4.5/V5 T
     assert.equal((await request("/api/wildcards", null, 200, "GET")).items.length, 2);
     assert.equal((await request(`/api/wildcards/${tops.id}`, null, 200, "GET")).wildcard.key, "tops");
     const source = encodeRgbPng(Buffer.alloc(64 * 64 * 3, 255), 64, 64).toString("base64");
-    for (const model of ["nai-diffusion-4-5-full", "nai-diffusion-5-full"]) {
+    const legacy = createDefaultPreset({ params: { model: "nai-diffusion-4-5-full" } });
+    const legacySaved = (await request("/api/presets", { preset: legacy })).preset;
+    assert.equal((await request(`/api/presets/${legacySaved.metadata.id}`, null, 200, "GET")).preset.params.model, "nai-diffusion-4-5-full");
+    assert.equal((await request("/api/novelai/generate", { preset: legacy }, 400)).error.type, "legacy_model_read_only");
+    const multi = createDefaultPreset({ params: { model: "nai-diffusion-5-full", n_samples: 2 } });
+    assert.equal((await request("/api/novelai/generate", { preset: multi }, 400)).error.type, "one_image_only");
+    for (const effort of ["high", "medium"]) {
+      const model = "nai-diffusion-5-full";
       for (const mode of ["text-to-image", "image-to-image", "inpaint"]) {
-        const preset = createDefaultPreset({ params: { model, width: 64, height: 64, seed: 123 }, prompt_parts: { base: "1girl, __tops__, __poses__, ||outdoors|indoors||", undesired: "__tops__", characters: [{ prompt: "__tops__", undesired: "||text|blur||" }, { enabled: false, prompt: "__missing__" }] } });
+        const preset = createDefaultPreset({ params: { model, effort, width: 64, height: 64, seed: 123 }, prompt_parts: { base: "1girl, __tops__, __poses__, ||outdoors|indoors||", undesired: "__tops__", characters: [{ prompt: "__tops__", undesired: "||text|blur||" }, { enabled: false, prompt: "__missing__" }] } });
         preset.model_states = { other: { prompt_parts: { base: "__missing__" } } };
-        const prepared = await request("/api/novelai/prepare", { preset });
+        const prepared = await request("/api/novelai/prepare", { preset, mode });
         const edited = await request("/api/wildcards", { ...tops, text: "red shirt", entries: ["red shirt"] });
         const modeState = { mode, width: 64, height: 64, source_image_base64: source, mask_image_base64: source, strength: .5, noise: 0, generation_padding: 16 };
         const result = await request("/api/novelai/generate", { prepared_id: prepared.prepared_id, preset: { ignored: "__missing__" }, mode, mode_state: modeState });
         const history = (await request(`/api/generations/${result.generation.id}`, null, 200, "GET")).generation;
         const transmitted = JSON.parse(await readFile(path.join(root, "captured-request.json"), "utf8"));
         assert.equal(history.generation.prompt, transmitted.input);
+        assert.equal(history.generation.effort, effort);
         assert.equal(history.internal_preset.prompt_parts.base, prepared.preset.prompt_parts.base);
         assert.equal(JSON.stringify(history).includes("__"), false);
         assert.equal(JSON.stringify(history).includes("||"), false);
@@ -43,7 +51,7 @@ test("HTTP store, frozen preparation, and final request/History across V4.5/V5 T
         await request("/api/wildcards", { ...tops, entries: tops.entries });
       }
     }
-    const missing = createDefaultPreset({ prompt_parts: { base: "__not_here__" } });
+    const missing = createDefaultPreset({ params: { model: "nai-diffusion-5-full" }, prompt_parts: { base: "__not_here__" } });
     await request("/api/novelai/prepare", { preset: missing }, 400);
     await request(`/api/wildcards/${tops.id}`, null, 200, "DELETE");
     await request(`/api/wildcards/${tops.id}`, null, 404, "GET");

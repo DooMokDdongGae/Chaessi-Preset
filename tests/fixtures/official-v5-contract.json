@@ -1,0 +1,609 @@
+{
+  "source": "2026-10-14 official deployed client oracle, separately archived and actually API-validated; frozen before comparing our compiler",
+  "cases": [
+    {
+      "name": "high-adult",
+      "preset": {
+        "params": {
+          "model": "nai-diffusion-5-full",
+          "effort": "high",
+          "seed": 424242424,
+          "scale": 4,
+          "cfg_rescale": 0.2,
+          "steps": 23,
+          "sampler": "k_euler_ancestral",
+          "ucPreset": 0,
+          "qualityPreset": "standard",
+          "transparentBackground": false
+        },
+        "prompt_parts": {
+          "base": "adult",
+          "undesired": "blurry",
+          "characters": []
+        }
+      },
+      "payload": {
+        "input": "adult, very aesthetic, masterpiece, no text",
+        "model": "nai-diffusion-5-full",
+        "action": "generate",
+        "parameters": {
+          "params_version": 4,
+          "width": 832,
+          "height": 1216,
+          "scale": 4,
+          "sampler": "k_euler_ancestral",
+          "steps": 23,
+          "seed": 424242424,
+          "n_samples": 1,
+          "ucPresetId": "heavy",
+          "qualityPresetId": "standard",
+          "autoSmea": false,
+          "dynamic_thresholding": false,
+          "controlnet_strength": 1,
+          "legacy": false,
+          "add_original_image": true,
+          "cfg_rescale": 0.2,
+          "legacy_v3_extend": false,
+          "use_coords": false,
+          "legacy_uc": false,
+          "normalize_reference_strength_multiple": true,
+          "inpaintImg2ImgStrength": 1,
+          "characterPrompts": [],
+          "straight_alpha": true,
+          "tag_hint_qt": 1,
+          "tag_hint_uc_preset": 2,
+          "v4_prompt": {
+            "caption": {
+              "base_caption": "adult, very aesthetic, masterpiece, no text",
+              "char_captions": []
+            },
+            "use_coords": false,
+            "use_order": true
+          },
+          "v4_negative_prompt": {
+            "caption": {
+              "base_caption": "nsfw, lowres, artistic error, film grain, scan artifacts, worst quality, bad quality, jpeg artifacts, very displeasing, chromatic aberration, dithering, halftone, screentone, multiple views, logo, too many watermarks, negative space, blank page, blurry",
+              "char_captions": []
+            },
+            "legacy_uc": false
+          },
+          "negative_prompt": "nsfw, lowres, artistic error, film grain, scan artifacts, worst quality, bad quality, jpeg artifacts, very displeasing, chromatic aberration, dithering, halftone, screentone, multiple views, logo, too many watermarks, negative space, blank page, blurry",
+          "deliberate_euler_ancestral_bug": false,
+          "prefer_brownian": true,
+          "noise_schedule": "karras",
+          "image_format": "webp",
+          "stream": "msgpack"
+        },
+        "use_new_shared_trial": true
+      }
+    },
+    {
+      "name": "high-adult | blue sky",
+      "preset": {
+        "params": {
+          "model": "nai-diffusion-5-full",
+          "effort": "high",
+          "seed": 424242424,
+          "scale": 4,
+          "cfg_rescale": 0.2,
+          "steps": 23,
+          "sampler": "k_euler_ancestral",
+          "ucPreset": 0,
+          "qualityPreset": "standard",
+          "transparentBackground": false
+        },
+        "prompt_parts": {
+          "base": "adult | blue sky",
+          "undesired": "blurry",
+          "characters": []
+        }
+      },
+      "payload": {
+        "input": "adult , very aesthetic, masterpiece, no text| blue sky",
+        "model": "nai-diffusion-5-full",
+        "action": "generate",
+        "parameters": {
+          "params_version": 4,
+          "width": 832,
+          "height": 1216,
+          "scale": 4,
+          "sampler": "k_euler_ancestral",
+          "steps": 23,
+          "seed": 424242424,
+          "n_samples": 1,
+          "ucPresetId": "heavy",
+          "qualityPresetId": "standard",
+          "autoSmea": false,
+          "dynamic_thresholding": false,
+          "controlnet_strength": 1,
+          "legacy": false,
+          "add_original_image": true,
+          "cfg_rescale": 0.2,
+          "legacy_v3_extend": false,
+          "use_coords": false,
+          "legacy_uc": false,
+          "normalize_reference_strength_multiple": true,
+          "inpaintImg2ImgStrength": 1,
+          "characterPrompts": [],
+          "straight_alpha": true,
+          "tag_hint_qt": 1,
+          "tag_hint_uc_preset": 2,
+          "v4_prompt": {
+            "caption": {
+              "base_caption": "adult , very aesthetic, masterpiece, no text| blue sky",
+              "char_captions": []
+            },
+            "use_coords": false,
+            "use_order": true
+          },
+          "v4_negative_prompt": {
+            "caption": {
+              "base_caption": "nsfw, lowres, artistic error, film grain, scan artifacts, worst quality, bad quality, jpeg artifacts, very displeasing, chromatic aberration, dithering, halftone, screentone, multiple views, logo, too many watermarks, negative space, blank page, blurry",
+              "char_captions": []
+            },
+            "legacy_uc": false
+          },
+          "negative_prompt": "nsfw, lowres, artistic error, film grain, scan artifacts, worst quality, bad quality, jpeg artifacts, very displeasing, chromatic aberration, dithering, halftone, screentone, multiple views, logo, too many watermarks, negative space, blank page, blurry",
+          "deliberate_euler_ancestral_bug": false,
+          "prefer_brownian": true,
+          "noise_schedule": "karras",
+          "image_format": "webp",
+          "stream": "msgpack"
+        },
+        "use_new_shared_trial": true
+      }
+    },
+    {
+      "name": "high-adult, text: \"hello\"",
+      "preset": {
+        "params": {
+          "model": "nai-diffusion-5-full",
+          "effort": "high",
+          "seed": 424242424,
+          "scale": 4,
+          "cfg_rescale": 0.2,
+          "steps": 23,
+          "sampler": "k_euler_ancestral",
+          "ucPreset": 0,
+          "qualityPreset": "standard",
+          "transparentBackground": false
+        },
+        "prompt_parts": {
+          "base": "adult, text: \"hello\"",
+          "undesired": "blurry",
+          "characters": []
+        }
+      },
+      "payload": {
+        "input": "adult,, very aesthetic, masterpiece, no text text: \"hello\"",
+        "model": "nai-diffusion-5-full",
+        "action": "generate",
+        "parameters": {
+          "params_version": 4,
+          "width": 832,
+          "height": 1216,
+          "scale": 4,
+          "sampler": "k_euler_ancestral",
+          "steps": 23,
+          "seed": 424242424,
+          "n_samples": 1,
+          "ucPresetId": "heavy",
+          "qualityPresetId": "standard",
+          "autoSmea": false,
+          "dynamic_thresholding": false,
+          "controlnet_strength": 1,
+          "legacy": false,
+          "add_original_image": true,
+          "cfg_rescale": 0.2,
+          "legacy_v3_extend": false,
+          "use_coords": false,
+          "legacy_uc": false,
+          "normalize_reference_strength_multiple": true,
+          "inpaintImg2ImgStrength": 1,
+          "characterPrompts": [],
+          "straight_alpha": true,
+          "tag_hint_qt": 1,
+          "tag_hint_uc_preset": 2,
+          "v4_prompt": {
+            "caption": {
+              "base_caption": "adult,, very aesthetic, masterpiece, no text text: \"hello\"",
+              "char_captions": []
+            },
+            "use_coords": false,
+            "use_order": true
+          },
+          "v4_negative_prompt": {
+            "caption": {
+              "base_caption": "nsfw, lowres, artistic error, film grain, scan artifacts, worst quality, bad quality, jpeg artifacts, very displeasing, chromatic aberration, dithering, halftone, screentone, multiple views, logo, too many watermarks, negative space, blank page, blurry",
+              "char_captions": []
+            },
+            "legacy_uc": false
+          },
+          "negative_prompt": "nsfw, lowres, artistic error, film grain, scan artifacts, worst quality, bad quality, jpeg artifacts, very displeasing, chromatic aberration, dithering, halftone, screentone, multiple views, logo, too many watermarks, negative space, blank page, blurry",
+          "deliberate_euler_ancestral_bug": false,
+          "prefer_brownian": true,
+          "noise_schedule": "karras",
+          "image_format": "webp",
+          "stream": "msgpack"
+        },
+        "use_new_shared_trial": true
+      }
+    },
+    {
+      "name": "high-text: \"hello\"",
+      "preset": {
+        "params": {
+          "model": "nai-diffusion-5-full",
+          "effort": "high",
+          "seed": 424242424,
+          "scale": 4,
+          "cfg_rescale": 0.2,
+          "steps": 23,
+          "sampler": "k_euler_ancestral",
+          "ucPreset": 0,
+          "qualityPreset": "standard",
+          "transparentBackground": false
+        },
+        "prompt_parts": {
+          "base": "text: \"hello\"",
+          "undesired": "blurry",
+          "characters": []
+        }
+      },
+      "payload": {
+        "input": "very aesthetic, masterpiece, no texttext: \"hello\"",
+        "model": "nai-diffusion-5-full",
+        "action": "generate",
+        "parameters": {
+          "params_version": 4,
+          "width": 832,
+          "height": 1216,
+          "scale": 4,
+          "sampler": "k_euler_ancestral",
+          "steps": 23,
+          "seed": 424242424,
+          "n_samples": 1,
+          "ucPresetId": "heavy",
+          "qualityPresetId": "standard",
+          "autoSmea": false,
+          "dynamic_thresholding": false,
+          "controlnet_strength": 1,
+          "legacy": false,
+          "add_original_image": true,
+          "cfg_rescale": 0.2,
+          "legacy_v3_extend": false,
+          "use_coords": false,
+          "legacy_uc": false,
+          "normalize_reference_strength_multiple": true,
+          "inpaintImg2ImgStrength": 1,
+          "characterPrompts": [],
+          "straight_alpha": true,
+          "tag_hint_qt": 1,
+          "tag_hint_uc_preset": 2,
+          "v4_prompt": {
+            "caption": {
+              "base_caption": "very aesthetic, masterpiece, no texttext: \"hello\"",
+              "char_captions": []
+            },
+            "use_coords": false,
+            "use_order": true
+          },
+          "v4_negative_prompt": {
+            "caption": {
+              "base_caption": "nsfw, lowres, artistic error, film grain, scan artifacts, worst quality, bad quality, jpeg artifacts, very displeasing, chromatic aberration, dithering, halftone, screentone, multiple views, logo, too many watermarks, negative space, blank page, blurry",
+              "char_captions": []
+            },
+            "legacy_uc": false
+          },
+          "negative_prompt": "nsfw, lowres, artistic error, film grain, scan artifacts, worst quality, bad quality, jpeg artifacts, very displeasing, chromatic aberration, dithering, halftone, screentone, multiple views, logo, too many watermarks, negative space, blank page, blurry",
+          "deliberate_euler_ancestral_bug": false,
+          "prefer_brownian": true,
+          "noise_schedule": "karras",
+          "image_format": "webp",
+          "stream": "msgpack"
+        },
+        "use_new_shared_trial": true
+      }
+    },
+    {
+      "name": "medium-adult",
+      "preset": {
+        "params": {
+          "model": "nai-diffusion-5-full",
+          "effort": "medium",
+          "seed": 424242424,
+          "scale": 4,
+          "cfg_rescale": 0.2,
+          "steps": 23,
+          "sampler": "k_euler_ancestral",
+          "ucPreset": 0,
+          "qualityPreset": "standard",
+          "transparentBackground": false
+        },
+        "prompt_parts": {
+          "base": "adult",
+          "undesired": "blurry",
+          "characters": []
+        }
+      },
+      "payload": {
+        "input": "adult, very aesthetic, masterpiece, no text",
+        "model": "nai-diffusion-5-full-medium",
+        "action": "generate",
+        "parameters": {
+          "params_version": 4,
+          "width": 832,
+          "height": 1216,
+          "scale": 4,
+          "sampler": "k_euler_ancestral",
+          "steps": 14,
+          "seed": 424242424,
+          "n_samples": 1,
+          "ucPresetId": "heavy",
+          "qualityPresetId": "standard",
+          "autoSmea": false,
+          "dynamic_thresholding": false,
+          "controlnet_strength": 1,
+          "legacy": false,
+          "add_original_image": true,
+          "legacy_v3_extend": false,
+          "use_coords": false,
+          "legacy_uc": false,
+          "normalize_reference_strength_multiple": true,
+          "inpaintImg2ImgStrength": 1,
+          "characterPrompts": [],
+          "straight_alpha": true,
+          "tag_hint_qt": 1,
+          "tag_hint_uc_preset": 2,
+          "v4_prompt": {
+            "caption": {
+              "base_caption": "adult, very aesthetic, masterpiece, no text",
+              "char_captions": []
+            },
+            "use_coords": false,
+            "use_order": true
+          },
+          "v4_negative_prompt": {
+            "caption": {
+              "base_caption": "nsfw, lowres, artistic error, film grain, scan artifacts, worst quality, bad quality, jpeg artifacts, very displeasing, chromatic aberration, dithering, halftone, screentone, multiple views, logo, too many watermarks, negative space, blank page",
+              "char_captions": []
+            },
+            "legacy_uc": false
+          },
+          "negative_prompt": "nsfw, lowres, artistic error, film grain, scan artifacts, worst quality, bad quality, jpeg artifacts, very displeasing, chromatic aberration, dithering, halftone, screentone, multiple views, logo, too many watermarks, negative space, blank page",
+          "deliberate_euler_ancestral_bug": false,
+          "prefer_brownian": true,
+          "noise_schedule": "karras",
+          "image_format": "webp",
+          "stream": "msgpack"
+        },
+        "use_new_shared_trial": true
+      }
+    },
+    {
+      "name": "medium-adult | blue sky",
+      "preset": {
+        "params": {
+          "model": "nai-diffusion-5-full",
+          "effort": "medium",
+          "seed": 424242424,
+          "scale": 4,
+          "cfg_rescale": 0.2,
+          "steps": 23,
+          "sampler": "k_euler_ancestral",
+          "ucPreset": 0,
+          "qualityPreset": "standard",
+          "transparentBackground": false
+        },
+        "prompt_parts": {
+          "base": "adult | blue sky",
+          "undesired": "blurry",
+          "characters": []
+        }
+      },
+      "payload": {
+        "input": "adult , very aesthetic, masterpiece, no text| blue sky",
+        "model": "nai-diffusion-5-full-medium",
+        "action": "generate",
+        "parameters": {
+          "params_version": 4,
+          "width": 832,
+          "height": 1216,
+          "scale": 4,
+          "sampler": "k_euler_ancestral",
+          "steps": 14,
+          "seed": 424242424,
+          "n_samples": 1,
+          "ucPresetId": "heavy",
+          "qualityPresetId": "standard",
+          "autoSmea": false,
+          "dynamic_thresholding": false,
+          "controlnet_strength": 1,
+          "legacy": false,
+          "add_original_image": true,
+          "legacy_v3_extend": false,
+          "use_coords": false,
+          "legacy_uc": false,
+          "normalize_reference_strength_multiple": true,
+          "inpaintImg2ImgStrength": 1,
+          "characterPrompts": [],
+          "straight_alpha": true,
+          "tag_hint_qt": 1,
+          "tag_hint_uc_preset": 2,
+          "v4_prompt": {
+            "caption": {
+              "base_caption": "adult , very aesthetic, masterpiece, no text| blue sky",
+              "char_captions": []
+            },
+            "use_coords": false,
+            "use_order": true
+          },
+          "v4_negative_prompt": {
+            "caption": {
+              "base_caption": "nsfw, lowres, artistic error, film grain, scan artifacts, worst quality, bad quality, jpeg artifacts, very displeasing, chromatic aberration, dithering, halftone, screentone, multiple views, logo, too many watermarks, negative space, blank page",
+              "char_captions": []
+            },
+            "legacy_uc": false
+          },
+          "negative_prompt": "nsfw, lowres, artistic error, film grain, scan artifacts, worst quality, bad quality, jpeg artifacts, very displeasing, chromatic aberration, dithering, halftone, screentone, multiple views, logo, too many watermarks, negative space, blank page",
+          "deliberate_euler_ancestral_bug": false,
+          "prefer_brownian": true,
+          "noise_schedule": "karras",
+          "image_format": "webp",
+          "stream": "msgpack"
+        },
+        "use_new_shared_trial": true
+      }
+    },
+    {
+      "name": "medium-adult, text: \"hello\"",
+      "preset": {
+        "params": {
+          "model": "nai-diffusion-5-full",
+          "effort": "medium",
+          "seed": 424242424,
+          "scale": 4,
+          "cfg_rescale": 0.2,
+          "steps": 23,
+          "sampler": "k_euler_ancestral",
+          "ucPreset": 0,
+          "qualityPreset": "standard",
+          "transparentBackground": false
+        },
+        "prompt_parts": {
+          "base": "adult, text: \"hello\"",
+          "undesired": "blurry",
+          "characters": []
+        }
+      },
+      "payload": {
+        "input": "adult,, very aesthetic, masterpiece, no text text: \"hello\"",
+        "model": "nai-diffusion-5-full-medium",
+        "action": "generate",
+        "parameters": {
+          "params_version": 4,
+          "width": 832,
+          "height": 1216,
+          "scale": 4,
+          "sampler": "k_euler_ancestral",
+          "steps": 14,
+          "seed": 424242424,
+          "n_samples": 1,
+          "ucPresetId": "heavy",
+          "qualityPresetId": "standard",
+          "autoSmea": false,
+          "dynamic_thresholding": false,
+          "controlnet_strength": 1,
+          "legacy": false,
+          "add_original_image": true,
+          "legacy_v3_extend": false,
+          "use_coords": false,
+          "legacy_uc": false,
+          "normalize_reference_strength_multiple": true,
+          "inpaintImg2ImgStrength": 1,
+          "characterPrompts": [],
+          "straight_alpha": true,
+          "tag_hint_qt": 1,
+          "tag_hint_uc_preset": 2,
+          "v4_prompt": {
+            "caption": {
+              "base_caption": "adult,, very aesthetic, masterpiece, no text text: \"hello\"",
+              "char_captions": []
+            },
+            "use_coords": false,
+            "use_order": true
+          },
+          "v4_negative_prompt": {
+            "caption": {
+              "base_caption": "nsfw, lowres, artistic error, film grain, scan artifacts, worst quality, bad quality, jpeg artifacts, very displeasing, chromatic aberration, dithering, halftone, screentone, multiple views, logo, too many watermarks, negative space, blank page",
+              "char_captions": []
+            },
+            "legacy_uc": false
+          },
+          "negative_prompt": "nsfw, lowres, artistic error, film grain, scan artifacts, worst quality, bad quality, jpeg artifacts, very displeasing, chromatic aberration, dithering, halftone, screentone, multiple views, logo, too many watermarks, negative space, blank page",
+          "deliberate_euler_ancestral_bug": false,
+          "prefer_brownian": true,
+          "noise_schedule": "karras",
+          "image_format": "webp",
+          "stream": "msgpack"
+        },
+        "use_new_shared_trial": true
+      }
+    },
+    {
+      "name": "medium-text: \"hello\"",
+      "preset": {
+        "params": {
+          "model": "nai-diffusion-5-full",
+          "effort": "medium",
+          "seed": 424242424,
+          "scale": 4,
+          "cfg_rescale": 0.2,
+          "steps": 23,
+          "sampler": "k_euler_ancestral",
+          "ucPreset": 0,
+          "qualityPreset": "standard",
+          "transparentBackground": false
+        },
+        "prompt_parts": {
+          "base": "text: \"hello\"",
+          "undesired": "blurry",
+          "characters": []
+        }
+      },
+      "payload": {
+        "input": "very aesthetic, masterpiece, no texttext: \"hello\"",
+        "model": "nai-diffusion-5-full-medium",
+        "action": "generate",
+        "parameters": {
+          "params_version": 4,
+          "width": 832,
+          "height": 1216,
+          "scale": 4,
+          "sampler": "k_euler_ancestral",
+          "steps": 14,
+          "seed": 424242424,
+          "n_samples": 1,
+          "ucPresetId": "heavy",
+          "qualityPresetId": "standard",
+          "autoSmea": false,
+          "dynamic_thresholding": false,
+          "controlnet_strength": 1,
+          "legacy": false,
+          "add_original_image": true,
+          "legacy_v3_extend": false,
+          "use_coords": false,
+          "legacy_uc": false,
+          "normalize_reference_strength_multiple": true,
+          "inpaintImg2ImgStrength": 1,
+          "characterPrompts": [],
+          "straight_alpha": true,
+          "tag_hint_qt": 1,
+          "tag_hint_uc_preset": 2,
+          "v4_prompt": {
+            "caption": {
+              "base_caption": "very aesthetic, masterpiece, no texttext: \"hello\"",
+              "char_captions": []
+            },
+            "use_coords": false,
+            "use_order": true
+          },
+          "v4_negative_prompt": {
+            "caption": {
+              "base_caption": "nsfw, lowres, artistic error, film grain, scan artifacts, worst quality, bad quality, jpeg artifacts, very displeasing, chromatic aberration, dithering, halftone, screentone, multiple views, logo, too many watermarks, negative space, blank page",
+              "char_captions": []
+            },
+            "legacy_uc": false
+          },
+          "negative_prompt": "nsfw, lowres, artistic error, film grain, scan artifacts, worst quality, bad quality, jpeg artifacts, very displeasing, chromatic aberration, dithering, halftone, screentone, multiple views, logo, too many watermarks, negative space, blank page",
+          "deliberate_euler_ancestral_bug": false,
+          "prefer_brownian": true,
+          "noise_schedule": "karras",
+          "image_format": "webp",
+          "stream": "msgpack"
+        },
+        "use_new_shared_trial": true
+      }
+    }
+  ]
+}

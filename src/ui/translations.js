@@ -1,5 +1,130 @@
 // English source text is the stable presentation key. User data is never a key.
 const rows = `
+App info	앱 정보	アプリ情報
+Getting started	처음 시작하기	はじめて使う
+Image tools guide	이미지 도구 사용법	画像ツールの使い方
+PRIVATE development build	PRIVATE 개발 빌드	PRIVATE 開発ビルド
+PUBLIC build	PUBLIC 빌드	PUBLIC ビルド
+Version unavailable	버전 확인 불가	バージョンを確認できません
+What does it do?	무엇을 하나요?	何ができますか？
+Try it step by step	따라 해 보세요	順番にやってみよう
+Remember	알아두세요	覚えておこう
+Picture guide	그림으로 확인하기	図で確認しよう
+Image tools	이미지 도구	画像ツール
+Keep the original PNG and finish a separate result.	원본 PNG를 보존하고 별도 결과물을 완성합니다.	元の PNG を保ち、別の結果を完成させます。
+Choose PNG	PNG 선택	PNG を選択
+Tool	도구	ツール
+Upscale ×2	업스케일 ×2	アップスケール ×2
+Max✨ Enhance	Max✨ 보완	Max✨ 強化
+Enhance	이미지 보완	画像強化
+Remove Background	배경 제거	背景除去
+Line Art	선화	線画
+Sketch	스케치	スケッチ
+Colorize	채색	着色
+Emotion	표정	表情
+Declutter	그림 정리	画像整理
+Declutter (keep bubbles)	그림 정리 (말풍선 보존)	画像整理（吹き出しを保つ）
+Canvas	캔버스	キャンバス
+Outpainting	캔버스 확장 생성	キャンバス拡張生成
+Focused Inpaint	영역 집중 부분 수정	範囲集中インペイント
+Prompt source	프롬프트 출처	プロンプトの参照元
+Original used prompt	원본에 실제 사용한 프롬프트	元画像で使用したプロンプト
+Prompt origin: Effort {value}	프롬프트 출처: 생성 노력 {value}	プロンプト参照元：Effort {value}
+Current workbench prompt	현재 작업대 프롬프트	現在のワークベンチのプロンプト
+Magnitude	보완 정도	変化の程度
+Individual settings	개별 설정	個別設定
+Enhance scale	보완 확대 배율	強化時の拡大率
+Director prompt	디렉터 전용 프롬프트	ディレクター専用プロンプト
+Director prompts use a separate 75-token CLIP context.	디렉터 프롬프트는 별도의 75토큰 CLIP 문맥을 사용합니다.	ディレクタープロンプトは専用の75トークン CLIP コンテキストを使います。
+Defry	색·표정 변화 조절	色・表情の変化調整
+Neutral	평온	平静
+Nervous	긴장	緊張
+Thinking	생각 중	考え中
+Confused	혼란	困惑
+Shy	수줍음	内気
+Disgusted	불쾌	嫌悪
+Smug	으쓱함	得意げ
+Bored	지루함	退屈
+Laughing	웃음	笑い
+Irritated	짜증	苛立ち
+Aroused	흥분	高揚
+Embarrassed	당황	照れ
+Worried	걱정	心配
+Love	애정	愛情
+Determined	결의	決意
+Hurt	상처	傷ついた
+Playful	장난스러움	遊び心
+Happy	행복	幸せ
+Sad	슬픔	悲しい
+Angry	화남	怒り
+Scared	두려움	恐怖
+Surprised	놀람	驚き
+Tired	피곤	疲れ
+Excited	신남	興奮
+Extend the canvas; retain the existing Inpaint strategy.	캔버스를 넓히고 기존 Inpaint 전략으로 생성합니다.	キャンバスを広げ、既存のインペイント方式で生成します。
+Left	왼쪽	左
+Top	위	上
+Right	오른쪽	右
+Bottom	아래	下
+Drag on the image or enter a rectangle.	이미지에서 영역을 끌어 선택하거나 좌표를 입력하세요.	画像上で範囲をドラッグするか座標を入力します。
+Selection width	선택 너비	選択範囲の幅
+Selection height	선택 높이	選択範囲の高さ
+Context (px)	주변 영역 (px)	周辺領域（px）
+Inpaint Strength	부분 수정 강도	インペイントの強さ
+Image Strength	원본 변형 강도	元画像の変化の強さ
+Image Noise	원본 노이즈	元画像のノイズ
+Padding (px)	마스크 여백 (px)	マスクの余白（px）
+Brush	그리기 도구	描画ツール
+Pen	펜	ペン
+Fill	채우기	塗りつぶし
+Color	색상	色
+Brush size	브러시 크기	ブラシサイズ
+Crop selection	선택 영역 자르기	選択範囲を切り抜く
+Resize image	이미지 크기 변경	画像サイズを変更
+Review operation	작업·비용 확인	作業・費用を確認
+Choose an image and review the operation.	이미지를 선택하고 작업·비용을 확인하세요.	画像を選び、作業・費用を確認してください。
+Run and save PNG	실행하고 PNG 저장	実行して PNG を保存
+Use for Image to Image	I2I 입력으로 사용	画像から生成の入力に使う
+Use for Inpaint	Inpaint 입력으로 사용	インペイントの入力に使う
+Use result in another tool	결과에 다른 도구 적용	結果に別のツールを適用
+Estimated cost unavailable.	예상 비용 계산 불가	推定費用を計算できません。
+Estimated {anlas} Anlas	예상 {anlas} Anlas	推定 {anlas} Anlas
+Estimated {anlas} Anlas; may use Opus allowance.	예상 {anlas} Anlas; Opus 사용량이 적용될 수 있습니다.	推定 {anlas} Anlas。Opus 利用枠が適用される場合があります。
+Uses Opus allowance	Opus 사용량 적용	Opus 利用枠を使用
+PNG saved to History. Actual Anlas: {anlas}	PNG를 히스토리에 저장했습니다. 실제 Anlas: {anlas}	PNG を履歴に保存しました。実際の Anlas：{anlas}
+Completed result	완료된 결과	完了した結果
+Discard unsaved canvas edits?	저장하지 않은 캔버스 편집을 버릴까요?	未保存のキャンバス編集を破棄しますか？
+Unsaved canvas edits.	저장하지 않은 캔버스 편집이 있습니다.	未保存のキャンバス編集があります。
+The result exceeds the generation size limit. Use Canvas resize or Focused Inpaint.	결과가 생성 크기 제한을 넘습니다. 캔버스 크기 변경이나 영역 집중 부분 수정을 사용하세요.	結果が生成サイズの上限を超えています。キャンバスのサイズ変更や範囲集中修正を使ってください。
+Error details: {details}	오류 내용: {details}	エラー詳細：{details}
+Masked	원본 마스크 적용	元画像にマスク適用
+Generated	새로 생성	生成結果
+Blend	혼합	合成
+Effort	생성 노력	生成のエフォート
+Effort {value}	생성 노력 {value}	Effort {value}
+Heavy UC (fixed)	Heavy UC (고정)	Heavy UC（固定）
+High	High	High
+Medium	Medium	Medium
+Unknown — choose Effort	미확인 — Effort 선택 필요	不明 — Effort を選択
+Anime	애니메이션	アニメ
+Furry	퍼리	獣人
+Restore saved	저장 상태로 복원	保存状態に戻す
+Previous work	이전 작업	前の作業
+Saved revisions	이전 저장 기록	過去の保存記録
+V4.5 Full (read only)	V4.5 Full (읽기 호환)	V4.5 Full（読み込み互換）
+V4.5 Full (legacy data)	V4.5 Full (과거 데이터)	V4.5 Full（旧データ）
+Precise Reference is retained for legacy data only and is unavailable for V5 generation.	정밀 참조는 과거 데이터 호환용으로 보존되며 V5 생성에는 사용되지 않습니다.	精密参照は旧データの互換用に保持し、V5 の生成には使用しません。
+Medium: 14 Steps, Euler Ancestral and Heavy UC. Your custom UC is preserved but unused.	Medium: 14 스텝, Euler Ancestral, Heavy UC 고정. 직접 작성한 UC는 보존되지만 생성에 사용하지 않습니다.	Medium：14ステップ、Euler Ancestral、Heavy UC 固定。入力した UC は保持しますが生成には使用しません。
+Unsaved changes — Save updates this preset; Save As keeps a separate copy.	저장하지 않은 변경 사항 — 저장은 현재 프리셋을 갱신하고, 다른 이름으로 저장은 별도 사본을 만듭니다.	未保存の変更 — 保存で現在のプリセットを更新し、名前を付けて保存で別のコピーを作ります。
+Saved work — edit, generate one PNG, then save your changes.	저장 상태 — 프롬프트를 수정하고 PNG 한 장으로 확인한 뒤 변경 사항을 저장하세요.	保存状態 — 編集して PNG 1枚で確認し、変更を保存してください。
+Loading a revision changes the workbench. Save to keep it; Previous work restores your draft.	이전 저장 기록을 불러오면 작업대가 바뀝니다. 저장하면 유지되고, 이전 작업으로 수정 중인 내용을 복원할 수 있습니다.	過去の保存記録を読み込むと作業画面が変わります。保存で確定し、前の作業で編集中の内容に戻せます。
+No earlier saved revisions.	이전 저장 기록이 없습니다.	過去の保存記録はありません。
+Saved revision not found.	이전 저장 기록을 찾지 못했습니다.	過去の保存記録が見つかりません。
+V4.5 presets and History are preserved. Switch to V5 Full before generating.	V4.5 프리셋과 히스토리는 보존됩니다. 생성하려면 V5 Full로 전환하세요.	V4.5 のプリセットと履歴は保持します。生成するには V5 Full に切り替えてください。
+V5 Full: generate one PNG at a time. Inpaint keeps the existing cost-saving strategy.	V5 Full: PNG를 한 장씩 생성합니다. 부분 수정은 기존 비용 절감 전략을 유지합니다.	V5 Full：PNG を1枚ずつ生成します。部分修正は既存のコスト削減方式を維持します。
+Choose High or Medium before generating: Effort is unknown.	Effort를 확인할 수 없습니다. 생성 전에 High 또는 Medium을 선택하세요.	Effort を確認できません。生成前に High または Medium を選択してください。
+Generate one image at a time.	이미지는 한 장씩 생성하세요.	画像は1枚ずつ生成してください。
+Generation mode changed. Prepare the prompt again.	생성 방식이 바뀌었습니다. 프롬프트를 다시 준비하세요.	生成方式が変わりました。プロンプトを再準備してください。
 Support Chaessi Preset	Chaessi Preset 개발 후원	Chaessi Preset の開発を応援
 If Chaessi Preset helps you, please consider a one-time donation of $3 for a coffee.	Chaessi Preset이 도움이 되었다면 커피 한 잔 값인 $3로 일회성 후원을 부탁드립니다.	Chaessi Preset が役に立ったら、コーヒー1杯分の $3 を一度だけご支援いただけると嬉しいです。
 ☕ Buy Me a Coffee	☕ 개발자에게 커피 한 잔	☕ コーヒーで開発を応援

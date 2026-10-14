@@ -33,7 +33,7 @@ try {
   checks.push('Electron version and isolated user data');
   const page = await application.firstWindow();
   page.on('pageerror', error => errors.push(error.message));
-  await page.waitForFunction(expected => document.querySelector('#healthStatus')?.textContent === `v${expected}`, version);
+  await page.waitForFunction(() => document.querySelector('#presetName')?.value);
   for (const [locale, phrase, button] of [['ko', '일회성 후원', '☕ 개발자에게 커피 한 잔'], ['en', 'one-time donation', '☕ Buy Me a Coffee'], ['ja', '一度だけ', '☕ コーヒーで開発を応援']]) {
     await page.locator('#uiLanguage').selectOption(locale);
     await page.locator('#healthStatus').click();

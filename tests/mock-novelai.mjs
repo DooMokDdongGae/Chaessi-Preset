@@ -2,6 +2,8 @@ import { writeFile } from "node:fs/promises";
 import path from "node:path";
 import { encode } from "@msgpack/msgpack";
 import { encodeRgbPng } from "../src/services/generation-image-utils.js";
+import { appendPngText } from "../src/services/generation-png.js";
+import sharp from "sharp";
 const nativeFetch = globalThis.fetch;
 globalThis.fetch = async (url, options) => {
   if (!String(url).startsWith("https://image.novelai.net/ai/generate-image")) return nativeFetch(url, options);
@@ -10,7 +12,9 @@ globalThis.fetch = async (url, options) => {
   const clean = structuredClone(payload);
   delete clean.parameters.image; delete clean.parameters.mask;
   await writeFile(path.join(process.env.CHAESSI_USER_DATA_DIR, "captured-request.json"), JSON.stringify(clean));
-  const image = encodeRgbPng(Buffer.alloc(64 * 64 * 3, 180), 64, 64);
+  let image = encodeRgbPng(Buffer.alloc(payload.parameters.width * payload.parameters.height * 3, 180), payload.parameters.width, payload.parameters.height);
+  if (payload.parameters.image_format === "webp") image = await sharp(image).withExif({ IFD0: { ImageDescription: JSON.stringify(clean) } }).webp({ lossless: true }).toBuffer();
+  else image = appendPngText(image, "Generation Data", JSON.stringify(clean));
   if (payload.model.includes("diffusion-5")) {
     const frame = Buffer.from(encode({ event_type: "final", image }));
     const header = Buffer.alloc(4); header.writeUInt32BE(frame.length);

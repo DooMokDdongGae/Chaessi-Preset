@@ -39,9 +39,17 @@ export function createManualReader() {
       const figure = document.createElement('figure'); const button = document.createElement('button'); button.type = 'button'; button.className = 'manual-picture';
       const screenshot = document.createElement('img'); screenshot.src = `/assets/manuals/${locale}/${chapter.image}.png`; screenshot.alt = title;
       button.append(screenshot); button.addEventListener('click', () => { image.src = screenshot.src; image.alt = title; zoom.showModal(); zoomClose.focus(); });
-      const caption = document.createElement('figcaption'); caption.textContent = t('Click an image to enlarge.'); figure.append(button, caption);
+      const caption = document.createElement('figcaption'); caption.textContent = (chapter.tool === 'cost' ? ({ko:'① 예상 비용 ② 실행. 화면 잔액은 테스트 예시예요. ',en:'① Estimated cost ② Run. Balances are demonstration values. ',ja:'① 推定費用 ② 実行。残高はテスト用の例です。'}[locale]) : chapter.tool ? ({ko:'① PNG 선택 ② 도구 선택 ③ 주요 설정. 아래로 스크롤하면 실행 버튼이 있어요. 화면 잔액은 테스트 계정 예시예요. ',en:'① Choose PNG ② Choose tool ③ Main control. Scroll down for Run. Account balances are demonstration values. ',ja:'① PNG 選択 ② ツール選択 ③ 主な設定。下へスクロールすると実行があります。残高はテスト用の例です。'}[locale]) : '') + t('Click an image to enlarge.'); figure.append(button, caption);
       const help = document.createElement('aside'); help.textContent = note;
-      article.append(heading, lead, list, figure, help);
+      const subtitle = text => { const el=document.createElement('h4'); el.textContent=t(text); return el; };
+      article.append(heading, subtitle('What does it do?'), lead, subtitle('Try it step by step'), list, subtitle('Picture guide'), figure);
+      for (const illustration of chapter.illustrations ?? []) {
+        const extra=document.createElement('figure'), enlarge=document.createElement('button'), pic=document.createElement('img'), label=document.createElement('figcaption');
+        enlarge.type='button'; enlarge.className='manual-picture'; pic.src=illustration.screenshot ? '/assets/manuals/'+locale+'/'+illustration.screenshot+'.png' : '/assets/manuals/examples/'+illustration.file; pic.alt=illustration.caption[locale];
+        label.textContent=illustration.caption[locale]; enlarge.append(pic); extra.append(enlarge,label);
+        enlarge.onclick=()=>{image.src=pic.src;image.alt=pic.alt;zoom.showModal();zoomClose.focus();};article.append(extra);
+      }
+      article.append(subtitle('Remember'),help);
       if (chapter.id === 'wildcards') {
         const example = document.createElement('pre'); example.textContent = 'white shirt\nblack shirt\nblue shirt\n\n__tops__ → blue shirt'; article.insertBefore(example, figure);
       }
@@ -49,6 +57,7 @@ export function createManualReader() {
     const index = filtered.findIndex(c => c.id === active);
     $('manualPrevious').disabled = index <= 0; $('manualNext').disabled = index < 0 || index >= filtered.length - 1;
     $('manualProgress').textContent = `${index + 1} / ${filtered.length}`;
+    $('manualContents').querySelector('[aria-current="page"]')?.scrollIntoView({ block: 'nearest' });
     article.style.fontSize = `${$('manualTextSize').value}px`; article.scrollTop = scroll; persist();
   }
   // A contextual entry changes help navigation only; the workbench and its open
@@ -92,6 +101,7 @@ export function createManualReader() {
   };
   document.addEventListener('chaessi:language-change', updateHelpLabels); updateHelpLabels();
   document.addEventListener('chaessi:language-change', render);
+  document.querySelectorAll('[data-manual-jump]').forEach(button=>button.addEventListener('click',()=>open(button.dataset.manualJump)));
   $('openIntegratedManual').addEventListener('click', () => open());
   $('manualClose').addEventListener('click', () => dialog.close());
   $('manualLanguage').addEventListener('change', () => setLanguage($('manualLanguage').value));

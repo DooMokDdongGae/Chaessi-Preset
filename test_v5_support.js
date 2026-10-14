@@ -24,7 +24,7 @@ assert.match(stylesheet, /\.model-badge\[data-model="nai-diffusion-4-5-full"\][\
 assert.match(stylesheet, /\.model-badge\[data-model="nai-diffusion-5-full"\][\s\S]*?#e879f9/);
 assert.match(stylesheet, /\.model-badge:focus-visible/);
 assert.match(stylesheet, /@media \(max-width: 1100px\)[\s\S]*?\.app-header\s*\{\s*display: grid/);
-assert.equal(getModelProfile(NOVELAI_V5_FULL_MODEL).defaults.scale, 5);
+assert.equal(getModelProfile(NOVELAI_V5_FULL_MODEL).defaults.scale, 7);
 for (const [text, count] of [
   ["", 0], ["girl", 1], ["blue_hair", 3], ["blue hair", 2],
   ["A girl stands under moonlight.", 7], ["1.2::girl::", 6],

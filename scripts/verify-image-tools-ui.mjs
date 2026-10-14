@@ -1,0 +1,58 @@
+import assert from 'node:assert/strict';
+import {mkdir,writeFile,readFile} from 'node:fs/promises';
+import path from 'node:path';
+import {fileURLToPath} from 'node:url';
+import {createRequire} from 'node:module';
+import net from 'node:net';
+import {once} from 'node:events';
+import sharp from 'sharp';
+import {messages} from '../src/ui/translations.js';
+const root=fileURLToPath(new URL('../',import.meta.url)),folder=path.join(root,'.cache','image-tools-ui',`run-${Date.now()}`);await mkdir(folder,{recursive:true});
+const sourcePath=path.join(folder,'source.png');await writeFile(sourcePath,await sharp({create:{width:832,height:1216,channels:4,background:{r:60,g:100,b:160,alpha:.5}}}).png().toBuffer());
+const require=createRequire(import.meta.url),{_electron}=require(process.env.CHAESSI_PLAYWRIGHT||'playwright');
+const probe=net.createServer();probe.listen(0,'127.0.0.1');await once(probe,'listening');const port=probe.address().port;await new Promise(resolve=>probe.close(resolve));
+const checks=[],errors=[];let app,page;const pass=message=>{checks.push(message);console.log('PASS '+message);};
+async function operation(tool,settings=async()=>{}){
+ await page.locator('#toolKind').selectOption(tool);await settings();
+ const review=page.waitForResponse(r=>r.url().endsWith('/api/image-tools/prepare'));await page.locator('#toolReview').click();const prepared=await review;assert.equal(prepared.status(),200,await prepared.text());
+ await page.locator('#toolRun').waitFor({state:'visible'});await page.waitForFunction(()=>!document.querySelector('#toolRun').disabled);
+ const run=page.waitForResponse(r=>r.url().endsWith('/api/image-tools/run'));await page.locator('#toolRun').click();const response=await run;assert.equal(response.status(),200,await response.text());const result=await response.json();
+ await page.waitForFunction(()=>!!document.querySelector('#toolCompletedResult')?.naturalWidth);await page.waitForFunction(()=>!document.querySelector('#toolClose').disabled);
+ return result;
+}
+try{
+ app=await _electron.launch({executablePath:process.env.CHAESSI_ELECTRON||require('electron'),args:['tests/electron-fixture.cjs'],cwd:root,env:{...process.env,PORT:String(port),NAI_ACCESS_TOKEN:'test-local-only',NOVELAI_TOKEN:'',CHAESSI_ELECTRON_TEST_DATA:folder,CHAESSI_TEST_PROVIDER_MODULE:new URL('../tests/mock-image-tools-provider.mjs',import.meta.url).href}});
+ page=await app.firstWindow();page.on('pageerror',e=>errors.push(e.message));await page.waitForFunction(()=>document.querySelector('#presetName')?.value);await page.locator('#uiLanguage').selectOption('en');await app.evaluate(({BrowserWindow})=>BrowserWindow.getAllWindows()[0].setSize(1440,980));
+ await page.locator('#basePrompt').fill('adult woman, blue hair, original workbench text');const original=await page.locator('#basePrompt').inputValue();
+ await page.locator('#openImageTools').click();await page.locator('#toolFile').setInputFiles(sourcePath);await page.waitForFunction(()=>document.querySelector('#toolCanvas').width===832);
+ const up=await operation('upscale');assert.deepEqual(up.operation.actual_output_size,{width:1664,height:2432});assert.equal(await page.locator('#basePrompt').inputValue(),original);pass('Uploaded PNG → official Upscale request → separate History PNG, actual dimensions and preserved dirty prompt');
+ for(const effort of ['high','medium'])for(const tool of ['enhance','max-enhance']){const result=await operation(tool,async()=>{await page.locator('#toolPromptSource').selectOption('current');await page.locator('#toolEffort').selectOption(effort);});assert.equal(result.operation.request_generation_parameters.steps,effort==='medium'?14:23);if(tool==='max-enhance')assert.equal(result.operation.request_generation_parameters.upscaled_enhance,true);}
+ pass('Enhance and Max High/Medium GUI settings, dedicated flag, actual result size and saved request metadata');
+ const bg=await operation('bg-removal');assert.equal(bg.variants.length,3);const selected=page.waitForResponse(r=>r.url().endsWith('/api/image-tools/variant'));await page.locator('#toolVariants button').nth(1).click();const variant=await (await selected).json();assert.notEqual(variant.generation.id,bg.generation.id);assert.equal(variant.operation.actual_anlas,0);await page.waitForFunction(()=>!document.querySelector('#toolClose').disabled);pass('Remove Background three variants, explicit selection, preserved assets and no new paid call');
+ for(const tool of ['lineart','sketch','colorize','emotion','declutter','declutter-keep-bubbles'])await operation(tool,async()=>{if(['colorize','emotion'].includes(tool))await page.locator('#toolDirectorPrompt').fill('blue dress');});pass('All six Director workflows and keep-bubbles choice execute and persist separately');
+ await page.locator('#toolKind').selectOption('canvas');const canvas=page.locator('#toolCanvas'),box=await canvas.boundingBox();const point={x:box.x+box.width*.5,y:box.y+box.height*.5};
+ const before=await canvas.evaluate(el=>el.getContext('2d').getImageData(416,608,1,1).data[0]);await page.mouse.move(point.x,point.y);await page.mouse.down();await page.mouse.move(point.x+5,point.y+5);await page.mouse.up();const painted=await canvas.evaluate(el=>el.getContext('2d').getImageData(416,608,1,1).data[0]);assert.notEqual(painted,before);await page.locator('#toolUndo').click();assert.equal(await canvas.evaluate(el=>el.getContext('2d').getImageData(416,608,1,1).data[0]),before);await page.locator('#toolRedo').click();assert.equal(await canvas.evaluate(el=>el.getContext('2d').getImageData(416,608,1,1).data[0]),painted);
+ await page.locator('#toolBrush').selectOption('eraser');await page.mouse.click(point.x,point.y);assert.equal(await canvas.evaluate(el=>el.getContext('2d').getImageData(416,608,1,1).data[3]),0);await page.locator('#toolUndo').click();
+ await page.locator('#toolBrush').selectOption('fill');await page.locator('#toolColor').fill('#00ff00');await page.mouse.click(box.x+10,box.y+10);assert.equal(await canvas.evaluate(el=>el.getContext('2d').getImageData(0,0,1,1).data[1]),255);await page.locator('#toolUndo').click();
+ await page.locator('#toolCanvasWidth').fill('640');await page.locator('#toolCanvasHeight').fill('640');await page.locator('#toolResize').click();assert.equal(await canvas.evaluate(el=>el.width),640);await page.locator('#toolRect-x').fill('16');await page.locator('#toolRect-y').fill('16');await page.locator('#toolRect-width').fill('512');await page.locator('#toolRect-height').fill('512');await page.locator('#toolCrop').click();assert.equal(await canvas.evaluate(el=>el.width),512);
+ const edited=await operation('canvas');assert.equal(edited.operation.actual_output_size.width,512);pass('Canvas pen/eraser/fill, Undo/Redo, resize/crop, PNG alpha and local History save');
+ await page.locator('#toolUseNext').click();await page.waitForFunction(()=>document.querySelector('#toolCanvas').width===512);await operation('outpaint',async()=>{await page.locator('#toolPromptSource').selectOption('current');await page.locator('#toolEffort').selectOption('medium');});
+ await operation('focused-inpaint',async()=>{await page.locator('#toolPromptSource').selectOption('current');await page.locator('#toolEffort').selectOption('high');});pass('Chain result → Outpainting and independent Focused Inpaint → PNG → History');
+ await page.locator('#toolUseI2I').click();await page.locator('#imageToolsDialog').waitFor({state:'hidden'});assert.equal(await page.locator('#generationSourceCanvas').evaluate(el=>el.width),512);assert.equal(await page.locator('#basePrompt').inputValue(),original);pass('Processed result reused for Image to Image without changing the workbench prompt');
+ await page.locator('#openImageTools').click();
+ await page.locator('#toolKind').selectOption('upscale');
+ for(const locale of ['ko','en','ja']){
+   // Language menu is beneath the tool modal; use the app event through its public language module.
+   await page.evaluate(async locale=>{(await import('/src/ui/i18n.js')).setLanguage(locale);},locale);
+   assert.equal(await page.locator('#toolReview').textContent(),messages['Review operation'][locale]);await page.locator('[data-open-manual="image-tools"]').click();assert.equal(await page.locator('#manualArticle h3').textContent(),locale==='ko'?'Upscale: 그림을 2배 크게':locale==='ja'?'Upscale：縦と横を2倍に':'Upscale: make a picture twice as wide');await page.locator('#manualClose').click();
+   await page.locator('#imageToolsDialog').evaluate(el=>{el.scrollTop=0;el.querySelector('aside').scrollTop=0;});
+   await mkdir(path.join(root,'assets','manuals',locale),{recursive:true});if(process.env.CHAESSI_CAPTURE_GUIDES==='1') await page.screenshot({path:path.join(root,'assets','manuals',locale,'image-tools.png')});await page.screenshot({path:path.join(folder,locale+'.png')});
+ }
+ pass('Korean/English/Japanese tool settings and contextual Help retain edited workbench text');
+ await page.locator('#toolClose').click();
+ const count=await page.evaluate(async()=> (await (await fetch('/api/generations')).json()).items.length);assert.ok(count>=15);pass('History survives processing and all records expose their operation');
+ await page.locator('[data-workspace-view="history"]').click();await page.locator('#historyModeFilter').selectOption('image-tool');await page.locator(`[data-view-generation="${up.generation.id}"]`).click();await page.locator('#imageViewerDialog').waitFor({state:'visible'});await page.locator('#viewerImageTools').click();await page.waitForFunction(()=>document.querySelector('#toolCanvas').width===1664);assert.equal(await page.locator('#basePrompt').inputValue(),original);await page.locator('#toolClose').click();await page.locator('#imageViewerCloseButton').click();pass('Past History → shared image tools, operation filter and preserved workbench');
+ await page.evaluate(async()=>{(await import('/src/ui/i18n.js')).setLanguage('en');});await page.locator('#openImageTools').click();const largePath=path.join(folder,'large-source.png');await writeFile(largePath,await sharp({create:{width:3072,height:4096,channels:4,background:{r:50,g:90,b:140,alpha:.5}}}).png().toBuffer());await page.locator('#toolFile').setInputFiles(largePath);await page.waitForFunction(()=>document.querySelector('#toolCanvas').width===3072);const large=await operation('canvas');assert.deepEqual(large.operation.actual_output_size,{width:3072,height:4096});assert.equal(large.operation.actual_anlas,0);
+ const imported=await page.evaluate(async imagePath=>{const image=await (await fetch('/'+imagePath)).blob(),form=new FormData();form.append('image',image,'large-result.png');return (await (await fetch('/api/import/image',{method:'POST',body:form})).json()).import_result;},large.generation.image_path);assert.equal(imported.image_operation.actual_output_size.width,3072);await page.locator('#toolUseInpaint').click();assert.equal(await page.locator('#imageToolsDialog').isVisible(),true);assert.match(await page.locator('#toolStatus').textContent(),/size limit/);assert.equal(await page.locator('#generationSourceCanvas').evaluate(el=>el.width),512);await page.locator('#toolClose').click();pass('Large 3072×4096 RGBA PNG → local save → History → Import; unsafe legacy reinput blocked without changing its source');
+ assert.deepEqual(errors,[]);await writeFile(path.join(folder,'results.json'),JSON.stringify({checks,errors,paid_calls:0},null,2));console.log(JSON.stringify({folder,checks:checks.length,errors}));
+}catch(error){errors.push(error.message);if(page)await page.screenshot({path:path.join(folder,'failure.png')}).catch(()=>{});await writeFile(path.join(folder,'results.json'),JSON.stringify({checks,errors,paid_calls:0},null,2));console.error(error);process.exitCode=1;}finally{await app?.close();}

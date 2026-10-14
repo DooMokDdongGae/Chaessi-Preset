@@ -1,16 +1,9 @@
 import { getLanguage } from './i18n.js';
-export const SORT_MODES = ['name-asc', 'name-desc', 'updated-desc', 'updated-asc', 'created-desc', 'created-asc'];
+import { SORT_MODES, sortPresets as sortByLocale } from '../state/preset-sorting.js';
+export { SORT_MODES };
 const labels = ['Name A–Z', 'Name Z–A', 'Recently modified', 'Oldest modified', 'Recently created', 'Oldest created'];
 export function sortPresets(items, mode = 'name-asc', locale = getLanguage()) {
-  if (!SORT_MODES.includes(mode)) mode = 'name-asc';
-  const collator = new Intl.Collator(locale, { numeric: true, sensitivity: 'base' });
-  const descending = mode.endsWith('-desc');
-  const field = mode.startsWith('updated') ? 'updated_at' : 'created_at';
-  return [...items].sort((a, b) => {
-    const comparison = mode.startsWith('name') ? collator.compare(a.name || '', b.name || '')
-      : (Date.parse(a[field]) || 0) - (Date.parse(b[field]) || 0);
-    return (descending ? -comparison : comparison) || collator.compare(a.name || '', b.name || '') || String(a.id).localeCompare(String(b.id));
-  });
+  return sortByLocale(items, mode, locale);
 }
 export function createSortControl(id, host, onChange) {
   const key = `chaessi.preset-sort.${id}.v1`;

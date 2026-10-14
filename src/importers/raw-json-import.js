@@ -199,16 +199,26 @@ function extractParams(payload, parameters, source) {
     ...(source?.generation ?? {}),
   };
 
-  if (payload?.model || source?.generation?.model || parameters?.model || source?.model_name || source?.Source) {
-    params.model = detectModel(payload?.model || source?.generation?.model || parameters?.model || source?.model_name || source?.Source);
+  const modelEvidence = payload?.model || source?.generation?.model || parameters?.model || source?.model || source?.model_name || source?.Source;
+  const hash = String(candidates.model_hash || source?.Source || "").toUpperCase();
+  if (modelEvidence || /70AB5786|93F4BD30|0ADF9AB7|657484A5/.test(hash)) {
+    params.model = /70AB5786|93F4BD30|0ADF9AB7|657484A5/.test(hash) ? NOVELAI_V5_FULL_MODEL : detectModel(modelEvidence);
   } else if (payload || parameters || source) {
     params.model = NOVELAI_V45_FULL_MODEL;
+  }
+  if (params.model === NOVELAI_V5_FULL_MODEL) {
+    const exactModel = String(payload?.model || source?.generation?.model || parameters?.model || source?.model || "");
+    params.effort = /nai-diffusion-5-full-medium(?:-inpainting)?$/.test(exactModel) ? "medium"
+      : ["high", "medium"].includes(candidates.effort) ? candidates.effort
+      : /70AB5786|93F4BD30/.test(hash) ? "medium"
+      : /0ADF9AB7|657484A5/.test(hash) || /^nai-diffusion-5-full(?:-inpainting)?$/.test(exactModel) ? "high" : "unknown";
   }
 
   for (const [sourceKey, targetKey] of Object.entries(PARAM_MAP)) {
     if (candidates[sourceKey] !== undefined) params[targetKey] = candidates[sourceKey];
   }
   params.transparentBackground = candidates.tag_hint_transparent_background === true;
+  if (params.model === NOVELAI_V5_FULL_MODEL) params.dataset = String(firstString(source?.Description, payload?.input, candidates.prompt)).startsWith("fur dataset") ? "furry" : "anime";
 
   if (source?.generation?.quality_toggle !== undefined) {
     params.qualityToggle = source.generation.quality_toggle;
@@ -298,14 +308,25 @@ function stripQualitySuffix(prompt, qualityPreset) {
     ? "very aesthetic, masterpiece, no text"
     : qualityPreset === "light" ? "very aesthetic, amazing quality, no text" : "";
   if (!suffix) return prompt;
-  const marker = `, ${suffix}`;
-  return prompt.endsWith(marker) ? prompt.slice(0, -marker.length) : prompt;
+  return detachPositiveSuffix(prompt, suffix);
 }
 
 function stripTransparentSuffix(prompt, transparentBackground) {
   if (transparentBackground !== true) return prompt;
-  const marker = ", transparent background";
-  return prompt.endsWith(marker) ? prompt.slice(0, -marker.length) : prompt;
+  return detachPositiveSuffix(prompt, "transparent background");
+}
+
+function detachPositiveSuffix(prompt, suffix) {
+  const pipe = prompt.indexOf("|");
+  const first = pipe < 0 ? prompt : prompt.slice(0, pipe);
+  const match = first.match(/(?:^|\s|[,.:[\]{}、。])text:(?!:)/i);
+  const boundary = match?.index ?? first.length;
+  let tags = first.slice(0, boundary);
+  const marker = `, ${suffix}`;
+  if (tags === suffix) tags = "";
+  else if (tags.endsWith(marker)) tags = tags.slice(0, -marker.length);
+  else if (first.startsWith(`${suffix}text:`)) return first.slice(suffix.length) + (pipe < 0 ? "" : prompt.slice(pipe));
+  return tags + first.slice(boundary) + (pipe < 0 ? "" : prompt.slice(pipe));
 }
 
 function stripUcPrefix(prompt, ucPreset, basePrompt) {

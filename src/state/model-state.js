@@ -1,4 +1,5 @@
 import { getModelProfile, NOVELAI_V45_FULL_MODEL } from "./model-profiles.js";
+import { switchPresetEffort } from "./effort-state.js";
 
 export function switchPresetModel(preset, targetModel) {
   const source = structuredClone(preset);
@@ -6,12 +7,14 @@ export function switchPresetModel(preset, targetModel) {
   const states = { ...(source.model_states || {}) };
   states[currentModel] = snapshotActiveState(source, currentModel);
   const target = states[targetModel] || createInitialTargetState(source, targetModel);
-  const next = {
+  let next = {
     ...source,
     prompt_parts: structuredClone(target.prompt_parts),
     params: { ...target.params, model: targetModel },
     model_states: states,
   };
+  if (targetModel === "nai-diffusion-5-full") next = switchPresetEffort(next, "high");
+  else { delete next.params.effort; delete next.params.dataset; }
   next.model_states[targetModel] = snapshotActiveState(next, targetModel);
   return next;
 }

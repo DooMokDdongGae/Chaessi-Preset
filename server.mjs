@@ -29,7 +29,9 @@ import {
   NOVELAI_GENERATE_ENDPOINT,
   NOVELAI_V5_GENERATE_ENDPOINT,
 } from "./src/state/defaults.js";
-import { getModelProfile, NOVELAI_V5_FULL_MODEL } from "./src/state/model-profiles.js";
+import { getModelProfile, isV5ApiModel, NOVELAI_V5_FULL_MODEL } from "./src/state/model-profiles.js";
+import { effectiveGenerationPreset } from "./src/state/effort-state.js";
+import { receivedImageToPng } from "./src/services/generation-png.js";
 import { validateV5Payload } from "./src/adapters/novelai-v5-full.js";
 import { createTokenProvider } from "./src/security/token-provider.js";
 import {
@@ -40,6 +42,7 @@ import { createPresetStore } from "./src/services/preset-store.js";
 import { createCharacterPresetStore } from "./src/services/character-preset-store.js";
 import { createCharacterPresetCategoryStore } from "./src/services/character-preset-category-store.js";
 import { createGenerationStore } from "./src/services/generation-store.js";
+import { createImageToolService } from "./src/image-tools/service.js";
 import { createSectionPresetStore } from "./src/services/section-preset-store.js";
 import {
   assertNoSecretMaterial,
@@ -48,7 +51,7 @@ import {
 import { createWildcardStore } from "./src/services/wildcard-store.js";
 import { resolveGenerationPrompts, createPreparedPromptStore } from "./src/services/generation-prompt-resolver.js";
 import { fetchNovelAiAccountUsage, projectNovelAiAccountUsage } from "./src/services/novelai-account-usage.js";
-import { extractFinalNovelAiPng } from "./src/services/novelai-msgpack-stream.js";
+import { extractFinalNovelAiImage } from "./src/services/novelai-msgpack-stream.js";
 import { createNovelAiMultipartBody } from "./src/services/novelai-multipart-request.js";
 import {
   assertMaskHasPaintedPixels,
@@ -67,7 +70,7 @@ import { parseNovelAiPngMetadata } from "./src/importers/nai-metadata.js";
 import { parseImageMetadata } from "./src/importers/image-metadata.js";
 
 const HEALTH_APP_NAME = "Chaessi Preset";
-const APP_VERSION = "3.5.0";
+const APP_VERSION = JSON.parse(readFileSync(new URL("./package.json", import.meta.url), "utf8")).version;
 const PORT = Number(process.env.PORT || 4174);
 const ROOT = path.dirname(fileURLToPath(import.meta.url));
 const DATA_ROOT = path.resolve(process.env.CHAESSI_USER_DATA_DIR || ROOT);
@@ -97,6 +100,8 @@ const basePromptStore = createSectionPresetStore({ rootDir: DATA_ROOT, section: 
 const undesiredPromptStore = createSectionPresetStore({ rootDir: DATA_ROOT, section: "undesired-prompts" });
 const paramsPresetStore = createSectionPresetStore({ rootDir: DATA_ROOT, section: "params-presets" });
 const wildcardStore = createWildcardStore({ rootDir: DATA_ROOT });
+const imageTools = createImageToolService({ rootDir: DATA_ROOT, generationStore, wildcardStore, getToken: () => tokenProvider.getToken("novelai") });
+let imageRequestBusy = false;
 const preparedPrompts = createPreparedPromptStore();
 
 const server = http.createServer(async (req, res) => {
@@ -127,6 +132,9 @@ const server = http.createServer(async (req, res) => {
       sendJson(res, 200, await handleNovelAiAccountUsage());
       return;
     }
+    if (req.method === "GET" && url.pathname === "/api/novelai/cost-account") {
+      sendJson(res, 200, { ok: true, opus_available: await imageTools.pricingEligibility() }); return;
+    }
 
     if (req.method === "POST" && url.pathname === "/api/settings/token") {
       const body = await readJsonBody(req);
@@ -149,8 +157,8 @@ const server = http.createServer(async (req, res) => {
       if (!presetValidation.ok) {
         throw httpError(400, "invalid_preset", "Invalid internal preset schema.", presetValidation.errors.join("; "));
       }
-      const payload = buildGeneratePayload(preset);
-      const payloadSafety = validatePayloadSafety(payload);
+      const payload = buildModeGeneratePayload(preset);
+      const payloadSafety = isV5ApiModel(payload.model) ? validateV5Payload(payload) : validatePayloadSafety(payload);
       if (!payloadSafety.ok) {
         throw httpError(400, "unsafe_payload", "Payload safety validation failed.", payloadSafety.errors.join("; "));
       }
@@ -164,9 +172,25 @@ const server = http.createServer(async (req, res) => {
 
     if (req.method === "POST" && url.pathname === "/api/novelai/generate") {
       const body = await readJsonBody(req);
-      const result = await handleGenerate(body);
+      if (imageRequestBusy || imageTools.isBusy()) throw httpError(409, "image_request_busy", "An image operation is already running.");
+      imageRequestBusy = true;
+      let result;
+      try { result = await handleGenerate(body); } finally { imageRequestBusy = false; }
       sendJson(res, 200, result);
       return;
+    }
+
+    if (req.method === "POST" && url.pathname.startsWith("/api/image-tools/")) {
+      const body = await readJsonBody(req);
+      if (imageRequestBusy) throw httpError(409, "image_request_busy", "An image operation is already running.");
+      let result;
+      if (url.pathname === "/api/image-tools/prepare") {
+        try { result = await imageTools.prepare(body); }
+        catch (error) { if (!error.statusCode) throw httpError(400, "invalid_image_operation", "Invalid image operation.", error.message); throw error; }
+      } else if (url.pathname === "/api/image-tools/run") result = await imageTools.run(body.prepared_id);
+      else if (url.pathname === "/api/image-tools/variant") result = await imageTools.selectVariant(body.id, body.index);
+      else throw httpError(404, "unknown_image_operation", "Unknown image operation.");
+      sendJson(res, 200, result); return;
     }
 
     if (req.method === "POST" && url.pathname === "/api/novelai/prepare") {
@@ -174,9 +198,11 @@ const server = http.createServer(async (req, res) => {
       const preset = stripPresetUiState(body?.preset);
       const validation = validatePreset(preset);
       if (!validation.ok || validation.warnings.length) throw httpError(400, "invalid_preset", "Invalid preset.", [...validation.errors, ...validation.warnings].join("; "));
-      const resolved = resolveGenerationPrompts(preset, await wildcardStore.all());
+      assertGeneratablePreset(preset);
+      const mode = normalizeGenerationMode(body?.mode);
+      const resolved = resolveGenerationPrompts(preset, await wildcardStore.all(), undefined, { mode });
       const id = randomUUID();
-      preparedPrompts.put(id, resolved);
+      preparedPrompts.put(id, resolved, mode);
       sendJson(res, 200, { ok: true, prepared_id: id, preset: resolved });
       return;
     }
@@ -231,6 +257,13 @@ const server = http.createServer(async (req, res) => {
       return;
     }
 
+    const revisionRoute = url.pathname.match(/^\/api\/presets\/([^/]+)\/revisions(?:\/([^/]+))?$/);
+    if (req.method === "GET" && revisionRoute) {
+      const id = decodeURIComponent(revisionRoute[1]);
+      sendJson(res, 200, revisionRoute[2] ? { ok: true, preset: await presetStore.getPresetRevision(id, decodeURIComponent(revisionRoute[2])) }
+        : { ok: true, items: await presetStore.listPresetRevisions(id) });
+      return;
+    }
     if (req.method === "GET" && url.pathname.startsWith("/api/presets/")) {
       const id = decodeURIComponent(url.pathname.slice("/api/presets/".length));
       sendJson(res, 200, { ok: true, preset: await presetStore.getPreset(id) });
@@ -512,9 +545,16 @@ function requestElectronTokenStorage(payload) {
   });
 }
 
+function assertGeneratablePreset(preset) {
+  if (preset?.params?.model !== NOVELAI_V5_FULL_MODEL) throw httpError(400, "legacy_model_read_only", "V4.5 presets and History are preserved. Switch to V5 Full before generating.");
+  if (preset.params.n_samples !== undefined && preset.params.n_samples !== 1) throw httpError(400, "one_image_only", "Generate one image at a time.");
+  if (preset.params.effort === "unknown") throw httpError(400, "unknown_effort", "Choose High or Medium before generating: Effort is unknown.");
+}
+
 async function handleGenerate(body) {
+  const mode = normalizeGenerationMode(body?.mode);
   const preset = body?.prepared_id
-    ? preparedPrompts.take(body.prepared_id)
+    ? preparedPrompts.take(body.prepared_id, mode)
     : stripPresetUiState(body?.preset);
   const presetValidation = validatePreset(preset);
   if (!presetValidation.ok) {
@@ -524,14 +564,14 @@ async function handleGenerate(body) {
     throw httpError(400, "unsupported_preset_fields", "Preset contains unsupported fields.", presetValidation.warnings.join("; "));
   }
 
-  const mode = normalizeGenerationMode(body?.mode);
+  assertGeneratablePreset(preset);
   const modeState = mode === GENERATION_MODES.TEXT_TO_IMAGE
     ? { mode }
     : { ...(body?.mode_state || {}), mode };
-  const resolvedPreset = body?.prepared_id ? preset : resolveGenerationPrompts(preset, await wildcardStore.all());
+  const resolvedPreset = body?.prepared_id ? preset : resolveGenerationPrompts(preset, await wildcardStore.all(), undefined, { mode });
   let payload = buildModeGeneratePayload(resolvedPreset, modeState);
   const payloadSafety = mode === GENERATION_MODES.TEXT_TO_IMAGE
-    ? payload.model === NOVELAI_V5_FULL_MODEL ? validateV5Payload(payload) : validatePayloadSafety(payload)
+    ? isV5ApiModel(payload.model) ? validateV5Payload(payload) : validatePayloadSafety(payload)
     : validateModeGeneratePayload(payload, modeState);
   if (!payloadSafety.ok) {
     throw httpError(400, "unsafe_payload", "Payload safety validation failed.", payloadSafety.errors.join("; "));
@@ -541,7 +581,7 @@ async function handleGenerate(body) {
   let mask = null;
   let generationMask = null;
   let referenceAssets = [];
-  const isV5Request = payload.model === NOVELAI_V5_FULL_MODEL || payload.model === NOVELAI_V5_FULL_INPAINT_MODEL;
+  const isV5Request = isV5ApiModel(payload.model);
   const multipartAssets = {};
   const generationPadding = mode === GENERATION_MODES.INPAINT
     ? normalizeInpaintGenerationPadding(modeState.generation_padding ?? 16)
@@ -601,16 +641,20 @@ async function handleGenerate(body) {
 
   const isV5 = isV5Request;
   const extracted = isV5
-    ? extractFinalNovelAiPng(naiResponse.body)
+    ? extractFinalNovelAiImage(naiResponse.body)
     : extractFirstImageFromZip(naiResponse.body);
-  const finalImageBytes = extracted.imageBytes;
+  if (mode === GENERATION_MODES.INPAINT && extracted.format !== "png") throw httpError(502, "unexpected_inpaint_format", "Inpaint requires the existing PNG response.");
+  const converted = await receivedImageToPng(extracted.imageBytes, payload);
+  const finalImageBytes = converted.imageBytes;
+  const outputMetadata = parseNovelAiPngMetadata(finalImageBytes);
+  const generationPreset = effectiveGenerationPreset(resolvedPreset, payload);
   const createdAt = new Date();
   const strength = mode === GENERATION_MODES.INPAINT
     ? payload.parameters.inpaintImg2ImgStrength
     : payload.parameters.strength;
   const noise = mode === GENERATION_MODES.IMAGE_TO_IMAGE ? payload.parameters.noise : 0;
   const saved = await generationStore.saveGeneration({
-    preset: resolvedPreset,
+    preset: generationPreset,
     payload,
     imageBytes: finalImageBytes,
     mode,
@@ -631,6 +675,9 @@ async function handleGenerate(body) {
     },
     responseInfo: {
       created_at: createdAt.toISOString(),
+      received_image_format: converted.format,
+      actual_generation_params: outputMetadata.parsed?.params || null,
+      metadata_source: outputMetadata.metadata_source || null,
       response_container: isV5 ? "msgpack" : "zip",
       response_image_entry: isV5 ? "final.image" : extracted.entryName,
       response_content_type: naiResponse.headers.get("content-type") || "",
@@ -651,6 +698,8 @@ async function handleGenerate(body) {
     summary: {
       mode,
       model: payload.model,
+      logical_model: NOVELAI_V5_FULL_MODEL,
+      effort: generationPreset.params.effort,
       width: payload.parameters.width,
       height: payload.parameters.height,
       steps: payload.parameters.steps,
@@ -660,7 +709,7 @@ async function handleGenerate(body) {
       noise_schedule: payload.parameters.noise_schedule,
       qualityToggle: payload.parameters.qualityToggle,
       qualityPreset: resolvedPreset.params?.qualityPreset,
-      ucPreset: resolvedPreset.params?.ucPreset,
+      ucPreset: generationPreset.params?.ucPreset,
       transparentBackground: Boolean(resolvedPreset.params?.transparentBackground),
       character_count: Array.isArray(payload.parameters.characterPrompts)
         ? payload.parameters.characterPrompts.length
@@ -731,7 +780,7 @@ async function postNovelAiPayload({ token, payload, multipartAssets = {} }) {
   const controller = new AbortController();
   const timeout = setTimeout(() => controller.abort(), TIMEOUT_MS);
   try {
-    const isMultipart = payload.model === NOVELAI_V5_FULL_MODEL || payload.model === NOVELAI_V5_FULL_INPAINT_MODEL;
+    const isMultipart = isV5ApiModel(payload.model);
     const headers = {
       "Authorization": `Bearer ${token}`,
       "Accept": "*/*",
@@ -1111,11 +1160,18 @@ function isPresetThumbnailPath(pathname) {
 }
 
 function isAllowedClientSource(pathname) {
+  if (pathname === '/src/image-tools/contracts.js') return true;
   return pathname === "/src/app.js"
     || pathname === "/src/services/prompt-random-resolver.js"
     || pathname === "/src/state/character-preset-categories.js"
     || pathname === "/src/state/model-profiles.js"
     || pathname === "/src/state/model-state.js"
+    || pathname === "/src/state/effort-state.js"
+    || pathname === "/src/state/preset-sorting.js"
+    || pathname === "/src/state/build-version.js"
+    || pathname === "/src/state/defaults.js"
+    || pathname === "/src/state/preset-schema.js"
+    || pathname === "/src/adapters/novelai-v5-full.js"
     || pathname.startsWith("/src/api/")
     || pathname.startsWith("/src/ui/");
 }

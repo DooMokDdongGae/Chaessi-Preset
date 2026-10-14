@@ -1,5 +1,5 @@
 import { NOVELAI_V5_GENERATE_ENDPOINT } from "../state/defaults.js";
-import { NOVELAI_V5_FULL_MODEL } from "../state/model-profiles.js";
+import { getEffectiveParams, getPresetEffort, getV5ApiModel, isV5ApiModel, NOVELAI_V5_FULL_MODEL, NOVELAI_V5_MEDIUM_MODEL } from "../state/model-profiles.js";
 import { normalizeCenters, PRESET_SCHEMA } from "../state/preset-schema.js";
 
 const QUALITY = Object.freeze({
@@ -15,34 +15,38 @@ const UC_PRESETS = Object.freeze([
   { id: "none", hint: 0, prefix: "" },
 ]);
 
-export function buildV5GeneratePayload(preset) {
+export function buildV5GeneratePayload(preset, { policy = "official" } = {}) {
   if (preset?.params?.model !== NOVELAI_V5_FULL_MODEL) throw new Error("V5 adapter requires the V5 Full model.");
-  const params = preset.params || {};
+  const params = getEffectiveParams(preset);
+  const medium = getPresetEffort(preset) === "medium";
+  const preserveInpaint = policy === "chaessi-inpaint-strategy";
   const qualityId = Object.hasOwn(QUALITY, params.qualityPreset) ? params.qualityPreset : "standard";
   const quality = QUALITY[qualityId];
   const transparent = params.transparentBackground === true;
   const base = String(preset.prompt_parts?.base || "");
   const qualityParts = [transparent ? "transparent background" : "", quality.suffix].filter(Boolean);
-  const input = [base, ...qualityParts].filter(Boolean).join(", ");
+  let input = preserveInpaint ? [base, ...qualityParts].filter(Boolean).join(", ") : applyQualityToPrompt(base, qualityParts.join(", "));
   const ucIndex = Math.max(0, Math.min(integer(params.ucPreset, 0), UC_PRESETS.length - 1));
   const ucPreset = UC_PRESETS[ucIndex];
-  const negative = applyUcPreset(base, String(preset.prompt_parts?.undesired || ""), ucPreset);
+  const negative = applyUcPreset(preserveInpaint && !medium ? base : input, medium ? "" : String(preset.prompt_parts?.undesired || ""), ucPreset);
+  if (!preserveInpaint && params.dataset === "furry" && !input.startsWith("fur dataset") && !input.startsWith("background dataset")) input = `fur dataset, ${input}`;
   const characters = (preset.prompt_parts?.characters || [])
     .slice(0, 32)
-    .filter((character) => character?.enabled !== false && String(character?.prompt || "").trim());
+    .filter((character) => character?.enabled !== false && (preserveInpaint ? String(character?.prompt || "").trim() : String(character?.prompt || "").length));
   const useCoords = characters.length > 0 && characters.every((character) => character.position_mode === "custom");
   const charCaptions = characters.map((character) => ({ char_caption: String(character.prompt || ""), centers: normalizeCenters(character.centers) }));
-  const negativeCaptions = characters.map((character) => ({ char_caption: String(character.undesired || ""), centers: normalizeCenters(character.centers) }));
+  const negativeCaptions = characters.map((character) => ({ char_caption: medium ? "" : String(character.undesired || ""), centers: preserveInpaint ? normalizeCenters(character.centers) : normalizeCenters(character.centers).slice(0, 1) }));
+  if (!preserveInpaint) charCaptions.forEach(caption => { caption.centers = caption.centers.slice(0, 1); });
   const characterPrompts = characters.map((character) => ({
     prompt: String(character.prompt || ""),
-    uc: String(character.undesired || ""),
+    uc: medium ? "" : String(character.undesired || ""),
     center: normalizeCenters(character.centers)[0],
     enabled: true,
   }));
   const seed = normalizeSeed(params.seed);
   return {
     input,
-    model: NOVELAI_V5_FULL_MODEL,
+    model: getV5ApiModel(preset),
     action: "generate",
     parameters: {
       params_version: 4,
@@ -57,7 +61,7 @@ export function buildV5GeneratePayload(preset) {
       controlnet_strength: 1,
       legacy: false,
       add_original_image: true,
-      cfg_rescale: number(params.cfg_rescale, 0),
+      ...(!medium ? { cfg_rescale: number(params.cfg_rescale, 0) } : {}),
       legacy_v3_extend: false,
       use_coords: useCoords,
       legacy_uc: false,
@@ -73,7 +77,7 @@ export function buildV5GeneratePayload(preset) {
       deliberate_euler_ancestral_bug: false,
       prefer_brownian: true,
       noise_schedule: "karras",
-      image_format: "png",
+      image_format: preserveInpaint ? "png" : "webp",
       stream: "msgpack",
     },
     use_new_shared_trial: true,
@@ -82,15 +86,44 @@ export function buildV5GeneratePayload(preset) {
 
 export function validateV5Payload(payload) {
   const errors = [];
-  if (payload?.model !== NOVELAI_V5_FULL_MODEL || payload?.action !== "generate") errors.push("V5 T2I model or action is invalid");
+  if (![NOVELAI_V5_FULL_MODEL, NOVELAI_V5_MEDIUM_MODEL].includes(payload?.model) || payload?.action !== "generate") errors.push("V5 T2I model or action is invalid");
   if (payload?.parameters?.params_version !== 4) errors.push("V5 params_version must be 4");
-  if (payload?.parameters?.stream !== "msgpack" || payload?.parameters?.image_format !== "png") errors.push("V5 stream transport parameters are invalid");
+  if (payload?.parameters?.stream !== "msgpack" || payload?.parameters?.image_format !== "webp") errors.push("V5 stream transport parameters are invalid");
   if (payload?.parameters?.straight_alpha !== true || payload?.parameters?.legacy_uc !== false) errors.push("V5 alpha or UC compatibility fields are invalid");
   if (!Array.isArray(payload?.parameters?.characterPrompts) || payload.parameters.characterPrompts.length > 32) errors.push("V5 Character Prompt array is invalid");
   if (payload?.parameters?.n_samples !== 1) errors.push("V5 Full supports one image per request");
   if (payload?.parameters?.image !== undefined || payload?.parameters?.mask !== undefined) errors.push("V5 T2I payload contains source assets");
   for (const key of ["director_reference_images", "reference_image_multiple", "controlnet_condition"]) if (payload?.parameters?.[key] !== undefined) errors.push(`V5 T2I payload contains unsupported ${key}`);
+  errors.push(...validateMediumContract(payload));
   return { ok: errors.length === 0, errors, warnings: [] };
+}
+
+export function validateMediumContract(payload) {
+  const errors = [];
+  if (![NOVELAI_V5_MEDIUM_MODEL, `${NOVELAI_V5_MEDIUM_MODEL}-inpainting`].includes(payload?.model)) return errors;
+  const p = payload.parameters || {};
+  if (p.steps !== 14 || p.sampler !== "k_euler_ancestral" || p.ucPresetId !== "heavy" || Object.hasOwn(p, "cfg_rescale")) errors.push("Medium requires 14 Steps, Euler Ancestral, Heavy UC and omitted CFG Rescale.");
+  const expected = applyUcPreset(payload.input, "", UC_PRESETS[0]);
+  if (p.negative_prompt !== expected || p.v4_negative_prompt?.caption?.base_caption !== expected) errors.push("Medium must use only the fixed Heavy UC.");
+  if ((p.characterPrompts || []).some(c => c.uc !== "") || (p.v4_negative_prompt?.caption?.char_captions || []).some(c => c.char_caption !== "")) errors.push("Medium character UC must be empty in both caption structures.");
+  return errors;
+}
+
+export function applyQualityToPrompt(base, suffix) {
+  if (!suffix) return base;
+  const chunks = base.split(/(\|\|[^]*?\|\|)/);
+  let first = "", rest = "", found = false;
+  for (let index = 0; index < chunks.length; index++) {
+    const part = chunks[index];
+    const split = index % 2 === 0 && !found ? part.indexOf("|") : -1;
+    if (split >= 0) { first += part.slice(0, split); rest += part.slice(split); found = true; }
+    else if (found) rest += part; else first += part;
+  }
+  const marker = /(?:^|\s|[,.:[\]{}、。])text:(?!:)/i;
+  const text = first.match(marker);
+  const position = text?.index ?? first.length;
+  const prefix = first.slice(0, position);
+  return [prefix, suffix].filter(Boolean).join(", ") + first.slice(position) + rest;
 }
 
 export const V5_TRANSPORT = Object.freeze({ endpoint: NOVELAI_V5_GENERATE_ENDPOINT, contentType: "multipart/form-data", response: "msgpack" });

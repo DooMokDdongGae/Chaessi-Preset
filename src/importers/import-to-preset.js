@@ -2,6 +2,7 @@ import { createDefaultPreset } from "../state/preset-schema.js";
 import { DEFAULT_PARAMS, NOVELAI_V45_FULL_MODEL } from "../state/defaults.js";
 import { getModelProfile, isSupportedModel } from "../state/model-profiles.js";
 import { syncActiveModelState } from "../state/model-state.js";
+import { switchPresetEffort } from "../state/effort-state.js";
 
 const DEFAULT_APPLY_OPTIONS = {
   applyBasePrompt: false,
@@ -21,7 +22,8 @@ export function applyImportToPreset(currentPreset, parsedImport, options = {}) {
   };
   const warnings = [];
   const parsed = parsedImport.parsed;
-  const nextPreset = createDefaultPreset(currentPreset ?? {});
+  let nextPreset = createDefaultPreset(currentPreset ?? {});
+  if (applyOptions.applyParams && nextPreset.params.model === "nai-diffusion-5-full" && parsed.params?.model === "nai-diffusion-5-full" && ["high", "medium"].includes(parsed.params.effort)) nextPreset = switchPresetEffort(nextPreset, parsed.params.effort);
 
   if (applyOptions.applyBasePrompt) {
     nextPreset.prompt_parts.base = String(parsed.base_prompt ?? "");
@@ -90,6 +92,7 @@ function normalizeImportedParams(currentParams, params, warnings) {
     warnings.push(`Imported model ${params.model} is unsupported; using ${NOVELAI_V45_FULL_MODEL}.`);
   }
   output.model = importedModel;
+  if (importedModel !== "nai-diffusion-5-full") { delete output.effort; delete output.dataset; }
   return output;
 }
 

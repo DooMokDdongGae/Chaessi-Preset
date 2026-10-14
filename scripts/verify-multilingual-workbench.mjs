@@ -55,7 +55,7 @@ async function workbench() { await page.locator('[data-workspace-view="workbench
 try {
   await launch();
   assert.equal(await page.locator('#paramModel').inputValue(), 'nai-diffusion-5-full');
-  assert.equal(await page.locator('#paramScale').inputValue(), '5');
+  assert.equal(await page.locator('#paramScale').inputValue(), '7');
   assert.equal(await page.locator('#paramModel option').first().getAttribute('value'), 'nai-diffusion-5-full');
   assert.equal((await get('/api/preset/default')).preset.params.qualityPreset, 'standard');
   pass('Fresh actual Electron workbench defaults to V5 and its profile; model menu lists V5 first');
@@ -138,7 +138,7 @@ try {
   await page.locator('#navManuals').click();
   for (const locale of ['ko', 'en', 'ja']) {
     await page.locator('#manualLanguage').selectOption(locale);
-    assert.equal(await page.locator('#manualContents button').count(), 11);
+    assert.equal(await page.locator('#manualContents button').count(), manualChapters.length);
     for (const chapter of manualChapters) {
       await page.locator(`[data-manual-chapter="${chapter.id}"]`).click();
       assert.equal(await page.locator('#manualArticle h3').textContent(), chapter[locale][0]);
@@ -154,7 +154,7 @@ try {
   }
   await page.locator('#manualClose').click(); assert.deepEqual(await stateSnapshot(), manualState);
   assert.deepEqual(remoteManualRequests, []);
-  pass('All 33 localized chapters, packaged local screenshots, search, image zoom and text sizing work inside Electron and preserve workbench state');
+  pass('All localized chapters, packaged local screenshots, search, image zoom and text sizing work inside Electron and preserve workbench state');
   for (const locale of ['ko', 'en', 'ja']) {
     await language(locale);
     assert.equal(await page.locator('#navManuals').textContent(), messages['ⓘ Help Center'][locale]);

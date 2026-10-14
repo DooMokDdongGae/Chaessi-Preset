@@ -22,7 +22,7 @@ await mkdir(folder, { recursive: true });
 const png = encodeRgbPng(Buffer.alloc(512 * 512 * 3, 185), 512, 512);
 const sourceFile = path.join(folder, "source.png"); await writeFile(sourceFile, png);
 const fixture = createDefaultPreset({ metadata: { name: "Chaessi · Studio" },
-  params: { width: 512, height: 512, seed: 4123 },
+  params: { model: "nai-diffusion-5-full", effort: "high", width: 512, height: 512, seed: 4123 },
   prompt_parts: { base: "1girl, adult, watercolor, soft light, simple background", undesired: "lowres, text",
     characters: [{ name: "Chaessi (peach)", prompt: "glasses, brown hair, white shirt, beige cardigan", undesired: "blurry" }, { name: "Companion", prompt: "blue shirt, standing" }] } });
 const saved = await createPresetStore({ rootDir: folder }).savePreset(fixture);
@@ -53,6 +53,8 @@ async function launch() {
       CHAESSI_TEST_PROVIDER_MODULE: new URL("../tests/mock-workbench-provider.mjs", import.meta.url).href,
       CHAESSI_ELECTRON_TEST_DATA: folder }, timeout: 45_000 });
   page = await app.firstWindow(); page.on("pageerror", error => errors.push(error.message));
+  page.on("console", message => { if (message.type() === "error") console.error("renderer:", message.text()); });
+  page.on("response", response => { if (response.status() >= 400 && response.url().includes("/src/")) console.error("module:", response.status(), response.url()); });
   await page.waitForFunction(() => document.querySelector("#presetName")?.value.length > 0, null, { timeout: 25_000 });
   await page.locator('#uiLanguage').selectOption('en');
 }
@@ -156,8 +158,9 @@ try {
   await page.locator("#paramModel").selectOption("nai-diffusion-5-full");
   await page.locator("#characterPositionMode").selectOption("custom");
   await page.locator("#characterPositionPadPanel").scrollIntoViewIfNeeded();
-  const pad = await page.locator("#characterPositionPad").boundingBox();
   const markers = page.locator("#characterPositionMarkers button");
+  await markers.first().click();
+  const pad = await page.locator("#characterPositionPad").boundingBox();
   const rect = await markers.first().boundingBox();
   await page.mouse.move(rect.x + rect.width / 2, rect.y + rect.height / 2); await page.mouse.down();
   await page.mouse.move(pad.x + pad.width * .25, pad.y + pad.height * .35, { steps: 5 }); await page.mouse.up();
@@ -169,8 +172,9 @@ try {
   await page.locator("#paramCfgRescale").fill("0.12"); await screenshot("04-generation-settings"); await closeDialog("generationSettingsDialog");
   await page.locator("#paramWidth").fill("512"); await page.locator("#paramHeight").fill("512");
   // Six complete renderer → preparation → NovelAI payload → History workflows.
-  for (const model of ["nai-diffusion-4-5-full", "nai-diffusion-5-full"]) {
-    await page.locator("#paramModel").selectOption(model);
+for (const effort of ["high", "medium"]) {
+    const model = "nai-diffusion-5-full";
+    await page.locator("#paramEffort").selectOption(effort);
     await page.locator("#basePrompt").fill("1girl, adult, __tops__, ||indoors|outdoors||");
     for (const mode of ["text-to-image", "image-to-image", "inpaint"]) {
       await page.locator(`[data-generation-mode="${mode}"]`).click();
@@ -202,21 +206,16 @@ try {
       assert.equal(history.generation.prompt, sent.input); assert.ok(!sent.input.includes("__tops__") && !sent.input.includes("||"));
       assert.match(await page.locator("#basePrompt").inputValue(), /__tops__/);
       assert.equal(latest.mode, mode); assert.equal(latest.model, sent.model);
-      pass(`${model} ${mode}: UI generation, final request/History prompt matching and reusable input preservation (mock provider)`);
+      assert.equal(history.generation.effort, effort);
+      pass(`${model} ${effort} ${mode}: UI generation, final request/History prompt matching and reusable input preservation (mock provider)`);
     }
   }
   await page.locator('[data-generation-mode="text-to-image"]').click();
-  await page.locator("#paramModel").selectOption("nai-diffusion-4-5-full");
-  await page.locator(".reference-disclosure summary").click();
-  await page.locator("#preciseReferenceInput").setInputFiles(sourceFile);
-  await page.locator("#preciseReferenceCount").filter({ hasText: "1 active" }).waitFor();
-  await page.locator("#paramModel").selectOption("nai-diffusion-5-full");
-  await page.locator("#paramModel").selectOption("nai-diffusion-4-5-full");
-  assert.match(await page.locator("#preciseReferenceCount").textContent(), /1 active/);
-  pass("V4.5 Precise Reference remains accessible and survives V5/V4.5 switches");
+  assert.equal(await page.locator('#paramModel option[value="nai-diffusion-4-5-full"]').evaluate(option => option.disabled), true);
+  pass("V4.5 remains readable from presets and History but is excluded from new model selection");
   await showHistory();
   await page.locator("#historyModelFilter").selectOption("nai-diffusion-5-full"); await page.locator("#historyModeFilter").selectOption("inpaint");
-  assert.equal(await page.locator("#historyList .history-card").count(), 1);
+  assert.equal(await page.locator("#historyList .history-card").count(), 2);
   await page.locator("#historyModelFilter").selectOption(""); await page.locator("#historyModeFilter").selectOption("");
   await screenshot("07-history-gallery");
   const countBefore = await page.locator("#historyList .history-card").count();

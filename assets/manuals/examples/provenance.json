@@ -1,0 +1,150 @@
+{
+  "purpose": "Illustrated help. Resized layouts, numbered labels and selection overlays are explanatory; API results are real.",
+  "original": "P01 was generated for authorized Phase 1 verification: two adult women, laboratory coats, science classroom. No private user preset or personal image reused.",
+  "provenance": [
+    {
+      "example_input": 1,
+      "sha256": "c4bafb71973f7313fe168781c84512a71906b231a5af771c9f6163f45170e52e"
+    },
+    {
+      "example_input": 2,
+      "sha256": "f2a80d7ff8700bfee7fd2cdb0bea81900d24d01e5a71bc4a539944dc28dfe8cb"
+    },
+    {
+      "example_input": 3,
+      "sha256": "3f89447fa279360158a7e705a1b32117f16b87fe2eb338b468ad254707fa2296"
+    },
+    {
+      "example_input": 4,
+      "sha256": "602cb88d80a32d1223ad32be1800abb152c53e62809e75967a4aec4f0fbf1c53"
+    },
+    {
+      "example_input": 5,
+      "sha256": "e538ff68bd52da2dfaaaaff84a9032d3e68acd0e1db0a31a1fddd884df9bda28"
+    },
+    {
+      "example_input": 6,
+      "sha256": "84bd2a8e13dea4820872a6060cfbe1cf301c74ba0fb073e5404fd8132c4816fe"
+    },
+    {
+      "example_input": 7,
+      "sha256": "0fdd1934dae0c0db7a10302822bda312699fe02c5aa5c6495ca410f83b1e6498"
+    },
+    {
+      "example_input": 8,
+      "sha256": "5efeee495ed59eb7250162d49e3116f3892b9463a25fda22b138f4b02796383b"
+    },
+    {
+      "example_input": 9,
+      "sha256": "dee5cdfdddda08c4ec51d4b854d099faee79c5329d436a559474126001406012"
+    },
+    {
+      "example_input": 10,
+      "sha256": "4e1d659426259dbcf7a575eda4ef6599b732628261f1131da17b6db4c69a1166"
+    },
+    {
+      "example_input": 11,
+      "sha256": "6a21af0130fa430fe717a8b4e0e48d9be2c2d63850cfda3bad38fdbb8d709357"
+    },
+    {
+      "example_input": 12,
+      "sha256": "5ec71f63aa13a36bd0e29e8235c285aa0525aa7901fc96f9be5aed9ea9def41e"
+    },
+    {
+      "example_input": 13,
+      "sha256": "65cb744646b35ce2799c425ac7a6cace379c4b9406353055ddc093a9ec3fd9ce"
+    },
+    {
+      "example_input": 14,
+      "sha256": "42f0f9133f1aef3e1db6ffa6c73813ba8981e3a05fac16b54d1d637bfd16e875"
+    },
+    {
+      "example_input": 15,
+      "sha256": "5852d2df7c4966ce1097c493b4711bb60be358b7eeaf0c4f3f891f9f369f6fd4"
+    },
+    {
+      "example_input": 16,
+      "sha256": "b65060005f55bd04103a237161a194b96286174f1706d025678d040ea0c895df"
+    }
+  ],
+  "examples": [
+    {
+      "file": "upscale.webp",
+      "bytes": 82800,
+      "width": 1040,
+      "height": 715
+    },
+    {
+      "file": "enhance.webp",
+      "bytes": 116586,
+      "width": 1040,
+      "height": 715
+    },
+    {
+      "file": "max-enhance.webp",
+      "bytes": 88774,
+      "width": 1040,
+      "height": 715
+    },
+    {
+      "file": "lineart.webp",
+      "bytes": 98162,
+      "width": 1040,
+      "height": 715
+    },
+    {
+      "file": "sketch.webp",
+      "bytes": 111014,
+      "width": 1040,
+      "height": 715
+    },
+    {
+      "file": "emotion.webp",
+      "bytes": 112526,
+      "width": 1040,
+      "height": 715
+    },
+    {
+      "file": "outpaint.webp",
+      "bytes": 116856,
+      "width": 1040,
+      "height": 715
+    },
+    {
+      "file": "bg-removal.webp",
+      "bytes": 205688,
+      "width": 2080,
+      "height": 715
+    },
+    {
+      "file": "colorize.webp",
+      "bytes": 91216,
+      "width": 1040,
+      "height": 715
+    },
+    {
+      "file": "declutter.webp",
+      "bytes": 113502,
+      "width": 1040,
+      "height": 715
+    },
+    {
+      "file": "focused-inpaint.webp",
+      "bytes": 171600,
+      "width": 1560,
+      "height": 715
+    },
+    {
+      "file": "canvas.webp",
+      "bytes": 115168,
+      "width": 1040,
+      "height": 715
+    },
+    {
+      "file": "upscale-detail.webp",
+      "bytes": 56180,
+      "width": 1040,
+      "height": 715
+    }
+  ]
+}

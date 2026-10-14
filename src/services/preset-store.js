@@ -4,6 +4,7 @@ import {
   createId,
   ensureDir,
   listDirectories,
+  listFiles,
   readJsonFile,
   removePath,
   sanitizeStoreId,
@@ -11,9 +12,12 @@ import {
   writeJsonFile,
 } from "./file-store-utils.js";
 import { validatePreset } from "../adapters/novelai-v45-full.js";
+import { PRESET_SCHEMA } from "../state/preset-schema.js";
+import { APP_NAME, APP_VERSION } from "../state/defaults.js";
 
 export function createPresetStore({ rootDir }) {
   const presetsDir = path.join(rootDir, "data", "presets");
+  const queues = new Map();
 
   return {
     async listPresets() {
@@ -52,8 +56,10 @@ export function createPresetStore({ rootDir }) {
         throw storeError(400, "unsupported_preset_fields", "Preset contains unsupported fields.", validation.warnings.join("; "));
       }
 
-      const now = new Date().toISOString();
       const id = sanitizeStoreId(preset.metadata?.id || createId("preset"));
+      const previousTask = queues.get(id) || Promise.resolve();
+      const task = previousTask.catch(() => {}).then(async () => {
+      const now = new Date().toISOString();
       const existing = await readExistingPreset(id);
       const thumbnail = normalizeThumbnailOption(options.thumbnail);
       const thumbnailPath = thumbnail
@@ -63,6 +69,8 @@ export function createPresetStore({ rootDir }) {
         ...preset,
         metadata: {
           ...preset.metadata,
+          schema: PRESET_SCHEMA,
+          app: { name: APP_NAME, version: APP_VERSION },
           id,
           created_at: existing?.metadata?.created_at || preset.metadata?.created_at || now,
           updated_at: now,
@@ -70,12 +78,37 @@ export function createPresetStore({ rootDir }) {
         },
       };
 
+      if (existing && JSON.stringify({ prompt: existing.prompt_parts, params: existing.params, name: existing.metadata.name }) !== JSON.stringify({ prompt: preset.prompt_parts, params: preset.params, name: preset.metadata.name })) {
+        await writeJsonFile(path.join(presetsDir, id, "revisions", `${createId("revision")}.json`), existing);
+      }
       await writeJsonFile(path.join(presetsDir, id, "preset.json"), nextPreset);
       if (thumbnail) {
         await removeLegacyThumbnails(presetsDir, id);
         await writeFile(path.join(presetsDir, id, `thumbnail.${thumbnail.extension}`), thumbnail.bytes);
       }
       return nextPreset;
+      });
+      queues.set(id, task);
+      try { return await task; } finally { if (queues.get(id) === task) queues.delete(id); }
+    },
+
+    async listPresetRevisions(id) {
+      const presetId = sanitizeStoreId(id);
+      if (!await existsPreset(presetId)) throw storeError(404, "preset_not_found", "Preset not found.");
+      const folder = path.join(presetsDir, presetId, "revisions");
+      const items = [];
+      for (const file of await listFiles(folder)) {
+        if (!file.endsWith(".json")) continue;
+        const preset = await readJsonFile(path.join(folder, file));
+        items.push({ ...toPresetSummary(preset), revision_id: file.slice(0, -5) });
+      }
+      return items.sort((a, b) => String(b.updated_at).localeCompare(String(a.updated_at)));
+    },
+
+    async getPresetRevision(id, revisionId) {
+      const presetId = sanitizeStoreId(id), revision = sanitizeStoreId(revisionId);
+      try { return stripPresetUiState(await readJsonFile(path.join(presetsDir, presetId, "revisions", `${revision}.json`))); }
+      catch { throw storeError(404, "revision_not_found", "Saved revision not found."); }
     },
 
     async deletePreset(id) {

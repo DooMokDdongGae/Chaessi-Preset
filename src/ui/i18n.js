@@ -93,7 +93,7 @@ export function installLanguageUI() {
     const option = new Option(name, value); option.dataset.noI18n = ''; select.append(option);
   }
   select.value = language; select.addEventListener('change', () => setLanguage(select.value));
-  document.querySelector('.header-tools').prepend(select);
+  document.getElementById('healthStatus').after(select);
   document.addEventListener('chaessi:language-change', () => { select.value = language; visit(document.body); });
   const observer = new MutationObserver(records => {
     for (const record of records) {

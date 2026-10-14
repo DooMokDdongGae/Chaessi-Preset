@@ -31,7 +31,7 @@ assert.deepEqual(payload, {
     v4_prompt: { caption: { base_caption: positive, char_captions: [] }, use_coords: false, use_order: true },
     v4_negative_prompt: { caption: { base_caption: negative, char_captions: [] }, legacy_uc: false },
     negative_prompt: negative, deliberate_euler_ancestral_bug: false,
-    prefer_brownian: true, noise_schedule: "karras", image_format: "png", stream: "msgpack",
+    prefer_brownian: true, noise_schedule: "karras", image_format: "webp", stream: "msgpack",
   },
   use_new_shared_trial: true,
 });

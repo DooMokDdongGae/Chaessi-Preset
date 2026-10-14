@@ -35,7 +35,7 @@ button:focus-visible, input:focus-visible, textarea:focus-visible, select:focus-
 .panel-heading { gap: 8px; margin-bottom: 14px; }
 .panel-heading h2 { font-size: 18px; }
 .panel-heading p { font-size: 12px; max-width: 42ch; }
-.preset-file-actions { flex-wrap: nowrap; gap: 5px; }
+.preset-file-actions { flex-wrap: wrap; gap: 5px; }
 .preset-file-actions button { min-height: 32px; padding: 0 9px; font-size: 12px; }
 .preset-editor-grid { display: block; }
 .tool-surface { background: var(--surface); border-color: var(--line); padding: 14px; border-radius: 12px; margin-bottom: 12px; }

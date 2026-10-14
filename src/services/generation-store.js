@@ -253,6 +253,11 @@ export function createGenerationStore({ rootDir }) {
     for (const reference of sidecar?.reference_assets || []) {
       if (reference?.image_filename) storedPaths.push(reference.image_filename);
     }
+    if (sidecar?.source_assets?.request_source_image_filename) storedPaths.push(sidecar.source_assets.request_source_image_filename);
+    for (const variant of sidecar?.image_operation?.variants || []) {
+      if (variant.image_filename) storedPaths.push(variant.image_filename);
+    }
+    for (const receipt of sidecar?.image_operation?.provider_receipt_files || []) storedPaths.push(receipt);
 
     // Validate every sidecar-provided path before deleting any file. Keep the
     // sidecar until last so an interrupted deletion can be retried safely.
@@ -319,6 +324,8 @@ function toGenerationSummary(sidecar, dateDir) {
     sidecar_path: sidecar.output?.sidecar_filename || toPosixPath(path.join("data", "generations", dateDir, `${id}.json`)),
     payload_path: toPosixPath(path.join("data", "generations", dateDir, `${id}.payload.json`)),
     model: sidecar.generation?.model,
+    logical_model: sidecar.generation?.logical_model,
+    effort: sidecar.generation?.effort || (String(sidecar.generation?.model).includes("-medium") ? "medium" : String(sidecar.generation?.model).includes("diffusion-5") ? "high" : null),
     width: sidecar.generation?.width,
     height: sidecar.generation?.height,
     seed: sidecar.generation?.seed,
@@ -328,6 +335,8 @@ function toGenerationSummary(sidecar, dateDir) {
     add_original_image: sidecar.generation?.add_original_image,
     feather: sidecar.generation?.feather,
     generation_padding: sidecar.generation?.generation_padding,
+    image_tool: sidecar.image_operation?.tool || null,
+    actual_anlas: sidecar.image_operation?.actual_anlas ?? null,
   };
 }
 

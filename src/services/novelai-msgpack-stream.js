@@ -21,24 +21,32 @@ export function decodeNovelAiMsgpackFrames(value) {
   return events;
 }
 
-export function extractFinalNovelAiPng(value) {
+export function extractFinalNovelAiImage(value) {
   const events = decodeNovelAiMsgpackFrames(value);
   const errorEvent = events.find((event) => event.event_type === "error");
   if (errorEvent) throw streamError(publicEventMessage(errorEvent));
   const finalEvents = events.filter((event) => event.event_type === "final");
   if (!finalEvents.length) throw streamError("NovelAI msgpack response did not contain a final image event.");
   const image = finalEvents[0].image;
+  if (finalEvents.length !== 1 || Number(finalEvents[0].samp_ix || 0) !== 0) throw streamError("Expected exactly one final image for this request.");
   if (!(image instanceof Uint8Array)) throw streamError("NovelAI final event did not contain binary image bytes.");
   const imageBytes = Buffer.from(image);
-  if (imageBytes.length < PNG_SIGNATURE.length || !imageBytes.subarray(0, PNG_SIGNATURE.length).equals(PNG_SIGNATURE)) {
-    throw streamError("NovelAI final event image is not a PNG.");
-  }
+  const png = imageBytes.subarray(0, 8).equals(PNG_SIGNATURE);
+  const webp = imageBytes.toString("ascii", 0, 4) === "RIFF" && imageBytes.toString("ascii", 8, 12) === "WEBP";
+  if (!png && !webp) throw streamError("NovelAI final event image is not a PNG or WebP.");
   return {
     imageBytes,
+    format: png ? "png" : "webp",
     events,
     finalCount: finalEvents.length,
     intermediateCount: events.filter((event) => event.event_type === "intermediate").length,
   };
+}
+
+export function extractFinalNovelAiPng(value) {
+  const result = extractFinalNovelAiImage(value);
+  if (result.format !== "png") throw streamError("NovelAI final event image is not a PNG.");
+  return result;
 }
 
 function publicEventMessage(event) {

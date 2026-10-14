@@ -36,6 +36,7 @@ export function createWorkbenchController() {
   const oldWorkspace = document.querySelector(".workspace");
   oldWorkspace.before(shell);
   move("#panel-preset", $("editorPane"));
+  $("presetEditStatus").after($("effortNotice"));
   move("#panel-generate", $("resultPane"));
   move("#panel-history", $("historyView"));
   move("#openWildcardsButton", $("navWildcards"));
@@ -51,7 +52,7 @@ export function createWorkbenchController() {
   }
   const settings = makeDialog("generationSettingsDialog", "Generation Settings", "All settings apply to the current workbench.");
   const params = document.querySelector(".preset-params-surface");
-  for (const id of ["paramModel", "paramWidth", "paramHeight", "paramSteps", "paramScale", "paramSeed"]) {
+  for (const id of ["paramModel", "paramEffort", "paramDataset", "paramWidth", "paramHeight", "paramSteps", "paramScale", "paramSeed"]) {
     $("dockSettings").append($(id).closest("label"));
   }
   const advanced = document.createElement("button"); advanced.type = "button"; advanced.id = "advancedSettingsButton";
@@ -206,7 +207,7 @@ export function createWorkbenchController() {
   const historyTools = document.createElement("div"); historyTools.className = "history-gallery-tools";
   historyTools.innerHTML = `<label>Search <input id="historySearch" type="search" placeholder="Seed, model, date…"></label>
     <label>Model <select id="historyModelFilter"><option value="">All models</option><option value="nai-diffusion-4-5-full">V4.5</option><option value="nai-diffusion-5-full">V5</option></select></label>
-    <label>Mode <select id="historyModeFilter"><option value="">All modes</option><option value="text-to-image">Text to Image</option><option value="image-to-image">Image to Image</option><option value="inpaint">Inpaint</option></select></label>
+    <label>Mode <select id="historyModeFilter"><option value="">All modes</option><option value="text-to-image">Text to Image</option><option value="image-to-image">Image to Image</option><option value="inpaint">Inpaint</option><option value="image-tool">Image tools</option></select></label>
     <label>Thumbnail size <input id="historyThumbSize" type="range" min="160" max="300" step="20" value="220"></label><span id="historyFilterCount" role="status"></span>`;
   $("panel-history").querySelector(".panel-heading").after(historyTools);
   $("historyThumbSize").value = String(Math.max(160, Math.min(300, Number(preferences.thumbnails) || 220)));

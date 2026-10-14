@@ -1,3 +1,6 @@
 # PDFs use byte offsets and must never undergo newline conversion.
 *.pdf binary
 *.png binary
+*.webp binary
+# Preserve the upstream license's original final blank line.
+assets/licenses/openai-clip-LICENSE whitespace=-blank-at-eof

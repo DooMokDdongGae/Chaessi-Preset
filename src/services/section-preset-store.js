@@ -171,6 +171,7 @@ function normalizeParams(value) {
     "sm",
     "sm_dyn",
     "dynamic_thresholding",
+    "effort", "qualityPreset", "transparentBackground", "dataset",
   ];
   const output = {};
   for (const key of allowed) {

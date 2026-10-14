@@ -1,5 +1,7 @@
 import { deleteJson, getJson, postForm, postImage, postJson } from "./api/client.js";
 import { createGenerationModeController } from "./ui/generation-mode-controller.js";
+import { createImageToolsController, getImageToolLabel } from "./ui/image-tools-controller.js";
+import { installGenerationCost } from "./ui/generation-cost.js";
 import { createPreciseReferenceController } from "./ui/precise-reference-controller.js";
 import { createImageIntakeController } from "./ui/image-intake-controller.js";
 import { createLatestRequestGuard } from "./ui/latest-request.js";
@@ -30,8 +32,10 @@ import {
   NOVELAI_V45_FULL_TOKEN_PROFILE,
   NOVELAI_V5_FULL_TOKEN_PROFILE,
 } from "./ui/prompt-token-counter.js";
-import { getModelProfile, NOVELAI_V45_FULL_MODEL } from "./state/model-profiles.js";
+import { getEffectiveParams, getModelProfile, NOVELAI_V45_FULL_MODEL, NOVELAI_V5_FULL_MODEL } from "./state/model-profiles.js";
 import { switchPresetModel, syncActiveModelState } from "./state/model-state.js";
+import { switchPresetEffort } from "./state/effort-state.js";
+import { createPromptWorkflow } from "./ui/prompt-workflow.js";
 import { createWildcardController } from "./ui/wildcard-controller.js";
 import {
   DEFAULT_CHARACTER_PRESET_CATEGORY,
@@ -93,10 +97,16 @@ const state = {
   characterPresetSearches: {},
   modeByModel: {},
   selectedCharacterPositionIndex: 0,
+  useFreshModeDefaults: true,
 };
+const promptWorkflow = createPromptWorkflow();
+let imageToolsController;
+let generationCostController;
 
 const fields = {
   model: $("paramModel"),
+  effort: $("paramEffort"),
+  dataset: $("paramDataset"),
   presetName: $("presetName"),
   basePrompt: $("basePrompt"),
   undesiredPrompt: $("undesiredPrompt"),
@@ -156,6 +166,9 @@ async function init() {
   });
   $('presetSearch').addEventListener('input', renderPresetLibrary);
   $('paramModel').prepend($('paramModel').querySelector('[value="nai-diffusion-5-full"]'));
+  const legacyOption = fields.model.querySelector('[value="nai-diffusion-4-5-full"]');
+  legacyOption.disabled = true;
+  legacyOption.textContent = "V4.5 Full (legacy data)";
   createWildcardController({ showToast });
   $("healthStatus").addEventListener("click", () => $("aboutDialog").showModal());
   $("aboutCloseButton").addEventListener("click", () => $("aboutDialog").close());
@@ -175,9 +188,35 @@ async function init() {
       ? toBrowserPath(state.lastGenerationResponse.generation.image_path)
       : "",
     getModel: () => state.currentPreset?.params?.model || NOVELAI_V45_FULL_MODEL,
-    onModeChange: () => preciseReferenceController?.refreshWarnings(),
+    onModeChange: () => {
+      preciseReferenceController?.refreshWarnings();
+      $("datasetField").hidden = state.currentPreset?.params?.model !== NOVELAI_V5_FULL_MODEL || generationModeController.getMode() === "inpaint";
+      // Preserve v3.5.0's fresh Inpaint Guidance; explicit/saved values always win.
+      if (state.currentPreset?.params?.model === NOVELAI_V5_FULL_MODEL && state.useFreshModeDefaults && !state.currentPreset.metadata?.id) {
+        state.currentPreset.params.scale = generationModeController.getMode() === "inpaint" ? 5 : getModelProfile(NOVELAI_V5_FULL_MODEL).defaults.scale;
+        fields.scale.value = state.currentPreset.params.scale;
+      }
+    },
   });
   generationModeController.bind();
+  generationCostController = installGenerationCost({ getPreset: () => state.currentPreset, getMode: () => generationModeController.getMode() });
+  imageToolsController = createImageToolsController({
+    getLatest: () => state.lastGenerationResponse?.generation?.id ? { id: state.lastGenerationResponse.generation.id, url: state.lastGeneratedImage } : null,
+    getViewed: () => state.imageViewerContext?.imagePath ? { id: state.imageViewerContext.id || null, url: state.imageViewerContext.imagePath } : null,
+    getPreset: () => { syncPresetFromForm(); return structuredClone(state.currentPreset); },
+    showToast,
+    onUseSource: async (url, mode) => { await generationModeController.loadSourceFromUrl(url, 'image-tool-result.png'); generationModeController.setMode(mode); closeImageViewer(); workbenchController.showWorkbench(); },
+    onSaved: async (response) => {
+      const summary = { mode: 'image-tool', action: response.operation.tool, image_tool: response.operation.tool, ...response.operation.actual_output_size };
+      state.lastGeneratedImage = toBrowserPath(response.generation.image_path);
+      state.lastGenerationResponse = { generation: response.generation, summary };
+      $('generatedImage').src = state.lastGeneratedImage;
+      $('latestResultActions').hidden = false;
+      $('generationSummary').innerHTML = renderGenerationSummary(state.lastGenerationResponse);
+      updateCurrentSummary();
+      await loadHistory(false); await refreshAccountUsage();
+    },
+  });
   preciseReferenceController = createPreciseReferenceController({
     showToast,
     getMode: () => generationModeController.getMode(),
@@ -193,7 +232,7 @@ async function init() {
     routeToReferences: async (items) => {
       await preciseReferenceController.addIntakeItems(items);
       workbenchController.showWorkbench(); workbenchController.selectPane("result");
-      if (state.currentPreset?.params?.model === "nai-diffusion-5-full") showToast("V5 Full Precise Reference is not supported. References are preserved for V4.5.", true);
+      if (state.currentPreset?.params?.model === "nai-diffusion-5-full") showToast("Precise Reference is retained for legacy data only and is unavailable for V5 generation.", true);
     },
     applyMetadata: applyIntakeMetadata,
     getReferenceCapacity: () => preciseReferenceController.getCapacity(),
@@ -207,6 +246,7 @@ async function init() {
   await loadCharacterPresetCategories();
   const defaultResponse = await getJson("/api/preset/default");
   state.currentPreset = defaultResponse.preset;
+  promptWorkflow.markSaved(state.currentPreset);
   renderPresetForm();
   void initializePromptTokenCounters();
   updateCurrentSummary();
@@ -223,6 +263,17 @@ function bindActions() {
   $("applyImportButton").addEventListener("click", applyImport);
   $("savePresetButton").addEventListener("click", () => openPresetSaveDialog(false));
   $("saveAsPresetButton").addEventListener("click", () => openPresetSaveDialog(true));
+  $("restoreSavedPresetButton").addEventListener("click", () => {
+    syncPresetFromForm(); promptWorkflow.checkpoint(state.currentPreset);
+    state.currentPreset = promptWorkflow.saved(); state.characterUiState = []; renderPresetForm();
+    state.useFreshModeDefaults = !state.currentPreset.metadata?.id;
+  });
+  $("previousWorkbenchButton").addEventListener("click", () => {
+    syncPresetFromForm(); state.currentPreset = promptWorkflow.swapPrevious(state.currentPreset);
+    state.useFreshModeDefaults = false;
+    state.characterUiState = []; renderPresetForm();
+  });
+  $("presetRevisionsButton").addEventListener("click", () => openPresetRevisions().catch(error => showToast(error.message, true)));
   $("openPresetLoadButton").addEventListener("click", openPresetLoadDialog);
   $("confirmSavePresetButton").addEventListener("click", confirmPresetSave);
   $("presetUseCurrentImageButton").addEventListener("click", useCurrentImageAsPresetThumbnail);
@@ -336,10 +387,17 @@ function bindActions() {
     const currentModel = state.currentPreset.params?.model || NOVELAI_V45_FULL_MODEL;
     fields.model.value = currentModel;
     syncPresetFromForm();
+    promptWorkflow.checkpoint(state.currentPreset);
     state.modeByModel[currentModel] = generationModeController.getMode();
     state.currentPreset = switchPresetModel(state.currentPreset, targetModel);
     renderPresetForm();
     showToast(`Switched to ${getModelProfile(targetModel).label}. Incompatible data remains preserved.`);
+  });
+  fields.effort.addEventListener("change", () => {
+    const effort = fields.effort.value;
+    fields.effort.value = state.currentPreset.params.effort || "high";
+    syncPresetFromForm(); promptWorkflow.checkpoint(state.currentPreset);
+    state.currentPreset = switchPresetEffort(state.currentPreset, effort); renderPresetForm();
   });
   $("generateButton").addEventListener("click", generateImage);
   $("generatedImage").addEventListener("click", () => {
@@ -396,10 +454,11 @@ function bindActions() {
     if (Date.now() - lastAccountUsageRefreshAt >= ACCOUNT_USAGE_FOCUS_REFRESH_MS) void refreshAccountUsage();
   });
 
-  Object.values(fields).filter((field) => field !== fields.charactersJson && field !== fields.model).forEach((field) => {
+  Object.values(fields).filter((field) => field !== fields.charactersJson && field !== fields.model && field !== fields.effort).forEach((field) => {
     field.addEventListener("input", () => {
       try {
         syncPresetFromForm();
+        if (field === fields.scale) state.useFreshModeDefaults = false;
         if (field === fields.width || field === fields.height) renderCharacterPositionPad();
         updateCurrentSummary();
         schedulePromptTokenCounterUpdate();
@@ -483,8 +542,8 @@ function bindImageIntake() {
 }
 async function refreshHealth() {
   const health = await getJson("/api/health");
-  $("healthStatus").textContent = `v${health.version || "0.0.0"}`;
-  $("aboutVersion").textContent = `Chaessi Preset ${health.version || "3.5.0"}`;
+  $("aboutChannel").textContent = t(!health.version ? "Version unavailable" : health.version.includes("private") ? "PRIVATE development build" : "PUBLIC build");
+  $("aboutVersion").textContent = `Chaessi Preset ${health.version || "—"}`;
 }
 
 async function refreshTokenStatus() {
@@ -585,6 +644,7 @@ function setImageImportPreview(file, sourceLabel) {
 }
 
 async function applyIntakeMetadata(item, options) {
+  if (options?.applyParams) state.useFreshModeDefaults = false;
   state.importResult = item.metadata;
   state.lastImportedSource = item.fileName || item.source;
   setImageImportPreview(item.file, item.fileName);
@@ -653,6 +713,7 @@ function pushPlainText(target) {
 }
 
 async function applyImport() {
+  if ($("applyParams").checked) state.useFreshModeDefaults = false;
   if (!state.importResult) return showToast("Import something first.", true);
   return withButton($("applyImportButton"), "Applying", async () => {
     syncPresetFromForm();
@@ -674,6 +735,7 @@ async function applyImport() {
 }
 
 async function applyImportedResultAutomatically(message) {
+  state.useFreshModeDefaults = false;
   if (!state.importResult) return;
   syncPresetFromForm();
   const response = await postJson("/api/import/apply", {
@@ -691,6 +753,36 @@ async function applyImportedResultAutomatically(message) {
   updateCurrentSummary();
   renderImportResult();
   showToast(message);
+}
+
+function updatePromptWorkflowStatus() {
+  if (!state.currentPreset) return;
+  const dirty = promptWorkflow.isDirty(state.currentPreset);
+  $("presetEditStatus").textContent = t(dirty ? "Unsaved changes — Save updates this preset; Save As keeps a separate copy." : "Saved work — edit, generate one PNG, then save your changes.");
+  $("restoreSavedPresetButton").disabled = !dirty;
+  $("previousWorkbenchButton").disabled = !promptWorkflow.hasPrevious();
+  $("presetRevisionsButton").disabled = !state.currentPreset.metadata?.id;
+  $("savePresetButton").classList.toggle("is-dirty", Boolean(dirty));
+}
+
+async function openPresetRevisions() {
+  syncPresetFromForm();
+  const presetId = state.currentPreset.metadata?.id;
+  if (!presetId) return;
+  const response = await getJson(`/api/presets/${encodeURIComponent(presetId)}/revisions`);
+  let dialog = $("presetRevisionsDialog");
+  if (!dialog) {
+    dialog = document.createElement("dialog"); dialog.id = "presetRevisionsDialog"; dialog.className = "workbench-tool-dialog";
+    document.body.append(dialog);
+  }
+  dialog.innerHTML = `<header class="dialog-header"><h2>Saved revisions</h2><button type="button" data-revision-close>Close</button></header><p>Loading a revision changes the workbench. Save to keep it; Previous work restores your draft.</p><div data-revision-list>${(response.items || []).map(item => `<button type="button" data-revision-id="${escapeHtml(item.revision_id)}"><span data-no-i18n>${escapeHtml(item.name)} · ${escapeHtml(item.updated_at)}</span></button>`).join("") || "<p>No earlier saved revisions.</p>"}</div>`;
+  dialog.querySelector('[data-revision-close]').onclick = () => dialog.close();
+  for (const button of dialog.querySelectorAll('[data-revision-id]')) button.onclick = () => withButton(button, "Loading", async () => {
+    const result = await getJson(`/api/presets/${encodeURIComponent(presetId)}/revisions/${encodeURIComponent(button.dataset.revisionId)}`);
+    syncPresetFromForm(); promptWorkflow.checkpoint(state.currentPreset);
+    state.currentPreset = result.preset; state.characterUiState = []; renderPresetForm(); dialog.close();
+  });
+  dialog.showModal();
 }
 
 async function openPresetSaveDialog(forceNew) {
@@ -729,6 +821,7 @@ async function confirmPresetSave() {
     }
     const response = await postForm("/api/presets", form);
     state.currentPreset = response.preset;
+    promptWorkflow.markSaved(state.currentPreset);
     renderPresetForm();
     updateCurrentSummary();
     $("presetSaveDialog").close();
@@ -768,8 +861,11 @@ function renderPresetLibrary() {
 }
 
 async function loadPresetById(id) {
+  state.useFreshModeDefaults = false;
   const response = await getJson(`/api/presets/${encodeURIComponent(id)}`);
+  syncPresetFromForm(); promptWorkflow.checkpoint(state.currentPreset);
   state.currentPreset = response.preset;
+  promptWorkflow.markSaved(state.currentPreset);
   state.characterUiState = [];
   renderPresetForm();
   updateCurrentSummary();
@@ -879,6 +975,7 @@ const sectionConfig = {
       return { name: fields.presetName.value || "Params", params: state.currentPreset.params };
     },
     apply: (preset) => {
+      state.useFreshModeDefaults = false;
       state.currentPreset.params = { ...state.currentPreset.params, ...(preset.params || {}) };
       renderPresetForm();
     },
@@ -1217,7 +1314,8 @@ function schedulePromptTokenCounterUpdate(delay = 80) {
 
 function renderPromptTokenCounters() {
   const parts = state.currentPreset?.prompt_parts;
-  const activeTexts = parts ? [parts.base, parts.undesired, ...parts.characters.filter(c => c.enabled !== false).flatMap(c => [c.prompt, c.undesired])] : [];
+  const medium = state.currentPreset?.params.effort === "medium";
+  const activeTexts = parts ? [parts.base, ...(medium ? [] : [parts.undesired]), ...parts.characters.filter(c => c.enabled !== false && c.prompt).flatMap(c => medium ? [c.prompt] : [c.prompt, c.undesired])] : [];
   if (activeTexts.some(text => /__[^\s]+?__/.test(text))) {
     setAllPromptTokenCounters("Wildcard | counted after selection at Generate", "is-unavailable");
     return;
@@ -1313,7 +1411,7 @@ async function generateImage() {
     if (isV5) await refreshAccountUsage();
     setSummary($("generateStatus"), "Generating one image...", false);
     const modeRequest = generationModeController.getGenerateRequest();
-    const prepared = await postJson("/api/novelai/prepare", { preset: state.currentPreset });
+    const prepared = await postJson("/api/novelai/prepare", { preset: state.currentPreset, mode: modeRequest.mode });
     const resolvedPreset = prepared.preset;
     reportResolvedPromptLimits(resolvedPreset);
     showResolvedGenerationPrompt(resolvedPreset);
@@ -1382,9 +1480,9 @@ function getFilteredHistory() {
   const query = $("historySearch").value.trim().toLocaleLowerCase();
   const model = $("historyModelFilter").value;
   const mode = $("historyModeFilter").value;
-  return state.generations.filter(item => (!model || item.model === model || item.model === `${model}-inpainting`)
+  return state.generations.filter(item => (!model || item.logical_model === model || item.model === model || item.model === `${model}-inpainting` || model === NOVELAI_V5_FULL_MODEL && String(item.model).startsWith(`${model}-medium`))
     && (!mode || (item.mode || "text-to-image") === mode)
-    && (!query || [item.seed, item.model, item.mode, item.created_at, item.id].join(" ").toLocaleLowerCase().includes(query)));
+    && (!query || [item.seed, item.model, item.effort, item.mode, item.created_at, item.id].join(" ").toLocaleLowerCase().includes(query)));
 }
 
 async function viewHistoryGeneration(id) {
@@ -1752,8 +1850,10 @@ async function applyGenerationSeed(id) {
 }
 
 async function applyGenerationParams(id) {
+  state.useFreshModeDefaults = false;
   const response = await getJson(`/api/generations/${encodeURIComponent(id)}`);
-  const source = response.generation?.generation || {};
+  const record = response.generation || {};
+  const source = record.image_operation ? record.internal_preset?.params || {} : record.generation || {};
   const allowed = [
     "model",
     "width",
@@ -1773,6 +1873,7 @@ async function applyGenerationParams(id) {
     "dynamic_thresholding",
     "qualityPreset",
     "transparentBackground",
+    "effort", "dataset",
   ];
   const params = {};
   for (const key of allowed) {
@@ -1780,20 +1881,31 @@ async function applyGenerationParams(id) {
   }
   if (!Object.keys(params).length) return showToast("This generation has no reusable params.", true);
   syncPresetFromForm();
+  promptWorkflow.checkpoint(state.currentPreset);
+  const targetEffort = source.effort || (String(source.model).includes("-medium") ? "medium" : "high");
+  if (state.currentPreset.params.model === NOVELAI_V5_FULL_MODEL && String(source.model).startsWith(NOVELAI_V5_FULL_MODEL)) state.currentPreset = switchPresetEffort(state.currentPreset, targetEffort);
   state.currentPreset.params = {
     ...state.currentPreset.params,
     ...params,
   };
+  if (source.logical_model) state.currentPreset.params.model = source.logical_model;
+  else if (String(source.model).startsWith("nai-diffusion-5-full")) {
+    state.currentPreset.params.model = NOVELAI_V5_FULL_MODEL;
+    state.currentPreset.params.effort = source.effort || (source.model.includes("-medium") ? "medium" : "high");
+  }
+  if (state.currentPreset.params.model !== NOVELAI_V5_FULL_MODEL) { delete state.currentPreset.params.effort; delete state.currentPreset.params.dataset; }
   renderPresetForm();
   showToast("Generation params applied to current preset.");
   workbenchController.showWorkbench(); workbenchController.selectPane("edit");
 }
 
 async function applyGenerationPreset(id) {
+  state.useFreshModeDefaults = false;
   const response = await getJson(`/api/generations/${encodeURIComponent(id)}`);
   const generation = response.generation || {};
   const preset = generation.internal_preset;
   if (!preset?.prompt_parts || !preset?.params) return showToast("This generation has no internal preset snapshot.", true);
+  syncPresetFromForm(); promptWorkflow.checkpoint(state.currentPreset);
   state.currentPreset = sanitizePresetSnapshot(preset);
   if (generation.generation?.seed !== undefined && generation.generation?.seed !== null) {
     state.currentPreset.params.seed = generation.generation.seed;
@@ -1883,17 +1995,19 @@ function renderPresetForm() {
   const params = preset.params || {};
   const profile = getModelProfile(params.model);
   fields.model.value = profile.id;
+  fields.effort.value = params.effort || "high";
+  fields.dataset.value = params.dataset || "anime";
   fields.width.value = params.width ?? "";
   fields.height.value = params.height ?? "";
-  fields.steps.value = params.steps ?? "";
+  fields.steps.value = params.effort === "medium" ? 14 : params.steps ?? "";
   fields.scale.value = params.scale ?? "";
-  fields.cfgRescale.value = params.cfg_rescale ?? "";
+  fields.cfgRescale.value = params.effort === "medium" ? 0 : params.cfg_rescale ?? "";
   fields.sampler.innerHTML = profile.samplers.map((sampler) => `<option value="${escapeHtml(sampler)}">${escapeHtml(formatSamplerLabel(sampler))}</option>`).join("");
-  fields.sampler.value = profile.samplers.includes(params.sampler) ? params.sampler : profile.defaults.sampler;
+  fields.sampler.value = params.effort === "medium" ? "k_euler_ancestral" : profile.samplers.includes(params.sampler) ? params.sampler : profile.defaults.sampler;
   fields.seed.value = params.seed ?? "";
   fields.noiseSchedule.value = params.noise_schedule ?? "";
   fields.qualityToggle.checked = params.qualityToggle !== false;
-  fields.ucPreset.value = params.ucPreset ?? 0;
+  fields.ucPreset.value = params.effort === "medium" ? 0 : params.ucPreset ?? 0;
   fields.sm.checked = Boolean(params.sm);
   fields.smDyn.checked = Boolean(params.sm_dyn);
   fields.dynamicThresholding.checked = Boolean(params.dynamic_thresholding);
@@ -1906,7 +2020,9 @@ function renderPresetForm() {
   renderCharacterPositionPad();
   schedulePromptTokenCounterUpdate();
   updateCurrentSummary();
+  updatePromptWorkflowStatus();
   workbenchController?.restoreFocus(focus);
+  generationCostController?.render();
 }
 
 function syncPresetFromForm() {
@@ -1922,21 +2038,27 @@ function syncPresetFromForm() {
   preset.prompt_parts.characters = sanitizeCharacters(getCharactersFromCards());
   preset.params.width = numberValue(fields.width.value, 832);
   preset.params.height = numberValue(fields.height.value, 1216);
-  preset.params.steps = numberValue(fields.steps.value, 23);
+  if (preset.params.effort !== "medium") preset.params.steps = numberValue(fields.steps.value, 23);
   preset.params.scale = numberValue(fields.scale.value, 4);
-  preset.params.cfg_rescale = numberValue(fields.cfgRescale.value, 0);
-  preset.params.sampler = fields.sampler.value.trim() || "k_euler_ancestral";
+  if (preset.params.effort !== "medium") {
+    preset.params.cfg_rescale = numberValue(fields.cfgRescale.value, 0);
+    preset.params.sampler = fields.sampler.value.trim() || "k_euler_ancestral";
+    preset.params.ucPreset = numberValue(fields.ucPreset.value, 0);
+  }
   preset.params.seed = fields.seed.value === "" ? null : numberValue(fields.seed.value, null);
   preset.params.noise_schedule = fields.noiseSchedule.value.trim() || "karras";
   preset.params.qualityToggle = fields.qualityToggle.checked;
-  preset.params.ucPreset = numberValue(fields.ucPreset.value, 0);
   preset.params.sm = fields.sm.checked;
   preset.params.sm_dyn = fields.smDyn.checked;
   preset.params.dynamic_thresholding = fields.dynamicThresholding.checked;
   preset.params.qualityPreset = fields.qualityPreset.value || "standard";
   preset.params.transparentBackground = fields.transparentBackground.checked;
+  preset.params.n_samples = 1;
+  if (preset.params.model === NOVELAI_V5_FULL_MODEL) { preset.params.dataset = fields.dataset.value || "anime"; preset.params.effort ||= "high"; }
+  else { delete preset.params.dataset; delete preset.params.effort; }
 
   state.currentPreset = preset;
+  updatePromptWorkflowStatus();
 }
 
 function parseCharactersJson(value) {
@@ -2025,7 +2147,8 @@ function renderCharacterCard(character, index, scope) {
   const positionStep = getModelProfile(state.currentPreset?.params?.model).family === "v5" ? "0.001" : "0.01";
   const centers = Array.isArray(character.centers) && character.centers.length ? character.centers : [{ x: 0.5, y: 0.5 }];
   const center = centers[0] || { x: 0.5, y: 0.5 };
-  const activeTab = getCharacterActiveTab(index);
+  const medium = state.currentPreset.params.effort === "medium";
+  const activeTab = medium ? "prompt" : getCharacterActiveTab(index);
   const category = characterPresetPreferences.get(index);
   const categoryLabel = [category.category, category.subCategory].filter(Boolean).map(categoryMarkup).join(" › ") || "All categories";
   const collapsed = state.characterUiState[index]?.collapsed === true;
@@ -2051,11 +2174,11 @@ function renderCharacterCard(character, index, scope) {
       <div class="character-tabs">
         <button type="button" data-character-wildcard>Wildcard</button>
         <button type="button" class="${activeTab === "prompt" ? "is-active" : ""}" data-character-tab="prompt">Prompt</button>
-        <button type="button" class="${activeTab === "undesired" ? "is-active" : ""}" data-character-tab="undesired">Undesired Content</button>
+        <button type="button" class="${activeTab === "undesired" ? "is-active" : ""}" data-character-tab="undesired" ${medium ? "hidden" : ""}>Undesired Content</button>
         <button type="button" data-expand-prompt="" title="Open a large prompt editor">Expand editor</button>
       </div>
       <textarea class="character-pane ${activeTab === "prompt" ? "is-active" : ""}" data-character-field="prompt" spellcheck="false">${escapeHtml(character.prompt || "")}</textarea>
-      <textarea class="character-pane ${activeTab === "undesired" ? "is-active" : ""}" data-character-field="undesired" spellcheck="false">${escapeHtml(character.undesired || "")}</textarea>
+      <textarea class="character-pane ${activeTab === "undesired" ? "is-active" : ""}" data-character-field="undesired" ${medium ? "hidden" : ""} spellcheck="false">${escapeHtml(character.undesired || "")}</textarea>
       <div class="prompt-token-counter character-token-counter is-loading" data-character-token-counter>Loading tokenizer...</div>
       <details class="character-position">
         <summary>${positionStep === "0.001" ? "Position (Advanced)" : "Position"}</summary>
@@ -2258,6 +2381,13 @@ function sanitizePresetSnapshot(preset) {
 }
 
 function applyModelCapabilities(profile) {
+  const medium = state.currentPreset.params.effort === "medium";
+  const legacy = profile.family !== "v5";
+  $("effortField").hidden = legacy; $("datasetField").hidden = legacy;
+  $("effortNotice").hidden = !medium;
+  fields.undesiredPrompt.closest("label").hidden = medium;
+  for (const field of [fields.steps, fields.sampler, fields.cfgRescale, fields.ucPreset]) field.closest("label").hidden = medium;
+  $("generateButton").disabled = legacy || state.currentPreset.params.effort === "unknown";
   const modelBadge = $("headerModelLabel");
   modelBadge.textContent = `NovelAI Diffusion ${profile.label}`;
   modelBadge.dataset.model = profile.id;
@@ -2273,8 +2403,9 @@ function applyModelCapabilities(profile) {
   $("addCharacterButton").disabled = (state.currentPreset.prompt_parts?.characters?.length || 0) >= profile.maxCharacters;
   const overflow = Math.max(0, (state.currentPreset.prompt_parts?.characters?.length || 0) - profile.maxCharacters);
   $("characterLimitNotice").textContent = overflow ? `${overflow} additional V5 character slots are preserved but excluded from ${profile.label} generation.` : `${profile.label}: up to ${profile.maxCharacters} Character Prompt slots.`;
-  $("modelCapabilityNotice").textContent = profile.family === "v5" ? "V5 Full: Text to Image, Image to Image, and Inpaint are available. Precise Reference and SMEA are preserved but disabled." : "V4.5 Full: existing Text to Image, Image to Image, Inpaint, and Precise Reference remain available.";
+  $("modelCapabilityNotice").textContent = legacy ? "V4.5 presets and History are preserved. Switch to V5 Full before generating." : "V5 Full: generate one PNG at a time. Inpaint keeps the existing cost-saving strategy.";
   generationModeController.setSupportedModes(profile.modes, state.modeByModel[profile.id]);
+  $("datasetField").hidden = legacy || generationModeController.getMode() === "inpaint";
 }
 
 function syncCharacterUiStateLength(characters) {
@@ -2284,6 +2415,7 @@ function syncCharacterUiStateLength(characters) {
 }
 
 function getCharacterActiveTab(index) {
+  if (state.currentPreset?.params.effort === "medium") return "prompt";
   return state.characterUiState[index]?.activeTab === "undesired" ? "undesired" : "prompt";
 }
 
@@ -2309,9 +2441,9 @@ function renderHistoryItem(item) {
       ${selection.active ? `<button type="button" class="history-select-toggle" data-select-generation="${escapeHtml(item.id)}" aria-label="Select History item" aria-pressed="${selected}">✓</button>` : ""}
       <img src="${escapeHtml(toBrowserPath(item.image_path))}" alt="Generated image, seed ${escapeHtml(item.seed ?? "unknown")}" loading="lazy" data-view-generation="${escapeHtml(item.id)}" />
       <div>
-        <span class="history-mode">${escapeHtml(formatGenerationMode(item.mode))}</span>
+        <span class="history-mode">${escapeHtml(item.image_tool ? getImageToolLabel(item.image_tool) : formatGenerationMode(item.mode))}</span>
         <strong>Seed ${escapeHtml(item.seed ?? "unknown")}</strong>
-        <small>${escapeHtml(size)} · ${escapeHtml(item.model || "")}</small>
+        <small>${escapeHtml(size)} · ${escapeHtml(item.model || "")} ${escapeHtml(item.effort || "")}</small>
         <small>${escapeHtml(formatDateTime(item.created_at))}</small>
         <div class="actions compact-actions">
           <button data-generation-id="${escapeHtml(item.id)}">View</button>
@@ -2355,7 +2487,7 @@ function openStoredGenerationViewer(generation) {
   const info = generation.generation || {};
   const imagePath = generation.output?.image_filename || generation.image_path;
   openImageViewer({
-    title: `Seed ${info.seed ?? "unknown"}`,
+    title: generation.image_operation ? getImageToolLabel(generation.image_operation.tool) : `Seed ${info.seed ?? "unknown"}`,
     imagePath: toBrowserPath(imagePath),
     meta: formatGenerationMeta(info),
     id: generation.generation_id || generation.id,
@@ -2427,9 +2559,11 @@ async function deleteViewedGeneration() {
 }
 
 function formatGenerationMeta(source) {
+  if (source.mode === 'image-tool') return [getImageToolLabel(source.image_tool || source.action), source.width && source.height ? `${source.width}x${source.height}` : '', source.effort ? t('Prompt origin: Effort {value}', { value: source.effort }) : ''].filter(Boolean).join(' · ');
   return [
     source.mode ? formatGenerationMode(source.mode) : "",
     source.model,
+    source.effort ? `Effort ${source.effort === "medium" ? "Medium" : "High"}` : "",
     source.width && source.height ? `${source.width}x${source.height}` : "",
     source.steps !== undefined ? `${source.steps} steps` : "",
     source.scale !== undefined ? `scale ${source.scale}` : "",
@@ -2448,6 +2582,7 @@ function formatGenerationMeta(source) {
 }
 
 function formatGenerationMode(mode) {
+  if (mode === 'image-tool') return 'Image tools';
   if (mode === "image-to-image") return "Image to Image";
   if (mode === "inpaint") return "Inpaint";
   return "Text to Image";
@@ -2461,14 +2596,15 @@ function formatDateTime(value) {
 }
 
 function updateCurrentSummary() {
+  updatePromptWorkflowStatus();
   if (!state.currentPreset) return;
   const preset = state.currentPreset;
-  const params = preset.params || {};
+  const params = preset.params?.effort === "medium" ? getEffectiveParams(preset) : preset.params || {};
   const characters = preset.prompt_parts?.characters || [];
   $("summaryName").textContent = preset.metadata?.name || "Untitled";
   $("summaryModel").textContent = params.model || "nai-diffusion-4-5-full";
   $("summaryBase").textContent = `${(preset.prompt_parts?.base || "").length} chars`;
-  $("summaryUndesired").textContent = `${(preset.prompt_parts?.undesired || "").length} chars`;
+  $("summaryUndesired").textContent = params.effort === "medium" ? t("Heavy UC (fixed)") : `${(preset.prompt_parts?.undesired || "").length} chars`;
   $("summaryCharacters").textContent = `${characters.filter((item) => item.enabled !== false).length} enabled`;
   $("summarySize").textContent = `${params.width} x ${params.height} / ${params.steps} steps / scale ${params.scale}`;
   $("summarySampler").textContent = params.sampler || "k_euler_ancestral";

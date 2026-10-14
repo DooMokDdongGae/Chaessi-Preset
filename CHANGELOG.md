@@ -1,5 +1,15 @@
 # Changelog
 
+## v3.6.0
+
+- Add official V5 Full High/Medium Effort, effective request/History/PNG restoration and preserved custom UC when switching back to High.
+- Add Save/Save As, dirty state, saved-state restore, previous work and pre-overwrite revisions. Keep existing libraries, Wildcards and Character/Position.
+- Add Upscale, Enhance/Max, six Director tools, Canvas, Outpainting, separate Focused Inpaint, and estimated Anlas. Save processing as separate PNG/History records.
+- Preserve existing Inpaint mask, Padding, strength/noise, transport and compositing strategy.
+- End new V4.5 generation while retaining read/edit/save compatibility for existing records.
+- Put App info first; integrate actual release version, existing support link and illustrated KO/EN/JA help: 30 chapters, 90 screenshots and 13 result layouts.
+- Publish the Windows x64 portable executable with SHA-256 checksums, isolated upgrade checks and a fresh-profile execution check. Earlier releases remain unchanged.
+
 ## v3.5.0
 
 - Introduce a resizable prompt/result workbench with focused-field expansion, a large prompt editor, Character organization, and improved History search and browsing.

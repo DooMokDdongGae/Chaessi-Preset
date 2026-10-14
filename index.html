@@ -8,6 +8,7 @@
     <link rel="stylesheet" href="/src/ui/precise-reference.css" />
     <link rel="stylesheet" href="/src/ui/workbench.css" />
     <link rel="stylesheet" href="/src/ui/multilingual.css" />
+    <link rel="stylesheet" href="/src/ui/image-tools.css" />
   </head>
   <body>
     <header class="app-header">
@@ -19,11 +20,11 @@
         </div>
       </div>
       <div class="header-tools">
+        <button type="button" class="health" id="healthStatus" title="App info">App info</button>
         <button id="openImageIntakeButton" type="button">Open Image</button>
         <div class="health model-badge" id="headerModelLabel" data-model="nai-diffusion-4-5-full" role="status" aria-live="polite" tabindex="0">NovelAI Diffusion V4.5 Full</div>
         <div class="health" id="anlasBalanceStatus">Anlas —</div>
         <div class="health" id="staminaStatus">V5 Stamina —</div>
-        <button type="button" class="health" id="healthStatus" title="App info and help">checking</button>
         <button type="button" id="openWildcardsButton">Wildcards</button>
         <button id="apiSettingsButton" type="button">API Settings</button>
       </div>
@@ -55,8 +56,12 @@
                 <button id="savePresetButton">Save</button>
                 <button id="saveAsPresetButton">Save As</button>
                 <button id="openPresetLoadButton">Load</button>
+                <button type="button" id="restoreSavedPresetButton">Restore saved</button>
+                <button type="button" id="previousWorkbenchButton">Previous work</button>
+                <button type="button" id="presetRevisionsButton">Saved revisions</button>
               </div>
             </div>
+            <p id="presetEditStatus" role="status" aria-live="polite"></p>
             <div class="preset-editor-grid">
               <section class="tool-surface preset-prompt-surface">
                 <div class="section-row">
@@ -87,10 +92,13 @@
                 <h3>Generation Settings</h3>
                 <label>Model
                   <select id="paramModel">
-                    <option value="nai-diffusion-4-5-full">V4.5 Full</option>
+                    <option value="nai-diffusion-4-5-full" disabled>V4.5 Full (legacy data)</option>
                     <option value="nai-diffusion-5-full">V5 Full</option>
                   </select>
                 </label>
+                <label id="effortField">Effort <select id="paramEffort"><option value="high">High</option><option value="medium">Medium</option><option value="unknown" disabled>Unknown — choose Effort</option></select></label>
+                <label id="datasetField">Mode <select id="paramDataset"><option value="anime">Anime</option><option value="furry">Furry</option></select></label>
+                <p id="effortNotice" role="status" hidden>Medium: 14 Steps, Euler Ancestral and Heavy UC. Your custom UC is preserved but unused.</p>
                 <div class="summary" id="modelCapabilityNotice"></div>
                 <label>Width <input id="paramWidth" type="number" min="64" step="64" /></label>
                 <label>Height <input id="paramHeight" type="number" min="64" step="64" /></label>
@@ -666,9 +674,9 @@
       </div>
     </dialog>
     <dialog id="aboutDialog" class="about-dialog">
-      <div class="dialog-header"><div><h2>App info &amp; Help</h2><p id="aboutVersion">Chaessi Preset 3.5.0</p></div><button type="button" id="aboutCloseButton">Close</button></div>
+      <div class="dialog-header"><div><h2>App info</h2><p id="aboutVersion" data-no-i18n>Chaessi Preset —</p><p id="aboutChannel"></p></div><button type="button" id="aboutCloseButton">Close</button></div>
       <p>Read the complete guide, including Wildcards, without internet.</p>
-      <button type="button" id="openIntegratedManual">Open Help Center</button>
+      <div class="actions"><button type="button" id="openIntegratedManual">Open Help Center</button><button type="button" data-manual-jump="start">Getting started</button><button type="button" data-manual-jump="image-tools">Image tools guide</button></div>
       <section class="support-card" aria-labelledby="supportHeading">
         <h3 id="supportHeading">Support Chaessi Preset</h3>
         <p class="summary" data-no-i18n>DooMokDdongGae</p>

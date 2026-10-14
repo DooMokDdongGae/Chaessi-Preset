@@ -1,5 +1,32 @@
 export const NOVELAI_V45_FULL_MODEL = "nai-diffusion-4-5-full";
 export const NOVELAI_V5_FULL_MODEL = "nai-diffusion-5-full";
+export const NOVELAI_V5_MEDIUM_MODEL = "nai-diffusion-5-full-medium";
+export const EFFORT_MEMORY_KEYS = Object.freeze(["steps", "sampler", "noise_schedule", "ucPreset", "cfg_rescale"]);
+
+export function isV5ApiModel(model) {
+  return [NOVELAI_V5_FULL_MODEL, NOVELAI_V5_MEDIUM_MODEL, `${NOVELAI_V5_FULL_MODEL}-inpainting`, `${NOVELAI_V5_MEDIUM_MODEL}-inpainting`].includes(model);
+}
+
+export function getPresetEffort(preset) {
+  const effort = preset?.params?.effort ?? "high";
+  if (!["high", "medium"].includes(effort)) throw new Error("Choose High or Medium before generating: Effort is unknown.");
+  if (preset?.params?.model !== NOVELAI_V5_FULL_MODEL && effort !== "high") throw new Error("Effort is available only for V5 Full.");
+  return effort;
+}
+
+export function getV5ApiModel(preset, mode = "text-to-image") {
+  const model = getPresetEffort(preset) === "medium" ? NOVELAI_V5_MEDIUM_MODEL : NOVELAI_V5_FULL_MODEL;
+  return mode === "inpaint" ? `${model}-inpainting` : model;
+}
+
+export function getEffectiveParams(preset) {
+  const params = { ...preset.params, n_samples: 1 };
+  if (getPresetEffort(preset) === "medium") {
+    Object.assign(params, { steps: 14, sampler: "k_euler_ancestral", ucPreset: 0 });
+    delete params.cfg_rescale;
+  }
+  return params;
+}
 
 export const MODEL_PROFILES = Object.freeze({
   [NOVELAI_V45_FULL_MODEL]: Object.freeze({
@@ -23,7 +50,7 @@ export const MODEL_PROFILES = Object.freeze({
     maxCharacters: 32,
     modes: Object.freeze(["text-to-image", "image-to-image", "inpaint"]),
     capabilities: Object.freeze({ preciseReference: false, qualityPreset: true, cfgRescale: true, transparency: true, smea: false }),
-    defaults: Object.freeze({ width: 832, height: 1216, steps: 23, scale: 5, cfg_rescale: 0, sampler: "k_euler_ancestral", noise_schedule: "karras", qualityToggle: true, qualityPreset: "standard", transparentBackground: false, ucPreset: 0 }),
+    defaults: Object.freeze({ width: 832, height: 1216, steps: 23, scale: 7, cfg_rescale: 0, sampler: "k_euler_ancestral", noise_schedule: "karras", qualityToggle: true, qualityPreset: "standard", transparentBackground: false, ucPreset: 0, effort: "high", dataset: "anime" }),
     samplers: Object.freeze(["k_euler_ancestral", "k_euler", "k_dpmpp_2s_ancestral", "k_dpmpp_2m_sde", "k_dpmpp_2m", "k_dpmpp_sde"]),
   }),
 });

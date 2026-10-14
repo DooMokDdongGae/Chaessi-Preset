@@ -1,8 +1,8 @@
 {
   "name": "chaessi-preset",
   "productName": "Chaessi Preset",
-  "version": "3.5.0",
-  "description": "Local preset and payload manager for NovelAI V4.5 Full and V5 Full generation workflows.",
+  "version": "3.6.0",
+  "description": "NovelAI V5 prompt and image workbench with High/Medium Effort, image finishing tools and one PNG at a time.",
   "author": "Chaessi Preset",
   "license": "MIT",
   "main": "electron/main.mjs",
@@ -10,6 +10,8 @@
   "private": true,
   "scripts": {
     "start": "node server.mjs",
+    "mcp:start": "node mcp/server.mjs",
+    "test:mcp": "node --test tests/mcp.test.mjs",
     "electron:dev": "electron .",
     "electron:pack": "electron-builder --dir",
     "electron:dist": "electron-builder --win portable",
@@ -20,7 +22,14 @@
     "test:character-preset-restart": "node scripts/verify-character-preset-restart.mjs",
     "test:workbench": "node scripts/verify-workbench.mjs",
     "test:multilingual": "node --test tests/multilingual-workbench.test.mjs",
-    "test:multilingual-ui": "node scripts/verify-multilingual-workbench.mjs"
+    "test:multilingual-ui": "node scripts/verify-multilingual-workbench.mjs",
+    "test:v360": "node --test tests/v360.test.mjs tests/wildcard.test.mjs tests/wildcard-endpoint.test.mjs tests/multilingual-workbench.test.mjs tests/character-preset-preferences.test.mjs tests/mcp.test.mjs",
+    "test:v360-workflow": "node scripts/verify-v360-workflow.mjs",
+    "test:image-tools": "node --test tests/image-tools.test.mjs",
+    "test:image-tools-ui": "node scripts/verify-image-tools-ui.mjs",
+    "prestart": "node scripts/sync-version.mjs",
+    "preelectron:pack": "node scripts/sync-version.mjs",
+    "preelectron:dist": "node scripts/sync-version.mjs"
   },
   "devDependencies": {
     "electron": "^42.3.0",
@@ -43,6 +52,7 @@
       "THIRD_PARTY_NOTICES.md",
       "electron/**/*",
       "src/**/*",
+      "mcp/**/*",
       "assets/**/*",
       "manuals/*.pdf",
       "!**/.env",
@@ -66,9 +76,15 @@
         "portable"
       ],
       "artifactName": "Chaessi-Preset-v${version}-${arch}.${ext}"
+    },
+    "portable": {
+      "unpackDirName": true
     }
   },
   "dependencies": {
-    "@msgpack/msgpack": "^3.1.3"
+    "@modelcontextprotocol/sdk": "1.32.1",
+    "@msgpack/msgpack": "^3.1.3",
+    "sharp": "0.35.5",
+    "zod": "3.25.76"
   }
 }

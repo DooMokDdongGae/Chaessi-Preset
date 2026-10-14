@@ -4,7 +4,8 @@ import {
   DEFAULT_PARAMS,
 } from "./defaults.js";
 
-export const PRESET_SCHEMA = "chaessi-preset/v2";
+export const PRESET_SCHEMA = "chaessi-preset/v3";
+export const READABLE_PRESET_SCHEMAS = Object.freeze(["chaessi-preset/v2", PRESET_SCHEMA]);
 
 export function createPresetMetadata(overrides = {}) {
   const now = new Date().toISOString();
@@ -50,6 +51,7 @@ export function createDefaultPreset(overrides = {}) {
     ...(overrides.model_states && typeof overrides.model_states === "object"
       ? { model_states: structuredClone(overrides.model_states) }
       : {}),
+    ...(overrides.effort_states && typeof overrides.effort_states === "object" ? { effort_states: structuredClone(overrides.effort_states) } : {}),
     sources: {
       imported_raw_payload: overrides.sources?.imported_raw_payload ?? null,
       imported_image_metadata: overrides.sources?.imported_image_metadata ?? null,

@@ -1,0 +1,1121 @@
+{
+  "baseline": "PUBLIC v3.5.0 e52bdc6124c5358ded8a27b2024c60c0c16bd1c3",
+  "unchangedFiles": {
+    "src/services/inpaint-composite-utils.js": "3f525daf8c3461eb80750692ef2e7013418df248663a05ee6e1e25ebf939f295",
+    "src/services/generation-image-utils.js": "adfe589f2e0a163a28c1134626adf3ac5411580623e8a1e35802ed80e0e98389",
+    "src/ui/inpaint-mask-utils.js": "cb4a71967a943f7ce700472ae789c96b46ede8a81f77543e4b7eb8fffc088676",
+    "src/ui/generation-mode-controller.js": "d363201a0525dd8cb77ee05d624c1f80165fd7660cdd1ec9de3e239e90518640"
+  },
+  "cases": [
+    {
+      "name": "strength-0-uc-0",
+      "preset": {
+        "metadata": {
+          "schema": "chaessi-preset/v2",
+          "id": null,
+          "name": "Untitled Preset",
+          "created_at": "2026-10-14T07:06:59.666Z",
+          "updated_at": "2026-10-14T07:06:59.666Z",
+          "app": {
+            "name": "chaessi-payload-manager",
+            "version": "3.5.0"
+          }
+        },
+        "prompt_parts": {
+          "base": "two adult women, laboratory",
+          "undesired": "blurry",
+          "characters": [
+            {
+              "id": "character-3900028f-8775-42be-98c4-1c8f5af024ec",
+              "name": "Character",
+              "enabled": true,
+              "prompt": "adult, blue hair",
+              "undesired": "red hair",
+              "centers": [
+                {
+                  "x": 0.309,
+                  "y": 0.508
+                },
+                {
+                  "x": 0.7,
+                  "y": 0.8
+                }
+              ],
+              "position_mode": "custom"
+            },
+            {
+              "id": "character-8764c440-912d-44c1-b97e-cffc805b43e8",
+              "name": "Character",
+              "enabled": true,
+              "prompt": "",
+              "undesired": "unused",
+              "centers": [
+                {
+                  "x": 0.5,
+                  "y": 0.5
+                }
+              ],
+              "position_mode": "auto"
+            }
+          ]
+        },
+        "params": {
+          "model": "nai-diffusion-5-full",
+          "width": 832,
+          "height": 1216,
+          "steps": 31,
+          "scale": 5,
+          "cfg_rescale": 0.2,
+          "sampler": "k_dpmpp_2m",
+          "seed": 424242424,
+          "extra_noise_seed": null,
+          "n_samples": 1,
+          "noise_schedule": "karras",
+          "qualityToggle": true,
+          "ucPreset": 0,
+          "sm": false,
+          "sm_dyn": false,
+          "dynamic_thresholding": false,
+          "qualityPreset": "standard"
+        },
+        "sources": {
+          "imported_raw_payload": null,
+          "imported_image_metadata": null
+        }
+      },
+      "modeState": {
+        "mode": "inpaint",
+        "width": 832,
+        "height": 1216,
+        "source_image_base64": "AQ==",
+        "mask_image_base64": "Ag==",
+        "strength": 0,
+        "i2i_strength": 0.4,
+        "i2i_noise": 0.1
+      },
+      "payload": {
+        "input": "two adult women, laboratory, very aesthetic, masterpiece, no text",
+        "model": "nai-diffusion-5-full-inpainting",
+        "action": "infill",
+        "parameters": {
+          "params_version": 4,
+          "width": 832,
+          "height": 1216,
+          "n_samples": 1,
+          "seed": 424242424,
+          "sampler": "k_dpmpp_2m",
+          "steps": 31,
+          "scale": 5,
+          "ucPresetId": "heavy",
+          "qualityPresetId": "standard",
+          "autoSmea": false,
+          "dynamic_thresholding": false,
+          "controlnet_strength": 1,
+          "legacy": false,
+          "add_original_image": false,
+          "cfg_rescale": 0.2,
+          "legacy_v3_extend": false,
+          "use_coords": true,
+          "legacy_uc": false,
+          "normalize_reference_strength_multiple": true,
+          "inpaintImg2ImgStrength": 0,
+          "straight_alpha": true,
+          "tag_hint_qt": 1,
+          "tag_hint_uc_preset": 2,
+          "characterPrompts": [
+            {
+              "prompt": "adult, blue hair",
+              "uc": "red hair",
+              "center": {
+                "x": 0.309,
+                "y": 0.508
+              },
+              "enabled": true
+            }
+          ],
+          "v4_prompt": {
+            "caption": {
+              "base_caption": "two adult women, laboratory, very aesthetic, masterpiece, no text",
+              "char_captions": [
+                {
+                  "char_caption": "adult, blue hair",
+                  "centers": [
+                    {
+                      "x": 0.309,
+                      "y": 0.508
+                    },
+                    {
+                      "x": 0.7,
+                      "y": 0.8
+                    }
+                  ]
+                }
+              ]
+            },
+            "use_coords": true,
+            "use_order": true
+          },
+          "v4_negative_prompt": {
+            "caption": {
+              "base_caption": "nsfw, lowres, artistic error, film grain, scan artifacts, worst quality, bad quality, jpeg artifacts, very displeasing, chromatic aberration, dithering, halftone, screentone, multiple views, logo, too many watermarks, negative space, blank page, blurry",
+              "char_captions": [
+                {
+                  "char_caption": "red hair",
+                  "centers": [
+                    {
+                      "x": 0.309,
+                      "y": 0.508
+                    },
+                    {
+                      "x": 0.7,
+                      "y": 0.8
+                    }
+                  ]
+                }
+              ]
+            },
+            "legacy_uc": false
+          },
+          "negative_prompt": "nsfw, lowres, artistic error, film grain, scan artifacts, worst quality, bad quality, jpeg artifacts, very displeasing, chromatic aberration, dithering, halftone, screentone, multiple views, logo, too many watermarks, negative space, blank page, blurry",
+          "deliberate_euler_ancestral_bug": false,
+          "prefer_brownian": true,
+          "noise_schedule": "karras",
+          "image_format": "png",
+          "stream": "msgpack",
+          "image": "AQ==",
+          "extra_noise_seed": 424242423,
+          "mask": "Ag==",
+          "strength": 0.4,
+          "noise": 0.1,
+          "request_type": "NativeInfillingRequest"
+        },
+        "use_new_shared_trial": true
+      }
+    },
+    {
+      "name": "strength-0-uc-4",
+      "preset": {
+        "metadata": {
+          "schema": "chaessi-preset/v2",
+          "id": null,
+          "name": "Untitled Preset",
+          "created_at": "2026-10-14T07:06:59.669Z",
+          "updated_at": "2026-10-14T07:06:59.669Z",
+          "app": {
+            "name": "chaessi-payload-manager",
+            "version": "3.5.0"
+          }
+        },
+        "prompt_parts": {
+          "base": "two adult women, laboratory",
+          "undesired": "blurry",
+          "characters": [
+            {
+              "id": "character-8a536293-a895-4a32-ab89-0f61a2a4d0b3",
+              "name": "Character",
+              "enabled": true,
+              "prompt": "adult, blue hair",
+              "undesired": "red hair",
+              "centers": [
+                {
+                  "x": 0.309,
+                  "y": 0.508
+                },
+                {
+                  "x": 0.7,
+                  "y": 0.8
+                }
+              ],
+              "position_mode": "custom"
+            },
+            {
+              "id": "character-35f4315f-6bed-4592-ae18-1303b268bbfe",
+              "name": "Character",
+              "enabled": true,
+              "prompt": "",
+              "undesired": "unused",
+              "centers": [
+                {
+                  "x": 0.5,
+                  "y": 0.5
+                }
+              ],
+              "position_mode": "auto"
+            }
+          ]
+        },
+        "params": {
+          "model": "nai-diffusion-5-full",
+          "width": 832,
+          "height": 1216,
+          "steps": 31,
+          "scale": 5,
+          "cfg_rescale": 0.2,
+          "sampler": "k_dpmpp_2m",
+          "seed": 424242424,
+          "extra_noise_seed": null,
+          "n_samples": 1,
+          "noise_schedule": "karras",
+          "qualityToggle": true,
+          "ucPreset": 4,
+          "sm": false,
+          "sm_dyn": false,
+          "dynamic_thresholding": false,
+          "qualityPreset": "standard"
+        },
+        "sources": {
+          "imported_raw_payload": null,
+          "imported_image_metadata": null
+        }
+      },
+      "modeState": {
+        "mode": "inpaint",
+        "width": 832,
+        "height": 1216,
+        "source_image_base64": "AQ==",
+        "mask_image_base64": "Ag==",
+        "strength": 0,
+        "i2i_strength": 0.4,
+        "i2i_noise": 0.1
+      },
+      "payload": {
+        "input": "two adult women, laboratory, very aesthetic, masterpiece, no text",
+        "model": "nai-diffusion-5-full-inpainting",
+        "action": "infill",
+        "parameters": {
+          "params_version": 4,
+          "width": 832,
+          "height": 1216,
+          "n_samples": 1,
+          "seed": 424242424,
+          "sampler": "k_dpmpp_2m",
+          "steps": 31,
+          "scale": 5,
+          "ucPresetId": "none",
+          "qualityPresetId": "standard",
+          "autoSmea": false,
+          "dynamic_thresholding": false,
+          "controlnet_strength": 1,
+          "legacy": false,
+          "add_original_image": false,
+          "cfg_rescale": 0.2,
+          "legacy_v3_extend": false,
+          "use_coords": true,
+          "legacy_uc": false,
+          "normalize_reference_strength_multiple": true,
+          "inpaintImg2ImgStrength": 0,
+          "straight_alpha": true,
+          "tag_hint_qt": 1,
+          "tag_hint_uc_preset": 0,
+          "characterPrompts": [
+            {
+              "prompt": "adult, blue hair",
+              "uc": "red hair",
+              "center": {
+                "x": 0.309,
+                "y": 0.508
+              },
+              "enabled": true
+            }
+          ],
+          "v4_prompt": {
+            "caption": {
+              "base_caption": "two adult women, laboratory, very aesthetic, masterpiece, no text",
+              "char_captions": [
+                {
+                  "char_caption": "adult, blue hair",
+                  "centers": [
+                    {
+                      "x": 0.309,
+                      "y": 0.508
+                    },
+                    {
+                      "x": 0.7,
+                      "y": 0.8
+                    }
+                  ]
+                }
+              ]
+            },
+            "use_coords": true,
+            "use_order": true
+          },
+          "v4_negative_prompt": {
+            "caption": {
+              "base_caption": "blurry",
+              "char_captions": [
+                {
+                  "char_caption": "red hair",
+                  "centers": [
+                    {
+                      "x": 0.309,
+                      "y": 0.508
+                    },
+                    {
+                      "x": 0.7,
+                      "y": 0.8
+                    }
+                  ]
+                }
+              ]
+            },
+            "legacy_uc": false
+          },
+          "negative_prompt": "blurry",
+          "deliberate_euler_ancestral_bug": false,
+          "prefer_brownian": true,
+          "noise_schedule": "karras",
+          "image_format": "png",
+          "stream": "msgpack",
+          "image": "AQ==",
+          "extra_noise_seed": 424242423,
+          "mask": "Ag==",
+          "strength": 0.4,
+          "noise": 0.1,
+          "request_type": "NativeInfillingRequest"
+        },
+        "use_new_shared_trial": true
+      }
+    },
+    {
+      "name": "strength-0.6-uc-0",
+      "preset": {
+        "metadata": {
+          "schema": "chaessi-preset/v2",
+          "id": null,
+          "name": "Untitled Preset",
+          "created_at": "2026-10-14T07:06:59.669Z",
+          "updated_at": "2026-10-14T07:06:59.669Z",
+          "app": {
+            "name": "chaessi-payload-manager",
+            "version": "3.5.0"
+          }
+        },
+        "prompt_parts": {
+          "base": "two adult women, laboratory",
+          "undesired": "blurry",
+          "characters": [
+            {
+              "id": "character-54795093-a759-4908-802a-fdc581ccddf8",
+              "name": "Character",
+              "enabled": true,
+              "prompt": "adult, blue hair",
+              "undesired": "red hair",
+              "centers": [
+                {
+                  "x": 0.309,
+                  "y": 0.508
+                },
+                {
+                  "x": 0.7,
+                  "y": 0.8
+                }
+              ],
+              "position_mode": "custom"
+            },
+            {
+              "id": "character-3ae3fa4f-6f4a-4500-abe0-78e92a5340ae",
+              "name": "Character",
+              "enabled": true,
+              "prompt": "",
+              "undesired": "unused",
+              "centers": [
+                {
+                  "x": 0.5,
+                  "y": 0.5
+                }
+              ],
+              "position_mode": "auto"
+            }
+          ]
+        },
+        "params": {
+          "model": "nai-diffusion-5-full",
+          "width": 832,
+          "height": 1216,
+          "steps": 31,
+          "scale": 5,
+          "cfg_rescale": 0.2,
+          "sampler": "k_dpmpp_2m",
+          "seed": 424242424,
+          "extra_noise_seed": null,
+          "n_samples": 1,
+          "noise_schedule": "karras",
+          "qualityToggle": true,
+          "ucPreset": 0,
+          "sm": false,
+          "sm_dyn": false,
+          "dynamic_thresholding": false,
+          "qualityPreset": "standard"
+        },
+        "sources": {
+          "imported_raw_payload": null,
+          "imported_image_metadata": null
+        }
+      },
+      "modeState": {
+        "mode": "inpaint",
+        "width": 832,
+        "height": 1216,
+        "source_image_base64": "AQ==",
+        "mask_image_base64": "Ag==",
+        "strength": 0.6,
+        "i2i_strength": 0.4,
+        "i2i_noise": 0.1
+      },
+      "payload": {
+        "input": "two adult women, laboratory, very aesthetic, masterpiece, no text",
+        "model": "nai-diffusion-5-full-inpainting",
+        "action": "infill",
+        "parameters": {
+          "params_version": 4,
+          "width": 832,
+          "height": 1216,
+          "n_samples": 1,
+          "seed": 424242424,
+          "sampler": "k_dpmpp_2m",
+          "steps": 31,
+          "scale": 5,
+          "ucPresetId": "heavy",
+          "qualityPresetId": "standard",
+          "autoSmea": false,
+          "dynamic_thresholding": false,
+          "controlnet_strength": 1,
+          "legacy": false,
+          "add_original_image": false,
+          "cfg_rescale": 0.2,
+          "legacy_v3_extend": false,
+          "use_coords": true,
+          "legacy_uc": false,
+          "normalize_reference_strength_multiple": true,
+          "inpaintImg2ImgStrength": 0.6,
+          "straight_alpha": true,
+          "tag_hint_qt": 1,
+          "tag_hint_uc_preset": 2,
+          "characterPrompts": [
+            {
+              "prompt": "adult, blue hair",
+              "uc": "red hair",
+              "center": {
+                "x": 0.309,
+                "y": 0.508
+              },
+              "enabled": true
+            }
+          ],
+          "v4_prompt": {
+            "caption": {
+              "base_caption": "two adult women, laboratory, very aesthetic, masterpiece, no text",
+              "char_captions": [
+                {
+                  "char_caption": "adult, blue hair",
+                  "centers": [
+                    {
+                      "x": 0.309,
+                      "y": 0.508
+                    },
+                    {
+                      "x": 0.7,
+                      "y": 0.8
+                    }
+                  ]
+                }
+              ]
+            },
+            "use_coords": true,
+            "use_order": true
+          },
+          "v4_negative_prompt": {
+            "caption": {
+              "base_caption": "nsfw, lowres, artistic error, film grain, scan artifacts, worst quality, bad quality, jpeg artifacts, very displeasing, chromatic aberration, dithering, halftone, screentone, multiple views, logo, too many watermarks, negative space, blank page, blurry",
+              "char_captions": [
+                {
+                  "char_caption": "red hair",
+                  "centers": [
+                    {
+                      "x": 0.309,
+                      "y": 0.508
+                    },
+                    {
+                      "x": 0.7,
+                      "y": 0.8
+                    }
+                  ]
+                }
+              ]
+            },
+            "legacy_uc": false
+          },
+          "negative_prompt": "nsfw, lowres, artistic error, film grain, scan artifacts, worst quality, bad quality, jpeg artifacts, very displeasing, chromatic aberration, dithering, halftone, screentone, multiple views, logo, too many watermarks, negative space, blank page, blurry",
+          "deliberate_euler_ancestral_bug": false,
+          "prefer_brownian": true,
+          "noise_schedule": "karras",
+          "image_format": "png",
+          "stream": "msgpack",
+          "image": "AQ==",
+          "extra_noise_seed": 424242423,
+          "mask": "Ag==",
+          "strength": 0.4,
+          "noise": 0.1,
+          "request_type": "NativeInfillingRequest"
+        },
+        "use_new_shared_trial": true
+      }
+    },
+    {
+      "name": "strength-0.6-uc-4",
+      "preset": {
+        "metadata": {
+          "schema": "chaessi-preset/v2",
+          "id": null,
+          "name": "Untitled Preset",
+          "created_at": "2026-10-14T07:06:59.669Z",
+          "updated_at": "2026-10-14T07:06:59.669Z",
+          "app": {
+            "name": "chaessi-payload-manager",
+            "version": "3.5.0"
+          }
+        },
+        "prompt_parts": {
+          "base": "two adult women, laboratory",
+          "undesired": "blurry",
+          "characters": [
+            {
+              "id": "character-4befc7c1-523a-4389-8ade-36a3fbcff417",
+              "name": "Character",
+              "enabled": true,
+              "prompt": "adult, blue hair",
+              "undesired": "red hair",
+              "centers": [
+                {
+                  "x": 0.309,
+                  "y": 0.508
+                },
+                {
+                  "x": 0.7,
+                  "y": 0.8
+                }
+              ],
+              "position_mode": "custom"
+            },
+            {
+              "id": "character-745debaf-bb96-4700-88c2-ce9c3e2acb7a",
+              "name": "Character",
+              "enabled": true,
+              "prompt": "",
+              "undesired": "unused",
+              "centers": [
+                {
+                  "x": 0.5,
+                  "y": 0.5
+                }
+              ],
+              "position_mode": "auto"
+            }
+          ]
+        },
+        "params": {
+          "model": "nai-diffusion-5-full",
+          "width": 832,
+          "height": 1216,
+          "steps": 31,
+          "scale": 5,
+          "cfg_rescale": 0.2,
+          "sampler": "k_dpmpp_2m",
+          "seed": 424242424,
+          "extra_noise_seed": null,
+          "n_samples": 1,
+          "noise_schedule": "karras",
+          "qualityToggle": true,
+          "ucPreset": 4,
+          "sm": false,
+          "sm_dyn": false,
+          "dynamic_thresholding": false,
+          "qualityPreset": "standard"
+        },
+        "sources": {
+          "imported_raw_payload": null,
+          "imported_image_metadata": null
+        }
+      },
+      "modeState": {
+        "mode": "inpaint",
+        "width": 832,
+        "height": 1216,
+        "source_image_base64": "AQ==",
+        "mask_image_base64": "Ag==",
+        "strength": 0.6,
+        "i2i_strength": 0.4,
+        "i2i_noise": 0.1
+      },
+      "payload": {
+        "input": "two adult women, laboratory, very aesthetic, masterpiece, no text",
+        "model": "nai-diffusion-5-full-inpainting",
+        "action": "infill",
+        "parameters": {
+          "params_version": 4,
+          "width": 832,
+          "height": 1216,
+          "n_samples": 1,
+          "seed": 424242424,
+          "sampler": "k_dpmpp_2m",
+          "steps": 31,
+          "scale": 5,
+          "ucPresetId": "none",
+          "qualityPresetId": "standard",
+          "autoSmea": false,
+          "dynamic_thresholding": false,
+          "controlnet_strength": 1,
+          "legacy": false,
+          "add_original_image": false,
+          "cfg_rescale": 0.2,
+          "legacy_v3_extend": false,
+          "use_coords": true,
+          "legacy_uc": false,
+          "normalize_reference_strength_multiple": true,
+          "inpaintImg2ImgStrength": 0.6,
+          "straight_alpha": true,
+          "tag_hint_qt": 1,
+          "tag_hint_uc_preset": 0,
+          "characterPrompts": [
+            {
+              "prompt": "adult, blue hair",
+              "uc": "red hair",
+              "center": {
+                "x": 0.309,
+                "y": 0.508
+              },
+              "enabled": true
+            }
+          ],
+          "v4_prompt": {
+            "caption": {
+              "base_caption": "two adult women, laboratory, very aesthetic, masterpiece, no text",
+              "char_captions": [
+                {
+                  "char_caption": "adult, blue hair",
+                  "centers": [
+                    {
+                      "x": 0.309,
+                      "y": 0.508
+                    },
+                    {
+                      "x": 0.7,
+                      "y": 0.8
+                    }
+                  ]
+                }
+              ]
+            },
+            "use_coords": true,
+            "use_order": true
+          },
+          "v4_negative_prompt": {
+            "caption": {
+              "base_caption": "blurry",
+              "char_captions": [
+                {
+                  "char_caption": "red hair",
+                  "centers": [
+                    {
+                      "x": 0.309,
+                      "y": 0.508
+                    },
+                    {
+                      "x": 0.7,
+                      "y": 0.8
+                    }
+                  ]
+                }
+              ]
+            },
+            "legacy_uc": false
+          },
+          "negative_prompt": "blurry",
+          "deliberate_euler_ancestral_bug": false,
+          "prefer_brownian": true,
+          "noise_schedule": "karras",
+          "image_format": "png",
+          "stream": "msgpack",
+          "image": "AQ==",
+          "extra_noise_seed": 424242423,
+          "mask": "Ag==",
+          "strength": 0.4,
+          "noise": 0.1,
+          "request_type": "NativeInfillingRequest"
+        },
+        "use_new_shared_trial": true
+      }
+    },
+    {
+      "name": "strength-1-uc-0",
+      "preset": {
+        "metadata": {
+          "schema": "chaessi-preset/v2",
+          "id": null,
+          "name": "Untitled Preset",
+          "created_at": "2026-10-14T07:06:59.669Z",
+          "updated_at": "2026-10-14T07:06:59.669Z",
+          "app": {
+            "name": "chaessi-payload-manager",
+            "version": "3.5.0"
+          }
+        },
+        "prompt_parts": {
+          "base": "two adult women, laboratory",
+          "undesired": "blurry",
+          "characters": [
+            {
+              "id": "character-1aff26b4-de90-4b24-888d-da22c6aca09f",
+              "name": "Character",
+              "enabled": true,
+              "prompt": "adult, blue hair",
+              "undesired": "red hair",
+              "centers": [
+                {
+                  "x": 0.309,
+                  "y": 0.508
+                },
+                {
+                  "x": 0.7,
+                  "y": 0.8
+                }
+              ],
+              "position_mode": "custom"
+            },
+            {
+              "id": "character-84a4567c-f5fe-4fc0-808a-5b4b190e244a",
+              "name": "Character",
+              "enabled": true,
+              "prompt": "",
+              "undesired": "unused",
+              "centers": [
+                {
+                  "x": 0.5,
+                  "y": 0.5
+                }
+              ],
+              "position_mode": "auto"
+            }
+          ]
+        },
+        "params": {
+          "model": "nai-diffusion-5-full",
+          "width": 832,
+          "height": 1216,
+          "steps": 31,
+          "scale": 5,
+          "cfg_rescale": 0.2,
+          "sampler": "k_dpmpp_2m",
+          "seed": 424242424,
+          "extra_noise_seed": null,
+          "n_samples": 1,
+          "noise_schedule": "karras",
+          "qualityToggle": true,
+          "ucPreset": 0,
+          "sm": false,
+          "sm_dyn": false,
+          "dynamic_thresholding": false,
+          "qualityPreset": "standard"
+        },
+        "sources": {
+          "imported_raw_payload": null,
+          "imported_image_metadata": null
+        }
+      },
+      "modeState": {
+        "mode": "inpaint",
+        "width": 832,
+        "height": 1216,
+        "source_image_base64": "AQ==",
+        "mask_image_base64": "Ag==",
+        "strength": 1,
+        "i2i_strength": 0.4,
+        "i2i_noise": 0.1
+      },
+      "payload": {
+        "input": "two adult women, laboratory, very aesthetic, masterpiece, no text",
+        "model": "nai-diffusion-5-full-inpainting",
+        "action": "infill",
+        "parameters": {
+          "params_version": 4,
+          "width": 832,
+          "height": 1216,
+          "n_samples": 1,
+          "seed": 424242424,
+          "sampler": "k_dpmpp_2m",
+          "steps": 31,
+          "scale": 5,
+          "ucPresetId": "heavy",
+          "qualityPresetId": "standard",
+          "autoSmea": false,
+          "dynamic_thresholding": false,
+          "controlnet_strength": 1,
+          "legacy": false,
+          "add_original_image": false,
+          "cfg_rescale": 0.2,
+          "legacy_v3_extend": false,
+          "use_coords": true,
+          "legacy_uc": false,
+          "normalize_reference_strength_multiple": true,
+          "inpaintImg2ImgStrength": 1,
+          "straight_alpha": true,
+          "tag_hint_qt": 1,
+          "tag_hint_uc_preset": 2,
+          "characterPrompts": [
+            {
+              "prompt": "adult, blue hair",
+              "uc": "red hair",
+              "center": {
+                "x": 0.309,
+                "y": 0.508
+              },
+              "enabled": true
+            }
+          ],
+          "v4_prompt": {
+            "caption": {
+              "base_caption": "two adult women, laboratory, very aesthetic, masterpiece, no text",
+              "char_captions": [
+                {
+                  "char_caption": "adult, blue hair",
+                  "centers": [
+                    {
+                      "x": 0.309,
+                      "y": 0.508
+                    },
+                    {
+                      "x": 0.7,
+                      "y": 0.8
+                    }
+                  ]
+                }
+              ]
+            },
+            "use_coords": true,
+            "use_order": true
+          },
+          "v4_negative_prompt": {
+            "caption": {
+              "base_caption": "nsfw, lowres, artistic error, film grain, scan artifacts, worst quality, bad quality, jpeg artifacts, very displeasing, chromatic aberration, dithering, halftone, screentone, multiple views, logo, too many watermarks, negative space, blank page, blurry",
+              "char_captions": [
+                {
+                  "char_caption": "red hair",
+                  "centers": [
+                    {
+                      "x": 0.309,
+                      "y": 0.508
+                    },
+                    {
+                      "x": 0.7,
+                      "y": 0.8
+                    }
+                  ]
+                }
+              ]
+            },
+            "legacy_uc": false
+          },
+          "negative_prompt": "nsfw, lowres, artistic error, film grain, scan artifacts, worst quality, bad quality, jpeg artifacts, very displeasing, chromatic aberration, dithering, halftone, screentone, multiple views, logo, too many watermarks, negative space, blank page, blurry",
+          "deliberate_euler_ancestral_bug": false,
+          "prefer_brownian": true,
+          "noise_schedule": "karras",
+          "image_format": "png",
+          "stream": "msgpack",
+          "image": "AQ==",
+          "extra_noise_seed": 424242423,
+          "mask": "Ag==",
+          "strength": 0.4,
+          "noise": 0.1,
+          "request_type": "NativeInfillingRequest"
+        },
+        "use_new_shared_trial": true
+      }
+    },
+    {
+      "name": "strength-1-uc-4",
+      "preset": {
+        "metadata": {
+          "schema": "chaessi-preset/v2",
+          "id": null,
+          "name": "Untitled Preset",
+          "created_at": "2026-10-14T07:06:59.669Z",
+          "updated_at": "2026-10-14T07:06:59.669Z",
+          "app": {
+            "name": "chaessi-payload-manager",
+            "version": "3.5.0"
+          }
+        },
+        "prompt_parts": {
+          "base": "two adult women, laboratory",
+          "undesired": "blurry",
+          "characters": [
+            {
+              "id": "character-a08f0cc4-1be9-4424-b104-c173499b3264",
+              "name": "Character",
+              "enabled": true,
+              "prompt": "adult, blue hair",
+              "undesired": "red hair",
+              "centers": [
+                {
+                  "x": 0.309,
+                  "y": 0.508
+                },
+                {
+                  "x": 0.7,
+                  "y": 0.8
+                }
+              ],
+              "position_mode": "custom"
+            },
+            {
+              "id": "character-560287f9-c3c6-4ceb-ace5-cfeaae318626",
+              "name": "Character",
+              "enabled": true,
+              "prompt": "",
+              "undesired": "unused",
+              "centers": [
+                {
+                  "x": 0.5,
+                  "y": 0.5
+                }
+              ],
+              "position_mode": "auto"
+            }
+          ]
+        },
+        "params": {
+          "model": "nai-diffusion-5-full",
+          "width": 832,
+          "height": 1216,
+          "steps": 31,
+          "scale": 5,
+          "cfg_rescale": 0.2,
+          "sampler": "k_dpmpp_2m",
+          "seed": 424242424,
+          "extra_noise_seed": null,
+          "n_samples": 1,
+          "noise_schedule": "karras",
+          "qualityToggle": true,
+          "ucPreset": 4,
+          "sm": false,
+          "sm_dyn": false,
+          "dynamic_thresholding": false,
+          "qualityPreset": "standard"
+        },
+        "sources": {
+          "imported_raw_payload": null,
+          "imported_image_metadata": null
+        }
+      },
+      "modeState": {
+        "mode": "inpaint",
+        "width": 832,
+        "height": 1216,
+        "source_image_base64": "AQ==",
+        "mask_image_base64": "Ag==",
+        "strength": 1,
+        "i2i_strength": 0.4,
+        "i2i_noise": 0.1
+      },
+      "payload": {
+        "input": "two adult women, laboratory, very aesthetic, masterpiece, no text",
+        "model": "nai-diffusion-5-full-inpainting",
+        "action": "infill",
+        "parameters": {
+          "params_version": 4,
+          "width": 832,
+          "height": 1216,
+          "n_samples": 1,
+          "seed": 424242424,
+          "sampler": "k_dpmpp_2m",
+          "steps": 31,
+          "scale": 5,
+          "ucPresetId": "none",
+          "qualityPresetId": "standard",
+          "autoSmea": false,
+          "dynamic_thresholding": false,
+          "controlnet_strength": 1,
+          "legacy": false,
+          "add_original_image": false,
+          "cfg_rescale": 0.2,
+          "legacy_v3_extend": false,
+          "use_coords": true,
+          "legacy_uc": false,
+          "normalize_reference_strength_multiple": true,
+          "inpaintImg2ImgStrength": 1,
+          "straight_alpha": true,
+          "tag_hint_qt": 1,
+          "tag_hint_uc_preset": 0,
+          "characterPrompts": [
+            {
+              "prompt": "adult, blue hair",
+              "uc": "red hair",
+              "center": {
+                "x": 0.309,
+                "y": 0.508
+              },
+              "enabled": true
+            }
+          ],
+          "v4_prompt": {
+            "caption": {
+              "base_caption": "two adult women, laboratory, very aesthetic, masterpiece, no text",
+              "char_captions": [
+                {
+                  "char_caption": "adult, blue hair",
+                  "centers": [
+                    {
+                      "x": 0.309,
+                      "y": 0.508
+                    },
+                    {
+                      "x": 0.7,
+                      "y": 0.8
+                    }
+                  ]
+                }
+              ]
+            },
+            "use_coords": true,
+            "use_order": true
+          },
+          "v4_negative_prompt": {
+            "caption": {
+              "base_caption": "blurry",
+              "char_captions": [
+                {
+                  "char_caption": "red hair",
+                  "centers": [
+                    {
+                      "x": 0.309,
+                      "y": 0.508
+                    },
+                    {
+                      "x": 0.7,
+                      "y": 0.8
+                    }
+                  ]
+                }
+              ]
+            },
+            "legacy_uc": false
+          },
+          "negative_prompt": "blurry",
+          "deliberate_euler_ancestral_bug": false,
+          "prefer_brownian": true,
+          "noise_schedule": "karras",
+          "image_format": "png",
+          "stream": "msgpack",
+          "image": "AQ==",
+          "extra_noise_seed": 424242423,
+          "mask": "Ag==",
+          "strength": 0.4,
+          "noise": 0.1,
+          "request_type": "NativeInfillingRequest"
+        },
+        "use_new_shared_trial": true
+      }
+    }
+  ]
+}

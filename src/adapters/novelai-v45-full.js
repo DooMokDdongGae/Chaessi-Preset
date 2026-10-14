@@ -11,9 +11,11 @@ import {
   createDefaultPreset as createSchemaDefaultPreset,
   normalizeCenters,
   PRESET_SCHEMA,
+  READABLE_PRESET_SCHEMAS,
 } from "../state/preset-schema.js";
+import { isV5ApiModel, getPresetEffort } from "../state/model-profiles.js";
 
-const SUPPORTED_TOP_LEVEL_KEYS = new Set(["metadata", "prompt_parts", "params", "sources", "model_states"]);
+const SUPPORTED_TOP_LEVEL_KEYS = new Set(["metadata", "prompt_parts", "params", "sources", "model_states", "effort_states"]);
 const SUPPORTED_METADATA_KEYS = new Set(["schema", "id", "name", "created_at", "updated_at", "app", "thumbnail_path"]);
 const SUPPORTED_PROMPT_KEYS = new Set(["base", "undesired", "characters"]);
 const SUPPORTED_CHARACTER_KEYS = new Set(["id", "name", "enabled", "prompt", "undesired", "centers", "position_mode"]);
@@ -37,6 +39,7 @@ const SUPPORTED_PARAM_KEYS = new Set([
   "dynamic_thresholding",
   "qualityPreset",
   "transparentBackground",
+  "effort", "dataset",
 ]);
 
 const FORBIDDEN_PAYLOAD_KEYS = [
@@ -173,6 +176,10 @@ export function buildSidecar({ preset, payload, status, responseInfo = {} }) {
     },
     generation: {
       model: payload.model,
+      logical_model: isV5ApiModel(payload.model) ? NOVELAI_V5_FULL_MODEL : payload.model,
+      effort: isV5ApiModel(payload.model) ? getPresetEffort(preset) : null,
+      dataset: payload.action === "infill" ? null : preset.params?.dataset || "anime",
+      mode_policy: payload.action === "infill" ? "chaessi-inpaint-strategy" : "official",
       action: payload.action,
       prompt: payload.input,
       undesired_prompt: parameters.negative_prompt,
@@ -187,7 +194,7 @@ export function buildSidecar({ preset, payload, status, responseInfo = {} }) {
       noise_schedule: parameters.noise_schedule,
       n_samples: parameters.n_samples,
       qualityToggle: preset.params?.qualityToggle,
-      ucPreset: preset.params?.ucPreset,
+      ucPreset: parameters.ucPresetId === "heavy" ? 0 : preset.params?.ucPreset,
       sm: parameters.sm,
       sm_dyn: parameters.sm_dyn,
       dynamic_thresholding: parameters.dynamic_thresholding,
@@ -206,12 +213,16 @@ export function buildSidecar({ preset, payload, status, responseInfo = {} }) {
       response_container: responseInfo.response_container ?? "zip",
       response_image_entry: responseInfo.response_image_entry ?? null,
       response_content_type: responseInfo.response_content_type ?? null,
+      received_image_format: responseInfo.received_image_format ?? null,
+      saved_image_format: "png",
+      actual_generation_params: responseInfo.actual_generation_params ?? null,
+      metadata_source: responseInfo.metadata_source ?? null,
       content_disposition: responseInfo.content_disposition ?? null,
       stream_event_count: responseInfo.stream_event_count ?? null,
       stream_intermediate_count: responseInfo.stream_intermediate_count ?? null,
     },
     request: {
-      endpoint: payload.model === NOVELAI_V5_FULL_MODEL ? NOVELAI_V5_GENERATE_ENDPOINT : NOVELAI_GENERATE_ENDPOINT,
+      endpoint: isV5ApiModel(payload.model) ? NOVELAI_V5_GENERATE_ENDPOINT : NOVELAI_GENERATE_ENDPOINT,
       automatic_retry: false,
       created_at_utc: createdAt,
     },
@@ -234,7 +245,7 @@ export function validatePreset(preset) {
     errors.push("metadata is required");
   } else {
     warnUnknownKeys(preset.metadata, SUPPORTED_METADATA_KEYS, "metadata", warnings);
-    if (preset.metadata.schema && preset.metadata.schema !== PRESET_SCHEMA) {
+    if (preset.metadata.schema && !READABLE_PRESET_SCHEMAS.includes(preset.metadata.schema)) {
       warnings.push(`metadata.schema is ${preset.metadata.schema}; expected ${PRESET_SCHEMA}`);
     }
     if (preset.metadata.name !== undefined && typeof preset.metadata.name !== "string") {
@@ -268,6 +279,9 @@ export function validatePreset(preset) {
     if (preset.params.model && ![NOVELAI_V45_FULL_MODEL, NOVELAI_V5_FULL_MODEL].includes(preset.params.model)) {
       errors.push(`params.model is unsupported: ${preset.params.model}`);
     }
+    if (preset.params.effort !== undefined && !["high", "medium", "unknown"].includes(preset.params.effort)) errors.push("params.effort must be high, medium or unknown");
+    if (preset.params.model !== NOVELAI_V5_FULL_MODEL && preset.params.effort && preset.params.effort !== "high") errors.push("Effort is available only for V5 Full");
+    if (preset.params.dataset !== undefined && !["anime", "furry"].includes(preset.params.dataset)) errors.push("params.dataset must be anime or furry");
   }
 
   if (!preset.sources || typeof preset.sources !== "object") {

@@ -11,6 +11,26 @@ export function parseNovelAiPngMetadata(buffer) {
   try {
     const metadata = readPngMetadataChunks(buffer);
     const texts = Object.entries(metadata.text).map(([keyword, text]) => ({ keyword, text }));
+    const operationText = metadata.text['Chaessi Image Operation'];
+    if (operationText) {
+      const source = JSON.parse(operationText);
+      if (source.schema !== 'chaessi.image-operation.v1') throw new Error('Unknown Chaessi image operation schema.');
+      const origin = source.prompt_origin;
+      const parsed = origin ? parseRawJsonImport({ ...origin, model: origin.params?.model, parameters: origin.params }) : emptyPngImportResult({ hasPngTextChunks: true, warnings: ['This edited PNG has no prompt source.'] });
+      if (origin) {
+        const safeOrigin = parsed.parsed.raw_payload;
+        parsed.parsed.base_prompt = safeOrigin.prompt_parts?.base || '';
+        parsed.parsed.undesired = safeOrigin.prompt_parts?.undesired || '';
+        parsed.parsed.characters = safeOrigin.prompt_parts?.characters || [];
+        parsed.parsed.params = { ...parsed.parsed.params, ...safeOrigin.params };
+      }
+      parsed.source_type = 'chaessi_image_operation_png';
+      parsed.metadata_source = 'png_text:Chaessi Image Operation';
+      parsed.image_operation = parseRawJsonImport({ operation: source.operation }).parsed.raw_payload.operation;
+      parsed.warnings.push('Image operation output size is separate from the original prompt settings.');
+      parsed.detected = { ...parsed.detected, image_type: 'png', has_png_text_chunks: true, has_json_candidate: true, has_image_operation: true };
+      return parsed;
+    }
     const candidate = findMetadataCandidate(texts);
     const hasPngTextChunks = texts.length > 0;
 
@@ -318,7 +338,7 @@ function isJson(value) {
   }
 }
 
-function extractStealthPngMetadata(buffer) {
+export function extractStealthPngMetadata(buffer) {
   const decoded = decodePngRgbaPixels(buffer);
   if (decoded) {
     const result = extractStealthMetadataFromRgba(decoded);
