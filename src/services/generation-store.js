@@ -254,6 +254,7 @@ export function createGenerationStore({ rootDir }) {
       if (reference?.image_filename) storedPaths.push(reference.image_filename);
     }
     if (sidecar?.source_assets?.request_source_image_filename) storedPaths.push(sidecar.source_assets.request_source_image_filename);
+    for (const key of ['manual_mask_image_filename', 'apply_mask_image_filename']) if(sidecar?.source_assets?.[key]) storedPaths.push(sidecar.source_assets[key]);
     for (const variant of sidecar?.image_operation?.variants || []) {
       if (variant.image_filename) storedPaths.push(variant.image_filename);
     }

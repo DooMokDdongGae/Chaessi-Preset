@@ -1,0 +1,2 @@
+import test from 'node:test';import assert from 'node:assert/strict';import {execFileSync} from 'node:child_process';
+test('Refreshed help uses only newly reviewed independent assets; known external images cannot re-enter active assets',()=>{const result=JSON.parse(execFileSync(process.execPath,['scripts/verify-post-v360-assets.mjs'],{encoding:'utf8'}));assert.equal(result.retired_matches,0);assert.ok(result.provenance_assets>=59);});

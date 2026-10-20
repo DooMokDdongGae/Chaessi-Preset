@@ -46,7 +46,7 @@ try{
    await page.evaluate(async locale=>{(await import('/src/ui/i18n.js')).setLanguage(locale);},locale);
    assert.equal(await page.locator('#toolReview').textContent(),messages['Review operation'][locale]);await page.locator('[data-open-manual="image-tools"]').click();assert.equal(await page.locator('#manualArticle h3').textContent(),locale==='ko'?'Upscale: 그림을 2배 크게':locale==='ja'?'Upscale：縦と横を2倍に':'Upscale: make a picture twice as wide');await page.locator('#manualClose').click();
    await page.locator('#imageToolsDialog').evaluate(el=>{el.scrollTop=0;el.querySelector('aside').scrollTop=0;});
-   await mkdir(path.join(root,'assets','manuals',locale),{recursive:true});if(process.env.CHAESSI_CAPTURE_GUIDES==='1') await page.screenshot({path:path.join(root,'assets','manuals',locale,'image-tools.png')});await page.screenshot({path:path.join(folder,locale+'.png')});
+   await mkdir(path.join(root,'assets','manuals',locale),{recursive:true});if(process.env.CHAESSI_CAPTURE_GUIDES==='1') throw Error('Refresh reviewed help through capture-post-v360-help.mjs and its provenance workflow.');await page.screenshot({path:path.join(folder,locale+'.png')});
  }
  pass('Korean/English/Japanese tool settings and contextual Help retain edited workbench text');
  await page.locator('#toolClose').click();

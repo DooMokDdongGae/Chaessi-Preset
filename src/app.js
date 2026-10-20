@@ -10,6 +10,7 @@ import { createHistorySelectionController } from "./ui/history-selection.js";
 import { createCharacterPositionPad } from "./ui/character-position-pad.js";
 import { createCharacterPresetPreferences } from "./ui/character-preset-preferences.js";
 import { createWorkbenchController } from "./ui/workbench-controller.js";
+import {createResolutionController} from './ui/resolution-controller.js';
 import { installLanguageUI, getLanguage, t, formatUIError } from "./ui/i18n.js";
 import { createSortControl, sortPresets } from "./ui/preset-sorting.js";
 import { confirmDeletion } from "./ui/delete-confirmation.js";
@@ -102,6 +103,7 @@ const state = {
 const promptWorkflow = createPromptWorkflow();
 let imageToolsController;
 let generationCostController;
+let resolutionController;
 
 const fields = {
   model: $("paramModel"),
@@ -189,6 +191,7 @@ async function init() {
       : "",
     getModel: () => state.currentPreset?.params?.model || NOVELAI_V45_FULL_MODEL,
     onModeChange: () => {
+      resolutionController?.sync();
       preciseReferenceController?.refreshWarnings();
       $("datasetField").hidden = state.currentPreset?.params?.model !== NOVELAI_V5_FULL_MODEL || generationModeController.getMode() === "inpaint";
       // Preserve v3.5.0's fresh Inpaint Guidance; explicit/saved values always win.
@@ -200,6 +203,7 @@ async function init() {
   });
   generationModeController.bind();
   generationCostController = installGenerationCost({ getPreset: () => state.currentPreset, getMode: () => generationModeController.getMode() });
+  resolutionController=createResolutionController({getMode:()=>generationModeController.getMode(),onChange:()=>{syncPresetFromForm();renderCharacterPositionPad();updateCurrentSummary();generationCostController.render();}});
   imageToolsController = createImageToolsController({
     getLatest: () => state.lastGenerationResponse?.generation?.id ? { id: state.lastGenerationResponse.generation.id, url: state.lastGeneratedImage } : null,
     getViewed: () => state.imageViewerContext?.imagePath ? { id: state.imageViewerContext.id || null, url: state.imageViewerContext.imagePath } : null,
@@ -214,9 +218,13 @@ async function init() {
       $('latestResultActions').hidden = false;
       $('generationSummary').innerHTML = renderGenerationSummary(state.lastGenerationResponse);
       updateCurrentSummary();
-      await loadHistory(false); await refreshAccountUsage();
+      await loadHistory(false);
+      if(response.operation.estimated_cost?.kind!=='local')await refreshAccountUsage();
     },
   });
+  const compositionButton=document.createElement('button');compositionButton.id='openInpaintComposition';compositionButton.type='button';compositionButton.textContent='Expand composition';
+  compositionButton.onclick=()=>{try{const source=generationModeController.getCompositionSource();void imageToolsController.openComposition(source);}catch(error){showToast(error.message,true);}};
+  $('inpaintTools').append(compositionButton);
   preciseReferenceController = createPreciseReferenceController({
     showToast,
     getMode: () => generationModeController.getMode(),
@@ -1406,7 +1414,9 @@ function getActiveTokenProfile(preset = state.currentPreset) {
 
 async function generateImage() {
   return withButton($("generateButton"), "Generating", async () => {
+    resolutionController.validate();
     syncPresetFromForm();
+    if(!generationCostController.confirmSizeCost())return;
     const isV5 = state.currentPreset.params?.model === "nai-diffusion-5-full";
     if (isV5) await refreshAccountUsage();
     setSummary($("generateStatus"), "Generating one image...", false);
@@ -2023,6 +2033,7 @@ function renderPresetForm() {
   updatePromptWorkflowStatus();
   workbenchController?.restoreFocus(focus);
   generationCostController?.render();
+  resolutionController?.sync();
 }
 
 function syncPresetFromForm() {
@@ -2036,8 +2047,10 @@ function syncPresetFromForm() {
   preset.prompt_parts.base = fields.basePrompt.value;
   preset.prompt_parts.undesired = fields.undesiredPrompt.value;
   preset.prompt_parts.characters = sanitizeCharacters(getCharactersFromCards());
-  preset.params.width = numberValue(fields.width.value, 832);
-  preset.params.height = numberValue(fields.height.value, 1216);
+  // Preserve invalid/empty edits as invalid dimensions; never silently generate
+  // at a fallback size after a model/Effort change. Submission validates first.
+  preset.params.width = Number(fields.width.value);
+  preset.params.height = Number(fields.height.value);
   if (preset.params.effort !== "medium") preset.params.steps = numberValue(fields.steps.value, 23);
   preset.params.scale = numberValue(fields.scale.value, 4);
   if (preset.params.effort !== "medium") {

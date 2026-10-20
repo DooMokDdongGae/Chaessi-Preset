@@ -11,10 +11,23 @@ import {createInpaintGenerationMask,normalizeInpaintGenerationPadding} from '../
 import {countDirectorTokens} from './director-tokens.js';
 import {mapToolCenter} from './geometry.js';
 import {normalizePngToRgba,normalizePngToRgb} from '../services/generation-image-utils.js';
+import {prepareComposition} from './composition-assets.js';
+import {inspectPixelPng,normalizePixelSettings,pixelGeometry} from './pixel-snap-core.js';
 
 export async function buildToolPlan({tool,source,origin,settings={},opusAvailable=null,parentId=null}) {
   const size=await inspectToolPng(source),hash=createHash('sha256').update(source).digest('hex');
   const plan={tool,source,origin:origin?structuredClone(origin):null,settings:structuredClone(settings),parentId,sourceHash:hash,input_size:size,assets:{},payload:null,endpoint:null,output_size:size};
+  if(tool==='pixel-snap') {
+    inspectPixelPng(source);
+    plan.settings=normalizePixelSettings(settings);
+    plan.geometry=pixelGeometry(size.width,size.height,plan.settings);
+    plan.edited=base64Png(settings.edited_png);inspectPixelPng(plan.edited);
+    const output=await inspectToolPng(plan.edited);
+    if(output.width!==plan.geometry.output.width||output.height!==plan.geometry.output.height)throw new Error('Pixel Snap output does not match the reviewed grid and export scale.');
+    plan.output_size={width:output.width,height:output.height};
+    plan.cost={anlas:0,kind:'local',stamina:false,basis:'local-pixel-snap'};
+    return plan;
+  }
   if(tool==='canvas') {
     plan.edited=base64Png(settings.edited_png);await inspectToolPng(plan.edited);
     plan.settings={edit:'canvas',...settings.edit_summary};plan.cost={anlas:0,kind:'local',stamina:false,basis:'local-editor'};return plan;
@@ -43,11 +56,11 @@ export async function buildToolPlan({tool,source,origin,settings={},opusAvailabl
     const free=tool!=='bg-removal'&&target.width*target.height<=1_048_576&&opusAvailable===true;
     plan.cost={anlas:tool==='bg-removal'?base*3+5:free?0:base,kind:tool!=='bg-removal'&&opusAvailable===null?'conditional':'estimate',stamina:false,basis:'official-director-v3-formula'};return plan;
   }
-  if(!['enhance','max-enhance','outpaint','focused-inpaint'].includes(tool))throw new Error('Unsupported image tool.');
+  if(!['enhance','max-enhance','outpaint','focused-inpaint','composition'].includes(tool))throw new Error('Unsupported image tool.');
   if(!origin)throw new Error('Choose a prompt source before this operation.');
   const validation=validatePreset(origin);if(!validation.ok||origin.params?.model!==NOVELAI_V5_FULL_MODEL)throw new Error('This operation requires a V5 prompt. Choose the current workbench prompt explicitly for legacy or plain PNG images.');
   if(!['high','medium'].includes(settings.effort??origin.params.effort??'high'))throw new Error('Choose High or Medium explicitly.');
-  const preset=switchPresetEffort(structuredClone(origin),settings.effort??origin.params.effort??'high');
+  let preset=switchPresetEffort(structuredClone(origin),settings.effort??origin.params.effort??'high');
   preset.params.seed=Math.floor(Math.random()*4_294_967_295);
   const magnitude=Number(settings.magnitude??2);if(!Number.isInteger(magnitude)||!MAGNITUDES[magnitude])throw new Error('Magnitude must be between 1 and 5.');
   const strength=unit(settings.strength,MAGNITUDES[magnitude].strength),noise=unit(settings.noise,MAGNITUDES[magnitude].noise);
@@ -63,13 +76,19 @@ export async function buildToolPlan({tool,source,origin,settings={},opusAvailabl
     // Fixed Medium UC is solved against the original quality prompt before the enhance suffix, as in the official client.
     plan.output_size=target;plan.assets.image=source;plan.cost=estimateGeneration(plan.payload,{opusAvailable,maxTarget:maxTarget??target});
   } else {
-    const prepared=tool==='outpaint'?await prepareOutpaint(source,settings.extension):await prepareFocus(source,settings.selection,settings.context??64);
-    const input=await inspectToolPng(prepared.source);plan.geometry=prepared.geometry;plan.output_size=tool==='outpaint'?input:size;
+    const prepared=tool==='composition'?await prepareComposition(source,settings,preset):tool==='outpaint'?await prepareOutpaint(source,settings.extension):await prepareFocus(source,settings.selection,settings.context??64);
+    if(tool==='composition') {
+      plan.compositionPreset=structuredClone(preset); preset=prepared.preset;
+      plan.manualMask=prepared.manual;plan.applyMask=prepared.applyMask;
+      delete plan.settings.manual_mask_png;
+      plan.settings.composition=prepared.geometry;
+    }
+    const input=await inspectToolPng(prepared.source);plan.geometry=prepared.geometry;plan.output_size=tool==='focused-inpaint'?size:input;
     const padding=normalizeInpaintGenerationPadding(settings.padding??16);
     const mode={mode:'inpaint',width:input.width,height:input.height,source_image_base64:'aW1hZ2U=',mask_image_base64:'bWFzaw==',strength:unit(settings.inpaint_strength,1),i2i_strength:unit(settings.image_strength,.7),i2i_noise:unit(settings.image_noise,0)};
     plan.payload=buildModeGeneratePayload(preset,mode);
     const checked=validateModeGeneratePayload(plan.payload,mode);if(!checked.ok)throw new Error(checked.errors.join('; '));
-    const map=center=>mapToolCenter(center,tool,size,prepared.geometry);
+    const map=center=>tool==='composition'?center:mapToolCenter(center,tool,size,prepared.geometry);
     for(const c of plan.payload.parameters.characterPrompts)c.center=map(c.center);
     for(const key of ['v4_prompt','v4_negative_prompt'])for(const c of plan.payload.parameters[key].caption.char_captions)c.centers=c.centers.map(map);
     const sourcePng=normalizePngToRgba(prepared.source,'image tool Inpaint source'),logicalMask=normalizePngToRgb(prepared.mask,'image tool Inpaint mask');
@@ -79,5 +98,6 @@ export async function buildToolPlan({tool,source,origin,settings={},opusAvailabl
   plan.origin=effectiveGenerationPreset(createDefaultPreset(preset),plan.payload);plan.endpoint=NOVELAI_V5_GENERATE_ENDPOINT;return plan;
 }
 export function publicToolPlan(plan) {
-  return {tool:plan.tool,model:plan.payload?.model??null,effort:plan.origin?.params?.effort??null,prompt_preview:plan.payload?.input??plan.origin?.prompt_parts?.base??null,input_size:plan.input_size,request_size:plan.payload?.parameters?{width:plan.payload.parameters.width,height:plan.payload.parameters.height}:plan.output_size,expected_output_size:plan.output_size,max_enhance_target_size:plan.max_enhance_target_size??null,director_prompt_tokens:plan.director_prompt_tokens??null,cost:plan.cost,geometry:plan.geometry??null,automatic_retry:false};
+  const preview=plan.tool==='composition'?Object.fromEntries([['source',plan.assets.image],['mask',plan.assets.mask],['apply',plan.applyMask]].map(([key,bytes])=>[key,{png:bytes.toString('base64'),sha256:createHash('sha256').update(bytes).digest('hex')}])):null;
+  return {tool:plan.tool,model:plan.payload?.model??null,effort:plan.origin?.params?.effort??null,prompt_preview:plan.payload?.input??plan.origin?.prompt_parts?.base??null,input_size:plan.input_size,request_size:plan.payload?.parameters?{width:plan.payload.parameters.width,height:plan.payload.parameters.height}:plan.output_size,expected_output_size:plan.output_size,max_enhance_target_size:plan.max_enhance_target_size??null,director_prompt_tokens:plan.director_prompt_tokens??null,cost:plan.cost,geometry:plan.geometry??null,automatic_retry:false,...(preview?{preview,character_positions:plan.payload.parameters.characterPrompts.map(c=>c.center)}:{})};
 }

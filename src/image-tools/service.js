@@ -14,6 +14,7 @@ import {assertNoSecretMaterial,storeError} from '../services/file-store-utils.js
 import sharp from 'sharp';
 import {switchPresetEffort} from '../state/effort-state.js';
 import {keepToolReceipt,readToolResponse} from './receipt.js';
+import {composeComposition} from './composition-assets.js';
 
 export function createImageToolService({rootDir,generationStore,wildcardStore,getToken,fetchImpl=fetch}) {
   const prepared=new Map();let busy=false;
@@ -25,13 +26,14 @@ export function createImageToolService({rootDir,generationStore,wildcardStore,ge
     else {source=base64Png(body.source_png);const parsed=parseNovelAiPngMetadata(source);if(parsed.detected?.has_json_candidate&&parsed.detected?.has_params&&parsed.parsed?.params?.model){origin=applyImportToPreset(null,parsed,{applyBasePrompt:true,applyUndesired:true,applyCharacters:true,applyParams:true}).preset;}}
     const sourceOrigin=origin?structuredClone(origin):null;
     if(sourceOrigin)sourceOrigin.sources={};
-    if(body.prompt_source==='current')origin=resolveGenerationPrompts(body.settings?.effort?switchPresetEffort(body.preset,body.settings.effort):body.preset,await wildcardStore.all(),undefined,{mode:['outpaint','focused-inpaint'].includes(body.tool)?'inpaint':'image-to-image'});
+    if(body.prompt_source==='current'&&body.tool!=='pixel-snap')origin=resolveGenerationPrompts(body.settings?.effort?switchPresetEffort(body.preset,body.settings.effort):body.preset,await wildcardStore.all(),undefined,{mode:['outpaint','focused-inpaint','composition'].includes(body.tool)?'inpaint':'image-to-image'});
     // Presets only: discard imported binary references and transient UI state.
     if(origin){origin=structuredClone(origin);origin.sources={};origin.prompt_parts.characters=(origin.prompt_parts.characters??[]).map(({activeTab,...c})=>c);}
     assertNoSecretMaterial({origin,settings:body.settings??{}},'tool input');
     let usage=null;
-    if(body.tool!=='canvas') { try { usage=await account(getToken()); } catch {} }
-    const plan=await buildToolPlan({tool:body.tool,source,origin,settings:body.settings,parentId:body.source_id??null,opusAvailable:usage?.opus??null});
+    if(!['canvas','pixel-snap'].includes(body.tool)) { try { usage=await account(getToken()); } catch {} }
+    if(body.composition_parent_id){if(body.tool!=='composition')throw new Error('Invalid composition parent.');await generationStore.getGeneration(body.composition_parent_id);}
+    const plan=await buildToolPlan({tool:body.tool,source,origin,settings:body.settings,parentId:body.source_id??body.composition_parent_id??null,opusAvailable:usage?.opus??null});
     plan.sourceOrigin=sourceOrigin;
     // Bounded memory and expiration; abandoned estimates can never execute later.
     for(const [id,item] of prepared)if(item.expires<Date.now())prepared.delete(id);
@@ -47,7 +49,7 @@ export function createImageToolService({rootDir,generationStore,wildcardStore,ge
     busy=true;const plan=item.plan;
     try {
       let variants,responseInfo={},actual=null;
-      if(plan.tool==='canvas'){actual=0;variants=[{bytes:plan.edited,label:'Canvas'}];}
+      if(['canvas','pixel-snap'].includes(plan.tool)){actual=0;variants=[{bytes:plan.edited,label:plan.tool==='canvas'?'Canvas':'Pixel Snap'}];}
       else {
         const token=getToken(),before=await account(token),started=Date.now();
         const controller=new AbortController(),timeout=setTimeout(()=>controller.abort(),180_000);
@@ -64,6 +66,11 @@ export function createImageToolService({rootDir,generationStore,wildcardStore,ge
           else {const result=extractFinalNovelAiImage(bytes);const png=await sharp(result.imageBytes,shaOptions).ensureAlpha().png().toBuffer();variants=[{bytes:plan.tool==='focused-inpaint'?await composeFocus(plan.source,png,plan.geometry):png,label:plan.tool}];}
         } catch(error) { throw storeError(502,'unusable_tool_response','No usable PNG was returned. The response was kept for recovery; no automatic retry was made.',`${error.message}. Observed Anlas change: ${actual??'unknown'}.`); }
         for(const v of variants)await inspectToolPng(v.bytes);
+        if(plan.tool==='composition') {
+          if(variants.length!==1)throw storeError(502,'unexpected_composition_result','Expected one composition result.');
+          const raw=variants[0].bytes;
+          variants=[{bytes:await composeComposition(plan,raw),label:'Preserved original'},{bytes:raw,label:'Full generated result'}];
+        }
         if(plan.tool==='upscale'&&(variants.length!==1||(await inspectToolPng(variants[0].bytes)).width!==plan.output_size.width||(await inspectToolPng(variants[0].bytes)).height!==plan.output_size.height))throw storeError(502,'unexpected_upscale_result','Upscale output size did not match the official factor.');
         if(plan.tool==='bg-removal')variants.forEach((v,i)=>v.label=['Masked','Generated','Blend'][i]??`Result ${i+1}`);
       }
@@ -78,8 +85,20 @@ export function createImageToolService({rootDir,generationStore,wildcardStore,ge
     const source=await readFile(storedPath(record.source_assets.source_image_filename));
     const variants=await Promise.all(op.variants.map(async v=>({bytes:await readFile(storedPath(v.image_filename)),label:v.label})));
     const plan={tool:op.tool,source,sourceHash:op.input_sha256,parentId:op.parent_id,origin:record.internal_preset,sourceOrigin:op.source_prompt_origin,settings:op.settings,input_size:op.input_size,assets:{},geometry:op.geometry,payload:null,endpoint:null,cost:{anlas:0,kind:'local',basis:'existing-variant-selection'}};
+    if(op.tool==='composition') {
+      plan.compositionPreset=op.composition_preset;
+      for(const [key,fileKey] of [['manualMask','manual_mask_image_filename'],['applyMask','apply_mask_image_filename']])plan[key]=await readFile(storedPath(record.source_assets[fileKey]));
+      plan.assets.image=await readFile(storedPath(record.source_assets.request_source_image_filename));
+      plan.assets.mask=await readFile(storedPath(record.source_assets.generation_mask_image_filename));
+      plan.logicalMask=await readFile(storedPath(record.source_assets.mask_image_filename));
+    }
     const saved=await saveImageOperation(rootDir,{plan,variants,selected:index,costActual:0,responseInfo:{variant_selection_of:id,original_api_model:op.api_model,response_container:'existing'}});
     return {ok:true,generation:{id:saved.id,image_path:saved.image_path},operation:saved.sidecar.image_operation,variants:saved.sidecar.image_operation.variants};
   }
-  return {prepare,run,selectVariant,isBusy:()=>busy,async pricingEligibility(){try{const state=await account(getToken());return state?.opus??null;}catch{return null;}}};
+  async function restoreComposition(id){
+    const record=await generationStore.getGeneration(id),op=record.image_operation;
+    if(op?.tool!=='composition'||!op.composition_preset)throw storeError(400,'not_composition','This History item has no editable composition session.');
+    return {ok:true,session:{schema:'chaessi.composition-draft.v1',source_png:(await readFile(storedPath(record.source_assets.source_image_filename))).toString('base64'),manual_mask_png:(await readFile(storedPath(record.source_assets.manual_mask_image_filename))).toString('base64'),recipe:op.settings.composition,preset:op.composition_preset,settings:op.settings,parent_id:id}};
+  }
+  return {prepare,run,selectVariant,restoreComposition,isBusy:()=>busy,async pricingEligibility(){try{const state=await account(getToken());return state?.opus??null;}catch{return null;}}};
 }

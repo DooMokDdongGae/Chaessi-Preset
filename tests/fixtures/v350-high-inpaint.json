@@ -3,7 +3,9 @@
   "unchangedFiles": {
     "src/services/inpaint-composite-utils.js": "3f525daf8c3461eb80750692ef2e7013418df248663a05ee6e1e25ebf939f295",
     "src/services/generation-image-utils.js": "adfe589f2e0a163a28c1134626adf3ac5411580623e8a1e35802ed80e0e98389",
-    "src/ui/inpaint-mask-utils.js": "cb4a71967a943f7ce700472ae789c96b46ede8a81f77543e4b7eb8fffc088676",
+    "src/ui/inpaint-mask-utils.js": "cb4a71967a943f7ce700472ae789c96b46ede8a81f77543e4b7eb8fffc088676"
+  },
+  "referenceOnlyFiles": {
     "src/ui/generation-mode-controller.js": "d363201a0525dd8cb77ee05d624c1f80165fd7660cdd1ec9de3e239e90518640"
   },
   "cases": [

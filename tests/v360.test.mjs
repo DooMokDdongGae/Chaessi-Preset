@@ -111,6 +111,10 @@ test("Overwrite preserves old v2 data in revisions; concurrent saves preserve ea
 });
 
 test("V5 High Inpaint exactly matches frozen v3.5.0 requests at the same inputs", async () => {
+  // The UI controller now exposes a read-only composition handoff. Its old file
+  // hash remains in referenceOnlyFiles; verify-composition-ui checks the brush,
+  // handoff, eraser and undo without mutating the original editor. Codec hashes
+  // and frozen provider requests below remain strict.
   const fixtures = JSON.parse(await readFile(new URL("./fixtures/v350-high-inpaint.json", import.meta.url)));
   for (const fixture of fixtures.cases) assert.deepEqual(buildModeGeneratePayload(fixture.preset, fixture.modeState), fixture.payload, fixture.name);
   for (const [file, expected] of Object.entries(fixtures.unchangedFiles)) assert.equal(createHash("sha256").update((await readFile(new URL(`../${file}`, import.meta.url), "utf8")).replace(/\r\n/g, "\n")).digest("hex"), expected, file);

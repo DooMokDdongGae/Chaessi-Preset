@@ -1,4 +1,4 @@
-# Development — v3.6.0
+# Development — v3.7.0
 
 [README](README.md) · [한국어](#developer-ko) · [English](#developer-en) · [日本語](#developer-ja)
 
@@ -7,7 +7,7 @@
 
 ### 프로젝트와 Electron 구조
 
-v3.6.0은 기존 프리셋·History 호환성을 유지하면서 V5 Full High/Medium과 이미지 완성 도구를 지원합니다. V4.5 어댑터·import 해석은 과거 자료 호환성을 위해 남기되 신규 V4.5 생성은 차단합니다. Electron main process는 로컬 Node 서버를 실행하고 sandbox/contextIsolation을 사용하는 renderer에 UI를 표시합니다. 서버는 `127.0.0.1`에만 바인딩하며 NovelAI 인증은 서버에서 처리합니다.
+v3.7.0은 기존 프리셋·History 호환성을 유지하면서 V5 Full High/Medium과 이미지 완성 도구를 지원합니다. V4.5 어댑터·import 해석은 과거 자료 호환성을 위해 남기되 신규 V4.5 생성은 차단합니다. Electron main process는 로컬 Node 서버를 실행하고 sandbox/contextIsolation을 사용하는 renderer에 UI를 표시합니다. 서버는 `127.0.0.1`에만 바인딩하며 NovelAI 인증은 서버에서 처리합니다.
 
 ### 개발 환경과 실행
 
@@ -96,7 +96,7 @@ npm run electron:pack
 npm run electron:dist
 ```
 
-첫 명령은 `dist/win-unpacked/`, 두 번째는 `dist/Chaessi-Preset-v3.6.0-x64.exe`를 만듭니다. 파일 목록은 세 언어 도움말·화면, 기존 PDF 4개, MIT/타사 라이선스를 포함하며 `.env`, 사용자 데이터, logs, tmp, 테스트 산출물은 제외합니다. 설치 프로그램·코드 서명·자동 업데이트는 없습니다.
+첫 명령은 `dist/win-unpacked/`, 두 번째는 `dist/Chaessi-Preset-v3.7.0-x64.exe`를 만듭니다. 파일 목록은 세 언어 도움말·화면, 기존 PDF 4개, MIT/타사 라이선스를 포함하며 `.env`, 사용자 데이터, logs, tmp, 테스트 산출물은 제외합니다. 설치 프로그램·코드 서명·자동 업데이트는 없습니다.
 
 ### 테스트와 설명서 유지보수
 
@@ -136,7 +136,7 @@ Electron UI 검사는 `.cache`의 격리된 데이터로 실행합니다. `CHAES
 
 `preset-sorting.js`는 `Intl.Collator`와 날짜 필드로 검색/필터 후, 페이지 분할 전에 정렬합니다. 6개 선택을 기억하며 없는 날짜는 오래된 값으로 처리합니다. Character 필터는 번호 슬롯별 localStorage 설정입니다.
 
-도움말은 앱 내부 DOM으로 표시하며 `manual-content.js`의 같은 30개 장을 세 언어로 관리합니다. `assets/manuals`의 실제 화면을 사용하고 인터넷에 의존하지 않습니다. 내용 수정 시 목차·검색·확대·관련 도움말 이동과 번역 수준을 확인하세요.
+도움말은 앱 내부 DOM으로 표시하며 `manual-content.js`의 같은 35개 장을 세 언어로 관리합니다. `assets/manuals`의 실제 화면을 사용하고 인터넷에 의존하지 않습니다. 내용 수정 시 목차·검색·확대·관련 도움말 이동과 번역 수준을 확인하세요.
 
 앱 정보 후원 문구도 세 언어로 유지합니다. main process는 지정된 HTTPS 후원 주소만 `shell.openExternal`로 엽니다. 임의 사용자 URL을 외부 실행하도록 확대하지 마세요. 앱은 결제나 후원 페이지의 가격·반복 결제 설정을 처리하지 않습니다.
 
@@ -144,7 +144,7 @@ Electron UI 검사는 `.cache`의 격리된 데이터로 실행합니다. `CHAES
 
 새 버전을 배포할 때는 공개 승인 후 버전·기능·회귀·패키징·비밀정보 검사를 완료합니다. EXE는 portable이며 서명·설치 프로그램·자동 업데이트는 없습니다. 포함 파일과 라이선스, 파일 크기·SHA-256을 기록하고 업로드를 검증합니다. 이전 PDF는 v3.4.0 보존 자료로 구분합니다.
 
-**이미 배포된 v3.6.0의 문서 갱신은 문서 전용 커밋과 기존 Release 본문 변경만 수행합니다.** `v3.6.0` tag와 릴리스 커밋, 자산·체크섬, 이전 Release를 보존합니다. 문서 수정 때문에 실행 파일을 재빌드하거나 교체하지 않습니다.
+새 정식 배포는 새 버전·태그·EXE·체크섬을 함께 검증합니다. 이미 발행한 태그를 이동하거나 이전 릴리스 자산을 교체하지 않습니다.
 
 
 <a id="developer-en"></a>
@@ -152,7 +152,7 @@ Electron UI 검사는 `.cache`의 격리된 데이터로 실행합니다. `CHAES
 
 ### Project and Electron architecture
 
-v3.6.0 preserves preset/History compatibility while adding V5 Full High/Medium and image finishing. V4.5 adapters/import interpretation remain for legacy records; new V4.5 generation is blocked. Electron's main process starts a local Node server and displays a sandboxed, context-isolated renderer. The server binds only to `127.0.0.1`. The renderer uses local HTTP APIs; NovelAI authentication stays on the server.
+v3.7.0 preserves preset/History compatibility while adding V5 Full High/Medium and image finishing. V4.5 adapters/import interpretation remain for legacy records; new V4.5 generation is blocked. Electron's main process starts a local Node server and displays a sandboxed, context-isolated renderer. The server binds only to `127.0.0.1`. The renderer uses local HTTP APIs; NovelAI authentication stays on the server.
 
 ### Environment and development
 
@@ -241,7 +241,7 @@ npm run electron:pack
 npm run electron:dist
 ```
 
-The first command produces `dist/win-unpacked/`; the second creates `dist/Chaessi-Preset-v3.6.0-x64.exe`. The file list includes three-language help/screenshots, four previous PDFs and MIT/third-party licenses, and excludes `.env`, user data, logs, tmp and test artifacts. There is no installer, code signing or auto-update.
+The first command produces `dist/win-unpacked/`; the second creates `dist/Chaessi-Preset-v3.7.0-x64.exe`. The file list includes three-language help/screenshots, four previous PDFs and MIT/third-party licenses, and excludes `.env`, user data, logs, tmp and test artifacts. There is no installer, code signing or auto-update.
 
 ### Tests and manual maintenance
 
@@ -281,7 +281,7 @@ Map English source keys to Korean/Japanese translations. `i18n.js` updates prese
 
 `preset-sorting.js` uses `Intl.Collator` and dates after search/filtering and before pagination. It remembers six choices and treats missing dates as old values. Character filters are numbered-slot localStorage preferences.
 
-Help uses in-app DOM with the same 30 chapters in three languages in `manual-content.js`. It uses actual screenshots from `assets/manuals` without an internet dependency. When editing, check contents, search, zoom, contextual navigation and equivalent translation coverage.
+Help uses in-app DOM with the same 35 chapters in three languages in `manual-content.js`. It uses actual screenshots from `assets/manuals` without an internet dependency. When editing, check contents, search, zoom, contextual navigation and equivalent translation coverage.
 
 Keep App Info support text in all three languages. The main process opens only the specified HTTPS support address with `shell.openExternal`. Do not extend it to arbitrary user-URL execution. The app does not handle payments or support-page pricing/recurring-payment settings.
 
@@ -289,7 +289,7 @@ Keep App Info support text in all three languages. The main process opens only t
 
 For a new release, obtain publication approval, align versions and complete functional/regression, packaging and secret checks. The EXE is portable, unsigned and has no installer or updater. Record included files, licenses, asset sizes and SHA-256; verify uploads. Identify old PDFs as v3.4.0 archives.
 
-**Documentation updates for the already published v3.6.0 use a docs-only commit and edit the existing Release body.** Preserve the `v3.6.0` tag, release commit, assets/checksums and earlier Releases. Do not rebuild or replace the executable for documentation changes.
+Validate the new version, tag, EXE and checksum together. Never move published tags or replace assets of an earlier release.
 
 
 <a id="developer-ja"></a>
@@ -297,7 +297,7 @@ For a new release, obtain publication approval, align versions and complete func
 
 ### プロジェクトと Electron 構成
 
-v3.6.0 はプリセット・履歴の互換性を保ち、V5 Full High/Medium と画像仕上げを追加します。V4.5 アダプター・Import 解釈は旧資料のために残し、新規 V4.5 生成は拒否します。Electron の main process がローカル Node サーバーと sandbox/contextIsolation 有効の renderer を起動します。サーバーは `127.0.0.1` のみにバインドし、NovelAI 認証はサーバー側で処理します。
+v3.7.0 はプリセット・履歴の互換性を保ち、V5 Full High/Medium と画像仕上げを追加します。V4.5 アダプター・Import 解釈は旧資料のために残し、新規 V4.5 生成は拒否します。Electron の main process がローカル Node サーバーと sandbox/contextIsolation 有効の renderer を起動します。サーバーは `127.0.0.1` のみにバインドし、NovelAI 認証はサーバー側で処理します。
 
 ### 開発環境と起動
 
@@ -386,7 +386,7 @@ npm run electron:pack
 npm run electron:dist
 ```
 
-それぞれ `dist/win-unpacked/` と `dist/Chaessi-Preset-v3.6.0-x64.exe` を作成します。ファイル一覧は3言語のヘルプと画面、従来の PDF 4個、MIT/第三者ライセンスを含み、`.env`・ユーザーデータ・ログ・tmp・テスト結果を除きます。インストーラー・コード署名・自動更新はありません。
+それぞれ `dist/win-unpacked/` と `dist/Chaessi-Preset-v3.7.0-x64.exe` を作成します。ファイル一覧は3言語のヘルプと画面、従来の PDF 4個、MIT/第三者ライセンスを含み、`.env`・ユーザーデータ・ログ・tmp・テスト結果を除きます。インストーラー・コード署名・自動更新はありません。
 
 ### テストと資料の保守
 
@@ -426,7 +426,7 @@ Electron UI 検証は `.cache` の隔離データで実行します。`CHAESSI_E
 
 `preset-sorting.js` は検索・絞り込み後、ページ分割前に `Intl.Collator` と日付を使って並べます。6種類の選択を記憶し、日付のない項目は古い値として扱います。Character のフィルターは番号スロット別の localStorage 設定です。
 
-ヘルプはアプリ内 DOM で表示し、`manual-content.js` の同じ30章を3言語で管理します。`assets/manuals` の実際の画面を使い、インターネットに依存しません。更新時は目次・検索・拡大・関連ヘルプへの移動と翻訳内容の同等性を確認してください。
+ヘルプはアプリ内 DOM で表示し、`manual-content.js` の同じ35章を3言語で管理します。`assets/manuals` の実際の画面を使い、インターネットに依存しません。更新時は目次・検索・拡大・関連ヘルプへの移動と翻訳内容の同等性を確認してください。
 
 アプリ情報の支援文も3言語で維持します。main process は指定した HTTPS 支援 URL だけを `shell.openExternal` で開きます。任意のユーザー URL を外部実行する機能に広げないでください。アプリは決済や支援サイトの価格・定期支援設定を処理しません。
 
@@ -434,4 +434,4 @@ Electron UI 検証は `.cache` の隔離データで実行します。`CHAESSI_E
 
 新しい版の配布は公開承認後、バージョン・機能・回帰・パッケージ・秘密情報を確認します。EXE は未署名 Portable で、インストーラー・自動更新はありません。同梱物・ライセンス・サイズ・SHA-256 を記録しアップロードを検証します。旧 PDF は v3.4.0 の保存資料です。
 
-**公開済み v3.6.0 の文書更新は文書専用コミットと既存 Release 本文の変更だけです。** `v3.6.0` tag・リリースコミット・添付ファイル・チェックサム・以前の Release を保ちます。文書の変更で EXE を再ビルド・交換しません。
+新しい正式版・タグ・EXE・チェックサムを一緒に検証します。公開済みタグを移動せず、以前の配布ファイルを交換しません。

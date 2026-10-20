@@ -1,13 +1,13 @@
-# Illustrated help assets — v3.6.0
+# Illustrated help asset provenance
 
-The screenshots in `ko/`, `en/` and `ja/` were captured from this project's actual Electron UI in isolated test profiles. Test names, prompts and account balances are demonstration data. Pink number markers are instructional overlays, not application controls.
+Help screenshots are actual Electron UI captures in isolated demonstration profiles. Account values are test data. Existing laboratory samples were independently generated for authorized product verification; no personal image or saved preset was used. Their numbered comparison layouts and source hashes are recorded in examples/provenance.json. Numbers, selection overlays and checkerboards are explanatory.
 
-The fictional adult laboratory scene was generated in authorized Phase 1 validation (P01). Phase 2 outputs and their provenance were retained for these guides. The current illustrated edition adds two actual Director outputs: coloring the earlier line drawing and removing an explicitly added teaching speech bubble. Canvas output is a real local edit. No personal user photograph or private saved preset was used.
+The v3.7.0 composition source is a newly generated upright adult male gardener watering seedlings in a greenhouse, created from an independent text prompt without reference images. The added adult botanist and brush follow-up are actual model outputs. The greenhouse pixel artwork is independently hand-coded.
 
-`examples/provenance.json` records input hashes, layout files and their sizes. The layouts resize real results, add numbers, display transparency on a checkerboard, and show a red selection overlay where stated. Detail crops are explanatory enlargements. These WebP previews omit the original generation metadata; source receipts are retained outside the distributed assets.
+post-v360-provenance.json records all 62 new source/capture/layout assets (59 feature assets and three formal release App info captures) and SHA-256 hashes. The 51 localized UI captures show real application controls. Captures replay an unchanged authorized model response offline where stated; they are not additional live API calls. The Canvas and Pixel Snap results are actual local processing. Browser Canvas source-edge rounding and exact replay mask requirements are stated in the manifest.
 
-NovelAI's [official FAQ](https://docs.novelai.net/en/faq/) states that it does not claim ownership of generated images. Its [Terms of Service](https://novelai.net/terms) describe generated content and retained user rights. Checked 2026-10-15 KST. The user explicitly authorized creation/reuse for these manuals. This records service permission and provenance; it does not assert exclusive copyright in AI-generated outputs.
+External reference artwork and its derivatives are excluded. Known withdrawn hashes are retained only as nonvisual test data. No reference artwork, private research, raw API receipt, token or user History is distributed.
 
-Screenshots, instructions and diagram layouts are project-authored material. No external stock images, downloaded screenshots, or new font files are bundled. Existing application, branding, font and third-party notices still apply. OpenAI CLIP and native image library notices remain in `assets/licenses/` and `THIRD_PARTY_NOTICES.md`.
+Generated examples were created with the user's authorization. NovelAI's [FAQ](https://docs.novelai.net/en/faq/) and [Terms](https://novelai.net/terms) describe service ownership and use; this provenance record does not claim exclusive copyright in generated images. Screenshots, instructional layouts and hand-coded pixel artwork are project-authored. Existing third-party notices and bundled licenses remain applicable.
 
-These assets are included in the v3.6.0 distribution with the account holder’s authorization.
+Legacy PDFs are historical references. The current guide is the built-in 35-chapter Korean, English and Japanese Help Center.

@@ -9,6 +9,7 @@ import {buildToolPlan} from '../src/image-tools/plan.js';
 import {maxEnhanceSize,estimateGeneration,directorSize} from '../src/image-tools/contracts.js';
 import {prepareFocus,composeFocus,prepareOutpaint,inspectToolPng} from '../src/image-tools/image-assets.js';
 import {saveImageOperation} from '../src/image-tools/store.js';
+import {APP_VERSION} from '../src/state/build-version.js';
 import {createGenerationStore} from '../src/services/generation-store.js';
 import {parseNovelAiPngMetadata} from '../src/importers/nai-metadata.js';
 import {createImageToolService} from '../src/image-tools/service.js';
@@ -47,9 +48,9 @@ test('Large processed PNG stores actual dimensions, alpha, prompt origin and ass
  const root=await mkdtemp(path.join(os.tmpdir(),'chaessi-tools-'));
  try{const source=await png(),o=origin('medium'),plan=await buildToolPlan({tool:'upscale',source,origin:o,parentId:'parent'}),large=await png(3072,4096);
  const saved=await saveImageOperation(root,{plan,variants:[{bytes:large,label:'Masked'},{bytes:large,label:'Generated'}],costActual:4}),bytes=await readFile(path.join(root,saved.image_path));
- assert.equal(saved.sidecar.app.version,JSON.parse(await readFile(new URL('../package.json',import.meta.url),'utf8')).version);const imported=parseNovelAiPngMetadata(bytes);assert.equal(imported.parsed.params.effort,'medium');assert.equal(imported.parsed.params.width,o.params.width);assert.equal(imported.parsed.base_prompt,o.prompt_parts.base);assert.deepEqual(imported.parsed.characters,o.prompt_parts.characters);assert.equal(imported.image_operation.actual_output_size.width,3072);
+ const imported=parseNovelAiPngMetadata(bytes);assert.equal(imported.parsed.params.effort,'medium');assert.equal(imported.parsed.params.width,o.params.width);assert.equal(imported.parsed.base_prompt,o.prompt_parts.base);assert.deepEqual(imported.parsed.characters,o.prompt_parts.characters);assert.equal(imported.image_operation.actual_output_size.width,3072);
  const pixels=await sharp(bytes).ensureAlpha().raw().toBuffer();assert.equal(pixels[3],128);
- const store=createGenerationStore({rootDir:root}),list=await store.listGenerations();assert.equal(list[0].width,3072);assert.equal(list[0].image_tool,'upscale');assert.equal(list[0].actual_anlas,4);await store.deleteGeneration(saved.id);await assert.rejects(access(path.join(root,saved.sidecar.image_operation.variants[0].image_filename)));assert.equal((await store.listGenerations()).length,0);
+ const store=createGenerationStore({rootDir:root}),list=await store.listGenerations();assert.equal(saved.sidecar.app.version,APP_VERSION);assert.equal(list[0].width,3072);assert.equal(list[0].image_tool,'upscale');assert.equal(list[0].actual_anlas,4);await store.deleteGeneration(saved.id);await assert.rejects(access(path.join(root,saved.sidecar.image_operation.variants[0].image_filename)));assert.equal((await store.listGenerations()).length,0);
  }finally{await rm(root,{recursive:true,force:true});}
 });
 test('ZIP decoder rejects incomplete/checksum-invalid responses and preserves three PNG variants',async()=>{

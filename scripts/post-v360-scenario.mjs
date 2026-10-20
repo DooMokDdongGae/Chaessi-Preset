@@ -1,0 +1,5 @@
+import {createDefaultPreset} from '../src/state/preset-schema.js';
+export const scene='1boy, adult male gardener, short curly dark brown hair, orange knit cap, green work apron over a cream shirt, brown work trousers, standing upright, watering seedlings with a turquoise watering can, sunlit glass greenhouse, terracotta pots on waist-high benches, green foliage, tiled walkway, hanging planters, wooden tool rack, wide eye-level view, full body, calm morning light, clean detailed anime illustration';
+export function scenarioPreset({width=1024,height=1024,effort='high',seed=39021020}={}){
+ return createDefaultPreset({metadata:{name:'Greenhouse gardener — independent demonstration'},params:{model:'nai-diffusion-5-full',effort,width,height,steps:23,scale:5,qualityPreset:'standard',seed},prompt_parts:{base:scene,undesired:'text, watermark, logo, blurry, extra limbs',characters:[{id:'gardener',name:'Gardener',enabled:true,prompt:'adult male gardener, short curly dark brown hair, orange knit cap, green apron, cream shirt, brown work trousers, standing, turquoise watering can',undesired:'',position_mode:'custom',centers:[{x:.48,y:.55}]}]}});
+}

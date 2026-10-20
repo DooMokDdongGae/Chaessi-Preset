@@ -3,8 +3,10 @@ import {t} from './i18n.js';
 import {createToolCanvas} from './image-tools-canvas.js';
 import {loadDirectorTokenizer} from './director-tokenizer.js';
 import {EMOTIONS,MAGNITUDES,GENERATION_PIXEL_LIMIT} from '../image-tools/contracts.js';
+import {createCompositionController} from './composition-controller.js';
+import {createPixelSnapController} from './pixel-snap-controller.js';
 const TOOLS=[['upscale','Upscale ×2'],['enhance','Enhance'],['max-enhance','Max✨ Enhance'],['bg-removal','Remove Background'],['lineart','Line Art'],['sketch','Sketch'],['colorize','Colorize'],['emotion','Emotion'],['declutter','Declutter'],['declutter-keep-bubbles','Declutter (keep bubbles)'],['canvas','Canvas'],['outpaint','Outpainting'],['focused-inpaint','Focused Inpaint']];
-export function getImageToolLabel(value){return t(TOOLS.find(([id])=>id===value)?.[1]??'Image tools');}
+export function getImageToolLabel(value){return t(value==='pixel-snap'?'Pixel Snap':value==='composition'?'Expand composition':TOOLS.find(([id])=>id===value)?.[1]??'Image tools');}
 export function createImageToolsController({getLatest,getViewed,getPreset,onSaved,onUseSource,showToast}) {
   const dialog=document.createElement('dialog');dialog.id='imageToolsDialog';dialog.className='image-tools-dialog';
   dialog.innerHTML=`<header class="dialog-header"><div><h2>Image tools</h2><p>Keep the original PNG and finish a separate result.</p></div><button id="toolClose" type="button">Close</button></header>
@@ -20,9 +22,25 @@ export function createImageToolsController({getLatest,getViewed,getPreset,onSave
     <section class="tool-image-stage"><div id="toolImageInfo" class="summary" data-no-i18n></div><div class="tool-canvas-wrap"><canvas id="toolCanvas"></canvas><div id="toolSelection" hidden></div></div><div id="toolVariants" class="actions"></div><div class="actions"><a id="toolDownload" download hidden>Save PNG</a><button id="toolUseI2I" hidden>Use for Image to Image</button><button id="toolUseInpaint" hidden>Use for Inpaint</button><button id="toolUseNext" hidden>Use result in another tool</button></div><div id="toolStatus" class="summary" role="status" aria-live="polite">Ready.</div></section></div>`;
   document.body.append(dialog);const $=id=>document.getElementById(id),num=id=>Number($(id).value);
   let source=null,prepared=null,busy=false,result=null,sourceUrl=null;
+  const composition=createCompositionController({getPreset,onSaved,onUseSource,showToast});
+  const pixelSnap=createPixelSnapController({onSaved,onUseSource:async(url,mode)=>{await onUseSource(url,mode);close();},onUseNext:response=>load({id:response.generation.id,url:'/'+response.generation.image_path})});
+  const shortcuts=document.createElement('div');shortcuts.className='composition-entry-actions';
+  for(const [id,label,mode]of [['toolPaint','Paint to edit','brush'],['toolComposition','Expand composition','move'],['toolFrame','Extend frame','frame'],['toolDraw','Draw pixels','canvas'],['toolRestoreComposition','Reopen saved arrangement','restore']]){
+    const b=document.createElement('button');b.type='button';b.id=id;b.textContent=label;b.onclick=async()=>{try{if(mode==='canvas'){$('toolKind').value='canvas';invalidate();render();}else if(mode==='restore'){if(source?.id)await composition.open(null,{restoreId:source.id});}else await composition.open(await compositionInput(),{mode});}catch(error){status(error.message,true);}};shortcuts.append(b);
+  }
+  dialog.querySelector('.dialog-header').after(shortcuts);$('toolRestoreComposition').hidden=true;
+  const pixelButton=document.createElement('button');pixelButton.type='button';pixelButton.id='toolPixelSnap';pixelButton.textContent='Pixel Snap';pixelButton.onclick=async()=>{try{await pixelSnap.open(await compositionInput());}catch(error){status(error.message,true);}};shortcuts.append(pixelButton);
   $('toolEmotion').replaceChildren(...EMOTIONS.map(value=>new Option(value[0].toUpperCase()+value.slice(1),value)));
   $('toolBrush').append(new Option('Select','select'));
   const editor=createToolCanvas($('toolCanvas'),{onChange:()=>{invalidate();status('Unsaved canvas edits.');},getMode:()=>$('toolKind').value,getTool:()=>$('toolBrush').value,getColor:()=>$('toolColor').value,getSize:()=>$('toolBrushSize').value,onSelection:r=>{for(const [key,value]of Object.entries(r))$('toolRect-'+key).value=value;drawSelection();invalidate();}});
+  async function compositionInput(){
+    if(!source||(!editor.isDirty()&&$('toolKind').value!=='canvas'))return source;
+    // Carry the pixels currently shown by Canvas, without replacing its source
+    // or clearing its undo history. A saved Canvas result can still be on screen.
+    let preset=getPreset();
+    if(source.id&&$('toolPromptSource').value==='original')preset=(await getJson('/api/generations/'+encodeURIComponent(source.id))).generation.internal_preset??preset;
+    return {source_png:editor.base64(),preset,parent_id:source.id??null};
+  }
   let tokenizer=null;const tokenCount=document.createElement('small');tokenCount.id='toolDirectorTokens';$('toolDirectorPrompt').after(tokenCount);
   const updateCount=()=>tokenCount.textContent=tokenizer?`${tokenizer.count($('toolDirectorPrompt').value)} / 75 CLIP`:t('Token count unavailable');
   loadDirectorTokenizer().then(value=>{tokenizer=value;updateCount();}).catch(updateCount);$('toolDirectorPrompt').addEventListener('input',updateCount);
@@ -43,8 +61,8 @@ export function createImageToolsController({getLatest,getViewed,getPreset,onSave
     dialog.querySelector('.tool-image-stage').scrollTop=0;
     for(const [key,value] of Object.entries({x:0,y:0,width:Math.min(128,s.width),height:Math.min(128,s.height)}))$('toolRect-'+key).value=value;
     $('toolVariants').replaceChildren();['toolDownload','toolUseI2I','toolUseInpaint','toolUseNext'].forEach(id=>$(id).hidden=true);
-    if(item.id){const data=await getJson('/api/generations/'+encodeURIComponent(item.id));$('toolEffort').value=data.generation.internal_preset?.params?.effort??'high';$('toolPromptInfo').textContent=data.generation.internal_preset?.prompt_parts?.base??'';}
-    else {$('toolPromptInfo').textContent='';$('toolEffort').value='high';}
+    if(item.id){const data=await getJson('/api/generations/'+encodeURIComponent(item.id));$('toolEffort').value=data.generation.internal_preset?.params?.effort??'high';$('toolPromptInfo').textContent=data.generation.internal_preset?.prompt_parts?.base??'';$('toolRestoreComposition').hidden=data.generation.image_operation?.tool!=='composition';}
+    else {$('toolPromptInfo').textContent='';$('toolEffort').value='high';$('toolRestoreComposition').hidden=true;}
     status('Ready.');render();
   }
   function settings(){const tool=$('toolKind').value;const s={};
@@ -93,6 +111,6 @@ export function createImageToolsController({getLatest,getViewed,getPreset,onSave
   function button(parent,id,getSource){const b=document.createElement('button');b.type='button';b.id=id;b.textContent='Image tools';b.onclick=()=>open(getSource?.());parent?.append(b);}
   button(document.querySelector('.header-tools'),'openImageTools',getLatest);button($('latestResultActions'),'latestImageTools',getLatest);button($('imageViewerDeleteButton').parentElement,'viewerImageTools',getViewed);
   async function open(item){if(busy)return;if(!dialog.open)dialog.showModal();try{if(item)await load(item);else render();}catch(e){status(e.message,true);showToast(e.message,true);}}
-  render();return {open,isBusy:()=>busy};
+  render();return {open,openComposition:composition.open,isBusy:()=>busy||composition.isBusy()||pixelSnap.isBusy()};
 }
 async function fileBase64(file){const bytes=new Uint8Array(await file.arrayBuffer());let text='';for(let i=0;i<bytes.length;i+=8192)text+=String.fromCharCode(...bytes.subarray(i,i+8192));return btoa(text);}

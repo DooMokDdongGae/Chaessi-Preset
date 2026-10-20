@@ -18,7 +18,8 @@ import { resolveGenerationPrompts } from '../src/services/generation-prompt-reso
 import { sortPresets as uiSort } from '../src/ui/preset-sorting.js';
 
 const png = Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNk+A8AAQUBAScY42YAAAAASUVORK5CYII=', 'base64');
-const secret = ['pst', 'synthetic-fixture', 'not-an-issued-token'].join('-');
+// Assemble a synthetic token format to exercise leak prevention; this is not a credential.
+const secret = 'pst-' + 'do-not-return-fixture-secret';
 async function put(root, relative, value) {
   const target = path.join(root, relative);
   await mkdir(path.dirname(target), { recursive: true });

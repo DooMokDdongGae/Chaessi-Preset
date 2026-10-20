@@ -43,6 +43,7 @@ import { createCharacterPresetStore } from "./src/services/character-preset-stor
 import { createCharacterPresetCategoryStore } from "./src/services/character-preset-category-store.js";
 import { createGenerationStore } from "./src/services/generation-store.js";
 import { createImageToolService } from "./src/image-tools/service.js";
+import {resolutionError} from './src/state/resolutions.js';
 import { createSectionPresetStore } from "./src/services/section-preset-store.js";
 import {
   assertNoSecretMaterial,
@@ -157,6 +158,7 @@ const server = http.createServer(async (req, res) => {
       if (!presetValidation.ok) {
         throw httpError(400, "invalid_preset", "Invalid internal preset schema.", presetValidation.errors.join("; "));
       }
+      assertT2IResolution(preset);
       const payload = buildModeGeneratePayload(preset);
       const payloadSafety = isV5ApiModel(payload.model) ? validateV5Payload(payload) : validatePayloadSafety(payload);
       if (!payloadSafety.ok) {
@@ -180,6 +182,9 @@ const server = http.createServer(async (req, res) => {
       return;
     }
 
+    if (req.method === "GET" && url.pathname === "/api/image-tools/composition-session") {
+      sendJson(res, 200, await imageTools.restoreComposition(url.searchParams.get('id'))); return;
+    }
     if (req.method === "POST" && url.pathname.startsWith("/api/image-tools/")) {
       const body = await readJsonBody(req);
       if (imageRequestBusy) throw httpError(409, "image_request_busy", "An image operation is already running.");
@@ -200,6 +205,7 @@ const server = http.createServer(async (req, res) => {
       if (!validation.ok || validation.warnings.length) throw httpError(400, "invalid_preset", "Invalid preset.", [...validation.errors, ...validation.warnings].join("; "));
       assertGeneratablePreset(preset);
       const mode = normalizeGenerationMode(body?.mode);
+      if(mode===GENERATION_MODES.TEXT_TO_IMAGE)assertT2IResolution(preset);
       const resolved = resolveGenerationPrompts(preset, await wildcardStore.all(), undefined, { mode });
       const id = randomUUID();
       preparedPrompts.put(id, resolved, mode);
@@ -551,6 +557,11 @@ function assertGeneratablePreset(preset) {
   if (preset.params.effort === "unknown") throw httpError(400, "unknown_effort", "Choose High or Medium before generating: Effort is unknown.");
 }
 
+function assertT2IResolution(preset) {
+  const error=resolutionError(preset?.params?.width,preset?.params?.height);
+  if(error)throw httpError(400,'invalid_resolution',error);
+}
+
 async function handleGenerate(body) {
   const mode = normalizeGenerationMode(body?.mode);
   const preset = body?.prepared_id
@@ -565,6 +576,7 @@ async function handleGenerate(body) {
   }
 
   assertGeneratablePreset(preset);
+  if(mode===GENERATION_MODES.TEXT_TO_IMAGE)assertT2IResolution(preset);
   const modeState = mode === GENERATION_MODES.TEXT_TO_IMAGE
     ? { mode }
     : { ...(body?.mode_state || {}), mode };
@@ -1160,11 +1172,12 @@ function isPresetThumbnailPath(pathname) {
 }
 
 function isAllowedClientSource(pathname) {
-  if (pathname === '/src/image-tools/contracts.js') return true;
+  if (['/src/image-tools/contracts.js','/src/image-tools/composition-geometry.js','/src/image-tools/pixel-snap-core.js'].includes(pathname)) return true;
   return pathname === "/src/app.js"
     || pathname === "/src/services/prompt-random-resolver.js"
     || pathname === "/src/state/character-preset-categories.js"
     || pathname === "/src/state/model-profiles.js"
+    || pathname === "/src/state/resolutions.js"
     || pathname === "/src/state/model-state.js"
     || pathname === "/src/state/effort-state.js"
     || pathname === "/src/state/preset-sorting.js"

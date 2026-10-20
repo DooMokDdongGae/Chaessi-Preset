@@ -16,6 +16,7 @@ export async function saveImageOperation(rootDir,{plan,variants,selected=0,costA
   const operation={schema:'chaessi.image-operation.v1',tool:plan.tool,parent_id:plan.parentId,input_sha256:plan.sourceHash,input_size:plan.input_size,settings:plan.settings,geometry:plan.geometry??null,api_model:plan.payload?.model??null,request_size:plan.payload?.parameters?{width:plan.payload.parameters.width,height:plan.payload.parameters.height}:null,actual_output_size:{width:actual.width,height:actual.height},selected_variant:selected,variants:variants.map((v,i)=>({label:v.label??v.name??`Result ${i+1}`,image_filename:relative(`.variant-${i}.png`)})),estimated_cost:plan.cost,actual_anlas:costActual,...responseInfo};
   const origin=plan.origin?structuredClone(plan.origin):null;
   operation.source_prompt_origin=plan.sourceOrigin??null;
+  if(plan.tool==='composition')operation.composition_preset=plan.compositionPreset;
   operation.request_prompt=plan.payload?.input??null;
   operation.request_generation_parameters=plan.payload?.parameters?Object.fromEntries(Object.entries(plan.payload.parameters).filter(([key])=>!['image','mask'].includes(key))):null;
   operation.max_enhance_target_size=plan.max_enhance_target_size??null;
@@ -29,9 +30,13 @@ export async function saveImageOperation(rootDir,{plan,variants,selected=0,costA
   const p=origin?.params??{},prompt=origin?.prompt_parts??{};
   const sidecar={app:{name:'Chaessi Preset',version:APP_VERSION},status:'success',created_at:now.toISOString(),generation_id:id,preset:{id:origin?.metadata?.id??null,name:origin?.metadata?.name??''},generation:{...p,model:p.model??`image-tool:${plan.tool}`,logical_model:p.model??null,effort:p.effort??null,mode:'image-tool',action:plan.tool,prompt:prompt.base??'',undesired_prompt:prompt.undesired??'',width:actual.width,height:actual.height,n_samples:1,characterPrompts:(prompt.characters??[]).map(c=>({prompt:c.prompt,uc:c.undesired,center:c.centers?.[0],enabled:c.enabled})),mode_policy:'image-operation'},output:{image_filename:relative('.png'),sidecar_filename:relative('.json'),saved_image_format:'png',actual_width:actual.width,actual_height:actual.height,response_container:responseInfo.response_container??'local',metadata_source:'chaessi-image-operation'},request:{endpoint:plan.endpoint,automatic_retry:false},internal_preset:origin,raw_payload:cleanPayload??{action:plan.tool},image_operation:operation,source_assets:{source_image_filename:relative('.source.png'),request_source_image_filename:plan.assets.image?relative('.request-source.png'):null,mask_image_filename:plan.logicalMask?relative('.mask.png'):null,generation_mask_image_filename:plan.assets.mask?relative('.generation-mask.png'):null}};
   assertNoSecretMaterial(sidecar,'image operation History');
+  if(plan.manualMask)sidecar.source_assets.manual_mask_image_filename=relative('.manual-mask.png');
+  if(plan.applyMask)sidecar.source_assets.apply_mask_image_filename=relative('.apply-mask.png');
   await ensureDir(dir);await writeFile(path.join(dir,id+'.png'),result);await writeFile(path.join(dir,id+'.source.png'),plan.source);
   for(const [key,bytes] of Object.entries(plan.assets))await writeFile(path.join(dir,id+(key==='image'?'.request-source.png':'.generation-mask.png')),bytes);
   if(plan.logicalMask)await writeFile(path.join(dir,id+'.mask.png'),plan.logicalMask);
+  if(plan.manualMask)await writeFile(path.join(dir,id+'.manual-mask.png'),plan.manualMask);
+  if(plan.applyMask)await writeFile(path.join(dir,id+'.apply-mask.png'),plan.applyMask);
   for(let i=0;i<variants.length;i++)await writeFile(path.join(dir,id+`.variant-${i}.png`),variants[i].bytes);
   await writeJsonFile(path.join(dir,id+'.payload.json'),cleanPayload??{action:plan.tool});
   await writeJsonFile(path.join(dir,id+'.json'),sidecar);

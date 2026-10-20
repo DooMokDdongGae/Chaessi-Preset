@@ -1,6 +1,7 @@
 import { NOVELAI_V5_GENERATE_ENDPOINT } from "../state/defaults.js";
 import { getEffectiveParams, getPresetEffort, getV5ApiModel, isV5ApiModel, NOVELAI_V5_FULL_MODEL, NOVELAI_V5_MEDIUM_MODEL } from "../state/model-profiles.js";
 import { normalizeCenters, PRESET_SCHEMA } from "../state/preset-schema.js";
+import {resolutionError} from '../state/resolutions.js';
 
 const QUALITY = Object.freeze({
   none: { hint: 0, suffix: "" },
@@ -86,6 +87,8 @@ export function buildV5GeneratePayload(preset, { policy = "official" } = {}) {
 
 export function validateV5Payload(payload) {
   const errors = [];
+  const sizeError=resolutionError(payload?.parameters?.width,payload?.parameters?.height);
+  if(sizeError)errors.push(sizeError);
   if (![NOVELAI_V5_FULL_MODEL, NOVELAI_V5_MEDIUM_MODEL].includes(payload?.model) || payload?.action !== "generate") errors.push("V5 T2I model or action is invalid");
   if (payload?.parameters?.params_version !== 4) errors.push("V5 params_version must be 4");
   if (payload?.parameters?.stream !== "msgpack" || payload?.parameters?.image_format !== "webp") errors.push("V5 stream transport parameters are invalid");

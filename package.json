@@ -1,8 +1,8 @@
 {
   "name": "chaessi-preset",
   "productName": "Chaessi Preset",
-  "version": "3.6.0",
-  "description": "NovelAI V5 prompt and image workbench with High/Medium Effort, image finishing tools and one PNG at a time.",
+  "version": "3.7.0",
+  "description": "Generate with NovelAI. Organize and finish with CHAESSI PRESET.",
   "author": "Chaessi Preset",
   "license": "MIT",
   "main": "electron/main.mjs",
@@ -29,11 +29,15 @@
     "test:image-tools-ui": "node scripts/verify-image-tools-ui.mjs",
     "prestart": "node scripts/sync-version.mjs",
     "preelectron:pack": "node scripts/sync-version.mjs",
-    "preelectron:dist": "node scripts/sync-version.mjs"
+    "preelectron:dist": "node scripts/sync-version.mjs",
+    "test:composition": "node --test tests/composition.test.mjs",
+    "test:composition-ui": "node scripts/verify-composition-ui.mjs",
+    "test:pixel-resolution": "node --test tests/pixel-snap.test.mjs tests/resolutions.test.mjs",
+    "test:pixel-resolution-ui": "node scripts/verify-pixel-resolution-ui.mjs"
   },
   "devDependencies": {
-    "electron": "^42.3.0",
-    "electron-builder": "^26.8.1"
+    "electron": "^42.11.16",
+    "electron-builder": "^26.15.3"
   },
   "build": {
     "appId": "app.chaessi.preset",

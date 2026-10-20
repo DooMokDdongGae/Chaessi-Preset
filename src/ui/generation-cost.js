@@ -15,5 +15,13 @@ export function installGenerationCost({getPreset,getMode}){
   const schedule=()=>{clearTimeout(timer);timer=setTimeout(render,200);};document.addEventListener('input',schedule);document.addEventListener('change',schedule);document.addEventListener('click',schedule);document.addEventListener('chaessi:language-change',render);
   new MutationObserver(schedule).observe($('generationSourceInfo'),{childList:true,subtree:true,characterData:true});
   async function refresh(){try{available=(await getJson('/api/novelai/cost-account')).opus_available;}catch{available=null;}render();}
-  $('refreshTokenStatusButton')?.addEventListener('click',refresh);render();void refresh();return {refresh,render};
+  function confirmSizeCost(){
+    if(getMode()!=='text-to-image')return true;
+    const width=Number($('paramWidth').value),height=Number($('paramHeight').value);
+    if(width*height<=1_048_576)return true;
+    const effort=$('paramEffort').value,steps=effort==='medium'?14:Number($('paramSteps').value);
+    let cost;try{cost=estimateGeneration({model:'nai-diffusion-5-full'+(effort==='medium'?'-medium':''),parameters:{width,height,steps}},{opusAvailable:available}).anlas;}catch{cost=null;}
+    return confirm(t('Generate {width} × {height} at {effort}? Estimated {cost} Anlas.',{width,height,effort:effort==='medium'?'Medium':'High',cost:cost??t('Unknown')}));
+  }
+  $('refreshTokenStatusButton')?.addEventListener('click',refresh);render();void refresh();return {refresh,render,confirmSizeCost};
 }

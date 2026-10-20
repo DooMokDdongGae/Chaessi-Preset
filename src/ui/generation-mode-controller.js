@@ -534,6 +534,10 @@ export function createGenerationModeController({ showToast, getLatestImagePath, 
     loadSourceFromUrl,
     setMode,
     getMode: () => state.mode,
+    getCompositionSource() {
+      if(!state.source)throw new Error('Choose a source image first.');
+      return {source_png:elements.sourceCanvas.toDataURL('image/png').split(',')[1],manual_mask_png:elements.maskCanvas.toDataURL('image/png').split(',')[1],brush_size:Number(elements.brushSize.value),mask_visible:state.maskVisible,settings:{inpaint_strength:state.inpaintStrength,image_strength:state.i2iStrength,image_noise:state.i2iNoise,padding:state.generationPadding,seam:Math.min(8,state.generationPadding)}};
+    },
     setSupportedModes(modes, preferredMode) {
       activateModelSettings();
       state.supportedModes = new Set(Array.isArray(modes) ? modes : [MODES.TEXT_TO_IMAGE]);

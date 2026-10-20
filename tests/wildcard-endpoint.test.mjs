@@ -30,6 +30,11 @@ test("HTTP store, frozen preparation, and High/Medium request/History across V5 
     assert.equal((await request("/api/novelai/generate", { preset: legacy }, 400)).error.type, "legacy_model_read_only");
     const multi = createDefaultPreset({ params: { model: "nai-diffusion-5-full", n_samples: 2 } });
     assert.equal((await request("/api/novelai/generate", { preset: multi }, 400)).error.type, "one_image_only");
+    for(const [width,height]of [[1000,1000],[832.25,1216],[4096,4096],[0,64]]){
+      const invalid=createDefaultPreset({params:{model:'nai-diffusion-5-full',width,height}});
+      for(const route of ['/api/novelai/prepare','/api/payload/preview','/api/novelai/generate'])assert.equal((await request(route,{preset:invalid},400)).error.type,'invalid_resolution');
+    }
+    await assert.rejects(readFile(path.join(root,'captured-request.json')),{code:'ENOENT'});
     for (const effort of ["high", "medium"]) {
       const model = "nai-diffusion-5-full";
       for (const mode of ["text-to-image", "image-to-image", "inpaint"]) {
