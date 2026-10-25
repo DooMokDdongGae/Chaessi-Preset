@@ -11,3 +11,7 @@ External reference artwork and its derivatives are excluded. Known withdrawn has
 Generated examples were created with the user's authorization. NovelAI's [FAQ](https://docs.novelai.net/en/faq/) and [Terms](https://novelai.net/terms) describe service ownership and use; this provenance record does not claim exclusive copyright in generated images. Screenshots, instructional layouts and hand-coded pixel artwork are project-authored. Existing third-party notices and bundled licenses remain applicable.
 
 Legacy PDFs are historical references. The current guide is the built-in 35-chapter Korean, English and Japanese Help Center.
+
+## v3.8.0 camera screenshots
+
+The nine `ko/en/ja/camera-*.png` screenshots were captured from an isolated synthetic profile by `scripts/verify-camera-workflow.mjs`. The simple clothed figure/room source is an original SVG fixture in that script, rasterized locally. No personal image, prompt, account or private path is included. These original project assets are distributed under the repository MIT license.

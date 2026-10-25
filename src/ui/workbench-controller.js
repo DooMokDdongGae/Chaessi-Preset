@@ -16,6 +16,7 @@ export function createWorkbenchController() {
       <button type="button" id="navPresets"><span aria-hidden="true">▤</span>Presets</button>
       <div id="navWildcards"></div>
       <button type="button" data-workspace-view="history"><span aria-hidden="true">▧</span>History</button>
+      <button type="button" data-workspace-view="camera" id="navCamera"><span aria-hidden="true">◎</span>카메라</button>
       <button type="button" id="navImport"><span aria-hidden="true">＋</span>Image / JSON</button>
       <div class="nav-bottom"><button type="button" id="navManuals">ⓘ Help Center</button><div id="navSettings"></div></div>
     </nav>
@@ -31,6 +32,7 @@ export function createWorkbenchController() {
         </div>
       </section>
       <section id="historyView" class="history-view" aria-label="History gallery" hidden></section>
+      <section id="cameraView" aria-label="Camera workbench" hidden></section>
     </div>
     <footer class="generation-dock" id="generationDock"><div class="dock-settings" id="dockSettings"></div><div class="dock-command" id="dockCommand"></div></footer>`;
   const oldWorkspace = document.querySelector(".workspace");
@@ -95,8 +97,10 @@ export function createWorkbenchController() {
   new MutationObserver(syncReference).observe(referencePanel, { attributes: true, attributeFilter: ["hidden"] });
   const view = name => {
     const history = name === "history";
-    $("workbenchView").hidden = history; $("historyView").hidden = !history;
-    shell.dataset.view = history ? "history" : "workbench";
+    const camera = name === "camera";
+    $("workbenchView").hidden = history || camera; $("historyView").hidden = !history;
+    $("cameraView").hidden = !camera;
+    shell.dataset.view = camera ? "camera" : history ? "history" : "workbench";
     document.querySelectorAll("[data-workspace-view]").forEach(button => {
       if (button.dataset.workspaceView === name) button.setAttribute("aria-current", "page"); else button.removeAttribute("aria-current");
     });
@@ -215,12 +219,13 @@ export function createWorkbenchController() {
   $("historyThumbSize").addEventListener("input", thumbnails); thumbnails();
   // Reuse controls in the large History viewer, next to the existing Save/Delete buttons.
   const reuse = document.createElement("div"); reuse.id = "viewerReuseActions"; reuse.className = "actions compact-actions"; reuse.hidden = true;
-  for (const [action, label] of [["preview", "Keep in workbench"], ["preset", "Apply Preset"], ["seed", "Apply Seed"], ["params", "Apply Settings"], ["source", "Use as Source"]]) {
+  for (const [action, label] of [["preview", "Keep in workbench"], ["preset", "Apply Preset"], ["seed", "Apply Seed"], ["params", "Apply Settings"], ["source", "Use as Source"], ["camera", "카메라로 새 구도"]]) {
     const button = document.createElement("button"); button.type = "button"; button.dataset.viewerReuse = action; button.textContent = label; reuse.append(button);
   }
   document.querySelector(".image-viewer-actions").append(reuse);
   return {
     showWorkbench: () => view("workbench"),
+    showCamera: () => view("camera"),
     selectPane,
     captureFocus() {
       const input = document.activeElement;

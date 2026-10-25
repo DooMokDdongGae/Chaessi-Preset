@@ -3,6 +3,7 @@ import { basicChapters } from './manual-basics.js';
 import { imageToolChapters } from './manual-image-tools.js';
 import {pixelSnapChapter,updateResolutionGuide} from './manual-pixel-snap.js';
 import {attachCompositionHelp} from './manual-composition.js';
+import {cameraChapters} from './manual-camera.js';
 // One chapter structure shared by all three languages; packaged offline with the app.
 const chapter = (id, image, ko, en, ja) => ({ id, image, ko, en, ja });
 export const manualChapters = [
@@ -106,6 +107,7 @@ const common=manualChapters.find(c=>c.id==='image-tools');
 manualChapters.push(pixelSnapChapter);
 updateResolutionGuide(manualChapters);
 attachCompositionHelp(manualChapters);
+manualChapters.push(...cameraChapters);
 common.ko[2]=['최근 결과에서 이미지 도구를 누르세요. 과거 그림은 History에서 크게 연 뒤 이미지 도구를 눌러요. 외부 PNG는 상단 이미지 도구 → PNG 선택으로 열어요.','도구 목록에서 하고 싶은 일을 골라요. 원본 사용 글은 그림을 만들 때 쓴 설명이고, 현재 작업대 글은 지금 편집 중인 설명이에요. 후자를 직접 고르면 Wildcard가 그때 한 번 정해져요.','설정을 정하고 작업·비용 확인을 눌러 크기·예상 Anlas·실제로 쓸 글을 읽어요. 왼쪽 설정이 길면 아래로 스크롤하세요.','실행하고 기다리세요. 완성 결과는 입력과 별도로 아래에 나타나며 History에 새 PNG로 저장돼요. 실패나 통신 중단 시 자동으로 유료 재시도하지 않아요.','PNG 저장으로 내 컴퓨터에 보관해요. 다른 도구 적용으로 이어서 다듬거나 I2I/Inpaint 원본으로 쓸 수 있어요. 작업대 글은 자동으로 바뀌지 않아요.'];
 common.en[2]=['Press Image tools on a latest result. For an older picture, open it in History, then Image tools. For an external PNG, use the top Image tools button and Choose PNG.','Choose what to do in Tool. Original used prompt means the text used to make the source; current workbench prompt means the text you are editing. Explicitly choosing the latter resolves its Wildcards once.','Choose settings and Review operation to read size, estimated Anlas and actual prompt. Scroll down the left settings column when necessary.','Run and wait. The completed result appears below, separately from the input, and is saved as a new History PNG. Failures and interruptions do not trigger automatic paid retries.','Save PNG to your computer. Use the result in another tool, or as I2I/Inpaint source. Your workbench text is not automatically changed.'];
 common.ja[2]=['最新結果の画像ツールを押します。過去の絵は履歴で開いてから画像ツールへ。外部 PNG は上部の画像ツール → PNG 選択で開きます。','ツール一覧で作業を選びます。元のプロンプトは元画像を作った文章、現在の作業台は編集している文章です。後者を明示して選ぶと Wildcard を一度確定します。','設定後に作業・費用を確認し、サイズ・推定 Anlas・実際の文章を読みます。左の設定が長い場合は下にスクロールします。','実行して待ちます。完成結果は入力と別に下へ表示し、新しい履歴 PNG として保存します。失敗や中断時に有料の自動再試行はしません。','PNG 保存でパソコンに保管します。別ツールや I2I/部分修正の元画像として続けられます。作業台の文章は自動では変わりません。'];

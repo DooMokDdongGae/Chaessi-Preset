@@ -1,5 +1,6 @@
 import { access, writeFile } from "node:fs/promises";
 import path from "node:path";
+import { createHash } from 'node:crypto';
 import {
   createTimestampId,
   ensureDir,
@@ -24,7 +25,7 @@ export function createGenerationStore({ rootDir }) {
   let mutationQueue = Promise.resolve();
 
   return {
-    async saveGeneration({ preset, payload, imageBytes, responseInfo, mode = GENERATION_MODES.TEXT_TO_IMAGE, modeSettings = {}, sourceAssets = {} }) {
+    async saveGeneration({ preset, payload, imageBytes, responseInfo, mode = GENERATION_MODES.TEXT_TO_IMAGE, modeSettings = {}, sourceAssets = {}, cameraContext = null }) {
       const createdAt = responseInfo.created_at ? new Date(responseInfo.created_at) : new Date();
       const date = datePart(createdAt);
       const id = responseInfo.generation_id || createTimestampId(createdAt);
@@ -105,6 +106,7 @@ export function createGenerationStore({ rootDir }) {
         }));
       }
       sidecar.raw_payload = storedPayload;
+      if (cameraContext) sidecar.camera_context = {...structuredClone(cameraContext),actual_prompt_hash:createHash('sha256').update(JSON.stringify(preset.prompt_parts)).digest('hex')};
 
       await writeFile(path.join(absoluteFolder, `${id}.png`), imageBytes);
       if (sourceAssets.sourceBytes) await writeFile(path.join(absoluteFolder, `${id}.source.png`), sourceAssets.sourceBytes);

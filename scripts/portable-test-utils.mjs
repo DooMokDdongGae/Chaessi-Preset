@@ -1,12 +1,13 @@
 import {spawn} from 'node:child_process';
-import {mkdir,writeFile} from 'node:fs/promises';
+import {mkdir,mkdtemp,writeFile} from 'node:fs/promises';
 import path from 'node:path';
 import {createRequire} from 'node:module';
 import net from 'node:net';import {once} from 'node:events';
 export async function freePort(){const p=net.createServer();p.listen(0,'127.0.0.1');await once(p,'listening');const port=p.address().port;await new Promise(r=>p.close(r));return port;}
 export async function launchPortable(executable,profile,serverPort){
  await mkdir(profile,{recursive:true});const debugPort=await freePort();
- const env={...process.env,PORT:String(serverPort),NAI_ACCESS_TOKEN:'',NOVELAI_TOKEN:'',NODE_OPTIONS:''};delete env.ELECTRON_RUN_AS_NODE;
+ const extraction=await mkdtemp(path.join(profile,'portable-run-'));
+ const env={...process.env,TEMP:extraction,TMP:extraction,PORT:String(serverPort),NAI_ACCESS_TOKEN:'',NOVELAI_TOKEN:'',NODE_OPTIONS:''};delete env.ELECTRON_RUN_AS_NODE;delete env.CHAESSI_PRIVATE_TEST_PROFILE;delete env.CHAESSI_USER_DATA_DIR;
  const child=spawn(path.resolve(executable),[`--user-data-dir=${path.resolve(profile)}`,`--remote-debugging-port=${debugPort}`],{env,windowsHide:true,stdio:'ignore'});
  let spawnError;child.once('error',e=>spawnError=e);
  const {chromium}=createRequire(import.meta.url)(process.env.CHAESSI_PLAYWRIGHT||'playwright');

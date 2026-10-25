@@ -1,5 +1,13 @@
 # Changelog
 
+## v3.8.0
+
+- 한국어: 생성된 이미지에서 카메라 구도를 탐색하고 현재 위치의 가중치를 보정합니다. 직접 문구 편집, 카메라 관리 재연결·해제, 미완성 입력 취소, 원본별 작업과 History 재개를 지원합니다. 3개국어 도움말 7장을 추가했습니다.
+- English: Explore camera views from generated images and calibrate weights without moving the current position. Edit text, reconnect or disable camera control, cancel incomplete edits and resume source-specific or History work. Seven camera chapters join the trilingual offline guide.
+- 日本語：生成済み画像を起点に構図を探し、現在位置を動かさず重みを補正できます。文章の直接編集、管理の再接続・解除、不完全入力の取り消し、元画像別・履歴作業の再開と3言語7章のカメラガイドを追加しました。
+
+[Detailed release notes / 상세 릴리즈 노트 / 詳細](.github/releases/v3.8.0.md) · [Verification](docs/RELEASE-v3.8.0-VERIFICATION.md)
+
 ## v3.6.0
 
 - Add official V5 Full High/Medium Effort, effective request/History/PNG restoration and preserved custom UC when switching back to High.

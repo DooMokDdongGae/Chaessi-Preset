@@ -1,7 +1,7 @@
 {
   "name": "chaessi-preset",
   "productName": "Chaessi Preset",
-  "version": "3.7.0",
+  "version": "3.8.0",
   "description": "Generate with NovelAI. Organize and finish with CHAESSI PRESET.",
   "author": "Chaessi Preset",
   "license": "MIT",
@@ -27,13 +27,13 @@
     "test:v360-workflow": "node scripts/verify-v360-workflow.mjs",
     "test:image-tools": "node --test tests/image-tools.test.mjs",
     "test:image-tools-ui": "node scripts/verify-image-tools-ui.mjs",
-    "prestart": "node scripts/sync-version.mjs",
-    "preelectron:pack": "node scripts/sync-version.mjs",
-    "preelectron:dist": "node scripts/sync-version.mjs",
     "test:composition": "node --test tests/composition.test.mjs",
     "test:composition-ui": "node scripts/verify-composition-ui.mjs",
     "test:pixel-resolution": "node --test tests/pixel-snap.test.mjs tests/resolutions.test.mjs",
-    "test:pixel-resolution-ui": "node scripts/verify-pixel-resolution-ui.mjs"
+    "test:pixel-resolution-ui": "node scripts/verify-pixel-resolution-ui.mjs",
+    "prestart": "node scripts/sync-version.mjs",
+    "preelectron:pack": "node scripts/sync-version.mjs",
+    "preelectron:dist": "node scripts/sync-version.mjs"
   },
   "devDependencies": {
     "electron": "^42.11.16",

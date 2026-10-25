@@ -38,18 +38,21 @@ export function createPreparedPromptStore({ now = Date.now, ttl = 5 * 60_000, li
   const items = new Map();
   function prune() { for (const [id, item] of items) if (item.expires <= now()) items.delete(id); }
   return {
-    put(id, preset, mode) {
+    put(id, preset, mode, context = null) {
       prune();
       while (items.size >= limit) items.delete(items.keys().next().value);
-      items.set(id, { expires: now() + ttl, preset: structuredClone(preset), mode });
+      items.set(id, { expires: now() + ttl, preset: structuredClone(preset), mode, context: structuredClone(context) });
     },
     take(id, mode) {
+      return this.takeRecord(id, mode).preset;
+    },
+    takeRecord(id, mode) {
       prune();
       const item = items.get(id);
       if (!item) throw storeError(409, "prepared_prompt_expired", "Prepared prompt expired or was already used. Click Generate again.");
       if (item.mode !== undefined && item.mode !== mode) throw storeError(409, "prepared_mode_changed", "Generation mode changed. Prepare the prompt again.");
       items.delete(id);
-      return item.preset;
+      return {preset:item.preset,context:item.context};
     },
   };
 }

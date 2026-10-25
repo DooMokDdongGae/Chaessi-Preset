@@ -1,25 +1,39 @@
-# CHAESSI PRESET v3.7.0
+# CHAESSI PRESET v3.8.0
 
 **NovelAI로 생성하고, CHAESSI PRESET으로 관리하고, 완성하세요.**<br>
 **Generate with NovelAI. Organize and finish with CHAESSI PRESET.**<br>
 **NovelAI で生成し、CHAESSI PRESET で管理して仕上げる。**
 
-[**⬇ Windows x64 Portable 다운로드 / Download / ダウンロード**](https://github.com/DooMokDdongGae/Chaessi-Preset/releases/download/v3.7.0/Chaessi-Preset-v3.7.0-x64.exe) · [Release Notes](https://github.com/DooMokDdongGae/Chaessi-Preset/releases/tag/v3.7.0) · [SHA256SUMS.txt](https://github.com/DooMokDdongGae/Chaessi-Preset/releases/download/v3.7.0/SHA256SUMS.txt) · [Buy Me a Coffee](https://buymeacoffee.com/magiconcert)
+[**⬇ Windows x64 Portable 다운로드 / Download / ダウンロード**](https://github.com/DooMokDdongGae/Chaessi-Preset/releases/download/v3.8.0/Chaessi-Preset-v3.8.0-x64.exe) · [Release Notes](https://github.com/DooMokDdongGae/Chaessi-Preset/releases/tag/v3.8.0) · [SHA256SUMS.txt](https://github.com/DooMokDdongGae/Chaessi-Preset/releases/download/v3.8.0/SHA256SUMS.txt) · [Buy Me a Coffee](https://buymeacoffee.com/magiconcert)
 
 설치·Node.js 불필요 / No installer or separate Node.js / インストール・Node.js 不要
 
 [한국어](#user-ko) · [English](#user-en) · [日本語](#user-ja) · [개발자 / Developers / 開発者](#developer-ko)
 
-![Independent greenhouse source, preserved original and full generated result](https://github.com/DooMokDdongGae/Chaessi-Preset/raw/v3.7.0/assets/manuals/examples/greenhouse-composition.webp)
+![Independent greenhouse source, preserved original and full generated result](https://github.com/DooMokDdongGae/Chaessi-Preset/raw/v3.8.0/assets/manuals/examples/greenhouse-composition.webp)
 
 ① 새 원본 / New source / 新しい元画像 · ② 원본 보존 / Preserved original / 元画像を保持 · ③ 전체 생성 / Full generated / 生成結果全体
 
-![Actual local Pixel Snap comparison](https://github.com/DooMokDdongGae/Chaessi-Preset/raw/v3.7.0/assets/manuals/en/pixel-snap-detail.png)
+![Actual local Pixel Snap comparison](https://github.com/DooMokDdongGae/Chaessi-Preset/raw/v3.8.0/assets/manuals/en/pixel-snap-detail.png)
 
 실제 새 예제·실제 앱 화면. 결과는 조건에 따라 달라집니다. / New independent examples and actual UI; results vary. / 新作の独立例と実画面。結果は条件によって異なります。
 
 <a id="user-ko"></a>
 ## 한국어
+
+### v3.8.0: 직접 보정하며 탐색하는 카메라
+
+이미 생성된 이미지의 조건으로 다른 구도를 탐색합니다. **자동 태그 변환을 출발점으로 삼되, 사용자가 원하는 위치에서 강도를 보정하고 문구를 직접 고쳐가며 구도를 탐색합니다.**
+
+- History·최근 결과·NAI 메타데이터 이미지에서 시작하고, 모르는 초기 기준만 확인합니다. 이미지가 자동 I2I 입력이 되는 것은 아닙니다.
+- 구체의 손잡이와 8방향 버튼으로 양쪽 앞사선·측면·뒤사선·후면과 중간 방향을 선택합니다. 제자리 팬·틸트, 높이, 프레이밍, 롤, 출력 비율도 조정합니다.
+- +40°에서 앞사선 1.1을 1.5로 고쳐도 위치와 다른 가중치는 그대로입니다. +50°로 이동해도 보정이 이어지고 +40°에서 재현됩니다. 여러 위치의 보정과 개별 되돌리기를 지원합니다.
+- 인물·옷·행동·배경과 카메라 문구를 직접 편집합니다. 수동 문구를 우선하거나 카메라 관리에 다시 연결할 수 있고, 카메라를 끌 때도 유효한 현재 문구를 유지합니다.
+- 카메라만 복귀·보정 해제·원본 전체 복원·취소를 구분합니다. 원본별 작업과 History의 카메라 기록을 재개하고, 결과는 명시적으로 선택할 때만 새 출발점이 됩니다.
+
+**짧은 시작:** 이미지 선택 → 카메라로 새 구도 → 손잡이 이동 → 다음 생성 문구의 숫자나 문장 수정 → 이 구도로 생성 → 비교·수정·복귀. 조작만으로는 생성하지 않습니다. 정확한 자세·시선·배경 고정과 물리적 3D 재현은 보장하지 않습니다. 팬·틸트·높이와 시선 실험은 불안정할 수 있습니다.
+
+[한국어 카메라 안내](docs/CAMERA.ko.md) · [상세 3개국어 릴리즈 노트](.github/releases/v3.8.0.md)
 
 **NovelAI로 생성하고, CHAESSI PRESET으로 관리하고, 완성하세요.** 프롬프트와 캐릭터·의상 프리셋부터 이미지 생성, 구도 변경, 인페인트, 후속 보정과 저장까지 하나의 작업대에서 이어집니다.
 
@@ -31,7 +45,7 @@
 - **생성 전 확인과 계속 편집:** 실제 전송 이미지·생성 마스크·결과 반영 영역을 확인하고 캐릭터 설명과 위치를 추가합니다. 한 응답의 원본 보존/전체 생성 결과를 비교하고, 결과를 채택해 이어 그리거나 원본으로 다른 구도를 시도합니다. History의 저장 배치와 생성 전 JSON 편집 상태도 복원할 수 있습니다.
 - **Pixel Snap:** 이미 있는 픽셀아트의 격자를 로컬에서 정돈합니다. 자동 추천·신뢰도, 수동 간격/시작 위치, 팔레트·색상·투명도·가장자리, 확대 비교, PNG 저장 배율과 History 연결을 제공합니다. 계정 없이 로컬 0 Anlas입니다. 일반 사진을 새 픽셀아트로 생성하는 도구가 아니며 공식 NovelAI와 알고리즘·출력이 동일하지 않습니다.
 - **공식형 해상도 선택:** Small / Normal / Large / Wallpaper / Custom과 가로·세로·정사각형, 실제 W×H를 확인하고 적용하거나 취소합니다. Wallpaper Square는 제공하지 않습니다. Custom은 64의 배수·총 3,145,728픽셀 이하이며 자동 반올림하지 않습니다. High/Medium 전환에서도 크기를 유지하고, 큰 생성은 예상 비용을 확인합니다.
-- **35장 통합 도움말:** 한국어·영어·일본어로 원본 열기 → 조작 → 마스크 확인 → 처리 → 비교 → 저장·이어하기를 안내합니다. 검색·목차·문맥 이동·이미지 확대가 오프라인에서 동작합니다. 새 온실 정원사와 직접 제작한 픽셀 예제를 사용합니다.
+- **42장 통합 도움말:** 한국어·영어·일본어로 원본 열기 → 조작 → 마스크 확인 → 처리 → 비교 → 저장·이어하기를 안내합니다. 검색·목차·문맥 이동·이미지 확대가 오프라인에서 동작합니다. 새 온실 정원사와 직접 제작한 픽셀 예제를 사용합니다.
 
 ### 생성·프리셋·후속 작업
 
@@ -60,17 +74,31 @@ V5 Precise Reference, Vibe Transfer, ControlNet, 일반 생성용 V5 Curated 선
 <a id="user-en"></a>
 ## English
 
+### v3.8.0: a camera you can calibrate and edit
+
+Explore another composition from an existing image’s conditions. **Start with automatic tag mapping, then calibrate strength at the position you want and edit the text yourself.**
+
+- Start from History, the latest result or readable NAI image metadata. Confirm only missing baseline information. Selecting an image does not automatically make it I2I input.
+- Drag the sphere handle or choose eight directions, including both front diagonals, sides, rear diagonals and back, with intermediate positions. Adjust pan/tilt in place, height, framing, roll and output aspect ratio.
+- At +40°, changing diagonal 1.1 to 1.5 keeps the camera and other weights unchanged. The correction continues at +50° and reproduces at +40°. Multiple correction points and individual removal are supported.
+- Edit identity, clothing, action, background and camera text. Keep manual text or reconnect camera control. Disabling camera retains the valid current text in the ordinary workbench.
+- Reset camera, disable calibration, restore the source or undo. Resume source-specific work and History camera records. A result becomes a new source only when explicitly selected.
+
+**Quick start:** select image → Explore with camera → move a handle → edit weights or text for the next generation → Generate this view → compare, edit or restore. Controls alone never generate. Exact pose, gaze, background and physical 3D reconstruction are not guaranteed. Pan/tilt/height and the gaze experiment can be unstable.
+
+[English camera guide](docs/CAMERA.en.md) · [Detailed trilingual release notes](.github/releases/v3.8.0.md)
+
 **Generate with NovelAI. Organize and finish with CHAESSI PRESET.** One connected workspace for prompts, character and outfit presets, image generation, composition editing, inpainting, finishing tools, and reusable results.
 
 Choose a preset → edit prompts → generate with NovelAI → inspect → edit, expand and finish → save in History → reuse for the next task
 
-### New since v3.6.0
+### Composition, pixels and image sizes
 
 - **Expand composition:** keep the familiar round brush while dragging the picture, resizing corners and using a rotation handle. Extend frame edges to select empty space automatically. Carry the mask from existing Inpaint, then paint or erase extra areas.
 - **Review and continue:** inspect the actual source, generation mask and result application area; add character descriptions and positions. Compare preserved-original and full-generated variants from one response. Adopt a result to keep painting, or try another arrangement from the source. Restore saved placement from History or reopen a JSON editing session saved before generation.
 - **Pixel Snap:** locally clean up an existing pixel-art grid. Use automatic suggestions and confidence, manual spacing/offsets, palette/color/transparency/edge settings, zoomed comparison, PNG export scale and History chaining. It costs 0 Anlas and needs no account. It does not generate pixel art from ordinary photos and is independent of the official NovelAI algorithm/output.
 - **Official-style image sizes:** choose Small / Normal / Large / Wallpaper / Custom and an orientation, inspect exact W×H, then apply or cancel. Wallpaper Square is unavailable. Custom uses multiples of 64 and at most 3,145,728 pixels; values are never rounded silently. High/Medium switches preserve dimensions and large generations show an estimated-cost confirmation.
-- **35-chapter Help Center:** Korean, English and Japanese guides follow open → manipulate → review masks → process → compare → save/continue. Contents, search, contextual links and image zoom work offline. Fresh greenhouse-gardener and hand-coded pixel examples illustrate the workflow.
+- **42-chapter Help Center:** Korean, English and Japanese guides follow open → manipulate → review masks → process → compare → save/continue. Contents, search, contextual links and image zoom work offline. Fresh greenhouse-gardener and hand-coded pixel examples illustrate the workflow.
 
 ### Generation, presets and finishing
 
@@ -99,6 +127,20 @@ The Windows EXE is unsigned and Windows may warn. Verify the repository download
 <a id="user-ja"></a>
 ## 日本語
 
+### v3.8.0：自分で補正・編集できるカメラ
+
+既存画像の条件から別の構図を探します。**自動タグ変換を出発点に、希望の位置で強さを補正し、文章を直接直して構図を探せます。**
+
+- 履歴・最新結果・読み取れる NAI 画像メタデータから開始し、不明な基準だけ確認します。画像選択だけでは I2I 入力になりません。
+- 球体ハンドルと8方向ボタンで左右の前斜め・側面・後ろ斜め・背面や中間方向を選びます。その場のパン・チルト、高さ、フレーミング、ロール、出力比率も調整できます。
+- +40° で前斜め 1.1 を 1.5 にしても、位置と他の重みは変わりません。+50° にも補正が続き、+40° で再現します。複数の補正点と個別の取り消しに対応します。
+- 人物・服・行動・背景・カメラの文章を直接編集できます。手動の文章を優先するかカメラ管理へ再接続できます。無効化しても有効な現在の文章を通常の作業台に残します。
+- カメラだけの復帰、補正解除、全体復元、取り消しを使い分けます。元画像別の作業と履歴のカメラ記録を再開でき、結果を新しい出発点にするのは明示的に選んだ場合だけです。
+
+**まずは：** 画像選択 → カメラで構図を探す → ハンドル移動 → 次の生成文の数値や文章を編集 → この構図で生成 → 比較・修正・復帰。操作だけでは生成しません。正確な姿勢・視線・背景の固定や物理的な3D再現は保証されません。パン・チルト・高さ・視線の実験は不安定な場合があります。
+
+[日本語カメラガイド](docs/CAMERA.ja.md) · [3言語の詳細リリースノート](.github/releases/v3.8.0.md)
+
 **NovelAI で生成し、CHAESSI PRESET で管理して仕上げる。** プロンプトやキャラクター・衣装プリセットの管理から、画像生成、構図編集、インペイント、仕上げ、履歴の再利用まで、一つの作業環境でつなぎます。
 
 プリセットを選ぶ → 文章を編集 → NovelAI で生成 → 確認 → 画像を修正・拡張・仕上げ → 履歴に保存 → 次の作業で再利用
@@ -109,7 +151,7 @@ The Windows EXE is unsigned and Windows may warn. Verify the repository download
 - **確認して編集を続ける：** 実際に送る画像・生成マスク・結果の適用範囲を確認し、人物の説明と位置を追加します。同じ応答から元画像を保持した結果と生成結果全体を比較します。採用した結果で描き続けるか、元画像で別の配置を試せます。履歴の配置や、生成前に保存した JSON 編集状態も復元できます。
 - **Pixel Snap：** 既存のピクセルアートのグリッドをローカルで整理します。自動推定と信頼度、間隔・位置の手動調整、パレット・色・透明度・端の処理、拡大比較、PNG 保存倍率と履歴連携に対応。アカウント不要で 0 Anlas です。写真から新しいピクセルアートを生成する機能ではなく、公式 NovelAI と内部方式・出力が同一ではない独立実装です。
 - **公式形式の画像サイズ選択：** Small / Normal / Large / Wallpaper / Custom と向きを選び、実際の W×H を確認して適用・キャンセルします。Wallpaper の正方形はありません。Custom は 64 の倍数・合計 3,145,728 画素以下で、自動で丸めません。High/Medium を切り替えてもサイズを保ち、大きい生成では推定費用を確認します。
-- **全35章のヘルプ：** 韓国語・英語・日本語で、開く → 操作 → マスク確認 → 処理 → 比較 → 保存・続行を案内します。目次・検索・関連リンク・画像拡大はオフライン対応。新作の温室の庭師と手作りのピクセルアートを使っています。
+- **全42章のヘルプ：** 韓国語・英語・日本語で、開く → 操作 → マスク確認 → 処理 → 比較 → 保存・続行を案内します。目次・検索・関連リンク・画像拡大はオフライン対応。新作の温室の庭師と手作りのピクセルアートを使っています。
 
 ### 生成・プリセット・仕上げ
 

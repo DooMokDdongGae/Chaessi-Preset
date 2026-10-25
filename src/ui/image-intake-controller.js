@@ -12,6 +12,7 @@ export function createImageIntakeController({
   routeToSource,
   routeToReferences,
   applyMetadata,
+  routeToCamera,
   getReferenceCapacity,
 }) {
   const state = { items: [], processing: false, metadataApplied: false };
@@ -33,6 +34,10 @@ export function createImageIntakeController({
     elements.inpaint.addEventListener("click", () => routeSingleSource("inpaint"));
     elements.precise.addEventListener("click", routeReferences);
     elements.applyMetadata.addEventListener("click", applySelectedMetadata);
+    if(routeToCamera){
+      const button=document.createElement('button');button.type='button';button.id='imageIntakeCameraButton';button.textContent='카메라로 새 구도';elements.applyMetadata.after(button);elements.camera=button;
+      button.addEventListener('click',()=>{if(state.processing||state.items.length!==1)return;void runAction(async()=>{await routeToCamera(state.items[0]);elements.dialog.close('camera');});});
+    }
     elements.dialog.addEventListener("close", clear);
   }
 
@@ -80,6 +85,7 @@ export function createImageIntakeController({
         : "");
     const metadataAvailable = state.items.length === 1 && hasImportableNovelAiMetadata(state.items[0].metadata);
     elements.metadata.hidden = !metadataAvailable;
+    if(elements.camera)elements.camera.disabled=!metadataAvailable;
     elements.applyMetadata.disabled = state.metadataApplied;
     setStatus(state.items.length > capacity
       ? state.items.length + " images exceed the " + capacity + " remaining Precise Reference slots."

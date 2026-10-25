@@ -69,6 +69,8 @@ import { parseRawJsonImport } from "./src/importers/raw-json-import.js";
 import { applyImportToPreset } from "./src/importers/import-to-preset.js";
 import { parseNovelAiPngMetadata } from "./src/importers/nai-metadata.js";
 import { parseImageMetadata } from "./src/importers/image-metadata.js";
+import { cameraRequest } from './src/camera/camera-model.js';
+import { createCameraStore } from './src/services/camera-store.js';
 
 const HEALTH_APP_NAME = "Chaessi Preset";
 const APP_VERSION = JSON.parse(readFileSync(new URL("./package.json", import.meta.url), "utf8")).version;
@@ -104,10 +106,24 @@ const wildcardStore = createWildcardStore({ rootDir: DATA_ROOT });
 const imageTools = createImageToolService({ rootDir: DATA_ROOT, generationStore, wildcardStore, getToken: () => tokenProvider.getToken("novelai") });
 let imageRequestBusy = false;
 const preparedPrompts = createPreparedPromptStore();
+const cameraStore = createCameraStore({rootDir:DATA_ROOT});
 
 const server = http.createServer(async (req, res) => {
   try {
     const url = new URL(req.url || "/", `http://127.0.0.1:${PORT}`);
+
+    if(req.method==='GET'&&url.pathname==='/api/camera/sessions'){sendJson(res,200,{ok:true,items:await cameraStore.list()});return;}
+    if(url.pathname.startsWith('/api/camera/sessions/')){
+      const id=decodeURIComponent(url.pathname.slice('/api/camera/sessions/'.length));
+      if(req.method==='GET'){sendJson(res,200,{ok:true,session:await cameraStore.get(id)});return;}
+      if(req.method==='POST'){const body=await readJsonBody(req);if(body.session?.source?.id!==id)throw httpError(400,'camera_source_mismatch','Camera source mismatch.');await cameraStore.save(body.session);sendJson(res,200,{ok:true});return;}
+    }
+    if(req.method==='GET'&&url.pathname.startsWith('/api/camera/baselines/')){sendJson(res,200,{ok:true,baseline:await cameraStore.baseline(url.pathname.split('/').at(-1))});return;}
+    if(url.pathname.startsWith('/api/camera/sources/')){
+      const hash=url.pathname.split('/').at(-1);
+      if(req.method==='POST'){const bytes=await readMultipartImage(req);sendJson(res,200,{ok:true,url:await cameraStore.saveImage(hash,bytes)});return;}
+      if(req.method==='GET'){const bytes=await cameraStore.image(hash);res.writeHead(200,{'Content-Type':bytes[0]===137?'image/png':'image/webp','Cache-Control':'no-store'});res.end(bytes);return;}
+    }
 
     if (req.method === "GET" && url.pathname === "/api/health") {
       sendJson(res, 200, {
@@ -153,7 +169,7 @@ const server = http.createServer(async (req, res) => {
 
     if (req.method === "POST" && url.pathname === "/api/payload/preview") {
       const body = await readJsonBody(req);
-      const preset = stripPresetUiState(body?.preset);
+      const preset = applyCameraRequest(stripPresetUiState(body?.preset),body?.camera).preset;
       const presetValidation = validatePreset(preset);
       if (!presetValidation.ok) {
         throw httpError(400, "invalid_preset", "Invalid internal preset schema.", presetValidation.errors.join("; "));
@@ -200,16 +216,19 @@ const server = http.createServer(async (req, res) => {
 
     if (req.method === "POST" && url.pathname === "/api/novelai/prepare") {
       const body = await readJsonBody(req);
-      const preset = stripPresetUiState(body?.preset);
+      const camera = applyCameraRequest(stripPresetUiState(body?.preset),body?.camera);
+      const preset = camera.preset;
       const validation = validatePreset(preset);
       if (!validation.ok || validation.warnings.length) throw httpError(400, "invalid_preset", "Invalid preset.", [...validation.errors, ...validation.warnings].join("; "));
       assertGeneratablePreset(preset);
       const mode = normalizeGenerationMode(body?.mode);
+      if(camera.camera&&mode!==GENERATION_MODES.TEXT_TO_IMAGE)throw httpError(400,'camera_t2i_only','Camera uses text-to-image conditions; change the generation mode explicitly.');
       if(mode===GENERATION_MODES.TEXT_TO_IMAGE)assertT2IResolution(preset);
       const resolved = resolveGenerationPrompts(preset, await wildcardStore.all(), undefined, { mode });
       const id = randomUUID();
-      preparedPrompts.put(id, resolved, mode);
-      sendJson(res, 200, { ok: true, prepared_id: id, preset: resolved });
+      preparedPrompts.put(id, resolved, mode, camera.camera);
+      sendJson(res, 200, { ok: true, prepared_id: id, preset: resolved,
+        ...(camera.camera?{camera_revision:camera.camera.revision,camera_source_id:camera.camera.source.id,payload_preview:buildModeGeneratePayload(resolved)}:{}) });
       return;
     }
 
@@ -557,6 +576,22 @@ function assertGeneratablePreset(preset) {
   if (preset.params.effort === "unknown") throw httpError(400, "unknown_effort", "Choose High or Medium before generating: Effort is unknown.");
 }
 
+function applyCameraRequest(preset, record) {
+  if (!record || record.enabled === false) return {preset,camera:null};
+  try {
+    if(JSON.stringify(record).length>512_000)throw new Error('Camera record is too large.');
+    assertNoSecretMaterial(record);
+    for(const snapshot of [record.sourcePreset,record.draft]){
+      const validation=validatePreset(snapshot);
+      if(!validation.ok||validation.warnings.length)throw new Error('Invalid camera source snapshot.');
+    }
+    if(!record.camera||!record.baseline||!record.calibrations||!record.manual)throw new Error('Incomplete camera record.');
+    for(const value of Object.values(record.camera))if(value!==null&&!Number.isFinite(value))throw new Error('Invalid camera coordinate.');
+    if(preset?.params?.seed===null||preset?.params?.seed===undefined||preset.params.seed<0)throw new Error('Camera comparisons require an explicit source seed.');
+    return cameraRequest(preset,record);
+  } catch(error) { throw httpError(400,'invalid_camera',error.message); }
+}
+
 function assertT2IResolution(preset) {
   const error=resolutionError(preset?.params?.width,preset?.params?.height);
   if(error)throw httpError(400,'invalid_resolution',error);
@@ -564,9 +599,11 @@ function assertT2IResolution(preset) {
 
 async function handleGenerate(body) {
   const mode = normalizeGenerationMode(body?.mode);
-  const preset = body?.prepared_id
-    ? preparedPrompts.take(body.prepared_id, mode)
-    : stripPresetUiState(body?.preset);
+  const prepared = body?.prepared_id ? preparedPrompts.takeRecord(body.prepared_id, mode) : null;
+  const camera = prepared ? {preset:prepared.preset,camera:prepared.context} : applyCameraRequest(stripPresetUiState(body?.preset),body?.camera);
+  if(camera.camera&&mode!==GENERATION_MODES.TEXT_TO_IMAGE)throw httpError(400,'camera_t2i_only','Camera uses text-to-image conditions.');
+  if(prepared?.context&&(body.camera_revision!==prepared.context.revision||body.camera_source_id!==prepared.context.source.id))throw httpError(409,'camera_prepared_changed','Camera source or revision changed. Prepare the request again.');
+  const preset = camera.preset;
   const presetValidation = validatePreset(preset);
   if (!presetValidation.ok) {
     throw httpError(400, "invalid_preset", "Invalid internal preset schema.", presetValidation.errors.join("; "));
@@ -667,6 +704,7 @@ async function handleGenerate(body) {
   const noise = mode === GENERATION_MODES.IMAGE_TO_IMAGE ? payload.parameters.noise : 0;
   const saved = await generationStore.saveGeneration({
     preset: generationPreset,
+    cameraContext: camera.camera,
     payload,
     imageBytes: finalImageBytes,
     mode,
@@ -1172,6 +1210,7 @@ function isPresetThumbnailPath(pathname) {
 }
 
 function isAllowedClientSource(pathname) {
+  if(['/src/camera/camera-model.js','/src/camera/calibration.js','/src/camera/prompt-spans.js'].includes(pathname))return true;
   if (['/src/image-tools/contracts.js','/src/image-tools/composition-geometry.js','/src/image-tools/pixel-snap-core.js'].includes(pathname)) return true;
   return pathname === "/src/app.js"
     || pathname === "/src/services/prompt-random-resolver.js"

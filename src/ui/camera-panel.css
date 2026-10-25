@@ -1,0 +1,46 @@
+#cameraView {height:100%;overflow:auto;min-width:0;padding:4px 6px 18px;}
+#cameraView[hidden] {display:none;}
+.camera-toolbar,.camera-actions,.camera-row {display:flex;gap:8px;flex-wrap:wrap;align-items:center;}
+.camera-toolbar {justify-content:space-between;margin-bottom:12px;}
+.camera-toolbar h2 {margin:0;font-size:18px;}
+.camera-layout {display:grid;grid-template-columns:minmax(260px,.85fr) minmax(350px,1.15fr);gap:16px;}
+.camera-images,.camera-controls {min-width:0;}
+.camera-images img {width:100%;max-height:430px;object-fit:contain;background:var(--surface);border:1px solid var(--line);border-radius:8px;}
+.camera-images img:not([src]) {display:none;}
+.camera-image-label {margin:6px 0;color:var(--muted);font-size:12px;}
+.camera-images .camera-result {max-height:430px;}
+.camera-status {padding:9px 0;white-space:pre-wrap;overflow-wrap:anywhere;color:var(--muted);font-size:12px;}
+.camera-status.error {color:var(--danger);}
+.camera-stage {position:relative;height:285px;min-width:0;background:var(--surface);border:1px solid var(--line);border-radius:10px;touch-action:none;overflow:hidden;}
+.camera-stage svg {width:100%;height:100%;display:block;}
+.camera-stage .camera-grid {fill:none;stroke:var(--line);stroke-width:1;}
+.camera-stage .camera-ray {stroke:var(--cyan);stroke-width:2;}
+.camera-stage text {fill:var(--muted);font:12px system-ui,sans-serif;}
+.camera-stage .camera-center {fill:var(--cyan);}
+.camera-grab {position:absolute;width:52px;height:40px;min-height:40px;padding:0;transform:translate(-50%,-50%);cursor:grab;touch-action:none;z-index:2;border-color:var(--cyan);font-size:12px;}
+.camera-grab:active {cursor:grabbing;}
+.camera-bearings {display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:5px;margin-top:8px;}
+.camera-bearings button {padding:5px 2px;min-height:34px;font-size:12px;}
+#cameraView button[aria-pressed=true] {border-color:var(--cyan);color:var(--cyan);background:var(--surface-2);}
+.camera-tools {display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:14px 0;}
+.camera-pad {height:96px;position:relative;background:var(--surface);border:1px solid var(--line);border-radius:7px;touch-action:none;margin:6px 0;}
+.camera-pad::before {content:'';position:absolute;left:50%;top:10px;bottom:10px;border-left:1px solid var(--line);}
+.camera-pad::after {content:'';position:absolute;left:12px;right:12px;top:50%;border-top:1px solid var(--line);pointer-events:none;}
+.camera-pad[data-camera-pad=roll]::after {width:70px;height:70px;left:50%;top:50%;transform:translate(-50%,-50%);border:1px solid var(--line);border-radius:50%;}
+.camera-handle {position:absolute;left:50%;top:50%;width:38px;height:38px;min-height:38px;padding:0;transform:translate(-50%,-50%);z-index:1;cursor:grab;touch-action:none;border-color:var(--cyan);}
+.camera-rail {height:40px;position:relative;touch-action:none;}
+.camera-rail::before {content:'';position:absolute;left:20px;right:20px;top:50%;border-top:2px solid var(--line);}
+.camera-scale {display:flex;justify-content:space-between;color:var(--muted);font-size:11px;}
+.camera-output {margin-top:16px;}
+.camera-output textarea {width:100%;min-height:120px;resize:vertical;line-height:1.65;}
+.camera-baselines {border:1px solid var(--line);padding:10px;border-radius:8px;margin:10px 0;}
+.camera-baselines label {display:inline-flex;gap:6px;align-items:center;margin:4px 8px 4px 0;}
+.camera-baselines select {max-width:180px;}
+.camera-calibrations {font-size:12px;white-space:pre-wrap;overflow-wrap:anywhere;}
+.camera-calibrations button {font-size:12px;padding:3px 7px;margin:3px;}
+.camera-actions {margin-top:12px;}
+.camera-final-payload {white-space:pre-wrap;overflow-wrap:anywhere;font-size:12px;max-height:240px;overflow:auto;}
+@media(max-width:1000px){.camera-layout {grid-template-columns:1fr;}.camera-images {display:grid;grid-template-columns:1fr 1fr;gap:10px;}.camera-images img {max-height:300px;}.camera-images .camera-baseline-summary {grid-column:1/-1;}}
+@media(max-width:520px){.camera-tools {grid-template-columns:1fr;}.camera-images {grid-template-columns:1fr;}.camera-output textarea {font-size:16px;}}
+#cameraView input[type="checkbox"]{width:auto;flex:0 0 auto;margin-right:7px}
+#cameraView label:has(input[type="checkbox"]){display:flex;align-items:center;gap:5px}
