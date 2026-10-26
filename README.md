@@ -8,6 +8,8 @@
 
 **プロンプトと作品を再利用し、生成と編集をつなぐローカル作業台。**
 
+**42 chapters online · [한국어 도움말](https://doomokddonggae.github.io/Chaessi-Preset/v3.8.1/?lang=ko&chapter=start) · [English help](https://doomokddonggae.github.io/Chaessi-Preset/v3.8.1/?lang=en&chapter=start) · [日本語ヘルプ](https://doomokddonggae.github.io/Chaessi-Preset/v3.8.1/?lang=ja&chapter=start)**
+
 ![User artwork workflow](assets/manuals/examples/workflow.webp)
 
 Presets → V5 Full High/Medium → Camera and manual prompt editing → Image tools → History → Reuse.
@@ -16,6 +18,6 @@ The creator controls prompts and revisions. Camera controls select weighted text
 
 [Official published releases](https://github.com/DooMokDdongGae/Chaessi-Preset/releases) · [v3.8.1 changes](.github/releases/v3.8.1.md) · [License](LICENSE) · [Third-party notices](THIRD_PARTY_NOTICES.md)
 
-Windows x64 Portable. NovelAI account and usage fees are separate. Documentation for v3.8.1 is prepared here; the release list is the authority for downloadable versions.
+Windows x64 Portable. NovelAI account and usage fees are separate.
 
 Choose a language above for the complete feature list, architecture, setup, backup and limitations.

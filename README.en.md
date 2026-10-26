@@ -2,6 +2,8 @@
 
 [한국어](README.ko.md) · [English](README.en.md) · [日本語](README.ja.md)
 
+**[Read all 42 chapters online](https://doomokddonggae.github.io/Chaessi-Preset/v3.8.1/?lang=en&chapter=start)** — Browse the same app help in Korean, English and Japanese, with a table of contents, search and full-size images. This website is documentation; image generation runs in the installed app.
+
 **A local workbench for reusing your prompts, characters, outfits and results across generation and editing.** Generate with your NovelAI account, then organize the materials and continue the work in Chaessi Preset.
 
 “The creator controls and revises the prompts and process to finish the result, instead of asking AI to decide everything.” Saved presets, reviewable generation text, manual weights, source recovery and History reuse serve that purpose.
@@ -60,7 +62,7 @@ Relevant code: `electron/`, `server.mjs`, `src/state/`, `src/adapters/`, `src/ca
 
 ## Start, update and back up
 
-1. Download a **published** Windows x64 Portable EXE and its checksums from Official releases. A documentation version is not proof that a release asset has been published.
+1. Download the Windows x64 Portable EXE and SHA256SUMS.txt from [Official releases](https://github.com/DooMokDdongGae/Chaessi-Preset/releases).
 2. Run the EXE and choose a language. Portable users do not need Node.js. Online work requires your own NovelAI account, token and generation entitlement.
 3. Load or write a preset, review High/Medium, size and cost, and generate one image. Continue from the latest result or History with Camera or Image tools. Open App info → Help Center for the controls.
 4. Before updating, save edits, close the app and back up the complete actual data directory separately. Keep the data and replace the EXE. To roll back, use the earlier EXE together with a backup appropriate for that version.
