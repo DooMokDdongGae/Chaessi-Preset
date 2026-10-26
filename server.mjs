@@ -1210,7 +1210,7 @@ function isPresetThumbnailPath(pathname) {
 }
 
 function isAllowedClientSource(pathname) {
-  if(['/src/camera/camera-model.js','/src/camera/calibration.js','/src/camera/prompt-spans.js'].includes(pathname))return true;
+  if(['/src/camera/camera-model.js','/src/camera/calibration.js','/src/camera/prompt-spans.js','/src/camera/camera-rules.js','/src/camera/camera-migration.js'].includes(pathname))return true;
   if (['/src/image-tools/contracts.js','/src/image-tools/composition-geometry.js','/src/image-tools/pixel-snap-core.js'].includes(pathname)) return true;
   return pathname === "/src/app.js"
     || pathname === "/src/services/prompt-random-resolver.js"

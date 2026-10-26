@@ -1,150 +1,176 @@
 {
-  "purpose": "Illustrated help. Resized layouts, numbered labels and selection overlays are explanatory; API results are real.",
-  "original": "P01 was generated for authorized Phase 1 verification: two adult women, laboratory coats, science classroom. No private user preset or personal image reused.",
-  "provenance": [
-    {
-      "example_input": 1,
-      "sha256": "c4bafb71973f7313fe168781c84512a71906b231a5af771c9f6163f45170e52e"
-    },
-    {
-      "example_input": 2,
-      "sha256": "f2a80d7ff8700bfee7fd2cdb0bea81900d24d01e5a71bc4a539944dc28dfe8cb"
-    },
-    {
-      "example_input": 3,
-      "sha256": "3f89447fa279360158a7e705a1b32117f16b87fe2eb338b468ad254707fa2296"
-    },
-    {
-      "example_input": 4,
-      "sha256": "602cb88d80a32d1223ad32be1800abb152c53e62809e75967a4aec4f0fbf1c53"
-    },
-    {
-      "example_input": 5,
-      "sha256": "e538ff68bd52da2dfaaaaff84a9032d3e68acd0e1db0a31a1fddd884df9bda28"
-    },
-    {
-      "example_input": 6,
-      "sha256": "84bd2a8e13dea4820872a6060cfbe1cf301c74ba0fb073e5404fd8132c4816fe"
-    },
-    {
-      "example_input": 7,
-      "sha256": "0fdd1934dae0c0db7a10302822bda312699fe02c5aa5c6495ca410f83b1e6498"
-    },
-    {
-      "example_input": 8,
-      "sha256": "5efeee495ed59eb7250162d49e3116f3892b9463a25fda22b138f4b02796383b"
-    },
-    {
-      "example_input": 9,
-      "sha256": "dee5cdfdddda08c4ec51d4b854d099faee79c5329d436a559474126001406012"
-    },
-    {
-      "example_input": 10,
-      "sha256": "4e1d659426259dbcf7a575eda4ef6599b732628261f1131da17b6db4c69a1166"
-    },
-    {
-      "example_input": 11,
-      "sha256": "6a21af0130fa430fe717a8b4e0e48d9be2c2d63850cfda3bad38fdbb8d709357"
-    },
-    {
-      "example_input": 12,
-      "sha256": "5ec71f63aa13a36bd0e29e8235c285aa0525aa7901fc96f9be5aed9ea9def41e"
-    },
-    {
-      "example_input": 13,
-      "sha256": "65cb744646b35ce2799c425ac7a6cace379c4b9406353055ddc093a9ec3fd9ce"
-    },
-    {
-      "example_input": 14,
-      "sha256": "42f0f9133f1aef3e1db6ffa6c73813ba8981e3a05fac16b54d1d637bfd16e875"
-    },
-    {
-      "example_input": 15,
-      "sha256": "5852d2df7c4966ce1097c493b4711bb60be358b7eeaf0c4f3f891f9f369f6fd4"
-    },
-    {
-      "example_input": 16,
-      "sha256": "b65060005f55bd04103a237161a194b96286174f1706d025678d040ea0c895df"
-    }
-  ],
+  "version": "3.8.1",
+  "source": "User supplied artwork; original files and full prompts withheld",
+  "public_copies": "PNG text/EXIF and alpha-channel stealth metadata removed before layout",
+  "description": "Numbered comparisons use actual app feature outputs. UI screenshots use public prompt summaries. Grid study is a prepared input, not a claimed creative Pixel Snap conversion.",
   "examples": [
     {
-      "file": "upscale.webp",
-      "bytes": 82800,
+      "file": "assets/manuals/examples/upscale.webp",
       "width": 1040,
-      "height": 715
+      "height": 570,
+      "sha256": "d7ffc29bb8f23ab36a6428dbee77db9c635daa75bbaf248a636341a39b455a37",
+      "panels": 2,
+      "kind": "numbered comparison of real inputs/results; display resize only"
     },
     {
-      "file": "enhance.webp",
-      "bytes": 116586,
+      "file": "assets/manuals/examples/enhance.webp",
       "width": 1040,
-      "height": 715
+      "height": 570,
+      "sha256": "65360dcbdaf3db4ada545952fa6be7ea9933eafab656a15db93d479727547ca8",
+      "panels": 2,
+      "kind": "numbered comparison of real inputs/results; display resize only"
     },
     {
-      "file": "max-enhance.webp",
-      "bytes": 88774,
+      "file": "assets/manuals/examples/max-enhance.webp",
       "width": 1040,
-      "height": 715
+      "height": 570,
+      "sha256": "74f3a5fdb34fe3934649c72b9c74fe75e775174e1395c8591eba68f35b1322d4",
+      "panels": 2,
+      "kind": "numbered comparison of real inputs/results; display resize only"
     },
     {
-      "file": "lineart.webp",
-      "bytes": 98162,
+      "file": "assets/manuals/examples/lineart.webp",
       "width": 1040,
-      "height": 715
+      "height": 570,
+      "sha256": "439239e0de9588f5fe4e867aa4b339613cac9b6f5a3e6d9e90317b7302c700ea",
+      "panels": 2,
+      "kind": "numbered comparison of real inputs/results; display resize only"
     },
     {
-      "file": "sketch.webp",
-      "bytes": 111014,
+      "file": "assets/manuals/examples/i2i.webp",
       "width": 1040,
-      "height": 715
+      "height": 570,
+      "sha256": "288811933785444b3323bbb30741f7b206c21702f6ce15bb573529c30b3ef96c",
+      "panels": 2,
+      "kind": "numbered comparison of real inputs/results; display resize only"
     },
     {
-      "file": "emotion.webp",
-      "bytes": 112526,
+      "file": "assets/manuals/examples/sketch.webp",
       "width": 1040,
-      "height": 715
+      "height": 570,
+      "sha256": "163a27ac4fdc5570621572ca7895d29bb5bc744a2dbb292c1efa5ed54d36459f",
+      "panels": 2,
+      "kind": "numbered comparison of real inputs/results; display resize only"
     },
     {
-      "file": "outpaint.webp",
-      "bytes": 116856,
+      "file": "assets/manuals/examples/emotion.webp",
       "width": 1040,
-      "height": 715
+      "height": 570,
+      "sha256": "32aa9409fc12604c512c53bb3621a7ac8fff88b87c1028c548b1c2bd3ed9ae63",
+      "panels": 2,
+      "kind": "numbered comparison of real inputs/results; display resize only"
     },
     {
-      "file": "bg-removal.webp",
-      "bytes": 205688,
+      "file": "assets/manuals/examples/outpaint.webp",
+      "width": 1040,
+      "height": 570,
+      "sha256": "4ccda4a6d718a60f796a2a1654e532299aacfd1f9c833f1a456372c5b597b57a",
+      "panels": 2,
+      "kind": "numbered comparison of real inputs/results; display resize only"
+    },
+    {
+      "file": "assets/manuals/examples/bg-removal.webp",
       "width": 2080,
-      "height": 715
+      "height": 570,
+      "sha256": "c7700b9ca9b92a4678ab677dfcc5c36f1c6276cb6e8bc557983a2bc03f5ea4f1",
+      "panels": 4,
+      "kind": "numbered comparison of real inputs/results; display resize only"
     },
     {
-      "file": "colorize.webp",
-      "bytes": 91216,
+      "file": "assets/manuals/examples/colorize.webp",
       "width": 1040,
-      "height": 715
+      "height": 570,
+      "sha256": "7825cf6f9cf2d2901cc15e6a4df673f2b906c10d074d72190e3428a6be16353e",
+      "panels": 2,
+      "kind": "numbered comparison of real inputs/results; display resize only"
     },
     {
-      "file": "declutter.webp",
-      "bytes": 113502,
+      "file": "assets/manuals/examples/declutter.webp",
       "width": 1040,
-      "height": 715
+      "height": 570,
+      "sha256": "16bc9210e4cb27d7117b96d15496d841518aecf155b4b01403903797f58e0683",
+      "panels": 2,
+      "kind": "numbered comparison of real inputs/results; display resize only"
     },
     {
-      "file": "focused-inpaint.webp",
-      "bytes": 171600,
+      "file": "assets/manuals/examples/focused-inpaint.webp",
       "width": 1560,
-      "height": 715
+      "height": 570,
+      "sha256": "62cea7601b48cc64e5339dda8d0735912a38240ee7d27fa2cb637c6bb3edd6a1",
+      "panels": 3,
+      "kind": "numbered comparison of real inputs/results; display resize only"
     },
     {
-      "file": "canvas.webp",
-      "bytes": 115168,
+      "file": "assets/manuals/examples/canvas.webp",
       "width": 1040,
-      "height": 715
+      "height": 570,
+      "sha256": "f8bac9bdd990f915b60f91bee5648d16c69e6f6dbf2bdbc7cb9fd51810267c9b",
+      "panels": 2,
+      "kind": "numbered comparison of real inputs/results; display resize only"
     },
     {
-      "file": "upscale-detail.webp",
-      "bytes": 56180,
+      "file": "assets/manuals/examples/inpaint.webp",
+      "width": 1560,
+      "height": 570,
+      "sha256": "22ee8c8b6ee7a1f419f5a95eed74047c9d9a0ca427e10a06a887f341ab1b8643",
+      "panels": 3,
+      "kind": "numbered comparison of real inputs/results; display resize only"
+    },
+    {
+      "file": "assets/manuals/examples/upscale-detail.webp",
       "width": 1040,
-      "height": 715
+      "height": 570,
+      "sha256": "5132e4a3fce0d40bab2eb567cf5e2af464a4c4da8d23ed9cac49cc1bc753adbb",
+      "panels": 2,
+      "kind": "numbered comparison of real inputs/results; display resize only"
+    },
+    {
+      "file": "assets/manuals/examples/street-composition.webp",
+      "width": 1560,
+      "height": 570,
+      "sha256": "651c8c80a8cdffc8637bc887323e4192ba0cb51a1d1faa5da0cf20e7bcc715d9",
+      "panels": 3,
+      "kind": "numbered comparison of real inputs/results; display resize only"
+    },
+    {
+      "file": "assets/manuals/examples/street-character.webp",
+      "width": 1040,
+      "height": 570,
+      "sha256": "c646a9a18ee5c294013da54320e92adbbd61cd65bef32fce8d38238760388579",
+      "panels": 2,
+      "kind": "numbered comparison of real inputs/results; display resize only"
+    },
+    {
+      "file": "assets/manuals/examples/street-brush.webp",
+      "width": 1560,
+      "height": 570,
+      "sha256": "1ac5bd1fc768829eaf0aa7d696577d095bbd917e3ea95b68d419a242da3d6eac",
+      "panels": 3,
+      "kind": "numbered comparison of real inputs/results; display resize only"
+    },
+    {
+      "file": "assets/manuals/examples/camera-direction.webp",
+      "width": 1040,
+      "height": 570,
+      "sha256": "5747490b0574c21e6e8172a36a348534f7832ce06198262a2e1ccc64b8e515af",
+      "panels": 2,
+      "kind": "numbered comparison of real inputs/results; display resize only"
+    },
+    {
+      "file": "assets/manuals/examples/camera-strength.webp",
+      "width": 1040,
+      "height": 570,
+      "sha256": "8b46355dc2e84bbc386d5b02efd314c5d0c3e094f8244e78377526cf2e9b8052",
+      "panels": 2,
+      "kind": "numbered comparison of real inputs/results; display resize only"
+    },
+    {
+      "file": "assets/manuals/examples/workflow.webp",
+      "width": 2080,
+      "height": 570,
+      "sha256": "54aa78d7b4d1d34612f1fd938d79e1a44a76040d55a9825522a9d1248f3b3250",
+      "panels": 4,
+      "kind": "numbered comparison of real inputs/results; display resize only"
     }
   ]
 }

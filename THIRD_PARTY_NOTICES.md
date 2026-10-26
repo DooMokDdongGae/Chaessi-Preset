@@ -64,7 +64,7 @@ MessagePack image generation stream.
 
 ## sharp and libvips
 
-Version 3.6 uses sharp 0.35.5 to decode NovelAI WebP results and produce PNGs while preserving alpha. Inpaint PNG results bypass conversion.
+Private v3.6 uses sharp 0.35.5 to decode NovelAI WebP results and produce PNGs while preserving alpha. Inpaint PNG results bypass conversion.
 
 - sharp: https://github.com/lovell/sharp — Apache License 2.0
 - libvips: https://github.com/libvips/libvips — LGPL-2.1-or-later
@@ -73,4 +73,4 @@ Version 3.6 uses sharp 0.35.5 to decode NovelAI WebP results and produce PNGs wh
 
 ## Illustrated help assets
 
-The illustrated help screenshots and teaching layouts are project-authored. Generated sample provenance and NovelAI service ownership terms are recorded in `assets/manuals/ASSET_NOTICES.md` and `assets/manuals/examples/provenance.json`. No private user image or saved preset is used.
+Phase 3 screenshots and teaching layouts are project-authored. Generated sample provenance and NovelAI service ownership terms are recorded in `assets/manuals/ASSET_NOTICES.md` and `assets/manuals/examples/provenance.json`. No private user image or saved preset is used.

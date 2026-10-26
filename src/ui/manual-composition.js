@@ -1,40 +1,40 @@
 const make=(id,image,ko,en,ja)=>({id,image,ko,en,ja,illustrations:[]});
 export const compositionChapters=[
  make('composition','composition-layout',
- ['구도 넓히기: 그림 배치·테두리·붓','그림을 작게 놓거나 돌린 뒤 주변 배경을 이어 그립니다. 온실 정원사 예제를 따라 해 보세요.',[
+ ['구도 넓히기: 그림 배치·테두리·붓','그림을 작게 놓거나 돌린 뒤 주변 배경을 이어 그립니다. 계단의 스트리트 패션 인물 예제를 따라 해 보세요.',[
   '이미지 도구에서 PNG를 열고 구도 넓히기를 누릅니다. 이미 Inpaint에서 칠했다면 그 화면의 구도 넓히기를 누르세요. 원본과 둥근 붓 마스크가 함께 넘어갑니다. 직접 그리기에서 만든 픽셀도 이어서 사용할 수 있습니다.',
   '그림 배치에서 그림 안을 드래그해 이동합니다. 모서리 원을 끌면 크기, 위쪽 원을 끌면 각도가 바뀝니다. 휠은 화면만 확대하며 저장 크기는 바꾸지 않습니다. 화면 이동은 화면을 끌어 보는 도구입니다.',
   '테두리 늘리기를 누르고 프레임 가장자리 손잡이를 바깥으로 끕니다. 진한 파란 빈 공간은 자동 생성 영역입니다. 그림을 다시 옮기면 빈 영역도 다시 계산됩니다.',
   '둥근 붓으로 그림 안에서 추가로 바꿀 곳을 칠합니다. 밝은 하늘색은 직접 칠한 영역입니다. 지우개는 직접 칠한 곳만 지우며, 빈 공간의 자동 선택은 남습니다. Undo/Redo로 배치와 붓 작업을 되돌립니다.'
  ],'직접 그리기(Canvas)는 픽셀을 직접 바꾸는 로컬 편집입니다. 기존 Outpainting은 숫자로 여백을 더하고, 구도 넓히기는 그림 배치와 테두리 손잡이를 사용합니다. 이 화면의 프레임이 최종 결과 크기이며, 화면 확대와 별개입니다. 8픽셀 단위·총 3,145,728픽셀 이하를 확인하세요.'],
- ['Expand composition: arrange, extend and paint','Place a smaller or rotated picture and draw the surrounding background. Follow the greenhouse gardener example.',[
+ ['Expand composition: arrange, extend and paint','Place a smaller or rotated picture and draw the surrounding background. Follow the street portrait on the outdoor stairs.',[
   'Open a PNG in Image tools and press Expand composition. If you already painted in Inpaint, use its Expand composition button to carry the original and round-brush mask together. You can also continue with pixels edited in Draw pixels.',
   'In Arrange picture, drag inside the picture to move it. Drag a corner circle to resize or the circle above it to rotate. The wheel zooms only the view, not the saved dimensions. Pan view drags the view.',
   'Choose Extend frame and drag an edge handle outward. Dark blue empty space is selected automatically for generation. Moving the picture recalculates that empty area.',
   'Use Round brush to paint extra areas inside the picture. Light cyan marks your strokes. Erase mask removes hand-painted selection while empty space stays selected. Undo/Redo reverses placement and brush edits.'
  ],'Draw pixels (Canvas) edits pixels locally. Existing Outpainting adds margins by number; Expand composition uses placement and frame handles. The frame determines output dimensions, separately from view zoom. Output uses 8-pixel steps and at most 3,145,728 pixels.'],
- ['構図を広げる：配置・枠・ブラシ','画像を小さく置いたり回転し、周囲の背景を描き足します。温室の庭師の例で試してください。',[
+ ['構図を広げる：配置・枠・ブラシ','画像を小さく置いたり回転し、周囲の背景を描き足します。屋外の階段にいる人物の例で試してください。',[
   '画像ツールでPNGを開き、構図を広げるを押します。Inpaintで塗った場合はその画面の構図を広げるから元画像と丸いブラシのマスクを一緒に渡せます。直接描いたピクセルも使えます。',
   '画像を配置で絵の内側をドラッグして移動します。角の丸でサイズ、上の丸で角度を変えます。ホイールは表示だけを拡大し保存サイズは変えません。表示を移動は画面をドラッグします。',
   '枠を広げるを選び、辺のハンドルを外へ引きます。濃い青の空白が自動生成範囲です。画像を動かすと空白も再計算します。',
   '丸いブラシで絵の中の追加変更範囲を塗ります。明るい水色が手塗りです。消しゴムは手塗りだけを消し、空白は選択されたままです。Undo/Redoで配置とブラシ編集を戻します。'
  ],'直接描画(Canvas)はピクセルを変えるローカル編集です。従来のOutpaintingは数値で余白を足し、構図を広げるは配置と枠のハンドルを使います。枠が最終出力サイズで、表示倍率とは別です。出力は8画素単位、合計3,145,728画素以下です。']),
  make('composition-characters','composition-characters',
- ['구도 넓히기: 새 캐릭터 넣기','새로 연 공간에 다른 인물을 추가합니다. 온실 예제는 왼쪽 정원사 옆에 오른쪽 식물 연구자를 요청한 실제 사례입니다.',[
+ ['구도 넓히기: 새 캐릭터 넣기','새로 연 공간에 다른 인물을 추가합니다. 야외 계단 예제는 기존 인물의 오른쪽에 베이지 블라우스·청바지를 입고 빨간 가방을 든 두 번째 성인을 요청한 실제 사례입니다.',[
   '그림을 옮기거나 테두리를 늘려 새 인물이 들어갈 공간을 만듭니다. 원본 내부에 넣으려면 그 자리도 둥근 붓으로 칠하세요.',
-  '장면 프롬프트에 전체 상황과 인물 수를 적습니다. 예를 들어 정원사와 식물 연구자 두 명이 온실에서 일하는 장면이라고 설명합니다. 여기의 글은 현재 구도에만 적용됩니다.',
+  '장면 프롬프트에 전체 상황과 인물 수를 적습니다. 예를 들어 두 성인이 야외 계단에 있는 장면이라고 설명합니다. 여기의 글은 현재 구도에만 적용됩니다.',
   '캐릭터를 펼치고 캐릭터 추가를 누릅니다. 새 인물의 외형과 행동을 적은 뒤 캐릭터 위치 도구에서 번호 마커를 원하는 자리로 끕니다. 마커 위치 사용 상태도 확인하세요.',
   '이미지·마스크 확인에서 인물이 들어갈 곳이 흰색인지 봅니다. 크기·예상 비용을 확인하고 이 구도로 생성을 누른 뒤 실제 위치와 인물 수를 확인합니다.'
  ],'기존 캐릭터는 그림을 따라 움직이고 새 캐릭터는 출력 화면에 고정됩니다. 마커는 모델의 위치 힌트이므로 정확한 좌표나 인원수를 보장하지 않습니다.'],
- ['Expand composition: add a character','Add another person in newly opened space. The real greenhouse example asks for a botanist to the right of the gardener.',[
+ ['Expand composition: add a character','Add another person in newly opened space. The real outdoor stairway example asks for a second adult to the right of the original subject.',[
   'Move the picture or extend the frame to make room. To add someone inside the original, paint that location with Round brush too.',
-  'Describe the whole scene and subject count in Scene prompt, for example two adults working in a greenhouse. Edits here apply only to this composition.',
+  'Describe the whole scene and subject count in Scene prompt, for example two adults on an outdoor stairway. Edits here apply only to this composition.',
   'Expand Characters and press Add character. Describe appearance and action, then use Character positions to drag the numbered marker. Check Use marker positions.',
   'In Review image and mask, make sure the intended space is white. Check size and estimated cost, generate, then inspect actual placement and subject count.'
  ],'Existing characters follow the picture; new characters attach to the output frame. Markers are model hints and do not guarantee exact locations or subject counts.'],
- ['構図を広げる：新しい人物を追加','広げた空間に別の人物を追加します。実際の温室例は庭師の右に植物研究者を依頼しています。',[
+ ['構図を広げる：新しい人物を追加','広げた空間に別の人物を追加します。実際の屋外の階段例は元の人物の右に別の大人を依頼しています。',[
   '絵を動かすか枠を広げて場所を作ります。元画像の内側に追加する場合は丸いブラシでその場所も塗ります。',
-  'シーンプロンプトに全体の状況と人数を書きます。例えば大人二人が温室で働く場面と説明します。ここでの編集はこの構図だけに適用されます。',
+  'シーンプロンプトに全体の状況と人数を書きます。例えば大人二人が屋外の階段にいる場面と説明します。ここでの編集はこの構図だけに適用されます。',
   'キャラクターを開き、キャラクターを追加を押します。外見と動作を書き、位置ツールの番号マーカーを移動します。マーカー位置を使用も確認します。',
   '画像・マスクを確認し、人物の場所が白か見ます。サイズと推定費用を確認して生成し、実際の位置と人数を確認します。'
  ],'既存の人物は画像を追従し、新しい人物は出力枠に固定します。マーカーはモデルへのヒントであり、正確な位置や人数を保証しません。']),
@@ -86,7 +86,7 @@ export function attachCompositionHelp(chapters){
  extra('composition-results','composition-results','두 결과는 동일한 실제 생성 응답에서 나왔습니다. 버튼 선택만으로 재생성하지 않습니다.','Both variants come from one real response; switching does not regenerate.','二つは同じ実際の応答です。切替だけでは再生成しません。');
  extra('composition-restore','composition-json','생성 전 편집 상태는 JSON으로 저장하고 다시 열 수 있습니다.','Save and reopen JSON before generation.','生成前でもJSONで保存・再読込できます。');
  const result=(id,file,ko,en,ja)=>chapters.find(c=>c.id===id).illustrations.push({file,caption:{ko,en,ja}});
- result('composition-results','greenhouse-composition.webp','① 새 원본 ② 원본 보존 ③ 전체 생성. 같은 실제 응답의 두 합성 방식을 비교합니다.','① New source ② Preserved original ③ Full generated result. Two treatments of one real response.','① 新しい元画像 ② 元画像を保持 ③ 生成結果全体。同じ実際の応答を二つの方法で表示。');
- result('composition-characters','greenhouse-character.webp','① 첫 확장 ② 오른쪽 연구자 추가의 실제 결과. 마커가 항상 이 결과를 보장하지는 않습니다.','① Initial expansion ② Actual botanist added on the right. Markers do not guarantee this result.','① 最初の拡張 ② 右に研究者を追加した実際の結果。マーカーは結果を保証しません。');
- result('composition-results','greenhouse-brush.webp','① 확장 결과 ② 둥근 붓에서 만든 실제 생성 마스크 ③ Medium 후속 결과. 경계 주변을 칠한 한 사례이며 완전한 연결을 보장하지 않습니다.','① Expansion ② Actual generation mask from Round brush ③ Medium follow-up. One seam-painting example, not a guarantee of seamless results.','① 拡張結果 ② 丸いブラシから作った実際の生成マスク ③ Mediumで再修正。一例であり完全な接続の保証ではありません。');
+ result('composition-results','street-composition.webp','① 새 원본 ② 원본 보존 ③ 전체 생성. 같은 실제 응답의 두 합성 방식을 비교합니다.','① New source ② Preserved original ③ Full generated result. Two treatments of one real response.','① 新しい元画像 ② 元画像を保持 ③ 生成結果全体。同じ実際の応答を二つの方法で表示。');
+ result('composition-characters','street-character.webp','① 첫 확장 ② 오른쪽 두 번째 성인 추가의 실제 결과. 마커가 항상 이 결과를 보장하지는 않습니다.','① Initial expansion ② Actual second adult added on the right. Markers do not guarantee this result.','① 最初の拡張 ② 右に別の大人を追加した実際の結果。マーカーは結果を保証しません。');
+ result('composition-results','street-brush.webp','① 확장 결과 ② 둥근 붓에서 만든 실제 생성 마스크 ③ Medium 후속 결과. 경계 주변을 칠한 한 사례이며 완전한 연결을 보장하지 않습니다.','① Expansion ② Actual generation mask from Round brush ③ Medium follow-up. One seam-painting example, not a guarantee of seamless results.','① 拡張結果 ② 丸いブラシから作った実際の生成マスク ③ Mediumで再修正。一例であり完全な接続の保証ではありません。');
 }

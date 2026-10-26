@@ -40,6 +40,7 @@ export function createManualReader() {
       const screenshot = document.createElement('img'); screenshot.src = `/assets/manuals/${locale}/${chapter.image}.png`; screenshot.alt = title;
       button.append(screenshot); button.addEventListener('click', () => { image.src = screenshot.src; image.alt = title; zoom.showModal(); zoomClose.focus(); });
       const caption = document.createElement('figcaption'); caption.textContent = (chapter.tool === 'cost' ? ({ko:'① 예상 비용 ② 실행. 화면 잔액은 테스트 예시예요. ',en:'① Estimated cost ② Run. Balances are demonstration values. ',ja:'① 推定費用 ② 実行。残高はテスト用の例です。'}[locale]) : chapter.tool ? ({ko:'① PNG 선택 ② 도구 선택 ③ 주요 설정. 아래로 스크롤하면 실행 버튼이 있어요. 화면 잔액은 테스트 계정 예시예요. ',en:'① Choose PNG ② Choose tool ③ Main control. Scroll down for Run. Account balances are demonstration values. ',ja:'① PNG 選択 ② ツール選択 ③ 主な設定。下へスクロールすると実行があります。残高はテスト用の例です。'}[locale]) : '') + t('Click an image to enlarge.'); figure.append(button, caption);
+      if(chapter.imageNote?.[locale])caption.textContent=chapter.imageNote[locale]+' '+caption.textContent;
       const help = document.createElement('aside'); help.textContent = note;
       const subtitle = text => { const el=document.createElement('h4'); el.textContent=t(text); return el; };
       article.append(heading, subtitle('What does it do?'), lead, subtitle('Try it step by step'), list, subtitle('Picture guide'), figure);

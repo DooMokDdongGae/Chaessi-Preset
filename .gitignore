@@ -83,3 +83,6 @@ Thumbs.db
 !assets/manuals/*/*.png
 
 !assets/manuals/examples/*.webp
+
+# Generated public Help Center site
+.pages-site/

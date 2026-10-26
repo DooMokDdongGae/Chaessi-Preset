@@ -68,7 +68,7 @@ export function scanPrompt(text) {
     if(node.kind==='atom'&&node.classification){bindings.push({...node,terms:[{...node.classification,text:node.text,weight:1}]});hints.push({...node.classification,weight:1});}
     if(node.kind==='group'){
       const terms=node.leaves.filter(n=>n.classification).map(n=>({...n.classification,text:n.text,weight:node.weight}));if(node.weight>0)hints.push(...terms);
-      if(node.safe&&node.weight>0)bindings.push({...node,terms});else if(terms.length)blocked.push({...node,reason:'Mixed, nested or nonpositive camera weights are retained without changing their meaning.'});
+      if(node.safe&&node.weight>0)bindings.push({...node,terms});else if(terms.length)blocked.push({...node,terms,reason:'Mixed, nested or nonpositive camera weights are retained without changing their meaning.'});
     }
   }
   return {text,bindings,blocked,hints,errors,opaque};

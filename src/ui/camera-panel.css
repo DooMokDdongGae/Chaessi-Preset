@@ -44,3 +44,11 @@
 @media(max-width:520px){.camera-tools {grid-template-columns:1fr;}.camera-images {grid-template-columns:1fr;}.camera-output textarea {font-size:16px;}}
 #cameraView input[type="checkbox"]{width:auto;flex:0 0 auto;margin-right:7px}
 #cameraView label:has(input[type="checkbox"]){display:flex;align-items:center;gap:5px}
+.camera-rules-dialog{width:min(850px,92vw);max-height:85vh;overflow:auto;background:var(--panel,#17212b);color:var(--text,#eee);border:1px solid #657580;border-radius:12px;padding:20px}
+.camera-rules-dialog::backdrop{background:#0009}
+.camera-rule-previews{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:14px 0}
+.camera-rule-previews label{min-width:0}
+.camera-rule-previews textarea{display:block;width:100%;box-sizing:border-box;height:170px;resize:vertical}
+#cameraImportCandidates label{display:block;margin:8px 0;overflow-wrap:anywhere}
+.camera-rule-summary{margin-bottom:12px;overflow-wrap:anywhere}
+@media(max-width:700px){.camera-rule-previews{grid-template-columns:1fr}}

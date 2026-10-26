@@ -1,0 +1,23 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="CHAESSI PRESET Help Center — 42 chapters in Korean, English and Japanese.">
+  <meta name="color-scheme" content="dark">
+  <title>CHAESSI PRESET · Help Center</title>
+  <link rel="stylesheet" href="guide.css"><script type="module" src="guide.js"></script>
+</head>
+<body>
+  <a class="skip" href="#article" id="skip">본문으로 이동</a>
+  <header class="masthead">
+    <a class="brand" href="?lang=ko&amp;chapter=start"><strong>CHAESSI PRESET</strong><span id="version"></span></a>
+    <div class="header-actions"><label><span class="sr-only" id="languageLabel">언어</span><select id="language" aria-labelledby="languageLabel"><option value="ko">한국어</option><option value="en">English</option><option value="ja">日本語</option></select></label><a id="download" class="download" href="https://github.com/DooMokDdongGae/Chaessi-Preset/releases">다운로드</a></div>
+  </header>
+  <div class="toolbar"><button id="menu" aria-expanded="false" aria-controls="sidebar">목차</button><label class="search-label"><span id="searchLabel">도움말 검색</span><input id="search" type="search" autocomplete="off" aria-labelledby="searchLabel" placeholder=""></label><label class="size-label"><span id="sizeLabel">글자 크기</span><input id="textSize" aria-labelledby="sizeLabel" type="range" min="16" max="24" step="1" value="18"></label></div>
+  <div class="layout">
+    <aside id="sidebar"><div class="toc-heading"><h1 id="siteTitle">도움말 센터</h1><p id="count" role="status" aria-live="polite"></p></div><nav id="contents" aria-label="목차"></nav></aside>
+    <main><div class="reading-state"><span id="current" aria-live="polite"></span><span id="languageState"></span></div><article id="article" tabindex="-1"><p>도움말을 불러오는 중입니다…</p></article><nav id="related" aria-label="관련 도움말"></nav><nav class="pager" aria-label="이전·다음 도움말"><button id="previous">이전</button><span id="progress"></span><button id="next">다음</button></nav><footer><p id="scope"></p><div class="footer-links"><a id="repository" href="https://github.com/DooMokDdongGae/Chaessi-Preset">GitHub</a><a id="readme" href="https://github.com/DooMokDdongGae/Chaessi-Preset/blob/main/README.ko.md">제품 소개</a><a id="release" href="https://github.com/DooMokDdongGae/Chaessi-Preset/releases">릴리즈 노트</a></div></footer></main>
+  </div>
+  <dialog id="zoom" aria-labelledby="zoomTitle"><header><p id="zoomTitle"></p><div><button id="natural">원본 크기</button><button id="closeZoom" autofocus>닫기</button></div></header><div class="zoom-scroll"><img id="zoomImage" alt=""></div></dialog>
+  <noscript>이 도움말의 검색과 언어 전환에는 JavaScript가 필요합니다. <a href="https://github.com/DooMokDdongGae/Chaessi-Preset">GitHub 문서 보기</a></noscript>
+</body></html>

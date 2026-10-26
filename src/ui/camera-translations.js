@@ -159,6 +159,30 @@ Invalid camera coordinate.	카메라 좌표가 올바르지 않습니다. 카메
 Camera comparisons require an explicit source seed.	카메라 비교에는 원본의 확정 시드가 필요합니다. 시드를 직접 입력한 뒤 다시 생성하세요.	カメラ比較には確定した元のシードが必要です。シードを入力してから再度生成してください。
 Camera uses text-to-image conditions.	카메라는 텍스트 기반 생성을 사용합니다. 생성 방식을 T2I로 바꾸세요.	カメラはテキストからの生成を使います。生成方式をT2Iに切り替えてください。
 Camera source or revision changed. Prepare the request again.	원본이나 편집 상태가 바뀌었습니다. 최신 문구를 확인하고 생성 버튼을 다시 누르세요.	元画像または編集状態が変わりました。最新の文章を確認し、生成ボタンを押し直してください。
+새 단일 방향 작업으로 복사	Copy to a new single-direction work	単一方向の新しい作業にコピー
+이전 보정 선택 가져오기	Select legacy calibrations to import	以前の補正を選んで読み込む
+단일 방향 작업 미리보기	Preview single-direction work	単一方向の作業プレビュー
+원래 작업은 보존됩니다. 선택한 보정의 절대값만 새 계산에 적용합니다.	The original work is preserved. Only selected absolute calibration values are applied to the new calculation.	元の作業は保持されます。選択した補正の絶対値だけを新しい計算に適用します。
+선택할 수 없는 보정은 이전 기록에 보관됩니다.	Unavailable calibrations remain in the legacy record.	選択できない補正は以前の記録に保持されます。
+현재 문구	Current text	現在の文章
+적용 후 문구	Text after applying	適用後の文章
+선택 적용	Apply selection	選択を適用
+가져올 이전 보정이 없습니다.	No legacy calibrations to import.	読み込む以前の補正はありません。
+다른 원본	Different source	元画像が異なります
+모델 또는 Effort가 다름	Different model or Effort	モデルまたはEffortが異なります
+슬롯이 달라짐	Slot has changed	スロットが変更されています
+수동 문구 유지 중	Manual text is active	手動の文章を保持中
+위치 기록 없음	No recorded position	位置の記録がありません
+이 위치에서 선택되지 않는 표현	Expression not selected at this position	この位置では選択されない表現
+올바르지 않은 보정값	Invalid calibration value	無効な補正値
+이전 v1 작업 · 당시의 혼합 계산 유지	Legacy v1 work · original blended calculation retained	以前のv1作業 · 当時の混合計算を維持
+단일 방향 v2 · 위치는 연속 이동, 축마다 대표 표현 하나	Single-direction v2 · continuous position, one representative expression per axis	単一方向v2 · 位置は連続移動、各軸の代表表現は1つ
+수동·다른 문구의 카메라 조건도 확인하세요. 원문은 유지됩니다.	Check camera conditions in manual or other text too. Original text is retained.	手動・他の文章にあるカメラ条件も確認してください。原文は保持されます。
+Unsupported camera rule version.	지원하지 않는 카메라 규칙입니다. 원래 기록은 보존됩니다.	未対応のカメラ規則です。元の記録は保持されます。
+Invalid camera calibration.	카메라 보정 기록을 확인하세요. 보정 적용 해제로 복구할 수 있습니다.	カメラ補正の記録を確認してください。補正を解除して復旧できます。
+Invalid camera migration.	이전 작업을 새 작업으로 복사할 수 없습니다.	以前の作業を新しい作業にコピーできません。
+Select camera calibrations to import.	가져올 보정을 선택하세요.	読み込む補正を選択してください。
+Camera calibration is not compatible.	조건이 일치하지 않아 이 보정을 가져올 수 없습니다.	条件が一致しないため、この補正を読み込めません。
 `.trim().split('\n');
 export const cameraMessages=Object.fromEntries(rows.map(row=>{
   const [key,second,ja]=row.split('\t');

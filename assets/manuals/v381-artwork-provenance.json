@@ -1,0 +1,1647 @@
+{
+  "version": "3.8.1",
+  "chapters": 42,
+  "languages": [
+    "ko",
+    "en",
+    "ja"
+  ],
+  "source": "User supplied artwork. Original files and private prompts are excluded.",
+  "captures": "Actual current Electron UI. Public prompt summaries or privacy masks. Composition results replay recorded real responses offline.",
+  "sources": [
+    "street-portrait.png",
+    "street-expression.png",
+    "street-stairs.png",
+    "street-grid-logical.png",
+    "street-grid-input.png"
+  ],
+  "assets": [
+    {
+      "file": "assets/manuals/ko/workbench.png",
+      "sha256": "c9b15f1abeb87c42d2783042741a26c530a12859baa95b5a050483f2e2f00747",
+      "width": 1424,
+      "height": 1041,
+      "kind": "actual Electron UI",
+      "locations": [
+        "start:ko",
+        "language:ko"
+      ]
+    },
+    {
+      "file": "assets/manuals/ko/app-info.png",
+      "sha256": "a2a11e5eab7664a52d4035d99731c4b55775e21901c174b550aff49116ca2985",
+      "width": 900,
+      "height": 645,
+      "kind": "actual Electron UI",
+      "locations": [
+        "start:ko"
+      ]
+    },
+    {
+      "file": "assets/manuals/en/workbench.png",
+      "sha256": "b464137f90120d8924e196c212af0dfa9aa08bc6e5049a36e3af016dddbad714",
+      "width": 1424,
+      "height": 1041,
+      "kind": "actual Electron UI",
+      "locations": [
+        "start:en",
+        "language:en"
+      ]
+    },
+    {
+      "file": "assets/manuals/en/app-info.png",
+      "sha256": "e05811ca48e0329ced8fe3657adea713c501a21eff4e1d6966442549f4455b40",
+      "width": 900,
+      "height": 645,
+      "kind": "actual Electron UI",
+      "locations": [
+        "start:en"
+      ]
+    },
+    {
+      "file": "assets/manuals/ja/workbench.png",
+      "sha256": "88bc26f5e92ab065cf2e308ceaeee1d26fc3c69bfac9b6936ba6548c74fb3928",
+      "width": 1424,
+      "height": 1041,
+      "kind": "actual Electron UI",
+      "locations": [
+        "start:ja",
+        "language:ja"
+      ]
+    },
+    {
+      "file": "assets/manuals/ja/app-info.png",
+      "sha256": "ce14cb83bd7fbb553d87bb953e9ae39d51dd7a55bb958a0946bd971914d955dd",
+      "width": 900,
+      "height": 645,
+      "kind": "actual Electron UI",
+      "locations": [
+        "start:ja"
+      ]
+    },
+    {
+      "file": "assets/manuals/ko/generation.png",
+      "sha256": "e844c75397e849bf9ff7b008620374e50b9d9dcbde550082a7b538555ceea4a9",
+      "width": 1424,
+      "height": 1041,
+      "kind": "actual Electron UI",
+      "locations": [
+        "first-png:ko",
+        "models:ko"
+      ]
+    },
+    {
+      "file": "assets/manuals/en/generation.png",
+      "sha256": "52282fb91b3488e93779c043ac85ed94e94d42ce2f5c5bd8249b5bb742270118",
+      "width": 1424,
+      "height": 1041,
+      "kind": "actual Electron UI",
+      "locations": [
+        "first-png:en",
+        "models:en"
+      ]
+    },
+    {
+      "file": "assets/manuals/ja/generation.png",
+      "sha256": "098bb4fc7d8b5d582ad5fb341d32ce9c408376573fb283c4311f31ba3ac173b0",
+      "width": 1424,
+      "height": 1041,
+      "kind": "actual Electron UI",
+      "locations": [
+        "first-png:ja",
+        "models:ja"
+      ]
+    },
+    {
+      "file": "assets/manuals/ko/settings.png",
+      "sha256": "1e9e5a3f8e5493e5f42f5fea47bc14fdd1e345f7c95a60e1393fa3b913c0592c",
+      "width": 1424,
+      "height": 1041,
+      "kind": "actual Electron UI",
+      "locations": [
+        "account:ko"
+      ]
+    },
+    {
+      "file": "assets/manuals/en/settings.png",
+      "sha256": "20ada06314eed009be94aca41f682e4f7ddbc8746649872ce84cf043f6db47e2",
+      "width": 1424,
+      "height": 1041,
+      "kind": "actual Electron UI",
+      "locations": [
+        "account:en"
+      ]
+    },
+    {
+      "file": "assets/manuals/ja/settings.png",
+      "sha256": "3394c1f22ee33ce99e408d95c929f14d14cec84bac26c58f21b37c3f7aaf7a2f",
+      "width": 1424,
+      "height": 1041,
+      "kind": "actual Electron UI",
+      "locations": [
+        "account:ja"
+      ]
+    },
+    {
+      "file": "assets/manuals/ko/editor.png",
+      "sha256": "2bf21e5db0017053dddbbe2c0b431c32077d8ed79f9c002a89edea7eb36ee7a7",
+      "width": 1424,
+      "height": 1041,
+      "kind": "actual Electron UI",
+      "locations": [
+        "editing:ko"
+      ]
+    },
+    {
+      "file": "assets/manuals/en/editor.png",
+      "sha256": "9a9b9b224c9ba60819ab9f460c48c7331359188ba3032b797aab02bd300217d7",
+      "width": 1424,
+      "height": 1041,
+      "kind": "actual Electron UI",
+      "locations": [
+        "editing:en"
+      ]
+    },
+    {
+      "file": "assets/manuals/ja/editor.png",
+      "sha256": "fb3b1dd6ae69563b0e87397dcb89860a9eb80015404139927b4ed7eba68c7dcd",
+      "width": 1424,
+      "height": 1041,
+      "kind": "actual Electron UI",
+      "locations": [
+        "editing:ja"
+      ]
+    },
+    {
+      "file": "assets/manuals/ko/presets.png",
+      "sha256": "218582e27187afb0503556208f14da4f2607339bc26ff9534b60a7f7faff7163",
+      "width": 1424,
+      "height": 1041,
+      "kind": "actual Electron UI",
+      "locations": [
+        "presets:ko"
+      ]
+    },
+    {
+      "file": "assets/manuals/en/presets.png",
+      "sha256": "7d79cfcce14b9d574dc6090546700b8d857f77fec13323e98961b410e2c47ec3",
+      "width": 1424,
+      "height": 1041,
+      "kind": "actual Electron UI",
+      "locations": [
+        "presets:en"
+      ]
+    },
+    {
+      "file": "assets/manuals/ja/presets.png",
+      "sha256": "6a85c738bbf06acb43c1ed0173d4a111a86603fc3e6adab49b207f3a7e436c4b",
+      "width": 1424,
+      "height": 1041,
+      "kind": "actual Electron UI",
+      "locations": [
+        "presets:ja"
+      ]
+    },
+    {
+      "file": "assets/manuals/ko/character.png",
+      "sha256": "637b73c11cf970cdffa03a0ee8b0f6ee673da1cc7c4129611c43890b7f196ad6",
+      "width": 1424,
+      "height": 1041,
+      "kind": "actual Electron UI",
+      "locations": [
+        "characters:ko"
+      ]
+    },
+    {
+      "file": "assets/manuals/en/character.png",
+      "sha256": "088080412c8c209d2625c6a40a0557d3f0ad97937ab22117c5a70f43e80724ea",
+      "width": 1424,
+      "height": 1041,
+      "kind": "actual Electron UI",
+      "locations": [
+        "characters:en"
+      ]
+    },
+    {
+      "file": "assets/manuals/ja/character.png",
+      "sha256": "fea9f69a85313fe6420caa6cab37c98a596ab1b37e232693423b1900594be2da",
+      "width": 1424,
+      "height": 1041,
+      "kind": "actual Electron UI",
+      "locations": [
+        "characters:ja"
+      ]
+    },
+    {
+      "file": "assets/manuals/ko/wildcard.png",
+      "sha256": "6f2e39368a8ed932971b82cf0a3d0f15c311c40e2f39fb8b8218b0fa2d6a23db",
+      "width": 1424,
+      "height": 1041,
+      "kind": "actual Electron UI",
+      "locations": [
+        "wildcards:ko"
+      ]
+    },
+    {
+      "file": "assets/manuals/en/wildcard.png",
+      "sha256": "ee0ff2989aac1b44e6137d2c9e2d9cb9136d530ea293fc139d7b28503100d2e1",
+      "width": 1424,
+      "height": 1041,
+      "kind": "actual Electron UI",
+      "locations": [
+        "wildcards:en"
+      ]
+    },
+    {
+      "file": "assets/manuals/ja/wildcard.png",
+      "sha256": "0fd7bcb63615d42f651cc0d457115aa5c33a155076bfbeed4d91131ca7e96d9b",
+      "width": 1424,
+      "height": 1041,
+      "kind": "actual Electron UI",
+      "locations": [
+        "wildcards:ja"
+      ]
+    },
+    {
+      "file": "assets/manuals/ko/resolution-picker.png",
+      "sha256": "61977680537988e299e30fed66c9c0933acc15ba462c56c07d4422df06620971",
+      "width": 650,
+      "height": 467,
+      "kind": "actual Electron UI",
+      "locations": [
+        "settings:ko"
+      ]
+    },
+    {
+      "file": "assets/manuals/ko/resolution-custom.png",
+      "sha256": "c9bd76f06914cbd5e5348f987ed76329fa35797878da9cbe8c86041f579a8f08",
+      "width": 650,
+      "height": 395,
+      "kind": "actual Electron UI",
+      "locations": [
+        "settings:ko"
+      ]
+    },
+    {
+      "file": "assets/manuals/en/resolution-picker.png",
+      "sha256": "07eabd4cab9849a84fe61b64ebe06dd08c02198d3b609c90584c038d31fd67b6",
+      "width": 650,
+      "height": 467,
+      "kind": "actual Electron UI",
+      "locations": [
+        "settings:en"
+      ]
+    },
+    {
+      "file": "assets/manuals/en/resolution-custom.png",
+      "sha256": "d8a8f82ba099db3e94abfae27c838320794f498b12cc053d9d8d38b5246cf042",
+      "width": 650,
+      "height": 395,
+      "kind": "actual Electron UI",
+      "locations": [
+        "settings:en"
+      ]
+    },
+    {
+      "file": "assets/manuals/ja/resolution-picker.png",
+      "sha256": "d84a05bd5d798b91a64e7889f2d0590ace8dd37d6c10ef3ee4878f71e4833e6f",
+      "width": 650,
+      "height": 467,
+      "kind": "actual Electron UI",
+      "locations": [
+        "settings:ja"
+      ]
+    },
+    {
+      "file": "assets/manuals/ja/resolution-custom.png",
+      "sha256": "337ece54635bae2d1cf4177155932d67563fe23d400278987e288263c0fc3807",
+      "width": 650,
+      "height": 395,
+      "kind": "actual Electron UI",
+      "locations": [
+        "settings:ja"
+      ]
+    },
+    {
+      "file": "assets/manuals/ko/position.png",
+      "sha256": "fc3b8ac5c480bd88d31c99b2fee2078fb30eeb0eee21ebd5759e8ab208bb5689",
+      "width": 1424,
+      "height": 1041,
+      "kind": "actual Electron UI",
+      "locations": [
+        "position:ko"
+      ]
+    },
+    {
+      "file": "assets/manuals/en/position.png",
+      "sha256": "1fe26ab0742cebbc078bb1ba99dcf2fd46842a09c6077d82359498789d1f7fe2",
+      "width": 1424,
+      "height": 1041,
+      "kind": "actual Electron UI",
+      "locations": [
+        "position:en"
+      ]
+    },
+    {
+      "file": "assets/manuals/ja/position.png",
+      "sha256": "3be23763c12f64dfa0892af22bb0371d382145bc910013cfafd1c4de91d6a743",
+      "width": 1424,
+      "height": 1041,
+      "kind": "actual Electron UI",
+      "locations": [
+        "position:ja"
+      ]
+    },
+    {
+      "file": "assets/manuals/ko/inpaint.png",
+      "sha256": "926e871b4cb1ab10ecb2cb4bf8f1e2d79f0cd9abc49430a2925a7ae69f61de57",
+      "width": 578,
+      "height": 721,
+      "kind": "actual Electron UI",
+      "locations": [
+        "images:ko",
+        "png-import:ko",
+        "i2i:ko"
+      ]
+    },
+    {
+      "file": "assets/manuals/examples/inpaint.webp",
+      "sha256": "22ee8c8b6ee7a1f419f5a95eed74047c9d9a0ca427e10a06a887f341ab1b8643",
+      "width": 1560,
+      "height": 570,
+      "kind": "actual result comparison",
+      "locations": [
+        "images:ko",
+        "images:en",
+        "images:ja"
+      ]
+    },
+    {
+      "file": "assets/manuals/en/inpaint.png",
+      "sha256": "0bbb9ffab4265bb4b479f5a908ef5b515d70efe6991fda23f1cf2a02cc15e508",
+      "width": 578,
+      "height": 721,
+      "kind": "actual Electron UI",
+      "locations": [
+        "images:en",
+        "png-import:en",
+        "i2i:en"
+      ]
+    },
+    {
+      "file": "assets/manuals/ja/inpaint.png",
+      "sha256": "63d4a4742eb32bc34177de01e9ccacf05cd3666641db5642cb487540563dc1ee",
+      "width": 578,
+      "height": 721,
+      "kind": "actual Electron UI",
+      "locations": [
+        "images:ja",
+        "png-import:ja",
+        "i2i:ja"
+      ]
+    },
+    {
+      "file": "assets/manuals/examples/i2i.webp",
+      "sha256": "288811933785444b3323bbb30741f7b206c21702f6ce15bb573529c30b3ef96c",
+      "width": 1040,
+      "height": 570,
+      "kind": "actual result comparison",
+      "locations": [
+        "i2i:ko",
+        "i2i:en",
+        "i2i:ja"
+      ]
+    },
+    {
+      "file": "assets/manuals/ko/history.png",
+      "sha256": "3b4848aa9eae22ea22e060b1321819c19105c0eb211d96bbcdcfe6a87be24d96",
+      "width": 1424,
+      "height": 1041,
+      "kind": "actual Electron UI",
+      "locations": [
+        "history:ko"
+      ]
+    },
+    {
+      "file": "assets/manuals/en/history.png",
+      "sha256": "3f87c297da31e0c01675df47eccf5112470f4993593cb9e46a664699ffff204d",
+      "width": 1424,
+      "height": 1041,
+      "kind": "actual Electron UI",
+      "locations": [
+        "history:en"
+      ]
+    },
+    {
+      "file": "assets/manuals/ja/history.png",
+      "sha256": "975270a17a9cf0ab1a3b2fb9bb47281001f18d22aebeb9001b706f29185367e5",
+      "width": 1424,
+      "height": 1041,
+      "kind": "actual Electron UI",
+      "locations": [
+        "history:ja"
+      ]
+    },
+    {
+      "file": "assets/manuals/ko/image-tools.png",
+      "sha256": "a1f55e95f48c0a7d250b2e72abc1e2c5ac0e0c03166db159f68a88d7ad7391ec",
+      "width": 1200,
+      "height": 909,
+      "kind": "actual Electron UI",
+      "locations": [
+        "image-tools:ko"
+      ]
+    },
+    {
+      "file": "assets/manuals/ko/tool-latest-entry.png",
+      "sha256": "e035fcd9736fd89c3658288049b26838e536310073c07faae56333363496061d",
+      "width": 99,
+      "height": 31,
+      "kind": "actual Electron UI",
+      "locations": [
+        "image-tools:ko"
+      ]
+    },
+    {
+      "file": "assets/manuals/ko/tool-history-entry.png",
+      "sha256": "f346c5dbed631678cd447f0beb29d8c265ceffd9ac78340cc8c66006e095492c",
+      "width": 1320,
+      "height": 905,
+      "kind": "actual Electron UI",
+      "locations": [
+        "image-tools:ko"
+      ]
+    },
+    {
+      "file": "assets/manuals/ko/tool-result.png",
+      "sha256": "a522a3fbcf185fcf495ec5f673a2bd8794c92bdfb3a72aaf03fc227a2755d19a",
+      "width": 868,
+      "height": 750,
+      "kind": "actual Electron UI",
+      "locations": [
+        "image-tools:ko",
+        "tool-canvas:ko"
+      ]
+    },
+    {
+      "file": "assets/manuals/en/image-tools.png",
+      "sha256": "7d962a8b925830211f1e3f88b584e5bf3648429b7be34ec2ab262c8e0fbe7498",
+      "width": 1200,
+      "height": 925,
+      "kind": "actual Electron UI",
+      "locations": [
+        "image-tools:en"
+      ]
+    },
+    {
+      "file": "assets/manuals/en/tool-latest-entry.png",
+      "sha256": "30d40ab22aa77c35ca65b69b1040585abe8092f1fff8c2045f641d4afda5704c",
+      "width": 98,
+      "height": 31,
+      "kind": "actual Electron UI",
+      "locations": [
+        "image-tools:en"
+      ]
+    },
+    {
+      "file": "assets/manuals/en/tool-history-entry.png",
+      "sha256": "a63517cab074e9128207508b7601ddee8d1164c411526b3924d9a09642f760f4",
+      "width": 1320,
+      "height": 905,
+      "kind": "actual Electron UI",
+      "locations": [
+        "image-tools:en"
+      ]
+    },
+    {
+      "file": "assets/manuals/en/tool-result.png",
+      "sha256": "68f51edb6b042a5f3689df6472fe13267562d2e1e2c634ef49047331a33f7f13",
+      "width": 868,
+      "height": 750,
+      "kind": "actual Electron UI",
+      "locations": [
+        "image-tools:en",
+        "tool-canvas:en"
+      ]
+    },
+    {
+      "file": "assets/manuals/ja/image-tools.png",
+      "sha256": "5a077dbf2618be9ee2d7bb7c801b41198e140138d3d41b0e962eada290fec0a1",
+      "width": 1200,
+      "height": 925,
+      "kind": "actual Electron UI",
+      "locations": [
+        "image-tools:ja"
+      ]
+    },
+    {
+      "file": "assets/manuals/ja/tool-latest-entry.png",
+      "sha256": "fdf811e87c32cd67750f5831911f9009457cd42b342773d12068cd61aa313c28",
+      "width": 95,
+      "height": 31,
+      "kind": "actual Electron UI",
+      "locations": [
+        "image-tools:ja"
+      ]
+    },
+    {
+      "file": "assets/manuals/ja/tool-history-entry.png",
+      "sha256": "cff8581040f6aed3f8919e745861f468fd7cad67da78afdea29fd2c4ef4df853",
+      "width": 1320,
+      "height": 905,
+      "kind": "actual Electron UI",
+      "locations": [
+        "image-tools:ja"
+      ]
+    },
+    {
+      "file": "assets/manuals/ja/tool-result.png",
+      "sha256": "343fe4596edbcd15f575be25f840ec41c5d3b30861cfddffafdd27e1c3d1c6ef",
+      "width": 868,
+      "height": 750,
+      "kind": "actual Electron UI",
+      "locations": [
+        "image-tools:ja",
+        "tool-canvas:ja"
+      ]
+    },
+    {
+      "file": "assets/manuals/ko/tool-upscale.png",
+      "sha256": "a1f55e95f48c0a7d250b2e72abc1e2c5ac0e0c03166db159f68a88d7ad7391ec",
+      "width": 1200,
+      "height": 909,
+      "kind": "actual Electron UI",
+      "locations": [
+        "tool-upscale:ko"
+      ]
+    },
+    {
+      "file": "assets/manuals/examples/upscale.webp",
+      "sha256": "d7ffc29bb8f23ab36a6428dbee77db9c635daa75bbaf248a636341a39b455a37",
+      "width": 1040,
+      "height": 570,
+      "kind": "actual result comparison",
+      "locations": [
+        "tool-upscale:ko",
+        "tool-upscale:en",
+        "tool-upscale:ja"
+      ]
+    },
+    {
+      "file": "assets/manuals/examples/upscale-detail.webp",
+      "sha256": "5132e4a3fce0d40bab2eb567cf5e2af464a4c4da8d23ed9cac49cc1bc753adbb",
+      "width": 1040,
+      "height": 570,
+      "kind": "actual result comparison",
+      "locations": [
+        "tool-upscale:ko",
+        "tool-upscale:en",
+        "tool-upscale:ja"
+      ]
+    },
+    {
+      "file": "assets/manuals/en/tool-upscale.png",
+      "sha256": "5049a3f2aa5db018f8d0cba99a5f23bba29b0ba68ab5989d209564f5d46fb0d2",
+      "width": 1200,
+      "height": 909,
+      "kind": "actual Electron UI",
+      "locations": [
+        "tool-upscale:en"
+      ]
+    },
+    {
+      "file": "assets/manuals/ja/tool-upscale.png",
+      "sha256": "787806633282d21b07259b6052be51683539c034d1271ad85fc70ff1fe5557ee",
+      "width": 1200,
+      "height": 909,
+      "kind": "actual Electron UI",
+      "locations": [
+        "tool-upscale:ja"
+      ]
+    },
+    {
+      "file": "assets/manuals/ko/tool-enhance.png",
+      "sha256": "36c7e8ba3e12148a690c99720a39bb103c6d2e7943024c83eae1ae89b4fce982",
+      "width": 1200,
+      "height": 925,
+      "kind": "actual Electron UI",
+      "locations": [
+        "tool-enhance:ko"
+      ]
+    },
+    {
+      "file": "assets/manuals/examples/enhance.webp",
+      "sha256": "65360dcbdaf3db4ada545952fa6be7ea9933eafab656a15db93d479727547ca8",
+      "width": 1040,
+      "height": 570,
+      "kind": "actual result comparison",
+      "locations": [
+        "tool-enhance:ko",
+        "tool-enhance:en",
+        "tool-enhance:ja"
+      ]
+    },
+    {
+      "file": "assets/manuals/en/tool-enhance.png",
+      "sha256": "cc7d99bdc2c79dfd59b3c73d691577988491f73250bda22e824137806c0f3ca9",
+      "width": 1200,
+      "height": 925,
+      "kind": "actual Electron UI",
+      "locations": [
+        "tool-enhance:en"
+      ]
+    },
+    {
+      "file": "assets/manuals/ja/tool-enhance.png",
+      "sha256": "dc52fbffee7004de496764b88dbb2a22c97500bed5bc9c2fccde9faf71acb326",
+      "width": 1200,
+      "height": 925,
+      "kind": "actual Electron UI",
+      "locations": [
+        "tool-enhance:ja"
+      ]
+    },
+    {
+      "file": "assets/manuals/ko/tool-max-enhance.png",
+      "sha256": "1cac16d5f1a9414f44a6bc3eaed27a31a9bb3e6c1b943b0e1eb816b3f3bbd9ca",
+      "width": 1200,
+      "height": 909,
+      "kind": "actual Electron UI",
+      "locations": [
+        "tool-max-enhance:ko"
+      ]
+    },
+    {
+      "file": "assets/manuals/examples/max-enhance.webp",
+      "sha256": "74f3a5fdb34fe3934649c72b9c74fe75e775174e1395c8591eba68f35b1322d4",
+      "width": 1040,
+      "height": 570,
+      "kind": "actual result comparison",
+      "locations": [
+        "tool-max-enhance:ko",
+        "tool-max-enhance:en",
+        "tool-max-enhance:ja"
+      ]
+    },
+    {
+      "file": "assets/manuals/en/tool-max-enhance.png",
+      "sha256": "02a70741fa190cec0462fe4703ed136a4e8fcd938949c3f5780155c4b9bc6b71",
+      "width": 1200,
+      "height": 909,
+      "kind": "actual Electron UI",
+      "locations": [
+        "tool-max-enhance:en"
+      ]
+    },
+    {
+      "file": "assets/manuals/ja/tool-max-enhance.png",
+      "sha256": "4dc6e0d57fab82bdf9567148aef119219d9786d8e2480366a5958174336f81d9",
+      "width": 1200,
+      "height": 909,
+      "kind": "actual Electron UI",
+      "locations": [
+        "tool-max-enhance:ja"
+      ]
+    },
+    {
+      "file": "assets/manuals/ko/tool-bg-removal.png",
+      "sha256": "70842d68edb0e1cd117ce36ff7bbb982908ea690a1ac4286564cf6afba5fa56c",
+      "width": 1200,
+      "height": 909,
+      "kind": "actual Electron UI",
+      "locations": [
+        "tool-bg-removal:ko"
+      ]
+    },
+    {
+      "file": "assets/manuals/examples/bg-removal.webp",
+      "sha256": "c7700b9ca9b92a4678ab677dfcc5c36f1c6276cb6e8bc557983a2bc03f5ea4f1",
+      "width": 2080,
+      "height": 570,
+      "kind": "actual result comparison",
+      "locations": [
+        "tool-bg-removal:ko",
+        "tool-bg-removal:en",
+        "tool-bg-removal:ja"
+      ]
+    },
+    {
+      "file": "assets/manuals/en/tool-bg-removal.png",
+      "sha256": "082eb6e3a7f318fdc76993771ac79f4cfc969a61348c153e541865ae2817c722",
+      "width": 1200,
+      "height": 909,
+      "kind": "actual Electron UI",
+      "locations": [
+        "tool-bg-removal:en"
+      ]
+    },
+    {
+      "file": "assets/manuals/ja/tool-bg-removal.png",
+      "sha256": "444a0cb403e234980baf923e1710e958430894c30752a292c3fb6ea3bdc2463a",
+      "width": 1200,
+      "height": 909,
+      "kind": "actual Electron UI",
+      "locations": [
+        "tool-bg-removal:ja"
+      ]
+    },
+    {
+      "file": "assets/manuals/ko/tool-lineart.png",
+      "sha256": "22e5361d6aa18cc6e0990334c09a53204369ac8b8a0bf7014fd2b0a184e46db2",
+      "width": 1200,
+      "height": 909,
+      "kind": "actual Electron UI",
+      "locations": [
+        "tool-lineart:ko"
+      ]
+    },
+    {
+      "file": "assets/manuals/examples/lineart.webp",
+      "sha256": "439239e0de9588f5fe4e867aa4b339613cac9b6f5a3e6d9e90317b7302c700ea",
+      "width": 1040,
+      "height": 570,
+      "kind": "actual result comparison",
+      "locations": [
+        "tool-lineart:ko",
+        "tool-lineart:en",
+        "tool-lineart:ja"
+      ]
+    },
+    {
+      "file": "assets/manuals/en/tool-lineart.png",
+      "sha256": "797e6b1fe20fbf082d3310db72ba2ed8172cba34e463b0d06cbce5b089997336",
+      "width": 1200,
+      "height": 909,
+      "kind": "actual Electron UI",
+      "locations": [
+        "tool-lineart:en"
+      ]
+    },
+    {
+      "file": "assets/manuals/ja/tool-lineart.png",
+      "sha256": "c7cb4ff84a4ef4a8847aae9c724d9d870e98d70d840a3147e4bb323eb942a69b",
+      "width": 1200,
+      "height": 909,
+      "kind": "actual Electron UI",
+      "locations": [
+        "tool-lineart:ja"
+      ]
+    },
+    {
+      "file": "assets/manuals/ko/tool-sketch.png",
+      "sha256": "40dd5ac2f09ab1ccd0881ca86d8ebb9deb6cfdb7b6ffb88d881d5b200451f05d",
+      "width": 1200,
+      "height": 909,
+      "kind": "actual Electron UI",
+      "locations": [
+        "tool-sketch:ko"
+      ]
+    },
+    {
+      "file": "assets/manuals/examples/sketch.webp",
+      "sha256": "163a27ac4fdc5570621572ca7895d29bb5bc744a2dbb292c1efa5ed54d36459f",
+      "width": 1040,
+      "height": 570,
+      "kind": "actual result comparison",
+      "locations": [
+        "tool-sketch:ko",
+        "tool-sketch:en",
+        "tool-sketch:ja"
+      ]
+    },
+    {
+      "file": "assets/manuals/en/tool-sketch.png",
+      "sha256": "ffa0648bf1c50032f1ec881fa28d7ea2de83dba55b9351782bed229028d157bc",
+      "width": 1200,
+      "height": 909,
+      "kind": "actual Electron UI",
+      "locations": [
+        "tool-sketch:en"
+      ]
+    },
+    {
+      "file": "assets/manuals/ja/tool-sketch.png",
+      "sha256": "c4f2435f919f3f824e39b0bc99bba2289def334da942ef99085d9740877d7269",
+      "width": 1200,
+      "height": 909,
+      "kind": "actual Electron UI",
+      "locations": [
+        "tool-sketch:ja"
+      ]
+    },
+    {
+      "file": "assets/manuals/ko/tool-colorize.png",
+      "sha256": "9fd4f43ee74341ac91afdae380c363dec56663c99dc55fa250f40c531c2ed7b2",
+      "width": 1200,
+      "height": 909,
+      "kind": "actual Electron UI",
+      "locations": [
+        "tool-colorize:ko"
+      ]
+    },
+    {
+      "file": "assets/manuals/examples/colorize.webp",
+      "sha256": "7825cf6f9cf2d2901cc15e6a4df673f2b906c10d074d72190e3428a6be16353e",
+      "width": 1040,
+      "height": 570,
+      "kind": "actual result comparison",
+      "locations": [
+        "tool-colorize:ko",
+        "tool-colorize:en",
+        "tool-colorize:ja"
+      ]
+    },
+    {
+      "file": "assets/manuals/en/tool-colorize.png",
+      "sha256": "3cecf7a29c848947b1d43db3e90b002c2c529b326df7c4ed6713ff31a40386b8",
+      "width": 1200,
+      "height": 909,
+      "kind": "actual Electron UI",
+      "locations": [
+        "tool-colorize:en"
+      ]
+    },
+    {
+      "file": "assets/manuals/ja/tool-colorize.png",
+      "sha256": "49642fb7e07a5af880b8743b661821397fed4779127f04fdc2c6e687c787f959",
+      "width": 1200,
+      "height": 909,
+      "kind": "actual Electron UI",
+      "locations": [
+        "tool-colorize:ja"
+      ]
+    },
+    {
+      "file": "assets/manuals/ko/tool-emotion.png",
+      "sha256": "9f26a8c41762695af121e8b193b9cc289dd2e59da58e3679e71ac1be009e8e12",
+      "width": 1200,
+      "height": 925,
+      "kind": "actual Electron UI",
+      "locations": [
+        "tool-emotion:ko"
+      ]
+    },
+    {
+      "file": "assets/manuals/examples/emotion.webp",
+      "sha256": "32aa9409fc12604c512c53bb3621a7ac8fff88b87c1028c548b1c2bd3ed9ae63",
+      "width": 1040,
+      "height": 570,
+      "kind": "actual result comparison",
+      "locations": [
+        "tool-emotion:ko",
+        "tool-emotion:en",
+        "tool-emotion:ja"
+      ]
+    },
+    {
+      "file": "assets/manuals/en/tool-emotion.png",
+      "sha256": "141a3f17a5fe801084d4f87d5d0e9d0bdd8308737c746f225cbf392922f500f2",
+      "width": 1200,
+      "height": 925,
+      "kind": "actual Electron UI",
+      "locations": [
+        "tool-emotion:en"
+      ]
+    },
+    {
+      "file": "assets/manuals/ja/tool-emotion.png",
+      "sha256": "e307ea5132c17fb4c39e0a485256b0b21bb218d2378bf1d3fe316e3347cfe329",
+      "width": 1200,
+      "height": 925,
+      "kind": "actual Electron UI",
+      "locations": [
+        "tool-emotion:ja"
+      ]
+    },
+    {
+      "file": "assets/manuals/ko/tool-declutter.png",
+      "sha256": "fc6cab874d5bc9a69df7352fc37aa63b3b6baaa4f338de05fbb15fb9627bf242",
+      "width": 1200,
+      "height": 909,
+      "kind": "actual Electron UI",
+      "locations": [
+        "tool-declutter:ko"
+      ]
+    },
+    {
+      "file": "assets/manuals/examples/declutter.webp",
+      "sha256": "16bc9210e4cb27d7117b96d15496d841518aecf155b4b01403903797f58e0683",
+      "width": 1040,
+      "height": 570,
+      "kind": "actual result comparison",
+      "locations": [
+        "tool-declutter:ko",
+        "tool-declutter:en",
+        "tool-declutter:ja"
+      ]
+    },
+    {
+      "file": "assets/manuals/en/tool-declutter.png",
+      "sha256": "84677e46b117dba6b6abec5e39086e1bc065dca9902e9507441ea8cb9ff6210c",
+      "width": 1200,
+      "height": 909,
+      "kind": "actual Electron UI",
+      "locations": [
+        "tool-declutter:en"
+      ]
+    },
+    {
+      "file": "assets/manuals/ja/tool-declutter.png",
+      "sha256": "71f4e3b9cbe25cdd5d97d70e053a27ae30b1d0a6f47d53709baf29c1b8a44a9f",
+      "width": 1200,
+      "height": 909,
+      "kind": "actual Electron UI",
+      "locations": [
+        "tool-declutter:ja"
+      ]
+    },
+    {
+      "file": "assets/manuals/ko/tool-canvas.png",
+      "sha256": "c0f19b9a475805e1db93fa7910d6993300a3b246de36e27d2663cc3f1b2368bb",
+      "width": 1200,
+      "height": 925,
+      "kind": "actual Electron UI",
+      "locations": [
+        "tool-canvas:ko"
+      ]
+    },
+    {
+      "file": "assets/manuals/ko/canvas-controls.png",
+      "sha256": "fe83481a596d1e79cdd738c6c149e93b5a723c0a37480a53d1f73fa2d2795e56",
+      "width": 1200,
+      "height": 925,
+      "kind": "actual Electron UI",
+      "locations": [
+        "tool-canvas:ko"
+      ]
+    },
+    {
+      "file": "assets/manuals/examples/canvas.webp",
+      "sha256": "f8bac9bdd990f915b60f91bee5648d16c69e6f6dbf2bdbc7cb9fd51810267c9b",
+      "width": 1040,
+      "height": 570,
+      "kind": "actual result comparison",
+      "locations": [
+        "tool-canvas:ko",
+        "tool-canvas:en",
+        "tool-canvas:ja"
+      ]
+    },
+    {
+      "file": "assets/manuals/en/tool-canvas.png",
+      "sha256": "e5d9f93f918b928db990da44737a31b0ace0bc367c1869eb9342b2fa664eff7c",
+      "width": 1200,
+      "height": 925,
+      "kind": "actual Electron UI",
+      "locations": [
+        "tool-canvas:en"
+      ]
+    },
+    {
+      "file": "assets/manuals/en/canvas-controls.png",
+      "sha256": "8617a9c38cc1e864b12725a603313a3f42f599d2fb51422e6bf10dd4bb4551cd",
+      "width": 1200,
+      "height": 925,
+      "kind": "actual Electron UI",
+      "locations": [
+        "tool-canvas:en"
+      ]
+    },
+    {
+      "file": "assets/manuals/ja/tool-canvas.png",
+      "sha256": "7571b9c745ee122c1312fa112116de6ed277c240c97cfdb72947b3f384507951",
+      "width": 1200,
+      "height": 925,
+      "kind": "actual Electron UI",
+      "locations": [
+        "tool-canvas:ja"
+      ]
+    },
+    {
+      "file": "assets/manuals/ja/canvas-controls.png",
+      "sha256": "0dfc98a61d5ce18a4b77638fcb9288cd794a0a4df62b858e4f6f6fbd97570e40",
+      "width": 1200,
+      "height": 925,
+      "kind": "actual Electron UI",
+      "locations": [
+        "tool-canvas:ja"
+      ]
+    },
+    {
+      "file": "assets/manuals/ko/tool-outpaint.png",
+      "sha256": "dcedeb528bf1ab1710cb0e60eb30cc1b4887e3c780e5413c2abed361e6b0d850",
+      "width": 1200,
+      "height": 925,
+      "kind": "actual Electron UI",
+      "locations": [
+        "tool-outpaint:ko"
+      ]
+    },
+    {
+      "file": "assets/manuals/examples/outpaint.webp",
+      "sha256": "4ccda4a6d718a60f796a2a1654e532299aacfd1f9c833f1a456372c5b597b57a",
+      "width": 1040,
+      "height": 570,
+      "kind": "actual result comparison",
+      "locations": [
+        "tool-outpaint:ko",
+        "tool-outpaint:en",
+        "tool-outpaint:ja"
+      ]
+    },
+    {
+      "file": "assets/manuals/en/tool-outpaint.png",
+      "sha256": "e061e7e73616ffa09e202b6dc7ef7593d8756ac6b2a1979055377336b172648b",
+      "width": 1200,
+      "height": 925,
+      "kind": "actual Electron UI",
+      "locations": [
+        "tool-outpaint:en"
+      ]
+    },
+    {
+      "file": "assets/manuals/ja/tool-outpaint.png",
+      "sha256": "5b5d68df758abd026c8dcc7de2f2826cbecb9cf466b340f674207d8a2072b1b5",
+      "width": 1200,
+      "height": 925,
+      "kind": "actual Electron UI",
+      "locations": [
+        "tool-outpaint:ja"
+      ]
+    },
+    {
+      "file": "assets/manuals/ko/tool-focused-inpaint.png",
+      "sha256": "b66f0c37b512d6cbb52f4d2f290a434edbb7bff7e3ee20d363c0e1894218d71f",
+      "width": 1200,
+      "height": 925,
+      "kind": "actual Electron UI",
+      "locations": [
+        "tool-focused-inpaint:ko"
+      ]
+    },
+    {
+      "file": "assets/manuals/examples/focused-inpaint.webp",
+      "sha256": "62cea7601b48cc64e5339dda8d0735912a38240ee7d27fa2cb637c6bb3edd6a1",
+      "width": 1560,
+      "height": 570,
+      "kind": "actual result comparison",
+      "locations": [
+        "tool-focused-inpaint:ko",
+        "tool-focused-inpaint:en",
+        "tool-focused-inpaint:ja"
+      ]
+    },
+    {
+      "file": "assets/manuals/en/tool-focused-inpaint.png",
+      "sha256": "76216bbbb6d839911cba3894ab6dd5ea092971ac04fe2fbf79f5a9ad351f1a40",
+      "width": 1200,
+      "height": 925,
+      "kind": "actual Electron UI",
+      "locations": [
+        "tool-focused-inpaint:en"
+      ]
+    },
+    {
+      "file": "assets/manuals/ja/tool-focused-inpaint.png",
+      "sha256": "c431b808ff9fefdacf0ddc801c5f56a26510c58aff7be198a351e2897ae5f601",
+      "width": 1200,
+      "height": 925,
+      "kind": "actual Electron UI",
+      "locations": [
+        "tool-focused-inpaint:ja"
+      ]
+    },
+    {
+      "file": "assets/manuals/ko/tool-cost.png",
+      "sha256": "643a3e752e745a6cbc006a99681757bd79a2ee938efa2c88e5f3160b0dcfbcab",
+      "width": 1200,
+      "height": 909,
+      "kind": "actual Electron UI",
+      "locations": [
+        "tool-cost:ko"
+      ]
+    },
+    {
+      "file": "assets/manuals/en/tool-cost.png",
+      "sha256": "6084be9ea846d396242757b81c2e3b8e1f0d6b401b5f2d49ae9d00b0e1cb1b8e",
+      "width": 1200,
+      "height": 909,
+      "kind": "actual Electron UI",
+      "locations": [
+        "tool-cost:en"
+      ]
+    },
+    {
+      "file": "assets/manuals/ja/tool-cost.png",
+      "sha256": "05e922a5c79c4ba1a8700bc35a945a654036ae04a4e8c0e59d4729bb458ce2f0",
+      "width": 1200,
+      "height": 909,
+      "kind": "actual Electron UI",
+      "locations": [
+        "tool-cost:ja"
+      ]
+    },
+    {
+      "file": "assets/manuals/ko/help-center.png",
+      "sha256": "792f4e70ffdbd9056b5323192dc7c7c945828476bb1760123462367d4fe49021",
+      "width": 1180,
+      "height": 861,
+      "kind": "actual Electron UI",
+      "locations": [
+        "questions:ko"
+      ]
+    },
+    {
+      "file": "assets/manuals/en/help-center.png",
+      "sha256": "6da3171ceff101362ec1a092355663115f414a2c242f52fc5a8c6b8339b93e0f",
+      "width": 1180,
+      "height": 861,
+      "kind": "actual Electron UI",
+      "locations": [
+        "questions:en"
+      ]
+    },
+    {
+      "file": "assets/manuals/ja/help-center.png",
+      "sha256": "7531af563ad3a2edce8032a4b3b3e6901fd5131a2c9495fea662624aeecc4dff",
+      "width": 1180,
+      "height": 861,
+      "kind": "actual Electron UI",
+      "locations": [
+        "questions:ja"
+      ]
+    },
+    {
+      "file": "assets/manuals/ko/composition-layout.png",
+      "sha256": "0fd4610752996bc38c0af4bbb35109b3a74defd7f883e405b349c855bc7d0abe",
+      "width": 1368,
+      "height": 909,
+      "kind": "actual Electron UI",
+      "locations": [
+        "composition:ko"
+      ]
+    },
+    {
+      "file": "assets/manuals/ko/composition-frame.png",
+      "sha256": "fca73a119718dde938cdd44763aabb9e4968fda93afa2f3e5533bee1844057f3",
+      "width": 1368,
+      "height": 909,
+      "kind": "actual Electron UI",
+      "locations": [
+        "composition:ko"
+      ]
+    },
+    {
+      "file": "assets/manuals/ko/composition-mask.png",
+      "sha256": "305ac8ae1d9d5fbd9c97be2249f9cf2a4489549c4e3f5dbe1792d52cbb87d842",
+      "width": 1368,
+      "height": 909,
+      "kind": "actual Electron UI",
+      "locations": [
+        "composition:ko"
+      ]
+    },
+    {
+      "file": "assets/manuals/en/composition-layout.png",
+      "sha256": "ba1b2e0f6d43bc7c6f57d60a68372ba7559154cdfe7e1afefe07a502738811b8",
+      "width": 1368,
+      "height": 931,
+      "kind": "actual Electron UI",
+      "locations": [
+        "composition:en"
+      ]
+    },
+    {
+      "file": "assets/manuals/en/composition-frame.png",
+      "sha256": "b1d2a9b11340018ede1e78bc8d9c99c7f3c3294ea8d770cd437b8d17877aed0a",
+      "width": 1368,
+      "height": 931,
+      "kind": "actual Electron UI",
+      "locations": [
+        "composition:en"
+      ]
+    },
+    {
+      "file": "assets/manuals/en/composition-mask.png",
+      "sha256": "fb7e17b2a45ec668d44926200177f641bc9933f6f20414e7a7a815ca46a8d2ac",
+      "width": 1368,
+      "height": 931,
+      "kind": "actual Electron UI",
+      "locations": [
+        "composition:en"
+      ]
+    },
+    {
+      "file": "assets/manuals/ja/composition-layout.png",
+      "sha256": "ba34df89f3429607b7c79e5beb738d22e329e4dc2f618315eb0cd59e18dbe3da",
+      "width": 1368,
+      "height": 931,
+      "kind": "actual Electron UI",
+      "locations": [
+        "composition:ja"
+      ]
+    },
+    {
+      "file": "assets/manuals/ja/composition-frame.png",
+      "sha256": "0edae1dd96e7998e4273616c5d3762ec5335d176cbc3e5011498049580bff56e",
+      "width": 1368,
+      "height": 931,
+      "kind": "actual Electron UI",
+      "locations": [
+        "composition:ja"
+      ]
+    },
+    {
+      "file": "assets/manuals/ja/composition-mask.png",
+      "sha256": "809d643e348fa7055ebb883368304ba397d3a44383e1e1e7a024ee17b81bf59d",
+      "width": 1368,
+      "height": 931,
+      "kind": "actual Electron UI",
+      "locations": [
+        "composition:ja"
+      ]
+    },
+    {
+      "file": "assets/manuals/ko/composition-characters.png",
+      "sha256": "218bf902fd28d3f5c005beeff7c8714dff81358c38ac37e88f7a2b034146f633",
+      "width": 1368,
+      "height": 931,
+      "kind": "actual Electron UI",
+      "locations": [
+        "composition-characters:ko"
+      ]
+    },
+    {
+      "file": "assets/manuals/examples/street-character.webp",
+      "sha256": "c646a9a18ee5c294013da54320e92adbbd61cd65bef32fce8d38238760388579",
+      "width": 1040,
+      "height": 570,
+      "kind": "actual result comparison",
+      "locations": [
+        "composition-characters:ko",
+        "composition-characters:en",
+        "composition-characters:ja"
+      ]
+    },
+    {
+      "file": "assets/manuals/en/composition-characters.png",
+      "sha256": "2073cb9027f56350be67e5d9fd55fb679cd696dd2228da448c636e88dc63a6d3",
+      "width": 1368,
+      "height": 931,
+      "kind": "actual Electron UI",
+      "locations": [
+        "composition-characters:en"
+      ]
+    },
+    {
+      "file": "assets/manuals/ja/composition-characters.png",
+      "sha256": "981e32c44723f05781f7afc625a6449c22c4927d9e8f80b1f201f7e2c578a82e",
+      "width": 1368,
+      "height": 931,
+      "kind": "actual Electron UI",
+      "locations": [
+        "composition-characters:ja"
+      ]
+    },
+    {
+      "file": "assets/manuals/ko/composition-review.png",
+      "sha256": "c3b29081ae852669bca01adf509e572b47555a5b49f19681bf75f8f705a8ef32",
+      "width": 1281,
+      "height": 309,
+      "kind": "actual Electron UI",
+      "locations": [
+        "composition-results:ko"
+      ]
+    },
+    {
+      "file": "assets/manuals/ko/composition-results.png",
+      "sha256": "e356077f87032a6a9bb9195279e8eaa520ce67b4b71ca4d919bd305769029ed4",
+      "width": 1315,
+      "height": 864,
+      "kind": "actual Electron UI",
+      "locations": [
+        "composition-results:ko"
+      ]
+    },
+    {
+      "file": "assets/manuals/examples/street-composition.webp",
+      "sha256": "651c8c80a8cdffc8637bc887323e4192ba0cb51a1d1faa5da0cf20e7bcc715d9",
+      "width": 1560,
+      "height": 570,
+      "kind": "actual result comparison",
+      "locations": [
+        "composition-results:ko",
+        "composition-results:en",
+        "composition-results:ja"
+      ]
+    },
+    {
+      "file": "assets/manuals/examples/street-brush.webp",
+      "sha256": "1ac5bd1fc768829eaf0aa7d696577d095bbd917e3ea95b68d419a242da3d6eac",
+      "width": 1560,
+      "height": 570,
+      "kind": "actual result comparison",
+      "locations": [
+        "composition-results:ko",
+        "composition-results:en",
+        "composition-results:ja"
+      ]
+    },
+    {
+      "file": "assets/manuals/en/composition-review.png",
+      "sha256": "a71858896b33f58eb3d312f0aaf1232dc8c9e133c892ac6fdcc933903f867c9e",
+      "width": 1281,
+      "height": 309,
+      "kind": "actual Electron UI",
+      "locations": [
+        "composition-results:en"
+      ]
+    },
+    {
+      "file": "assets/manuals/en/composition-results.png",
+      "sha256": "989ee10307600e1f52a4b2abf47033f02b335f97664cd9122d253588d5c6771f",
+      "width": 1315,
+      "height": 864,
+      "kind": "actual Electron UI",
+      "locations": [
+        "composition-results:en"
+      ]
+    },
+    {
+      "file": "assets/manuals/ja/composition-review.png",
+      "sha256": "8b53b540079f590c653dad0f40829267fdf7f6e3dd333dd783b7ff0a3483bf18",
+      "width": 1281,
+      "height": 309,
+      "kind": "actual Electron UI",
+      "locations": [
+        "composition-results:ja"
+      ]
+    },
+    {
+      "file": "assets/manuals/ja/composition-results.png",
+      "sha256": "5c18c95ec68ecf21018e58c987f6b35df225cd9f7e1b76d11492594460c50b94",
+      "width": 1315,
+      "height": 864,
+      "kind": "actual Electron UI",
+      "locations": [
+        "composition-results:ja"
+      ]
+    },
+    {
+      "file": "assets/manuals/ko/composition-restore.png",
+      "sha256": "a62ad9637c7e202e0355bfba1d5298e7ab314390801c28f4257dede9d5c14c83",
+      "width": 1368,
+      "height": 979,
+      "kind": "actual Electron UI",
+      "locations": [
+        "composition-restore:ko"
+      ]
+    },
+    {
+      "file": "assets/manuals/ko/composition-json.png",
+      "sha256": "caa8f193a8ab759ec5385ab108555099c404b0eae5d172ef048376d7cfa9ee51",
+      "width": 289,
+      "height": 793,
+      "kind": "actual Electron UI",
+      "locations": [
+        "composition-restore:ko"
+      ]
+    },
+    {
+      "file": "assets/manuals/en/composition-restore.png",
+      "sha256": "e40d9feeb6811faea8a5281c0f88aec6a1e47404ee1326353cf23374afb470fd",
+      "width": 1368,
+      "height": 979,
+      "kind": "actual Electron UI",
+      "locations": [
+        "composition-restore:en"
+      ]
+    },
+    {
+      "file": "assets/manuals/en/composition-json.png",
+      "sha256": "8785e4796798f55df0df2e1b806288e93c710f721c1610c67407d3484e2587c7",
+      "width": 289,
+      "height": 793,
+      "kind": "actual Electron UI",
+      "locations": [
+        "composition-restore:en"
+      ]
+    },
+    {
+      "file": "assets/manuals/ja/composition-restore.png",
+      "sha256": "6338bb44ce2e3030685da3022a31516d5b148fb5257f43eba65998cad82df873",
+      "width": 1368,
+      "height": 979,
+      "kind": "actual Electron UI",
+      "locations": [
+        "composition-restore:ja"
+      ]
+    },
+    {
+      "file": "assets/manuals/ja/composition-json.png",
+      "sha256": "7c29eff733acf8c25df9d2375a3cfcad2ca41547ae63ad24c7d95f95ae8a61af",
+      "width": 289,
+      "height": 793,
+      "kind": "actual Electron UI",
+      "locations": [
+        "composition-restore:ja"
+      ]
+    },
+    {
+      "file": "assets/manuals/ko/pixel-snap.png",
+      "sha256": "5b9ed52e49ad7e089f9d1596af5193bf2d856f68d63a78623fd9b4d410891caa",
+      "width": 1368,
+      "height": 909,
+      "kind": "actual Electron UI",
+      "locations": [
+        "tool-pixel-snap:ko"
+      ]
+    },
+    {
+      "file": "assets/manuals/ko/pixel-snap-detail.png",
+      "sha256": "d80f6fe1d70adc75a8367d83e61a01a46399700f4d9e2de65d43444cf24d1cc6",
+      "width": 1016,
+      "height": 642,
+      "kind": "actual Electron UI",
+      "locations": [
+        "tool-pixel-snap:ko"
+      ]
+    },
+    {
+      "file": "assets/manuals/en/pixel-snap.png",
+      "sha256": "53dae2199e1a2c4a1656ea6e8285c34ae2b0bce892aa41bd53474fa2c64a9037",
+      "width": 1368,
+      "height": 909,
+      "kind": "actual Electron UI",
+      "locations": [
+        "tool-pixel-snap:en"
+      ]
+    },
+    {
+      "file": "assets/manuals/en/pixel-snap-detail.png",
+      "sha256": "0600877b3ef5f1a128d54a40676ce594416bdf1a233d2871094f61227e138ddd",
+      "width": 1016,
+      "height": 642,
+      "kind": "actual Electron UI",
+      "locations": [
+        "tool-pixel-snap:en"
+      ]
+    },
+    {
+      "file": "assets/manuals/ja/pixel-snap.png",
+      "sha256": "c9c4184ef084566845145a5c2978188caa32b6f564eb6b616125522c561530de",
+      "width": 1368,
+      "height": 909,
+      "kind": "actual Electron UI",
+      "locations": [
+        "tool-pixel-snap:ja"
+      ]
+    },
+    {
+      "file": "assets/manuals/ja/pixel-snap-detail.png",
+      "sha256": "37c7b1bbecd96f366114e6a6e008ce48682210545b1dde73a58626ee6c6071cd",
+      "width": 1016,
+      "height": 642,
+      "kind": "actual Electron UI",
+      "locations": [
+        "tool-pixel-snap:ja"
+      ]
+    },
+    {
+      "file": "assets/manuals/ko/camera-source.png",
+      "sha256": "df413c315659ac002e441b2a3d9bd4cf48597e7ad898604346b6f8efd49a24a0",
+      "width": 1263,
+      "height": 817,
+      "kind": "actual Electron UI",
+      "locations": [
+        "camera-start:ko",
+        "camera-controls:ko",
+        "camera-limits:ko"
+      ]
+    },
+    {
+      "file": "assets/manuals/en/camera-source.png",
+      "sha256": "1652ed1aa5e04b3a342886b5a2991d3411c0bd0cfa9a12ae9fa58d9d1ecddf90",
+      "width": 1263,
+      "height": 817,
+      "kind": "actual Electron UI",
+      "locations": [
+        "camera-start:en",
+        "camera-controls:en",
+        "camera-limits:en"
+      ]
+    },
+    {
+      "file": "assets/manuals/ja/camera-source.png",
+      "sha256": "401bc02d1733fe19e03f5cf84ed7734fc075b57c954e8e650ce4a406a36e854d",
+      "width": 1263,
+      "height": 817,
+      "kind": "actual Electron UI",
+      "locations": [
+        "camera-start:ja",
+        "camera-controls:ja",
+        "camera-limits:ja"
+      ]
+    },
+    {
+      "file": "assets/manuals/examples/camera-direction.webp",
+      "sha256": "5747490b0574c21e6e8172a36a348534f7832ce06198262a2e1ccc64b8e515af",
+      "width": 1040,
+      "height": 570,
+      "kind": "actual result comparison",
+      "locations": [
+        "camera-controls:ko",
+        "camera-controls:en",
+        "camera-controls:ja"
+      ]
+    },
+    {
+      "file": "assets/manuals/ko/camera-calibration.png",
+      "sha256": "c30f6619d944426d4f99843803e60575a7b93e80a967ef87703b0a1343c3a6ea",
+      "width": 1263,
+      "height": 489,
+      "kind": "actual Electron UI",
+      "locations": [
+        "camera-calibration:ko",
+        "camera-records:ko"
+      ]
+    },
+    {
+      "file": "assets/manuals/examples/camera-strength.webp",
+      "sha256": "8b46355dc2e84bbc386d5b02efd314c5d0c3e094f8244e78377526cf2e9b8052",
+      "width": 1040,
+      "height": 570,
+      "kind": "actual result comparison",
+      "locations": [
+        "camera-calibration:ko",
+        "camera-calibration:en",
+        "camera-calibration:ja"
+      ]
+    },
+    {
+      "file": "assets/manuals/en/camera-calibration.png",
+      "sha256": "3d1503ef5510cef221ad0802e917be149e3c5e872dcaa09e7f2a78221b97fe44",
+      "width": 1263,
+      "height": 489,
+      "kind": "actual Electron UI",
+      "locations": [
+        "camera-calibration:en",
+        "camera-records:en"
+      ]
+    },
+    {
+      "file": "assets/manuals/ja/camera-calibration.png",
+      "sha256": "06e6e88689b5591c1959fe1da7e70174c9f045b3cd367f43c4845a3537ef38d9",
+      "width": 1263,
+      "height": 489,
+      "kind": "actual Electron UI",
+      "locations": [
+        "camera-calibration:ja",
+        "camera-records:ja"
+      ]
+    },
+    {
+      "file": "assets/manuals/ko/camera-editing.png",
+      "sha256": "da306db7fa505fd91397e92db167758955c7df8e27e2551bd63d60db3d47d928",
+      "width": 1263,
+      "height": 489,
+      "kind": "actual Electron UI",
+      "locations": [
+        "camera-editing:ko",
+        "camera-recovery:ko"
+      ]
+    },
+    {
+      "file": "assets/manuals/en/camera-editing.png",
+      "sha256": "3a4d2716bf9c37938700260134b1a2cdd84970a11cd5576da22b600c95a23402",
+      "width": 1263,
+      "height": 489,
+      "kind": "actual Electron UI",
+      "locations": [
+        "camera-editing:en",
+        "camera-recovery:en"
+      ]
+    },
+    {
+      "file": "assets/manuals/ja/camera-editing.png",
+      "sha256": "616568b46d54b68043073f64d5f9d11162f52773474417e52bb2263a686ff508",
+      "width": 1263,
+      "height": 489,
+      "kind": "actual Electron UI",
+      "locations": [
+        "camera-editing:ja",
+        "camera-recovery:ja"
+      ]
+    },
+    {
+      "file": "assets/manuals/examples/workflow.webp",
+      "sha256": "54aa78d7b4d1d34612f1fd938d79e1a44a76040d55a9825522a9d1248f3b3250",
+      "width": 2080,
+      "height": 570,
+      "kind": "actual result comparison",
+      "locations": [
+        "README / Release"
+      ]
+    }
+  ]
+}

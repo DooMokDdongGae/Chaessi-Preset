@@ -2,10 +2,11 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import {createDefaultPreset} from '../src/state/preset-schema.js';
 import {scanPrompt} from '../src/camera/prompt-spans.js';
-import {createCameraSession,moveCamera,compileCamera,editCameraOutput,resetCamera,resetCalibration,restoreSource,undoCamera,serializeCamera,cameraRequest,confirmBaseline,syncCameraDraft,resumeManagedField,cancelCameraEdit,detachCamera,reconnectCamera} from '../src/camera/camera-model.js';
+import {LEGACY_CAMERA_RULES,createCameraSession,moveCamera,compileCamera,editCameraOutput,resetCamera,resetCalibration,restoreSource,undoCamera,serializeCamera,cameraRequest,confirmBaseline,syncCameraDraft,resumeManagedField,cancelCameraEdit,detachCamera,reconnectCamera} from '../src/camera/camera-model.js';
 
 function fixture(){return createDefaultPreset({params:{model:'nai-diffusion-5-full',effort:'high',seed:1234},prompt_parts:{base:'front view, eye level, cowboy shot, 1.7::standing, head tilted::, blue coat, upper body gently arched',undesired:'lowres',characters:[{prompt:'front view, green eyes',undesired:'text',centers:[{x:.2,y:.6}]}]}});}
-function session(){return createCameraSession({preset:fixture(),source:{id:'test-A',label:'fixture'},confirmed:{}});}
+// Keep the released v1 contract under regression coverage, independently of v2.
+function session(){return createCameraSession({preset:fixture(),source:{id:'test-A',label:'fixture'},confirmed:{},rules:LEGACY_CAMERA_RULES});}
 function weights(s){return Object.fromEntries(compileCamera(s).fields[s.field].expressions.map(x=>[x.term,x.weight]));}
 function calibrate(s,term,value){const output=compileCamera(s).fields[s.field],item=output.expressions.find(i=>i.term===term);return editCameraOutput(s,s.field,output.text.slice(0,item.weightStart)+value+output.text.slice(item.weightEnd));}
 

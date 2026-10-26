@@ -21,6 +21,25 @@ export function calibratedWeight(base,knots,coordinate,support){
   if(Math.abs(value)>WEIGHT_LIMIT)throw new Error('Interpolated weight exceeds the supported range. Adjust this calibration.');
   return value;
 }
+// v2 stores absolute values at knots and interpolates their offset from the base.
+// Boundary knots replace the default endpoint; corrections never cross a sector.
+export function calibratedSingleWeight(base,knots,coordinate,support){
+  if(!knots?.length)return base;
+  const exact=knots.find(k=>Math.abs(k.x-coordinate)<1e-7);
+  if(exact)return parseWeight(exact.value);
+  const points=new Map(support.map(x=>[x,{x,delta:0}]));
+  for(const knot of knots){
+    if(!Number.isFinite(knot.x)||!Number.isFinite(knot.base)||knot.x<support[0]||knot.x>support[1])throw new Error('Invalid camera calibration.');
+    points.set(knot.x,{x:knot.x,delta:parseWeight(knot.value)-knot.base});
+  }
+  const sorted=[...points.values()].sort((a,b)=>a.x-b.x);
+  let a=sorted[0],b=sorted.at(-1);
+  for(let i=1;i<sorted.length;i++)if(coordinate<=sorted[i].x){a=sorted[i-1];b=sorted[i];break;}
+  const t=b.x===a.x?0:Math.max(0,Math.min(1,(coordinate-a.x)/(b.x-a.x)));
+  const value=roundWeight(base+a.delta+(b.delta-a.delta)*t);
+  if(Math.abs(value)>WEIGHT_LIMIT)throw new Error('Interpolated weight exceeds the supported range. Adjust this calibration.');
+  return value;
+}
 export function setCalibration(records,{key,axis,term,coordinate,base,value,context,field,cameraValue,label}){
   value=parseWeight(value);if(!(base>0))throw new Error('Only an active camera expression can be calibrated.');
   const next=structuredClone(records||{}),list=next[key]||[];

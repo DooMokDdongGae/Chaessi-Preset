@@ -3,6 +3,8 @@ import {createCameraSession,confirmBaseline,moveCamera,compileCamera,editCameraO
 import {t,translateText,getLanguage} from './i18n.js';
 import {promptFields,readField,scanPrompt} from '../camera/prompt-spans.js';
 import {wrapAngle} from '../camera/calibration.js';
+import {supportsCameraRules,LEGACY_CAMERA_RULES} from '../camera/camera-rules.js';
+import {createCameraRulesDialog} from './camera-rules-dialog.js';
 
 const names=['정면','오른쪽 앞','오른쪽','오른쪽 뒤','후면','왼쪽 뒤','왼쪽','왼쪽 앞'];
 const clone=x=>structuredClone(x),clamp=(n,a,b)=>Math.min(b,Math.max(a,n));
@@ -25,7 +27,8 @@ export function createCameraPanelController({getPreset,setPreset,onOpen,onClose,
     <div class="camera-actions"><button id="cameraReset" type="button">카메라만 복귀</button><button id="cameraCorrectionReset" type="button">보정 적용 해제</button><button id="cameraCorrectionEnable" type="button">보정 다시 적용</button><button id="cameraRestore" type="button">원본 전체 복원</button><button id="cameraUndo" type="button">복귀·편집 취소</button><button id="cameraResume" type="button" hidden>이 문구의 카메라 관리 재개</button><button id="cameraGenerate" type="button" class="primary">이 구도로 생성</button></div>
     <div class="camera-status">카메라만 복귀: 문구·크기·보정 기록 유지 / 전체 복원: 원본 문구·설정으로 복원, 보정은 보관 후 적용 해제 / 취소 가능</div>
     <details><summary>사용자 보정 기록 · 해당 표현의 주변 구간에 적용</summary><div id="cameraCalibrationList" class="camera-calibrations"></div></details><details><summary>실제 전송 문구 · 기존 품질·UC 처리 포함</summary><pre id="cameraFinalPayload" class="camera-final-payload">생성 준비 후 확인할 수 있습니다.</pre></details></section></div>`;
-  let session=null,timer=null,saveChain=Promise.resolve(),suppress=false,lastResult=null,baselineEditing=false;
+  let session=null,timer=null,saveChain=Promise.resolve(),suppress=false,lastResult=null,baselineEditing=false,dirty=false;
+  const rulesDialog=createCameraRulesDialog({root,getSession:()=>session,onError:message=>showToast(message,true),onCommit:async next=>{await save();session=next;dirty=true;applyDraft();render();await save();await refreshList();}});
   for(const id of ['cameraSourceLabel','cameraSessionPicker','cameraErrors','cameraEditState','cameraBaselineText','cameraPositionText','cameraAimText','cameraRollText','cameraHeightText','cameraCalibrationList','cameraField'])$('#'+id)?.setAttribute('data-no-i18n','');
   const cancelEdit=document.createElement('button');cancelEdit.type='button';cancelEdit.id='cameraCancelEdit';cancelEdit.textContent='현재 미완성 편집 취소';cancelEdit.hidden=true;$('#cameraUndo').after(cancelEdit);cancelEdit.onclick=()=>mutate(()=>cancelCameraEdit(session));
   const help=document.createElement('button');help.type='button';help.textContent='카메라 사용 안내';help.id='cameraHelp';$('.camera-toolbar').append(help);help.onclick=()=>document.dispatchEvent(new CustomEvent('chaessi:open-manual',{detail:{chapter:'camera-start'}}));
@@ -33,11 +36,11 @@ export function createCameraPanelController({getPreset,setPreset,onOpen,onClose,
   const baselineEdit=document.createElement('button');baselineEdit.type='button';baselineEdit.id='cameraEditBaseline';baselineEdit.textContent='그림과 기준이 다르면 수정';$('#cameraBaselineText').after(baselineEdit);
   baselineEdit.onclick=()=>{baselineEditing=!baselineEditing;baselineChoices();};
   $('[data-camera-pad=height]').insertAdjacentHTML('afterend','<div id="cameraHeightText" class="muted"></div>');
-  async function refreshList(){const response=await getJson('/api/camera/sessions');$('#cameraSessionPicker').innerHTML=`<option value="">${t('원본 선택')}</option>`+response.items.map(s=>`<option value="${escape(s.id)}">${escape(s.label||s.id)}</option>`).join('');if(session)$('#cameraSessionPicker').value=session.source.id;}
-  function save(){if(!session)return Promise.resolve();clearTimeout(timer);const value=clone(session);const task=()=>postJson('/api/camera/sessions/'+encodeURIComponent(value.source.id),{session:value});saveChain=saveChain.then(task,task).catch(e=>{showToast(t('카메라 작업 저장 실패: {message}',{message:translateText(e.message)}),true);throw e;});return saveChain;}
+  async function refreshList(){const response=await getJson('/api/camera/sessions');$('#cameraSessionPicker').innerHTML=`<option value="">${t('원본 선택')}</option>`+response.items.map(s=>`<option value="${escape(s.id)}">${escape(s.label||s.id)} · ${s.rules===LEGACY_CAMERA_RULES?'v1':'v2'}</option>`).join('');if(session)$('#cameraSessionPicker').value=session.source.id;}
+  function save(){if(!session||!dirty)return saveChain;clearTimeout(timer);const value=clone(session);dirty=false;const task=()=>postJson('/api/camera/sessions/'+encodeURIComponent(value.source.id),{session:value});saveChain=saveChain.then(task,task).catch(e=>{if(session?.source.id===value.source.id)dirty=true;showToast(t('카메라 작업 저장 실패: {message}',{message:translateText(e.message)}),true);throw e;});return saveChain;}
   function scheduleSave(){clearTimeout(timer);timer=setTimeout(()=>void save().catch(()=>{}),300);}
   function applyDraft(){suppress=true;try{setPreset(clone(session.draft));}finally{suppress=false;}}
-  function mutate(fn,{draft=false,message=''}={}){if(!session)return;try{fn();if(draft)applyDraft();render();scheduleSave();if(message)$('#cameraEditState').textContent=t(message);}catch(e){$('#cameraErrors').textContent=translateText(e.message);}}
+  function mutate(fn,{draft=false,message=''}={}){if(!session)return;try{fn();dirty=true;if(draft)applyDraft();render();scheduleSave();if(message)$('#cameraEditState').textContent=t(message);}catch(e){$('#cameraErrors').textContent=translateText(e.message);}}
   function draw(){
     if(!session||root.hidden)return;const box=$('.camera-stage'),svg=$('.camera-stage svg'),w=box.clientWidth,h=box.clientHeight,cx=w/2,cy=h/2,r=Math.min(w*.32,103),rad=Math.PI/180;
     svg.setAttribute('viewBox',`0 0 ${w} ${h}`);const p=(a,e)=>[cx+r*Math.sin(a*rad)*Math.cos(e*rad),cy+r*(.38*Math.cos(a*rad)*Math.cos(e*rad)-.93*Math.sin(e*rad))];
@@ -63,6 +66,7 @@ export function createCameraPanelController({getPreset,setPreset,onOpen,onClose,
     $('#cameraEmpty').hidden=Boolean(session);$('#cameraBody').hidden=!session;if(!session)return;
     cancelEdit.hidden=!session.pending?.[session.field];busyNote.hidden=!isGenerating();
     const compiled=compileCamera(session),f=compiled.fields[session.field],active=document.activeElement;
+    rulesDialog.render(session,compiled);
     lastResult=session.latestResult||null;if(lastResult){$('#cameraResultImage').src=lastResult.url;$('#cameraResultAsSource').hidden=false;}else{$('#cameraResultImage').removeAttribute('src');$('#cameraResultAsSource').hidden=true;}
     $('#cameraSourceLabel').textContent=session.source.label||session.source.id;if(session.source.imageUrl)$('#cameraSourceImage').src=session.source.imageUrl;else $('#cameraSourceImage').removeAttribute('src');
     const known=session.baseline.yaw!==null;$('#cameraBaselineText').textContent=t('원본 기준: {bearing} / {elevation} / 프레이밍 {framing}',{bearing:t(known?names[Math.round(((session.baseline.yaw+360)%360)/45)%8]:'방향 미확인'),elevation:session.baseline.elevation===null?t('상하 시점 미확인'):t('상하 대표값 {value}°',{value:session.baseline.elevation}),framing:session.baseline.framing??t('미확인')})+'\n'+Object.entries(session.evidence).map(([a,v])=>`${t(CAMERA_LABELS[a])}: ${t(evidenceLabel(v))}`).join(' · ');
@@ -86,7 +90,9 @@ export function createCameraPanelController({getPreset,setPreset,onOpen,onClose,
   async function openSource({preset,source,record=null,confirmed={}}){
     if(session)await save();
     const saved=(await getJson('/api/camera/sessions/'+encodeURIComponent(source.id))).session;
-    session=saved||record&&{...clone(record),source:{...record.source,imageUrl:record.source.imageUrl||source.imageUrl},draft:clone(record.draft),pending:{},checkpoint:null}||createCameraSession({preset,source,confirmed});
+    const next=saved||record&&{...clone(record),source:{...record.source,imageUrl:record.source.imageUrl||source.imageUrl},draft:clone(record.draft),pending:{},checkpoint:null}||createCameraSession({preset,source,confirmed});
+    if(!supportsCameraRules(next.rules))throw new Error('Unsupported camera rule version.');
+    compileCamera(next);session=next;dirty=!saved;
     baselineEditing=false;session.enabled=true;session.pending||={};session.manual||={};session.checkpoint??=null;applyDraft();onOpen();render();await save();await refreshList();
   }
   async function switchSession(id){if(!id)return;const stored=(await getJson('/api/camera/sessions/'+encodeURIComponent(id))).session;if(!stored)return;await openSource({preset:stored.sourcePreset,source:stored.source});}
@@ -104,7 +110,7 @@ export function createCameraPanelController({getPreset,setPreset,onOpen,onClose,
   $('#cameraRestore').onclick=()=>mutate(()=>restoreSource(session),{draft:true});$('#cameraUndo').onclick=()=>mutate(()=>{session=undoCamera(session);},{draft:true});
   $('#cameraResume').onclick=()=>mutate(()=>resumeManagedField(session),{draft:true,message:'카메라 관리를 다시 연결했습니다. 복귀·편집 취소로 이전 문구를 복구할 수 있습니다.'});
   $('#cameraCalibrationList').addEventListener('click',e=>{const b=e.target.closest('[data-remove-calibration]');if(!b)return;mutate(()=>{session.checkpoint=clone({...session,checkpoint:null});session.calibrations[b.dataset.removeCalibration].splice(Number(b.dataset.knot),1);session.revision++;});});
-  $('#cameraDisable').onclick=()=>{if(!session)return;try{const plain=detachCamera(session);suppress=true;try{setPreset(plain);}finally{suppress=false;}void save().catch(()=>{});activeNotice.hidden=true;onClose();}catch(e){$('#cameraErrors').textContent=translateText(e.message);}};
+  $('#cameraDisable').onclick=()=>{if(!session)return;try{const plain=detachCamera(session);dirty=true;suppress=true;try{setPreset(plain);}finally{suppress=false;}void save().catch(()=>{});activeNotice.hidden=true;onClose();}catch(e){$('#cameraErrors').textContent=translateText(e.message);}};
   $('#cameraGenerate').onclick=()=>onGenerate();$('#cameraSessionPicker').onchange=e=>void switchSession(e.target.value).catch(e=>showToast(e.message,true));
   $('#cameraResultAsSource').onclick=()=>{if(lastResult)document.dispatchEvent(new CustomEvent('chaessi:camera-result-source',{detail:{id:lastResult.id}}));};
   new ResizeObserver(draw).observe($('.camera-stage'));void refreshList().catch(()=>{});
@@ -112,15 +118,15 @@ export function createCameraPanelController({getPreset,setPreset,onOpen,onClose,
   document.addEventListener('chaessi:language-change',render);
   return {
     openSource,flush:save,render,
-    resume(){if(session){reconnectCamera(session,getPreset());applyDraft();onOpen();render();scheduleSave();}else{onOpen();render();}},
-    deactivate(){if(session){session.enabled=false;scheduleSave();}activeNotice.hidden=true;},
+    resume(){if(session){reconnectCamera(session,getPreset());dirty=true;applyDraft();onOpen();render();scheduleSave();}else{onOpen();render();}},
+    deactivate(){if(session){session.enabled=false;dirty=true;scheduleSave();}activeNotice.hidden=true;},
     snapshot(){return session?.enabled?clone(session):null;},
     request(preset){if(!session?.enabled)return null;this.syncPreset(preset);const output=compileCamera(session);if(output.errors.length)throw new Error(output.errors.join('; '));if(Object.keys(session.pending).length)throw new Error('완전한 가중치 숫자를 입력하세요.');return {...serializeCamera(session),pending:clone(session.pending)};},
-    syncPreset(preset){if(suppress||!session?.enabled||JSON.stringify(session.draft)===JSON.stringify(preset))return;syncCameraDraft(session,preset);render();scheduleSave();},
+    syncPreset(preset){if(suppress||!session?.enabled||JSON.stringify(session.draft)===JSON.stringify(preset))return;syncCameraDraft(session,preset);dirty=true;render();scheduleSave();},
     finalPayload(payload){$('#cameraFinalPayload').textContent=JSON.stringify(payload,null,2);},
     async received(response,url,sourceId){
       const result={id:response.generation.id,url};
-      if(session?.source.id===sourceId){session.latestResult=result;render();await save();}
+      if(session?.source.id===sourceId){session.latestResult=result;dirty=true;render();await save();}
       else if(sourceId){await save();const stored=(await getJson('/api/camera/sessions/'+encodeURIComponent(sourceId))).session;if(stored){stored.latestResult=result;await postJson('/api/camera/sessions/'+encodeURIComponent(sourceId),{session:stored});}}
     },
   };

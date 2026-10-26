@@ -40,20 +40,20 @@ export const cameraChapters = [
     ],'ホイールや Shift の組み合わせを知らなくても操作できます。角度は区分を代表する目標値で、生成画像の測定値ではありません。高さと上下視点も別の状態ですが、モデルが独立して反映するとは限りません。']},
   {id:'camera-calibration',image:'camera-calibration',
     ko:['카메라: 현재 위치에서 가중치 보정','카메라 위치는 촬영 목표이고, 가중치는 표현의 강도입니다. 숫자를 고쳐도 위치를 역산해서 움직이지 않습니다.',[
-      '정면 기준에서 +40°로 이동한 예에서는 정면 0.1과 앞사선 1.1이 제안됩니다. 현재 카메라 적용 후 · 다음 생성에 사용할 문구에서 앞사선 숫자만 1.5로 바꿔 보세요.',
-      '카메라는 +40°에 그대로 있고 정면 0.1도 그대로입니다. 합계를 맞추려고 다른 값을 재분배하지 않습니다. +50°로 이동하면 주변 구간에 보정이 이어지고 +40°로 돌아오면 1.5가 재현됩니다.',
+      '새 v2 작업에서 정면 기준 +40°로 이동하면 앞사선 표현 하나가 1.2로 제안됩니다. 현재 카메라 적용 후 · 다음 생성에 사용할 문구에서 이 숫자만 1.5로 바꿔 보세요. 1.2는 비교 시험용 기본값이며 최적값으로 검증되지 않았습니다.',
+      '카메라는 +40°에 그대로 있습니다. +50°에서도 같은 앞사선 구간 안에서 보정이 이어지고, +90°에서는 측면 표현 하나를 사용합니다. +40°로 돌아오면 1.5가 재현됩니다. 인접 방향을 섞거나 가중치를 각도로 역산하지 않습니다.',
       '다른 위치에도 보정할 수 있습니다. 같은 위치의 같은 표현을 다시 고치면 이전 보정을 갱신합니다. 왕복해도 누적되지 않으며 측면·후면에서 앞사선 표현이 계속 붙지는 않습니다.',
       '보정 기록은 원본별 작업의 모델/Effort·슬롯·축·표현에 연결됩니다. 다른 원본으로 전파하지 않습니다. High/Medium을 바꾸면 해당 조건의 기록을 사용합니다. 보정 적용 해제, 다시 적용 또는 기록의 개별 되돌리기로 조절하세요.'
     ],'숫자는 조작 예시이며 실제 +40° 결과를 보장하지 않습니다. 지원 입력은 -10~10, 소수 셋째 자리까지입니다. 다른 축을 바꾸어도 보정한 축의 위치는 바뀌지 않습니다.'],
     en:['Camera: calibrate weights at the current position','Position is your camera target; weight is the strength of an expression. Editing a number does not move the camera by reverse-calculating an angle.',[
-      'For a front baseline at +40°, the example proposes front 0.1 and front-diagonal 1.1. In After camera adjustments · text for the next generation, change only the diagonal weight to 1.5.',
-      'The camera stays at +40° and front stays at 0.1. Other values are not redistributed to normalize a total. Moving to +50° carries the correction nearby; returning to +40° reproduces 1.5.',
+      'In new v2 work, +40° from a front baseline proposes one front-diagonal expression at 1.2. In After camera adjustments · text for the next generation, change that number to 1.5. The initial 1.2 is a comparison baseline, not a validated optimum.',
+      'The camera stays at +40°. At +50° the correction continues within the same diagonal sector; +90° selects one side expression. Returning to +40° reproduces 1.5. Adjacent directions are not mixed and weights are not converted back to angles.',
       'You can correct multiple positions. Editing the same expression at the same position replaces that correction. Repeated travel does not accumulate values, and a front-diagonal expression does not remain attached at the side or back.',
       'Corrections belong to this source’s work, model/Effort, field, axis and expression. They do not propagate to another source. Switching High/Medium uses the records for those conditions. Disable calibration, enable it again or remove an individual correction from the records.'
     ],'These numbers explain controls; they do not guarantee an actual +40° image. Input supports -10 to 10 and up to 3 decimal places. Changing another axis does not move the corrected axis.'],
     ja:['カメラ：現在位置で重みを補正','位置は撮影目標、重みは表現の強さです。数値を直しても角度を逆算してカメラを動かしません。',[
-      '正面基準から +40° の例では、正面 0.1 と前斜め 1.1 が提案されます。「カメラ適用後・次の生成に使う文章」で前斜めの数値だけ 1.5 に変えてみます。',
-      'カメラは +40°、正面は 0.1 のままです。合計を正規化するための再配分はしません。+50° に動かすと付近に補正が続き、+40° に戻すと 1.5 が再現されます。',
+      '新しいv2作業では正面基準から+40°で前斜めの表現1つを1.2で提案します。「カメラ適用後・次の生成に使う文章」で数値を1.5に変えます。1.2は比較試験用の初期値で、最適値として検証された値ではありません。',
+      'カメラは+40°のままです。+50°でも同じ前斜め区間内で補正が続き、+90°では側面の表現1つを選びます。+40°に戻すと1.5を再現します。隣り合う方向を混ぜず、重みから角度を逆算しません。',
       '複数の位置を補正できます。同じ位置・表現を直すと補正が更新されます。往復しても値は累積せず、側面や背面まで前斜めの表現が付いてくることもありません。',
       '記録はその元画像の作業・モデル/Effort・入力欄・軸・表現に属します。別の元画像には伝わりません。High/Medium 切り替え時はその条件の記録を使います。補正の適用解除・再適用、または記録から個別に戻せます。'
     ],'数値は操作例で、実際に +40° の画像になる保証ではありません。入力は -10～10、小数点以下3桁までです。他の軸を変えても補正した軸の位置は変わりません。']},
@@ -134,3 +134,20 @@ export const cameraChapters = [
       '視線の実験は初期状態ではオフです。有効にして方向を十分に変えると、明確な looking at viewer の制約だけを外し、looking over shoulder など頭の姿勢の文章は保持します。視線・頭の固定を保証するものではありません。'
     ],'実際の生成にはインターネットと生成権限のある NovelAI アカウントが必要で、Anlas または V5 スタミナの条件に従います。無料生成として案内しません。コード・mock・Electron の検証と画像品質の検証は別です。']},
 ];
+
+// Preserve the seven chapter IDs and released artwork. Label the old screenshots
+// explicitly while the private implementation is being evaluated.
+const ruleHelp={
+  ko:{controls:'새 v2 작업은 위치를 연속 저장하되 방향·상하 시점·높이·프레이밍마다 대표 표현 하나를 선택합니다. 방향 구간은 중심각의 ±22.5°이며 시작 포함·끝 제외입니다. 경계에서 태그가 바뀌어도 손잡이 위치는 고정 각도로 튀지 않습니다.',saved:'이전 v1 작업과 History는 당시 혼합 계산으로 재개됩니다. 새 단일 방향 작업으로 복사를 누르면 미리보기에서 가져올 보정을 선택할 수 있습니다. 같은 원본·모델/Effort·슬롯·표현·위치에 맞는 절대값만 가져오며, 선택 불가 기록은 이전 작업에 남습니다. 취소는 아무것도 바꾸지 않고, 적용하면 별도 v2 작업이 저장됩니다. v2에서도 이전 보정 선택 가져오기와 복귀·편집 취소를 사용할 수 있습니다.',editing:'다른 슬롯이나 수동 문구에 카메라 조건이 남으면 위치와 문구를 표시합니다. 원문은 유지되므로 직접 확인하고 수정하세요.',recovery:'이전 v1 계산이나 팬·틸트·롤 보정에서 이동 후 지원 범위를 넘으면 값을 낮추거나 해당 보정을 되돌리거나 보정 적용 해제를 누르세요. 값을 조용히 잘라 보내지 않습니다.',image:'v3.8.0 조작 화면 참고용입니다. 혼합 숫자가 보이면 이전 v1 예시이며, 새 v2 방식은 아래 절차를 따르세요.'},
+  en:{controls:'New v2 work stores continuous positions but selects one representative expression for each direction, elevation, height and framing axis. Direction sectors span ±22.5° around each center and include their start but exclude their end. A tag change at a boundary does not snap the handle.',saved:'Legacy v1 work and History resume the original blended calculation. Copy to a new single-direction work opens a preview where you can select calibrations. Only absolute values matching source, model/Effort, field, expression and position can be imported; unavailable records stay in the original work. Cancel changes nothing; Apply creates a separate v2 work. In v2, Select legacy calibrations to import and Undo reset / edit remain available.',editing:'Camera conditions left in manual text or other fields are shown with their location. Original text is retained for you to inspect and edit.',recovery:'If movement exceeds the supported range in legacy v1 or pan/tilt/roll calibration, reduce the value, remove that correction or disable calibration. Values are not silently clipped.',image:'v3.8.0 controls shown for reference. Blended numbers illustrate legacy v1; follow the steps below for new v2 work.'},
+  ja:{controls:'新しいv2作業は位置を連続的に保存し、方向・上下視点・高さ・フレーミングの各軸で代表表現を1つ選びます。方向の区間は中心角の±22.5°で、始点を含み終点を含みません。境界でタグが変わってもハンドルは固定角度へ飛びません。',saved:'以前のv1作業と履歴は当時の混合計算で再開します。「単一方向の新しい作業にコピー」で補正を選ぶプレビューを開きます。同じ元画像・モデル/Effort・スロット・表現・位置に合う絶対値だけを読み込み、選べない記録は元の作業に残します。キャンセルは何も変えず、適用すると別のv2作業を保存します。v2でも以前の補正の読み込みと「復帰・編集を取り消す」が使えます。',editing:'手動の文章や他の欄に残ったカメラ条件は場所と文章を表示します。原文は保持するので、自分で確認して修正してください。',recovery:'以前のv1計算やパン・チルト・ロール補正で移動後に対応範囲を超える場合は、値を下げるか、その補正を戻すか、補正を解除します。値を黙って切り詰めて送信しません。',image:'v3.8.0の操作画面を参考として表示しています。混合された数値は以前のv1の例です。新しいv2は下の手順を参照してください。'}
+};
+for(const chapter of cameraChapters){
+  chapter.imageNote=Object.fromEntries(Object.entries(ruleHelp).map(([locale,help])=>[locale,help.image]));
+  for(const [locale,help] of Object.entries(ruleHelp)){
+    if(chapter.id==='camera-controls')chapter[locale][2][0]+=' '+help.controls;
+    if(chapter.id==='camera-editing')chapter[locale][2][1]+=' '+help.editing;
+    if(chapter.id==='camera-recovery')chapter[locale][2][2]=help.recovery;
+    if(chapter.id==='camera-records')chapter[locale][2][3]+=' '+help.saved;
+  }
+}

@@ -1,7 +1,8 @@
 import {scanPrompt,promptFields,readField,writeField} from './prompt-spans.js';
-import {calibratedWeight,setCalibration,calibrationCoordinate,wrapAngle,parseWeight,roundWeight} from './calibration.js';
+import {calibratedWeight,calibratedSingleWeight,setCalibration,calibrationCoordinate,wrapAngle,parseWeight,roundWeight} from './calibration.js';
+import {CAMERA_RULES,LEGACY_CAMERA_RULES,CAMERA_VOCABULARY,CAMERA_STRENGTH,supportsCameraRules,singleExpression} from './camera-rules.js';
 
-export const CAMERA_RULES='camera-local-calibration/1';
+export {CAMERA_RULES,LEGACY_CAMERA_RULES,CAMERA_VOCABULARY,CAMERA_STRENGTH,supportsCameraRules};
 export const AXES=['yaw','elevation','pan','tilt','height','framing','roll'];
 const clone=value=>structuredClone(value);
 const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
@@ -27,15 +28,17 @@ export function inferBaseline(preset,field){
   const missing=AXES.filter(a=>baseline[a]===null);
   return {field:selected.key,baseline,evidence,missing,hints,blocked:selected.scan.blocked.map(n=>({axes:n.axes,reason:n.reason})),fields:fields.map(f=>({key:f.key,label:f.label,hints:f.scan.hints.length}))};
 }
-export function createCameraSession({preset,source,confirmed={}}){
+export function createCameraSession({preset,source,confirmed={},rules=CAMERA_RULES}){
+  if(!supportsCameraRules(rules))throw new Error('Unsupported camera rule version.');
   const inference=inferBaseline(preset);Object.assign(inference.baseline,confirmed.values||{});Object.assign(inference.evidence,confirmed.evidence||{});
-  return {rules:CAMERA_RULES,source:clone(source),sourcePreset:clone(preset),draft:clone(preset),field:inference.field,
+  return {rules,...(rules===CAMERA_RULES?{mapping:{vocabulary:CAMERA_VOCABULARY,strength:CAMERA_STRENGTH}}:{}),source:clone(source),sourcePreset:clone(preset),draft:clone(preset),field:inference.field,
     baseline:inference.baseline,evidence:inference.evidence,camera:clone(inference.baseline),activeAxes:[],calibrations:{},calibrationEnabled:true,
     calibrationContext:cameraContext(preset),manual:{},revision:0,enabled:true,pending:{},notes:[],checkpoint:null};
 }
 export function confirmBaseline(session,values){for(const [axis,value] of Object.entries(values)){if(!AXES.includes(axis)||!Number.isFinite(value))throw new Error('Invalid camera baseline.');session.baseline[axis]=value;session.camera[axis]=value;session.evidence[axis]='user-confirmed category';}session.revision++;return session;}
 export function moveCamera(session,axis,value){
   if(!AXES.includes(axis)||!Number.isFinite(value))throw new Error('Invalid camera control.');
+  session.pending||={};
   if(Object.keys(session.pending).length)throw new Error('Finish the invalid prompt edit before moving the camera.');
   if(['yaw','elevation','framing'].includes(axis)&&session.baseline[axis]===null)throw new Error(`먼저 원본의 ${CAMERA_LABELS[axis]} 기준을 확인하세요.`);
   session.camera[axis]=roundWeight(axis==='yaw'?wrapAngle(value):clamp(value,...(axis==='elevation'?[-85,85]:axis==='roll'?[-60,60]:['pan','tilt'].includes(axis)?[-1,1]:[0,1])));
@@ -47,8 +50,15 @@ function anchors(axis){
   if(axis==='framing')return [[0,'close','close-up'],[.25,'upper','upper body'],[.5,'cowboy','cowboy shot'],[.75,'full','full body'],[1,'wide','wide shot']];
   return null;
 }
-export function baseExpressions(axis,value){
+export function baseExpressions(axis,value,rules=CAMERA_RULES){
+  if(!supportsCameraRules(rules))throw new Error('Unsupported camera rule version.');
   if(value===null)return [];
+  if(!AXES.includes(axis)||!Number.isFinite(value))throw new Error('Invalid camera control.');
+  if(rules===CAMERA_RULES){
+    value=roundWeight(value);
+    const single=singleExpression(axis,value,yawNames,anchors(axis));
+    if(single)return single;
+  }
   if(axis==='yaw'){
     const unit=((value+360)%360)/45,low=Math.floor(unit),fraction=unit-low;
     return [[low,1-fraction],[(low+1)%8,fraction]].filter(([,amount])=>amount>.00001).map(([i,amount])=>({axis,term:`bearing-${i}`,text:yawNames[i],base:Math.round(amount*12)/10,coordinate:calibrationCoordinate(axis,value,i*45),support:[-45,45]})).filter(x=>x.base>0);
@@ -68,15 +78,34 @@ export function baseExpressions(axis,value){
   const text=axis==='pan'?(positive?'camera pans right; framing shifts right; subject left in frame':'camera pans left; framing shifts left; subject right in frame'):axis==='tilt'?(positive?'camera tilts upward at a fixed position':'camera tilts downward at a fixed position'):(positive?'dutch angle; frame rotated clockwise':'dutch angle; frame rotated counterclockwise');
   return [{axis,term:positive?'positive':'negative',text,base:Math.round((.6+.6*mag)*10)/10,coordinate:value,support:positive?[0,axis==='roll'?61:1.01]:[axis==='roll'?-61:-1.01,0]}];
 }
+export function cameraCalibrationKey(session,field,axis,term){
+  const legacy=`${cameraContext(session.draft)}|${field}|${axis}|${term}`;
+  const identity=field==='base'?'base':session.draft.prompt_parts.characters[Number(field.split(':')[1])]?.id;
+  return session.rules===LEGACY_CAMERA_RULES?legacy:`${session.rules}|${CAMERA_VOCABULARY}|${identity}|${legacy}`;
+}
 function expressionsFor(session,axis){
-  return baseExpressions(axis,session.camera[axis]).map(item=>{
-    const key=`${cameraContext(session.draft)}|${session.field}|${axis}|${item.term}`;
+  return baseExpressions(axis,session.camera[axis],session.rules).map(item=>{
+    const key=cameraCalibrationKey(session,session.field,axis,item.term);
     const applicable=session.calibrationEnabled;
-    return {...item,key,weight:applicable?calibratedWeight(item.base,session.calibrations[key],item.coordinate,item.support):item.base};
+    const calibrate=session.rules===LEGACY_CAMERA_RULES?calibratedWeight:calibratedSingleWeight;
+    return {...item,key,weight:applicable?calibrate(item.base,session.calibrations[key],item.coordinate,item.support):item.base};
   });
 }
+function cameraConflicts(preset,session,expressions=[]){
+  const active=new Set(session.activeAxes),items=[];
+  for(const field of promptFields(preset)){
+    const parsed=scanPrompt(field.text);
+    for(const binding of [...parsed.bindings,...parsed.blocked])for(const term of binding.terms||[]){
+      if(!active.has(term.axis)||term.axis==='gaze')continue;
+      const owned=field.key===session.field&&expressions.some(e=>binding.start<=e.start&&binding.end>=e.end);
+      if(!owned)items.push({field:field.key,axis:term.axis,text:term.text,start:binding.start});
+    }
+  }
+  return items;
+}
 export function compileCamera(session,preset=session.draft){
-  if(session.rules!==CAMERA_RULES)throw new Error('Unsupported camera rule version.');
+  if(!supportsCameraRules(session.rules))throw new Error('Unsupported camera rule version.');
+  if(session.rules===CAMERA_RULES&&session.mapping&&(session.mapping.vocabulary!==CAMERA_VOCABULARY||session.mapping.strength!==CAMERA_STRENGTH))throw new Error('Unsupported camera rule version.');
   const result=clone(preset),fields={},notes=[];let errors=[];
   if(!session.enabled)return {preset:result,fields,notes,errors};
   for(const [field,text] of Object.entries(session.manual||{})){
@@ -86,7 +115,7 @@ export function compileCamera(session,preset=session.draft){
   if(Object.keys(session.pending||{}).length)errors.push('Incomplete or invalid camera prompt edit.');
   const source=readField(result,session.field);if(source===undefined||!promptFields(result).some(f=>f.key===session.field))return {preset:result,fields,notes,errors:['관리하던 슬롯이 삭제되거나 비활성화됐습니다. 활성 문구를 선택하세요. 기존 보정은 보관 중입니다.']};
   const scan=scanPrompt(source);errors.push(...scan.errors);
-  if(session.manual[session.field]!==undefined){notes.push('수동 문구 유지 · 카메라 관리 재개를 누르면 연결합니다.');fields[session.field]={text:source,expressions:[],pieces:[{outputStart:0,outputEnd:source.length,sourceStart:0}]};return {preset:result,fields,notes,errors};}
+  if(session.manual[session.field]!==undefined){notes.push('수동 문구 유지 · 카메라 관리 재개를 누르면 연결합니다.');fields[session.field]={text:source,expressions:[],pieces:[{outputStart:0,outputEnd:source.length,sourceStart:0}]};return {preset:result,fields,notes,errors,conflicts:cameraConflicts(result,session)};}
   const active=new Set(session.activeAxes),blocked=new Set(scan.blocked.flatMap(n=>n.axes));
   for(const axis of active)if(blocked.has(axis)){notes.push(`${CAMERA_LABELS[axis]}: 혼합 가중치 묶음을 보존했습니다. 해당 축은 적용 보류.`);active.delete(axis);}
   if(session.calibrationContext!==cameraContext(preset))notes.push('모델/Effort가 바뀌어 이전 보정을 보류했습니다. 원래 조건에서는 재사용됩니다.');
@@ -118,7 +147,7 @@ export function compileCamera(session,preset=session.draft){
   }
   pieces.push({outputStart:text.length,outputEnd:text.length+source.length-cursor,sourceStart:cursor});text+=source.slice(cursor);
   fields[session.field]={text,expressions,pieces};writeField(result,session.field,text);
-  return {preset:result,fields,notes,errors};
+  return {preset:result,fields,notes,errors,conflicts:cameraConflicts(result,session,expressions)};
 }
 function difference(before,after){let start=0;while(start<before.length&&start<after.length&&before[start]===after[start])start++;let a=before.length,b=after.length;while(a>start&&b>start&&before[a-1]===after[b-1]){a--;b--;}return {start,end:a,replacement:after.slice(start,b)};}
 export function editCameraOutput(session,field,text){
@@ -175,8 +204,10 @@ export function resumeManagedField(session){session.checkpoint=checkpoint(sessio
 export function serializeCamera(session){const record=checkpoint(session);delete record.pending;delete record.notes;delete record.detachedPreset;return record;}
 export function cameraRequest(preset,record){
   if(!record)return {preset:clone(preset),camera:null};
-  if(record.rules!==CAMERA_RULES||!record.source?.id||!Array.isArray(record.activeAxes)||record.activeAxes.some(a=>!AXES.includes(a)))throw new Error('Invalid camera session.');
+  if(!supportsCameraRules(record.rules)||!record.source?.id||!Array.isArray(record.activeAxes)||record.activeAxes.some(a=>!AXES.includes(a)))throw new Error('Invalid camera session.');
   const session={...clone(record),draft:clone(preset),pending:record.pending||{}};
   const compiled=compileCamera(session,preset);if(compiled.errors.length)throw new Error(compiled.errors.join('; '));
-  return {preset:compiled.preset,camera:serializeCamera(session),notes:compiled.notes};
+  const camera=serializeCamera(session);
+  if(session.rules===CAMERA_RULES)camera.resolvedExpressions=Object.fromEntries(Object.entries(compiled.fields).map(([field,value])=>[field,value.expressions.map(({axis,term,text,weight,coordinate})=>({axis,term,text,weight,coordinate}))]));
+  return {preset:compiled.preset,camera,notes:compiled.notes};
 }
