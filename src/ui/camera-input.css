@@ -1,0 +1,40 @@
+.camera-input-dialog {width:min(1120px,96vw);max-height:94vh;padding:22px;overflow:auto;}
+.camera-input-dialog .dialog-header {align-items:flex-start;gap:20px;}
+.camera-input-toolbar {display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin:12px 0;}
+.camera-input-toolbar label {display:flex;align-items:center;gap:8px;font-weight:700;}
+.camera-input-dialog input[type=checkbox],.camera-input-review input[type=checkbox] {width:auto;}
+.camera-input-note {border-left:3px solid #61d8cb;padding:10px 14px;background:#112b3a;color:#cae6ea;line-height:1.6;}
+.camera-input-grid {display:grid;grid-template-columns:minmax(280px,.8fr) minmax(360px,1.2fr);gap:24px;height:calc(94vh - 235px);min-height:300px;}
+.camera-input-controls {background:#0c1828;border:1px solid #2e4054;border-radius:16px;padding:16px;overflow:auto;}
+#cameraInputSphere {display:block;width:100%;max-height:310px;touch-action:none;cursor:grab;border-radius:12px;}
+#cameraInputSphere:focus {outline:2px solid #71dfd3;outline-offset:3px;}
+#cameraInputSphere:active {cursor:grabbing;}
+.camera-input-directions {display:flex;flex-wrap:wrap;gap:4px;margin-bottom:16px;}
+.camera-input-directions button {padding:7px;min-width:45px;font-size:12px;}
+.camera-input-directions [aria-pressed=true] {border-color:#71dfd3;color:#aaffeb;background:#163d43;}
+.camera-input-controls label {display:grid;gap:5px;margin:12px 0;}
+.camera-input-controls input[type=range] {width:100%;accent-color:#62d8cb;}
+.camera-input-controls details {border-top:1px solid #354557;padding-top:10px;}
+.camera-input-controls p {font-size:12px;line-height:1.5;color:#a7bbc9;}
+.camera-input-output {min-width:0;overflow:auto;padding-right:8px;}
+.camera-input-output p {font-size:12px;line-height:1.6;color:#aebed0;}
+.camera-input-term {display:grid;grid-template-columns:minmax(160px,1fr) 85px 54px;align-items:end;gap:7px;margin:9px 0;}
+.camera-input-term label {display:grid;gap:4px;font-size:12px;}
+.camera-input-term input {width:100%;min-width:0;}
+.camera-input-term button {height:36px;padding:5px;}
+.camera-input-manual {border-color:#d8b765!important;}
+.camera-input-output textarea {width:100%;resize:vertical;font-size:12px;line-height:1.6;min-height:70px;height:90px;}
+.camera-input-output>label {display:block;margin:14px 0 6px;}
+.camera-input-conflicts:not(:empty) {background:#342a18;border:1px solid #736037;border-radius:8px;padding:12px;overflow-wrap:anywhere;}
+.camera-input-conflicts p {color:#eed9aa;margin:5px 0;}
+.camera-input-save {display:flex;gap:10px;align-items:end;}
+.camera-input-save label {flex:1;display:grid;}
+#cameraInputSaved {display:block;width:100%;}
+#cameraInputError {color:#ffaaa8;}
+#cameraInputBadge {font-size:12px;margin:0 0 8px;align-self:flex-start;}
+#cameraInputBadge.camera-input-active {border-color:#61d8cb;color:#92efdf;}
+.camera-input-review {width:min(850px,94vw);max-height:90vh;overflow:auto;}
+.camera-input-review pre,#cameraInputLegacy pre {white-space:pre-wrap;overflow-wrap:anywhere;max-height:48vh;overflow:auto;padding:14px;background:#0a1522;font-size:12px;}
+#cameraInputReviewWarnings {white-space:pre-wrap;color:#edc990;line-height:1.6;margin-bottom:12px;}
+.camera-input-review label {display:block;margin:12px 0;}
+@media(max-width:800px) {.camera-input-grid{grid-template-columns:1fr;height:auto;}.camera-input-dialog{padding:14px;}.camera-input-term{grid-template-columns:minmax(100px,1fr) 72px 50px;}.camera-input-save{flex-wrap:wrap;}}

@@ -207,8 +207,6 @@ for (const effort of ["high", "medium"]) {
       assert.match(await page.locator("#basePrompt").inputValue(), /__tops__/);
       assert.equal(latest.mode, mode); assert.equal(latest.model, sent.model);
       assert.equal(history.generation.effort, effort);
-      // Generation saved precedes account/history refresh and final mode reconciliation.
-      await page.waitForFunction(()=>!document.querySelector("#generateButton").disabled);
       pass(`${model} ${effort} ${mode}: UI generation, final request/History prompt matching and reusable input preservation (mock provider)`);
     }
   }

@@ -1,5 +1,5 @@
 import {compositionMessages} from './composition-translations.js';
-import {cameraMessages} from './camera-translations.js';
+import {cameraInputMessages} from './camera-input-messages.js';
 import {pixelResolutionMessages} from './pixel-resolution-translations.js';
 // English source text is the stable presentation key. User data is never a key.
 const rows = `
@@ -672,7 +672,7 @@ Dandy / 댄디	댄디	ダンディ
 export const messages = Object.fromEntries(rows.map(row => { const [en, ko, ja] = row.split('\t'); return [en, { en, ko, ja }]; }));
 Object.assign(messages,compositionMessages);
 Object.assign(messages,pixelResolutionMessages);
+Object.assign(messages,cameraInputMessages);
 messages['Legacy PDF reference. Open Help Center for current features.']={en:'Legacy PDF reference. Open Help Center for current features.',ko:'기존 PDF 참고 자료입니다. 최신 기능은 도움말 센터에서 확인하세요.',ja:'従来のPDF参考資料です。最新機能はヘルプセンターを開いてください。'};
 for (const [key, en] of Object.entries({ '여성 캐릭터': 'Female characters', '남성 캐릭터': 'Male characters', '여성 의상': 'Female outfits', '남성 의상': 'Male outfits', '구도·카메라': 'Composition / Camera', '배경·소품': 'Background / Props', '조명': 'Lighting', '그림체': 'Art style', '품질': 'Quality', '기타': 'Other' })) messages[key].en = en;
 for (const key of Object.keys(messages).filter(key => key.includes(' / ') && /[가-힣]/.test(key))) messages[key].en = key.split(' / ')[0];
-Object.assign(messages,cameraMessages);

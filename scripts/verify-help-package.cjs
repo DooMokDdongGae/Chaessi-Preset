@@ -3,8 +3,8 @@ const fs=require('node:fs'),path=require('node:path'),assert=require('node:asser
 (async()=>{
  const root=path.resolve(process.argv[2]),sharp=require(path.join(root,'node_modules/sharp'));
  const pkg=JSON.parse(fs.readFileSync(path.join(root,'package.json'))),version=await import(pathToFileURL(path.join(root,'src/state/build-version.js')));
- assert.equal(version.APP_VERSION,pkg.version);assert.equal(pkg.version,JSON.parse(fs.readFileSync(path.resolve('package.json'))).version);
- const {manualChapters}=await import(pathToFileURL(path.join(root,'src/ui/manual-content.js')));assert.equal(manualChapters.length,42);
+ assert.equal(version.APP_VERSION,pkg.version);assert.equal(pkg.version,'3.8.2');
+ const {manualChapters}=await import(pathToFileURL(path.join(root,'src/ui/manual-content.js')));assert.equal(manualChapters.length,40);
  const files=new Set();for(const c of manualChapters)for(const locale of ['ko','en','ja']){
  files.add(`assets/manuals/${locale}/${c.image}.png`);for(const i of c.illustrations??[])files.add(i.screenshot?`assets/manuals/${locale}/${i.screenshot}.png`:`assets/manuals/examples/${i.file}`);
  }

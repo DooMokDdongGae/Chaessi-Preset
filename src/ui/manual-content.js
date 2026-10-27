@@ -1,10 +1,10 @@
-import {attachUserArtworkHelp} from './manual-art-v381.js';
 import { attachIllustrations } from './manual-illustrations.js';
+import { absoluteCameraChapters } from './manual-camera-input.js';
+import { describeReusedArtwork } from './manual-reused-art.js';
 import { basicChapters } from './manual-basics.js';
 import { imageToolChapters } from './manual-image-tools.js';
 import {pixelSnapChapter,updateResolutionGuide} from './manual-pixel-snap.js';
 import {attachCompositionHelp} from './manual-composition.js';
-import {cameraChapters} from './manual-camera.js';
 // One chapter structure shared by all three languages; packaged offline with the app.
 const chapter = (id, image, ko, en, ja) => ({ id, image, ko, en, ja });
 export const manualChapters = [
@@ -88,7 +88,7 @@ const screen=(screenshot,ko,en,ja)=>({screenshot,caption:{ko,en,ja}});
 manualChapters.find(c=>c.id==='start').illustrations.push(screen('app-info','상단 첫 앱 정보에서 ① 버전 ② 도움말 ③ 후원을 찾아요.','In the first App info menu: ① version ② help ③ optional support.','先頭のアプリ情報：① バージョン ② ヘルプ ③ 任意の支援。'));
 manualChapters.find(c=>c.id==='image-tools').illustrations.push(
  screen('tool-history-entry','History 그림을 연 뒤 이미지 도구를 누릅니다.','Open a History image, then press Image tools.','履歴の画像を開き、画像ツールを押します。'),
- screen('tool-result','사용자가 제공한 실내 인물 원본에 하늘색 선을 그리고 로컬 Canvas로 저장한 실제 결과입니다. PNG 저장이나 다른 도구·I2I·Inpaint 연결 버튼을 사용하세요. 큰 이미지의 생성 재입력에는 크기 제한이 있습니다.','A real local Canvas result: a cyan stroke on the user-provided indoor portrait. Use Save PNG or continue with another tool, I2I or Inpaint. Large results face generation input limits.','ユーザー提供の室内ポートレートに水色の線を描き、ローカルCanvasで保存した実際の結果です。PNG保存か別ツール・I2I・Inpaintを使います。大きい画像の生成再入力には上限があります。'));
+ screen('tool-result','새 온실 원본에 하늘색 선을 그리고 로컬 Canvas로 저장한 실제 결과입니다. PNG 저장이나 다른 도구·I2I·Inpaint 연결 버튼을 사용하세요. 큰 이미지의 생성 재입력에는 크기 제한이 있습니다.','A real local Canvas result: a cyan stroke on the new greenhouse source. Use Save PNG or continue with another tool, I2I or Inpaint. Large results face generation input limits.','新しい温室の元画像に水色の線を描き、ローカルCanvasで保存した実際の結果です。PNG保存か別ツール・I2I・Inpaintを使います。大きい画像の生成再入力には上限があります。'));
 manualChapters.find(c=>c.id==='tool-canvas').illustrations.push(screen('tool-result','붓으로 그린 하늘색 표시를 실제 Canvas로 저장한 결과예요. 아래 결과로 스크롤해서 PNG를 저장해요.','A cyan stroke actually drawn and saved in Canvas. Scroll to the completed result to save PNG.','Canvas で実際に描いて保存した水色の印です。完成結果までスクロールして PNG を保存します。'));
 manualChapters.find(c=>c.id==='tool-canvas').illustrations.unshift(screen('canvas-controls','① 붓 목록에서 펜·지우개·채우기·선택 ② 색 ③ Undo ④ Redo ⑤ 선택 자르기 ⑥ 크기 변경.','① Brush menu: Pen/Eraser/Fill/Select ② color ③ Undo ④ Redo ⑤ Crop ⑥ Resize.','① 筆一覧：ペン/消しゴム/塗りつぶし/選択 ② 色 ③ Undo ④ Redo ⑤ 切り抜き ⑥ サイズ変更。'));
 manualChapters.find(c=>c.id==='image-tools').illustrations.unshift(screen('tool-latest-entry','최근 결과의 이미지 도구 버튼에서도 바로 시작해요. 외부 PNG는 도구 창의 PNG 선택을 눌러요.','Start from the latest result’s Image tools button too. For an external PNG, use Choose PNG inside the tool dialog.','最新結果の画像ツールからも開始できます。外部 PNG はツール内の PNG 選択で開きます。'));
@@ -108,9 +108,8 @@ const common=manualChapters.find(c=>c.id==='image-tools');
 manualChapters.push(pixelSnapChapter);
 updateResolutionGuide(manualChapters);
 attachCompositionHelp(manualChapters);
-manualChapters.push(...cameraChapters);
+manualChapters.push(...absoluteCameraChapters);
+describeReusedArtwork(manualChapters);
 common.ko[2]=['최근 결과에서 이미지 도구를 누르세요. 과거 그림은 History에서 크게 연 뒤 이미지 도구를 눌러요. 외부 PNG는 상단 이미지 도구 → PNG 선택으로 열어요.','도구 목록에서 하고 싶은 일을 골라요. 원본 사용 글은 그림을 만들 때 쓴 설명이고, 현재 작업대 글은 지금 편집 중인 설명이에요. 후자를 직접 고르면 Wildcard가 그때 한 번 정해져요.','설정을 정하고 작업·비용 확인을 눌러 크기·예상 Anlas·실제로 쓸 글을 읽어요. 왼쪽 설정이 길면 아래로 스크롤하세요.','실행하고 기다리세요. 완성 결과는 입력과 별도로 아래에 나타나며 History에 새 PNG로 저장돼요. 실패나 통신 중단 시 자동으로 유료 재시도하지 않아요.','PNG 저장으로 내 컴퓨터에 보관해요. 다른 도구 적용으로 이어서 다듬거나 I2I/Inpaint 원본으로 쓸 수 있어요. 작업대 글은 자동으로 바뀌지 않아요.'];
 common.en[2]=['Press Image tools on a latest result. For an older picture, open it in History, then Image tools. For an external PNG, use the top Image tools button and Choose PNG.','Choose what to do in Tool. Original used prompt means the text used to make the source; current workbench prompt means the text you are editing. Explicitly choosing the latter resolves its Wildcards once.','Choose settings and Review operation to read size, estimated Anlas and actual prompt. Scroll down the left settings column when necessary.','Run and wait. The completed result appears below, separately from the input, and is saved as a new History PNG. Failures and interruptions do not trigger automatic paid retries.','Save PNG to your computer. Use the result in another tool, or as I2I/Inpaint source. Your workbench text is not automatically changed.'];
 common.ja[2]=['最新結果の画像ツールを押します。過去の絵は履歴で開いてから画像ツールへ。外部 PNG は上部の画像ツール → PNG 選択で開きます。','ツール一覧で作業を選びます。元のプロンプトは元画像を作った文章、現在の作業台は編集している文章です。後者を明示して選ぶと Wildcard を一度確定します。','設定後に作業・費用を確認し、サイズ・推定 Anlas・実際の文章を読みます。左の設定が長い場合は下にスクロールします。','実行して待ちます。完成結果は入力と別に下へ表示し、新しい履歴 PNG として保存します。失敗や中断時に有料の自動再試行はしません。','PNG 保存でパソコンに保管します。別ツールや I2I/部分修正の元画像として続けられます。作業台の文章は自動では変わりません。'];
-
-attachUserArtworkHelp(manualChapters);

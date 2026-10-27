@@ -1,4 +1,5 @@
 import { deleteJson, getJson, postForm, postImage, postJson } from "./api/client.js";
+import { createCameraInputController } from './ui/camera-input-controller.js';
 import { createGenerationModeController } from "./ui/generation-mode-controller.js";
 import { createImageToolsController, getImageToolLabel } from "./ui/image-tools-controller.js";
 import { installGenerationCost } from "./ui/generation-cost.js";
@@ -10,7 +11,6 @@ import { createHistorySelectionController } from "./ui/history-selection.js";
 import { createCharacterPositionPad } from "./ui/character-position-pad.js";
 import { createCharacterPresetPreferences } from "./ui/character-preset-preferences.js";
 import { createWorkbenchController } from "./ui/workbench-controller.js";
-import { createCameraPanelController } from './ui/camera-panel-controller.js';
 import {createResolutionController} from './ui/resolution-controller.js';
 import { installLanguageUI, getLanguage, t, formatUIError } from "./ui/i18n.js";
 import { createSortControl, sortPresets } from "./ui/preset-sorting.js";
@@ -57,7 +57,6 @@ let preciseReferenceController = null;
 let imageIntakeController = null;
 let characterPositionPadController = null;
 let workbenchController = null;
-let cameraPanelController = null;
 const promptTokenizers = { t5: null, qwen: null };
 let promptTokenCounterTimer = null;
 let promptTokenizerError = null;
@@ -71,7 +70,6 @@ const characterPresetPreferences = createCharacterPresetPreferences();
 const historyViewGuard = createLatestRequestGuard();
 const historySelection = createHistorySelectionController();
 const state = {
-  generationBusy: false,
   currentPreset: null,
   importResult: null,
   lastImportedSource: "",
@@ -107,6 +105,7 @@ const promptWorkflow = createPromptWorkflow();
 let imageToolsController;
 let generationCostController;
 let resolutionController;
+let cameraInputController;
 
 const fields = {
   model: $("paramModel"),
@@ -246,21 +245,9 @@ async function init() {
       if (state.currentPreset?.params?.model === "nai-diffusion-5-full") showToast("Precise Reference is retained for legacy data only and is unavailable for V5 generation.", true);
     },
     applyMetadata: applyIntakeMetadata,
-    routeToCamera: startCameraFromImport,
     getReferenceCapacity: () => preciseReferenceController.getCapacity(),
   });
   imageIntakeController.bind();
-  cameraPanelController=createCameraPanelController({
-    getPreset:()=>state.currentPreset,
-    isGenerating:()=>state.generationBusy,
-    setPreset:preset=>{state.useFreshModeDefaults=false;state.currentPreset=sanitizePresetSnapshot(preset);renderPresetForm();},
-    onOpen:()=>{generationModeController.setMode('text-to-image');workbenchController.showCamera();},
-    onClose:()=>workbenchController.showWorkbench(),onGenerate:generateImage,showToast,
-  });
-  $('navCamera').addEventListener('click',()=>cameraPanelController.resume());
-  const cameraLatest=document.createElement('button');cameraLatest.id='cameraLatestButton';cameraLatest.type='button';cameraLatest.textContent='카메라로 새 구도';
-  cameraLatest.onclick=()=>{const id=state.lastGenerationResponse?.generation?.id;if(id)void startCameraFromHistory(id).catch(e=>showToast(e.message,true));};$('latestResultActions').append(cameraLatest);
-  document.addEventListener('chaessi:camera-result-source',e=>void startCameraFromHistory(e.detail.id,{newSource:true}).catch(e=>showToast(e.message,true)));
   bindActions();
   bindImageIntake();
   await refreshHealth();
@@ -273,6 +260,30 @@ async function init() {
   renderPresetForm();
   void initializePromptTokenCounters();
   updateCurrentSummary();
+  cameraInputController = createCameraInputController({
+    getPreset: () => { syncPresetFromForm(); return structuredClone(state.currentPreset); },
+    applyPreset: async preset => {
+      syncPresetFromForm(); promptWorkflow.checkpoint(state.currentPreset);
+      state.currentPreset = sanitizePresetSnapshot(preset); state.characterUiState = [];
+      state.useFreshModeDefaults = false; renderPresetForm(); updateCurrentSummary();
+    },
+    importMetadata: async metadata => {
+      syncPresetFromForm(); promptWorkflow.checkpoint(state.currentPreset);
+      const response = await postJson('/api/import/apply', {current_preset: state.currentPreset, import_result: metadata,
+        options: {applyBasePrompt:true,applyUndesired:true,applyCharacters:true,applyParams:true}});
+      state.currentPreset = response.preset; state.characterUiState = []; state.useFreshModeDefaults = false;
+      renderPresetForm(); updateCurrentSummary();
+    },
+    getMode: () => generationModeController.getMode(),
+    setTextMode: () => generationModeController.setMode('text-to-image'), showToast,
+  });
+  for (const [action, label] of [['camera-new','New absolute camera'],['camera-resume','Resume v3.8.2 camera']]) {
+    const button = document.createElement('button'); button.type='button'; button.dataset.viewerReuse=action; button.textContent=label;
+    $('viewerReuseActions').append(button);
+  }
+  const latestCamera = document.createElement('button'); latestCamera.type='button'; latestCamera.id='cameraInputLatest'; latestCamera.textContent='New absolute camera';
+  latestCamera.onclick=async()=>{try{const id=state.lastGenerationResponse?.generation?.id;if(id)await cameraInputController.fromHistory((await getJson(`/api/generations/${encodeURIComponent(id)}`)).generation);}catch(error){showToast(error.message,true);}};
+  $('latestResultActions').append(latestCamera);
 }
 
 function bindActions() {
@@ -342,10 +353,14 @@ function bindActions() {
     const id = state.imageViewerContext?.kind === "history" ? state.imageViewerContext.id : "";
     if (!action || !id) return;
     try {
+      if (action === 'camera-new' || action === 'camera-resume') {
+        const record = (await getJson(`/api/generations/${encodeURIComponent(id)}`)).generation;
+        closeImageViewer(); workbenchController.showWorkbench();
+        await cameraInputController.fromHistory(record, action === 'camera-resume'); return;
+      }
       if (action === "preset") await applyGenerationPreset(id);
       if (action === "seed") await applyGenerationSeed(id);
       if (action === "params") await applyGenerationParams(id);
-      if (action === "camera") {await startCameraFromHistory(id);closeImageViewer();return;}
       if (action === "preview") {
         const stored = (await getJson(`/api/generations/${encodeURIComponent(id)}`)).generation;
         const imagePath = stored.output?.image_filename || stored.image_path;
@@ -668,7 +683,6 @@ function setImageImportPreview(file, sourceLabel) {
 }
 
 async function applyIntakeMetadata(item, options) {
-  cameraPanelController?.deactivate();
   if (options?.applyParams) state.useFreshModeDefaults = false;
   state.importResult = item.metadata;
   state.lastImportedSource = item.fileName || item.source;
@@ -886,7 +900,6 @@ function renderPresetLibrary() {
 }
 
 async function loadPresetById(id) {
-  cameraPanelController?.deactivate();
   state.useFreshModeDefaults = false;
   const response = await getJson(`/api/presets/${encodeURIComponent(id)}`);
   syncPresetFromForm(); promptWorkflow.checkpoint(state.currentPreset);
@@ -1431,30 +1444,29 @@ function getActiveTokenProfile(preset = state.currentPreset) {
 }
 
 async function generateImage() {
-  if(state.generationBusy)return;
-  state.generationBusy=true;
-  cameraPanelController?.render();
+  if (state.generationBusy) return;
+  state.generationBusy = true;
   try { return await withButton($("generateButton"), "Generating", async () => {
     resolutionController.validate();
     syncPresetFromForm();
-    const camera = cameraPanelController?.request(state.currentPreset);
-    const generationSnapshot = structuredClone(state.currentPreset);
-    const modeRequest = generationModeController.getGenerateRequest();
     if(!generationCostController.confirmSizeCost())return;
-    const isV5 = generationSnapshot.params?.model === "nai-diffusion-5-full";
+    const sourcePreset = structuredClone(state.currentPreset);
+    const cameraSnapshot = cameraInputController?.request();
+    const modeRequest = generationModeController.getGenerateRequest();
+    const isV5 = sourcePreset.params?.model === "nai-diffusion-5-full";
     if (isV5) await refreshAccountUsage();
     setSummary($("generateStatus"), "Generating one image...", false);
-    const prepared = await postJson("/api/novelai/prepare", { preset: generationSnapshot, mode: modeRequest.mode, ...(camera?{camera}:{}) });
+    const prepared = await postJson("/api/novelai/prepare", { preset: sourcePreset, mode: modeRequest.mode, ...(cameraSnapshot ? {camera_input:cameraSnapshot} : {}) });
     const resolvedPreset = prepared.preset;
     reportResolvedPromptLimits(resolvedPreset);
     showResolvedGenerationPrompt(resolvedPreset);
-    if(prepared.payload_preview)cameraPanelController.finalPayload(prepared.payload_preview);
-    const profile = getModelProfile(generationSnapshot.params?.model);
+    if (!await cameraInputController.confirmPrepared(prepared)) { setSummary($('generateStatus'), 'Generation cancelled.', false); return; }
+    const profile = getModelProfile(sourcePreset.params?.model);
     const preciseReferences = profile.capabilities.preciseReference ? preciseReferenceController.getGenerateRequest() : [];
     const requestBody = {
       preset: resolvedPreset,
       prepared_id: prepared.prepared_id,
-      ...(camera?{camera_revision:prepared.camera_revision,camera_source_id:prepared.camera_source_id}:{}),
+      ...(prepared.camera_input ? {camera_ack: prepared.camera_input.review_key} : {}),
       ...(modeRequest.mode === "text-to-image" ? {} : modeRequest),
       ...(preciseReferences.length ? { precise_references: preciseReferences } : {}),
     };
@@ -1465,7 +1477,6 @@ async function generateImage() {
     $("latestResultActions").hidden = false;
     state.lastGeneratedImage = toBrowserPath(response.generation.image_path);
     state.lastGenerationResponse = response;
-    if(camera)await cameraPanelController.received(response,state.lastGeneratedImage,camera.source.id);
     updateCurrentSummary();
     await refreshAccountUsage();
     await loadHistory(false);
@@ -1473,8 +1484,7 @@ async function generateImage() {
     setSummary($("generateStatus"), error.message, false, true);
     await refreshAccountUsage();
   }); } finally {
-    state.generationBusy=false;
-    cameraPanelController?.render();
+    state.generationBusy = false;
     applyModelCapabilities(getModelProfile(state.currentPreset.params.model));
   }
 }
@@ -1940,7 +1950,6 @@ async function applyGenerationParams(id) {
 }
 
 async function applyGenerationPreset(id) {
-  cameraPanelController?.deactivate();
   state.useFreshModeDefaults = false;
   const response = await getJson(`/api/generations/${encodeURIComponent(id)}`);
   const generation = response.generation || {};
@@ -1955,30 +1964,6 @@ async function applyGenerationPreset(id) {
   renderPresetForm();
   showToast("Generation preset applied to current preset.");
   workbenchController.showWorkbench(); workbenchController.selectPane("edit");
-}
-
-async function startCameraFromHistory(id,{newSource=false}={}) {
-  const record=(await getJson(`/api/generations/${encodeURIComponent(id)}`)).generation;
-  if(!record?.internal_preset?.prompt_parts)throw new Error('이 History에는 재사용할 생성 조건이 없습니다.');
-  const preset=sanitizePresetSnapshot(record.internal_preset);
-  if(record.generation?.seed!==undefined)preset.params.seed=record.generation.seed;
-  const source={id:`${newSource?'history_new':'history'}_${id}`,label:id,imageUrl:toBrowserPath(record.output?.image_filename||record.image_path),historyId:id};
-  const saved=record.camera_context;
-  if(saved&&!newSource){
-    if(saved.actual_prompt_hash){const digest=await crypto.subtle.digest('SHA-256',new TextEncoder().encode(JSON.stringify(record.internal_preset.prompt_parts)));const hash=[...new Uint8Array(digest)].map(x=>x.toString(16).padStart(2,'0')).join('');if(hash!==saved.actual_prompt_hash)throw new Error('저장된 카메라 기록과 실제 프롬프트가 다릅니다. 기준을 확인해야 합니다.');}
-    await cameraPanelController.openSource({preset,source:{...saved.source,id:`history_${id}`,label:id,imageUrl:saved.source.imageUrl||source.imageUrl},record:{...saved,source:{...saved.source,id:`history_${id}`,label:id}}});
-  } else await cameraPanelController.openSource({preset,source,confirmed:saved?{values:saved.camera,evidence:Object.fromEntries(Object.keys(saved.camera).map(k=>[k,'saved generation camera record']))}:{}});
-}
-
-async function startCameraFromImport(item) {
-  if(!item.metadata?.ok||!item.metadata.parsed?.base_prompt&&!item.metadata.parsed?.characters?.length)throw new Error('카메라 패널에는 읽을 수 있는 NAI 생성 메타데이터가 필요합니다.');
-  const response=await postJson('/api/import/apply',{current_preset:null,import_result:item.metadata,options:{applyBasePrompt:true,applyUndesired:true,applyCharacters:true,applyParams:true}});
-  const bytes=await item.file.arrayBuffer(),digest=await crypto.subtle.digest('SHA-256',bytes),hash=[...new Uint8Array(digest)].map(x=>x.toString(16).padStart(2,'0')).join('');
-  const stored=await postImage('/api/camera/sources/'+hash,item.file);
-  const known=(await getJson('/api/camera/baselines/'+hash)).baseline;
-  const confirmed=known?.baseline?.bearing?{values:{yaw:known.baseline.bearing.diagramRepresentativeDegrees},evidence:{yaw:'user-confirmed category (source SHA-256 matched)'}}:{};
-  await cameraPanelController.openSource({preset:sanitizePresetSnapshot(response.preset),source:{id:hash,sha256:hash,label:item.fileName||item.file.name,imageUrl:stored.url},confirmed});
-  $('importWorkspaceDialog').close();
 }
 
 function renderImportResult() {
@@ -2455,7 +2440,7 @@ function applyModelCapabilities(profile) {
   $("effortNotice").hidden = !medium;
   fields.undesiredPrompt.closest("label").hidden = medium;
   for (const field of [fields.steps, fields.sampler, fields.cfgRescale, fields.ucPreset]) field.closest("label").hidden = medium;
-  $("generateButton").disabled = state.generationBusy || legacy || state.currentPreset.params.effort === "unknown";
+  $("generateButton").disabled = state.generationBusy === true || legacy || state.currentPreset.params.effort === "unknown";
   const modelBadge = $("headerModelLabel");
   modelBadge.textContent = `NovelAI Diffusion ${profile.label}`;
   modelBadge.dataset.model = profile.id;
@@ -2666,7 +2651,6 @@ function formatDateTime(value) {
 function updateCurrentSummary() {
   updatePromptWorkflowStatus();
   if (!state.currentPreset) return;
-  cameraPanelController?.syncPreset(state.currentPreset);
   const preset = state.currentPreset;
   const params = preset.params?.effort === "medium" ? getEffectiveParams(preset) : preset.params || {};
   const characters = preset.prompt_parts?.characters || [];

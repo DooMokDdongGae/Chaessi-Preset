@@ -1,7 +1,7 @@
 {
   "name": "chaessi-preset",
   "productName": "Chaessi Preset",
-  "version": "3.8.1",
+  "version": "3.8.2",
   "description": "Generate with NovelAI. Organize and finish with CHAESSI PRESET.",
   "author": "Chaessi Preset",
   "license": "MIT",
@@ -27,17 +27,20 @@
     "test:v360-workflow": "node scripts/verify-v360-workflow.mjs",
     "test:image-tools": "node --test tests/image-tools.test.mjs",
     "test:image-tools-ui": "node scripts/verify-image-tools-ui.mjs",
+    "prestart": "node scripts/sync-version.mjs",
+    "preelectron:pack": "node scripts/sync-version.mjs",
+    "preelectron:dist": "node scripts/sync-version.mjs",
     "test:composition": "node --test tests/composition.test.mjs",
     "test:composition-ui": "node scripts/verify-composition-ui.mjs",
     "test:pixel-resolution": "node --test tests/pixel-snap.test.mjs tests/resolutions.test.mjs",
     "test:pixel-resolution-ui": "node scripts/verify-pixel-resolution-ui.mjs",
-    "prestart": "node scripts/sync-version.mjs",
-    "preelectron:pack": "node scripts/sync-version.mjs",
-    "preelectron:dist": "node scripts/sync-version.mjs"
+    "test:camera-input": "node --test tests/camera-input.test.mjs",
+    "test:camera-input-ui": "node scripts/verify-camera-input.mjs"
   },
   "devDependencies": {
     "electron": "^42.11.16",
-    "electron-builder": "^26.15.3"
+    "electron-builder": "^26.15.3",
+    "playwright": "^1.64.1"
   },
   "build": {
     "appId": "app.chaessi.preset",
@@ -89,6 +92,6 @@
     "@modelcontextprotocol/sdk": "1.32.1",
     "@msgpack/msgpack": "^3.1.3",
     "sharp": "0.35.5",
-    "zod": "3.25.76"
+    "zod": "4.6.7"
   }
 }

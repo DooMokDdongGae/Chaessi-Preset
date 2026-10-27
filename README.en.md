@@ -1,18 +1,22 @@
-# CHAESSI PRESET v3.8.1
+# CHAESSI PRESET v3.8.2
+
+[Windows x64 Portable](https://github.com/DooMokDdongGae/Chaessi-Preset/releases/download/v3.8.2/Chaessi-Preset-v3.8.2-x64.exe) · [SHA256SUMS.txt](https://github.com/DooMokDdongGae/Chaessi-Preset/releases/download/v3.8.2/SHA256SUMS.txt) · [Release](https://github.com/DooMokDdongGae/Chaessi-Preset/releases/tag/v3.8.2)
 
 [한국어](README.ko.md) · [English](README.en.md) · [日本語](README.ja.md)
 
-**[Read all 42 chapters online](https://doomokddonggae.github.io/Chaessi-Preset/v3.8.1/?lang=en&chapter=start)** — Browse the same app help in Korean, English and Japanese, with a table of contents, search and full-size images. This website is documentation; image generation runs in the installed app.
+**[Read all 40 chapters online](https://doomokddonggae.github.io/Chaessi-Preset/v3.8.2/?lang=en&chapter=start)** — Browse the same app help in Korean, English and Japanese, with a table of contents, search and full-size images. This website is documentation; image generation runs in the installed app.
 
 **A local workbench for reusing your prompts, characters, outfits and results across generation and editing.** Generate with your NovelAI account, then organize the materials and continue the work in Chaessi Preset.
 
 “The creator controls and revises the prompts and process to finish the result, instead of asking AI to decide everything.” Saved presets, reviewable generation text, manual weights, source recovery and History reuse serve that purpose.
 
-[Official releases](https://github.com/DooMokDdongGae/Chaessi-Preset/releases) · [Changes in v3.8.1](.github/releases/v3.8.1.en.md) · [Camera guide](docs/CAMERA.en.md)
+[v3.8.2 Release](https://github.com/DooMokDdongGae/Chaessi-Preset/releases/tag/v3.8.2) · [Changes in v3.8.2](.github/releases/v3.8.2.en.md) · [Camera guide](docs/CAMERA.en.md)
 
 ## Continue a piece of work
 
 Build a preset → edit prompts → generate with V5 → inspect → adjust camera and text → use image tools → keep in History → reuse.
+
+**Image provenance:** The workflow below is a historical v3.8.1 example, not an image-quality result from the v3.8.2 camera.
 
 ![Real workflows from user-provided artwork](assets/manuals/examples/workflow.webp)
 
@@ -25,26 +29,30 @@ Build a preset → edit prompts → generate with V5 → inspect → adjust came
 | Reusable materials | Full, Base, Character, negative and settings presets; character/outfit categories and subcategories; search, sorting and Wildcards |
 | Editing and recovery | Save / Save As, unsaved indicators, previous work and saved revisions, expanded prompt editor |
 | V5 Full generation | High / Medium, one image per request, seed, Character Prompt/Position, text to image, I2I and round-brush Inpaint |
-| Camera | Start from History, latest result or readable generation metadata; sphere drag, eight directions, pan/tilt, height, framing, roll and aspect ratio; edit weights and text at a position |
+| Camera | Absolute front 0° before the first generation; sphere, direction, elevation, shot size, height, pan, tilt and roll; per-axis weights/manual text; ON/OFF, Base conflict review and separate saved work |
 | Expand composition | Move, scale and rotate; extend the frame; automatic gaps and round-brush masks; add characters; review source/masks; compare preserved/full results; restore editing JSON and History |
 | Image tools | Upscale, Enhance / Max✨ Enhance, Remove Background, Line Art, Sketch, Colorize, Emotion, Declutter, Outpainting and Focused Inpaint |
 | Local editing | Canvas pen, eraser, fill, crop, resize and Undo/Redo; Pixel Snap grid cleanup. Both run locally for 0 Anlas |
 | Reuse | History PNGs, settings and operation records; PNG/WebP metadata import; compare, save and hand results to I2I/Inpaint |
-| Help | 42 chapters in Korean, English and Japanese, with search, contents, contextual links and image zoom; available offline in the app |
+| Help | 40 chapters in Korean, English and Japanese, with search, contents, contextual links and image zoom; available offline in the app |
 
 ![Actual workbench](assets/manuals/en/workbench.png)
 
 Short on-screen prompts are public control examples. Full original prompts and personal History are withheld. Comparisons use real feature results; explanatory layouts and prepared inputs are identified as such.
 
-## Camera in v3.8.1
+## Absolute camera in v3.8.2
 
-The handle moves continuously, while each direction, elevation, height and framing axis selects one representative expression. At +40°, for example, it proposes `1.2::three-quarter front view from the right::`. Change it to 1.5 without moving the camera. Weight controls expression strength, not a mixture ratio between directions.
+Rebuilt from PUBLIC v3.7.0. It replaces the v3.8.0/3.8.1 source-angle confirmation, relative movement and position-specific calibration workflow with an absolute front 0° target, available before the first image. Startup is OFF. **New camera** starts ON at front 0°, elevation 0°, upper body and neutral strength 1.
 
-Corrections are stored per source, model/Effort and character field. Keep manual text, turn Camera OFF and reconnect, return only the camera, disable corrections, restore the whole source, or undo. Legacy v1 records resume their original rules. Start separate v2 work and optionally import compatible corrections; old records are not silently converted.
+Horizontal sphere movement selects direction; vertical movement selects elevation. Shot size, height, pan, tilt and roll remain separate controls. One of five direction families is selected: front, three-quarter front, side, three-quarter rear or behind. Both sides may produce the same wording. Per-axis weights emphasize wording; 1 is neutral. Manual wording persists until that row's Auto button is selected.
 
-![Actual weight comparison at one position](assets/manuals/examples/camera-strength.webp)
+The camera block is prepended only to a generation copy of Base. Original Base, Character text and Position are preserved. Optional exclusion removes only standalone Base camera tags from the copy. Known remaining grouped/Character conflicts require review and acknowledgement alongside the final Caption. OFF returns to ordinary generation.
 
-① 1.2 ② 1.5, with the same position and seed. Pose and gaze changed too. This is not a guarantee of physical camera angles or perfectly fixed identity, pose and background. The initial 1.2 is not a validated optimum for every scene.
+Save camera work separately and resume it explicitly. Starting from an image or History starts at 0° without automatic I2I. Only explicit v3.8.2 resume restores saved angles/text, starting in T2I. Input images and masks are not saved with camera work. Legacy camera_context is read-only in History; old sessions/calibration cannot be edited, rerun or converted by the new camera. Their source files remain intact.
+
+![Actual v3.8.2 absolute camera](assets/manuals/en/camera-absolute.png)
+
+**Actual NovelAI image quality has not yet been tested for the new camera.** Passing functional, request and UI checks does not guarantee image quality. Angles select wording rather than measured 3D rotation; left/right accuracy and fixed identity, pose or background are not guaranteed. Height, pan and tilt wording is experimental. [Full camera guide](docs/CAMERA.en.md)
 
 ## Architecture and data
 
@@ -53,12 +61,12 @@ Corrections are stored per source, model/Effort and character field. Keep manual
 | Electron and local Node server | A Windows window displays the HTML/CSS/JavaScript UI. The server handles app requests on 127.0.0.1. The renderer enables contextIsolation and sandbox, with nodeIntegration disabled. |
 | Presets | `chaessi-preset/v3` JSON stores Base/negative/Character text, positions and model settings. Earlier readable schemas remain supported. |
 | Requests | Editable source text → generation-time resolution including Wildcards → model/mode adapter and validation → NovelAI → image, settings and History. Original text and transmitted expressions remain distinct. |
-| Camera | Continuous coordinates, active axes, corrections and manual text are stored as work state; expressions are compiled before generation. v1 and v2 rule versions are recorded separately. |
+| Camera | Saves absolute-camera/1 state and manual text independently, then prepends wording to a generation copy of Base. The old calibration and v1/v2 execution engine are not included. |
 | High / Medium | High exposes adjustable V5 settings. Medium uses its fixed settings contract and does not apply handwritten Base/Character negatives to the request. The text is retained for returning to High. |
 | Local storage | Electron defaults to `%APPDATA%\Chaessi Preset` for presets, History images/settings and camera work. Development or custom data paths may differ. |
 | Authentication | Saved Electron tokens use OS-backed safeStorage encryption. Generation and server image tools send the relevant image, text and settings to NovelAI. Local storage does not make every operation offline. |
 
-Relevant code: `electron/`, `server.mjs`, `src/state/`, `src/adapters/`, `src/camera/`, `src/image-tools/` and `src/services/`. The optional MCP server provides read access to saved presets and History.
+Relevant code: `electron/`, `server.mjs`, `src/state/`, `src/adapters/`, `src/camera-input/`, `src/image-tools/` and `src/services/`. The optional MCP server provides read access to saved presets and History.
 
 ## Start, update and back up
 

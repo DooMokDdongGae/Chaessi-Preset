@@ -1,17 +1,9 @@
-# Illustrated help asset provenance
+# Help artwork provenance — v3.8.2
 
-Help screenshots are actual Electron UI captures in isolated demonstration profiles. Account values are test data. Existing laboratory samples were independently generated for authorized product verification; no personal image or saved preset was used. Their numbered comparison layouts and source hashes are recorded in examples/provenance.json. Numbers, selection overlays and checkerboards are explanatory.
+The active inventory, `v382-provenance.json`, identifies 155 referenced images by origin and SHA-256. It contains 140 reviewed public v3.8.1 non-camera images and 15 actual v3.8.2 Electron screenshots (12 camera screens and three App info screens). The original v3.8.1 public commit is 9cdd7e41b616a79432583e662f2fd9280080293a.
 
-The v3.7.0 composition source is a newly generated upright adult male gardener watering seedlings in a greenhouse, created from an independent text prompt without reference images. The added adult botanist and brush follow-up are actual model outputs. The greenhouse pixel artwork is independently hand-coded.
+Reused artwork was authorized for the earlier public release. The workflow montage contains an old camera result and is explicitly labeled as a historical v3.8.1 example. It does not demonstrate the new camera's image quality. New screenshots use short synthetic control examples and mock account status; they contain no personal source prompt. No additional paid generation was performed.
 
-post-v360-provenance.json records all 62 new source/capture/layout assets (59 feature assets and three formal release App info captures) and SHA-256 hashes. The 51 localized UI captures show real application controls. Captures replay an unchanged authorized model response offline where stated; they are not additional live API calls. The Canvas and Pixel Snap results are actual local processing. Browser Canvas source-edge rounding and exact replay mask requirements are stated in the manifest.
+Original personal images, source prompts, tokens and History are excluded. Previously public source-image copies have been sanitized. Public images are checked for ordinary and hidden generation metadata and known retired image hashes. Source bytes and current packaged/site bytes are compared with the active inventory. Older provenance manifests, release notes and PDF manuals describe their historical versions; the current Help Center contains 40 chapters per language.
 
-External reference artwork and its derivatives are excluded. Known withdrawn hashes are retained only as nonvisual test data. No reference artwork, private research, raw API receipt, token or user History is distributed.
-
-Generated examples were created with the user's authorization. NovelAI's [FAQ](https://docs.novelai.net/en/faq/) and [Terms](https://novelai.net/terms) describe service ownership and use; this provenance record does not claim exclusive copyright in generated images. Screenshots, instructional layouts and hand-coded pixel artwork are project-authored. Existing third-party notices and bundled licenses remain applicable.
-
-Legacy PDFs are historical references. The current guide is the built-in 35-chapter Korean, English and Japanese Help Center.
-
-## v3.8.0 camera screenshots
-
-The nine `ko/en/ja/camera-*.png` screenshots were captured from an isolated synthetic profile by `scripts/verify-camera-workflow.mjs`. The simple clothed figure/room source is an original SVG fixture in that script, rasterized locally. No personal image, prompt, account or private path is included. These original project assets are distributed under the repository MIT license.
+Existing licenses and THIRD_PARTY_NOTICES.md remain applicable.

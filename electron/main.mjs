@@ -15,11 +15,11 @@ const projectRoot = path.resolve(__dirname, "..");
 const appIconPath = path.join(projectRoot, "assets", "branding", "chaessi-preset.ico");
 const supportUrl = "https://buymeacoffee.com/magiconcert";
 
-// Opt-in local verification profile; ordinary launches keep the existing profile.
+// Explicit PRIVATE launcher/testing override. Normal app identity and profile are unchanged.
 if (process.env.CHAESSI_PRIVATE_TEST_PROFILE) {
   const profile = process.env.CHAESSI_PRIVATE_TEST_PROFILE;
-  if (!path.isAbsolute(profile)) throw new Error("The private test profile must be an absolute path.");
-  app.setPath("userData", profile);
+  if (!path.isAbsolute(profile)) throw new Error('PRIVATE profile must be an absolute path.');
+  app.setPath('userData', profile);
 }
 
 function createWindow({ serverStatus = "starting" } = {}) {

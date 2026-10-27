@@ -35,8 +35,8 @@ test('Every UI message has three translations with identical parameter names', (
   assert.equal(translateText(formatUIError('HTTP 502: upstream diagnostic'), 'ja'), 'エラーの詳細: HTTP 502: upstream diagnostic');
 });
 test('Integrated guide keeps the same chapters and step counts in all three languages', () => {
-  assert.equal(manualChapters.length, 42);
-  assert.equal(new Set(manualChapters.map(c => c.id)).size, 42);
+  assert.equal(manualChapters.length, 40);
+  assert.equal(new Set(manualChapters.map(c => c.id)).size, 40);
   assert.ok(manualChapters.some(c=>c.id==='tool-pixel-snap'));
   assert.ok(manualChapters.some(c => c.id === 'wildcards'));
   for (const chapter of manualChapters) for (const locale of ['ko', 'en', 'ja']) {
