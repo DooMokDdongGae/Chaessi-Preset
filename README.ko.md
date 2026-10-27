@@ -2,15 +2,15 @@
 
 [Windows x64 Portable](https://github.com/DooMokDdongGae/Chaessi-Preset/releases/download/v3.8.2/Chaessi-Preset-v3.8.2-x64.exe) · [SHA256SUMS.txt](https://github.com/DooMokDdongGae/Chaessi-Preset/releases/download/v3.8.2/SHA256SUMS.txt) · [Release](https://github.com/DooMokDdongGae/Chaessi-Preset/releases/tag/v3.8.2)
 
-[한국어](README.ko.md) · [English](README.en.md) · [日本語](README.ja.md)
+[한국어](https://github.com/DooMokDdongGae/Chaessi-Preset/blob/main/README.ko.md) · [English](https://github.com/DooMokDdongGae/Chaessi-Preset/blob/main/README.en.md) · [日本語](https://github.com/DooMokDdongGae/Chaessi-Preset/blob/main/README.ja.md)
 
-**[설치 없이 보는 40장 온라인 도움말](https://doomokddonggae.github.io/Chaessi-Preset/v3.8.2/?lang=ko&chapter=start)** — 앱과 같은 내용을 한국어·영어·일본어로 읽고, 목차·검색·이미지 확대를 사용할 수 있습니다. 온라인 페이지는 문서 열람용이며 실제 생성은 설치한 앱에서 실행합니다.
+**[설치 없이 보는 40장 온라인 도움말](https://doomokddonggae.github.io/Chaessi-Preset/v3.8.2/?lang=ko&chapter=start)** — 이 문서와 온라인 도움말은 v3.8.2 사용법을 최신 상태로 유지합니다. 배포된 EXE 안의 도움말과 소스 태그에 고정된 문서는 배포 당시 내용으로 보존됩니다.
 
 **직접 만든 프롬프트·캐릭터·의상·작업 결과를 재사용하면서 생성과 편집을 이어가는 로컬 작업대입니다.** NovelAI 계정으로 그림을 만들고, Chaessi Preset에서 제작 재료와 다음 작업을 관리합니다.
 
 “AI가 모든 것을 자동으로 결정하는 것이 아니라, 창작자가 프롬프트와 작업 과정을 직접 통제하고 수정하면서 결과를 완성한다.” 프리셋 저장, 생성 전 문구 확인, 수동 가중치 보정, 원본 복귀와 History 재사용은 이 방향을 위한 기능입니다.
 
-[v3.8.2 정식 Release](https://github.com/DooMokDdongGae/Chaessi-Preset/releases/tag/v3.8.2) · [v3.8.2 변경사항](.github/releases/v3.8.2.ko.md) · [카메라 안내](docs/CAMERA.ko.md)
+[v3.8.2 정식 Release](https://github.com/DooMokDdongGae/Chaessi-Preset/releases/tag/v3.8.2) · [v3.8.2 변경사항](https://github.com/DooMokDdongGae/Chaessi-Preset/blob/main/.github/releases/v3.8.2.ko.md) · [카메라 안내](https://github.com/DooMokDdongGae/Chaessi-Preset/blob/main/docs/CAMERA.ko.md)
 
 ## 한 작업을 이어가기
 
@@ -36,48 +36,48 @@
 | 결과 재사용 | History PNG·생성 조건·이미지 도구 기록, PNG/WebP 메타데이터 읽기, 결과 비교·저장·I2I/Inpaint 연결 |
 | 도움말 | 한국어·영어·일본어 40장, 검색·목차·문맥 이동·그림 확대. 앱 내 문서는 오프라인 사용 가능 |
 
-![실제 작업대](assets/manuals/ko/workbench.png)
+![실제 작업대](web/help/assets/manuals/ko/docs-workbench.png)
 
-화면의 짧은 프롬프트는 조작 설명용입니다. 사용자 원작의 전체 프롬프트와 개인 History는 공개하지 않습니다. 비교 그림은 실제 기능 결과이며, 단순 화면 배치나 입력 준비를 생성 결과로 표시하지 않습니다.
+사용자가 제공한 도움말용 작품을 작업대에 표시한 v3.8.2 화면입니다. 문구와 설정은 조작 설명용이며 이 작품의 원래 생성 조건이나 새 카메라 결과를 나타내지 않습니다.
 
 ## v3.8.2 절대 카메라
 
-PUBLIC v3.7.0을 기반으로 새로 구성했습니다. v3.8.0/3.8.1의 원본 방향 확인·상대 이동·위치별 보정 흐름을 이어받지 않고, 첫 이미지부터 정면 0°를 기준으로 원하는 구도를 지정합니다. 앱 시작은 OFF이고 **새 카메라**는 ON·정면 0°·상하 0°·상반신·강도 1로 시작합니다.
+v3.7.0을 바탕으로 카메라를 새로 구성했습니다. v3.8.0/3.8.1처럼 원본 방향을 확인한 뒤 상대 이동과 위치별 보정을 적용하는 방식에서, 정면 0°를 기준으로 목표 시점을 지정하는 방식으로 바뀌었습니다.
 
-구체의 가로 이동은 방향, 세로 이동은 상하 시점입니다. 샷 크기와 높이·팬·틸트·롤은 별도로 조절합니다. 정면·앞사선·측면·뒤사선·후면 중 한 방향군만 출력하며 좌우가 같은 문구로 나올 수 있습니다. 축별 강도는 표현의 강조이고 1은 중립값입니다. 수동 문구는 해당 행의 자동 버튼을 누를 때까지 유지됩니다.
+앱을 실행하면 카메라는 OFF입니다. **새 카메라**를 누르면 ON·정면 0°·상하 0°·상반신·강도 1로 시작합니다. 구체를 가로로 움직여 방향을, 세로로 움직여 상하 시점을 고릅니다. 샷 크기와 높이·팬·틸트·롤은 별도로 조절합니다.
 
-카메라 문구는 생성용 Base 사본 앞에만 추가합니다. Base 원문, Character와 Position은 보존합니다. 선택한 경우 독립된 Base 카메라 태그만 사본에서 제외하며, 묶음·Character 등에 남는 알려진 충돌은 최종 Caption 확인과 별도 동의가 필요합니다. OFF에서는 일반 생성으로 돌아갑니다.
+축별 강도는 문구의 강조 정도이며 1은 기본값입니다. 수동 문구는 해당 행의 자동 버튼을 누를 때까지 유지됩니다. 카메라 문구는 생성에 사용할 Base 앞에 추가되며 편집 중인 Base 원문, Character 문구와 Position은 보존됩니다.
 
-카메라 작업은 별도로 저장하고 명시적으로 재개합니다. 새 이미지나 History에서 시작하면 0°이고 자동 I2I로 전환하지 않습니다. v3.8.2 저장 작업의 재개만 저장된 각도·문구를 복원하며 T2I로 시작합니다. 입력 이미지·마스크는 카메라 작업에 저장하지 않습니다. 구형 camera_context는 History에서 읽기 전용으로 확인하며 구형 세션·보정의 편집/재실행/변환은 지원하지 않습니다. 원본 파일은 보존됩니다.
+선택하면 생성용 Base에서 인식된 독립 카메라 태그를 제외할 수 있습니다. 강조된 단일 태그도 해당할 수 있지만 여러 태그를 함께 묶은 표현과 Character 태그는 남습니다. 알려진 충돌이 남으면 최종 문구 확인에서 별도 확인이 필요합니다. OFF로 바꾸면 일반 생성으로 돌아갑니다.
 
-![실제 v3.8.2 절대 카메라 화면](assets/manuals/ko/camera-absolute.png)
+이미지나 History에서 새 카메라를 시작하면 정면 0°의 T2I로 시작합니다. 저장된 v3.8.2 카메라 작업을 직접 재개하면 저장한 각도·문구를 복원합니다. 앱 재시작 후 자동으로 재개하지 않으며 입력 이미지와 마스크는 카메라 작업에 저장하지 않습니다. I2I/Inpaint로 작업할 때는 따로 준비하세요.
 
-**신규 카메라의 실제 NovelAI 이미지 품질 검증은 아직 수행하지 않았습니다.** 기능·요청·UI 검사 통과는 이미지 품질 보장이 아닙니다. 각도는 문구 선택을 위한 입력이며 정확한 3D 회전, 좌우 구별, 동일 인물·포즈·배경 고정을 보장하지 않습니다. 높이·팬·틸트 표현은 실험적입니다. [카메라 상세](docs/CAMERA.ko.md)
+![v3.8.2](assets/manuals/ko/camera-absolute.png)
 
-## 기술 구조와 데이터
+카메라 설정은 이미지 생성 모델에 구도와 시점에 관한 지시를 전달합니다. 실제 결과는 프롬프트와 모델의 해석에 따라 달라집니다. 신규 카메라의 실제 NovelAI 이미지 품질은 아직 검증하지 않았습니다.
 
-| 구성 | 실제 역할 |
-|---|---|
-| Electron + 로컬 Node 서버 | Windows 창에서 HTML/CSS/JavaScript UI를 표시하고, 서버는 127.0.0.1에서 앱 요청을 처리합니다. 렌더러는 contextIsolation·sandbox를 사용하며 nodeIntegration은 꺼져 있습니다. |
-| 프리셋 | `chaessi-preset/v3` JSON에 Base·제외·Character 문구와 위치·모델 설정을 보관합니다. 읽을 수 있는 이전 스키마도 유지합니다. |
-| 생성 경로 | 편집 원문 → Wildcard 등 생성용 해석 → 모델/모드 어댑터·검증 → NovelAI 요청 → 이미지·조건·History 저장. 원문과 실제 전송 표현을 구분합니다. |
-| 카메라 | absolute-camera/1 상태와 수동 문구를 독립 저장하며, 생성용 Base 사본에 표현을 추가합니다. 구형 보정·v1/v2 실행 엔진은 포함하지 않습니다. |
-| High / Medium | High는 조절 가능한 V5 설정을 사용합니다. Medium은 고정된 설정 계약을 사용하고 직접 쓴 Base/Character 제외 프롬프트를 전송에 적용하지 않습니다. High로 돌아갈 원문은 보관합니다. |
-| 로컬 보관 | 기본 Electron 데이터는 `%APPDATA%\Chaessi Preset`에 있으며 프리셋·History 이미지·조건·카메라 작업은 로컬에 저장됩니다. 개발 실행이나 사용자 지정 데이터 경로는 다를 수 있습니다. |
-| 인증 | Electron에서 저장한 NovelAI 토큰은 OS와 연동된 safeStorage로 암호화합니다. 이미지 생성·서버 도구를 실행하면 해당 이미지·문구·설정을 NovelAI에 전송합니다. 로컬 저장이 모든 작업의 오프라인 실행을 뜻하지는 않습니다. |
+정확한 3D 회전, 좌우 구별, 동일 인물·포즈·배경 유지는 보장하지 않습니다. 좌우 설정이 같은 문구를 만들 수 있고 높이·팬·틸트 표현은 실험적입니다. 자유 문장의 모든 의미 충돌을 자동으로 찾을 수 없으므로 최종 문구를 읽어 보세요.
 
-코드를 살펴볼 때는 `electron/`, `server.mjs`, `src/state/`, `src/adapters/`, `src/camera-input/`, `src/image-tools/`, `src/services/`를 확인하세요. 선택적으로 제공하는 MCP 서버는 저장된 프리셋·History를 읽는 용도입니다.
+[새로운 절대 카메라](https://github.com/DooMokDdongGae/Chaessi-Preset/blob/main/docs/CAMERA.ko.md)
+
+## 생성 설정과 데이터 보관
+
+High에서는 V5 설정을 조절할 수 있습니다. Medium은 정해진 설정을 사용하며 직접 입력한 Base·Character 제외 프롬프트를 생성에 적용하지 않습니다. 입력한 문구는 보관하므로 High로 돌아가 다시 사용할 수 있습니다.
+
+프리셋, History 이미지·조건, 카메라 작업은 기본적으로 `%APPDATA%\Chaessi Preset`에 저장됩니다. 사용자 지정 경로를 쓰는 경우 실제 저장 폴더를 확인하세요. 업데이트 전 앱을 종료하고 폴더 전체를 백업합니다.
+
+저장한 NovelAI 토큰은 운영체제의 보호 기능을 이용해 암호화합니다. 생성이나 서버 이미지 도구를 실행하면 필요한 이미지·문구·설정을 NovelAI로 전송합니다. Canvas와 Pixel Snap, 저장된 자료 열람과 앱 내 도움말은 로컬에서 사용할 수 있습니다. 선택 사항인 MCP 연결로 저장된 프리셋과 History를 읽을 수도 있습니다.
 
 ## 시작·업데이트·백업
 
 1. [공식 배포 목록](https://github.com/DooMokDdongGae/Chaessi-Preset/releases)에서 Windows x64 Portable EXE와 SHA256SUMS.txt를 받습니다.
-2. EXE를 실행하고 언어를 고릅니다. Portable 실행에는 별도 Node.js 설치가 필요 없습니다. 온라인 생성에는 본인의 NovelAI 계정·토큰과 사용 권한이 필요합니다.
+2. EXE를 실행하고 언어를 고릅니다. Portable 실행에는 별도 Node.js 설치가 필요 없습니다. 온라인 생성에는 본인의 NovelAI 계정·토큰과 사용 권한이 필요합니다. 설정의 NovelAI 연결에서 본인 토큰을 입력하고 저장한 뒤 연결 상태를 확인합니다. 토큰은 비밀번호처럼 다루고 공유하지 마세요.
 3. 프리셋을 선택하거나 글을 쓰고 High/Medium·크기·비용을 확인해 한 장을 생성합니다. 최근 결과나 History에서 카메라 또는 이미지 도구로 이어갑니다. 앱 정보 → 도움말 센터에서 실제 조작을 확인하세요.
 4. 업데이트 전 필요한 편집을 저장하고 앱을 종료한 뒤 실제 데이터 폴더 전체를 별도 백업합니다. 데이터는 유지하고 EXE를 교체합니다. 되돌릴 때는 이전 EXE와 그 버전에 맞는 백업을 함께 사용합니다.
 
 기존 프리셋·분류·Wildcard·History를 강제로 일괄 변환하지 않습니다. V4.5 자료는 읽기·편집·저장할 수 있지만 **신규 V4.5 생성은 지원하지 않으므로 V5로 명시적으로 전환**해야 합니다. 구버전이 새 카메라·구도 기록을 모두 이해한다고 가정하지 마세요. 자동 업데이트와 종료 후 미저장 편집 자동 복구는 제공하지 않습니다.
 
-개발 실행은 저장소에서 `npm ci`, `npm run electron:dev`를 사용합니다. 서버만 실행할 때는 `npm start`이며 개발 환경의 데이터 경로를 확인하세요. [업데이트 상세](docs/UPDATING.md) · [서드파티 고지](THIRD_PARTY_NOTICES.md) · [라이선스](LICENSE)
+[업데이트 상세](https://github.com/DooMokDdongGae/Chaessi-Preset/blob/main/docs/UPDATING.md) · [서드파티 고지](THIRD_PARTY_NOTICES.md) · [라이선스](LICENSE)
 
 ## 비용과 한계
 

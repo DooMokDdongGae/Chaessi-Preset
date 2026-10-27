@@ -2,15 +2,15 @@
 
 [Windows x64 Portable](https://github.com/DooMokDdongGae/Chaessi-Preset/releases/download/v3.8.2/Chaessi-Preset-v3.8.2-x64.exe) · [SHA256SUMS.txt](https://github.com/DooMokDdongGae/Chaessi-Preset/releases/download/v3.8.2/SHA256SUMS.txt) · [Release](https://github.com/DooMokDdongGae/Chaessi-Preset/releases/tag/v3.8.2)
 
-[한국어](README.ko.md) · [English](README.en.md) · [日本語](README.ja.md)
+[한국어](https://github.com/DooMokDdongGae/Chaessi-Preset/blob/main/README.ko.md) · [English](https://github.com/DooMokDdongGae/Chaessi-Preset/blob/main/README.en.md) · [日本語](https://github.com/DooMokDdongGae/Chaessi-Preset/blob/main/README.ja.md)
 
-**[Read all 40 chapters online](https://doomokddonggae.github.io/Chaessi-Preset/v3.8.2/?lang=en&chapter=start)** — Browse the same app help in Korean, English and Japanese, with a table of contents, search and full-size images. This website is documentation; image generation runs in the installed app.
+**[Read all 40 chapters online](https://doomokddonggae.github.io/Chaessi-Preset/v3.8.2/?lang=en&chapter=start)** — This document and online help are maintained for v3.8.2. Help inside the released EXE and documents fixed to the source tag retain their release-time content.
 
 **A local workbench for reusing your prompts, characters, outfits and results across generation and editing.** Generate with your NovelAI account, then organize the materials and continue the work in Chaessi Preset.
 
 “The creator controls and revises the prompts and process to finish the result, instead of asking AI to decide everything.” Saved presets, reviewable generation text, manual weights, source recovery and History reuse serve that purpose.
 
-[v3.8.2 Release](https://github.com/DooMokDdongGae/Chaessi-Preset/releases/tag/v3.8.2) · [Changes in v3.8.2](.github/releases/v3.8.2.en.md) · [Camera guide](docs/CAMERA.en.md)
+[v3.8.2 Release](https://github.com/DooMokDdongGae/Chaessi-Preset/releases/tag/v3.8.2) · [Changes in v3.8.2](https://github.com/DooMokDdongGae/Chaessi-Preset/blob/main/.github/releases/v3.8.2.en.md) · [Camera guide](https://github.com/DooMokDdongGae/Chaessi-Preset/blob/main/docs/CAMERA.en.md)
 
 ## Continue a piece of work
 
@@ -36,48 +36,48 @@ Build a preset → edit prompts → generate with V5 → inspect → adjust came
 | Reuse | History PNGs, settings and operation records; PNG/WebP metadata import; compare, save and hand results to I2I/Inpaint |
 | Help | 40 chapters in Korean, English and Japanese, with search, contents, contextual links and image zoom; available offline in the app |
 
-![Actual workbench](assets/manuals/en/workbench.png)
+![Actual workbench](web/help/assets/manuals/en/docs-workbench.png)
 
-Short on-screen prompts are public control examples. Full original prompts and personal History are withheld. Comparisons use real feature results; explanatory layouts and prepared inputs are identified as such.
+v3.8.2 workbench displaying user-provided help artwork. The text and settings illustrate controls; they are not this artwork’s original generation settings or a result of the new camera.
 
 ## Absolute camera in v3.8.2
 
-Rebuilt from PUBLIC v3.7.0. It replaces the v3.8.0/3.8.1 source-angle confirmation, relative movement and position-specific calibration workflow with an absolute front 0° target, available before the first image. Startup is OFF. **New camera** starts ON at front 0°, elevation 0°, upper body and neutral strength 1.
+The camera was rebuilt from v3.7.0. Instead of confirming a source angle and applying relative moves and position-specific corrections as in v3.8.0/3.8.1, you choose an absolute target view relative to front 0°.
 
-Horizontal sphere movement selects direction; vertical movement selects elevation. Shot size, height, pan, tilt and roll remain separate controls. One of five direction families is selected: front, three-quarter front, side, three-quarter rear or behind. Both sides may produce the same wording. Per-axis weights emphasize wording; 1 is neutral. Manual wording persists until that row's Auto button is selected.
+The camera is OFF at app startup. **New camera** starts ON at front 0°, elevation 0°, upper body and strength 1. Move the sphere horizontally for direction and vertically for elevation. Shot size, height, pan, tilt and roll have separate controls.
 
-The camera block is prepended only to a generation copy of Base. Original Base, Character text and Position are preserved. Optional exclusion removes only standalone Base camera tags from the copy. Known remaining grouped/Character conflicts require review and acknowledgement alongside the final Caption. OFF returns to ordinary generation.
+Per-axis strength emphasizes wording; 1 is the default. Manual wording remains until you select Auto for that row. Camera text is added before the Base used for generation. Your editable Base, Character text and Position stay intact.
 
-Save camera work separately and resume it explicitly. Starting from an image or History starts at 0° without automatic I2I. Only explicit v3.8.2 resume restores saved angles/text, starting in T2I. Input images and masks are not saved with camera work. Legacy camera_context is read-only in History; old sessions/calibration cannot be edited, rerun or converted by the new camera. Their source files remain intact.
+You can exclude recognized standalone camera tags from the generation Base. This can include a single emphasized tag; multi-tag groups and Character tags remain. Known remaining conflicts require acknowledgement in the final text review. Turn Camera OFF to return to ordinary generation.
 
-![Actual v3.8.2 absolute camera](assets/manuals/en/camera-absolute.png)
+Starting a new camera from an image or History starts in T2I at front 0°. Explicitly resuming saved v3.8.2 camera work restores its angles and wording. Work does not resume automatically after restart. Camera work does not save input images or masks: prepare those separately for I2I/Inpaint.
 
-**Actual NovelAI image quality has not yet been tested for the new camera.** Passing functional, request and UI checks does not guarantee image quality. Angles select wording rather than measured 3D rotation; left/right accuracy and fixed identity, pose or background are not guaranteed. Height, pan and tilt wording is experimental. [Full camera guide](docs/CAMERA.en.md)
+![v3.8.2](assets/manuals/en/camera-absolute.png)
 
-## Architecture and data
+Camera settings send composition and viewpoint instructions to the image model. Results depend on your prompt and the model’s interpretation. Actual NovelAI image quality has not yet been evaluated for the new camera.
 
-| Component | Role |
-|---|---|
-| Electron and local Node server | A Windows window displays the HTML/CSS/JavaScript UI. The server handles app requests on 127.0.0.1. The renderer enables contextIsolation and sandbox, with nodeIntegration disabled. |
-| Presets | `chaessi-preset/v3` JSON stores Base/negative/Character text, positions and model settings. Earlier readable schemas remain supported. |
-| Requests | Editable source text → generation-time resolution including Wildcards → model/mode adapter and validation → NovelAI → image, settings and History. Original text and transmitted expressions remain distinct. |
-| Camera | Saves absolute-camera/1 state and manual text independently, then prepends wording to a generation copy of Base. The old calibration and v1/v2 execution engine are not included. |
-| High / Medium | High exposes adjustable V5 settings. Medium uses its fixed settings contract and does not apply handwritten Base/Character negatives to the request. The text is retained for returning to High. |
-| Local storage | Electron defaults to `%APPDATA%\Chaessi Preset` for presets, History images/settings and camera work. Development or custom data paths may differ. |
-| Authentication | Saved Electron tokens use OS-backed safeStorage encryption. Generation and server image tools send the relevant image, text and settings to NovelAI. Local storage does not make every operation offline. |
+Exact 3D rotation, left/right distinction and fixed identity, pose or background are not guaranteed. Both sides may produce the same wording; height, pan and tilt wording is experimental. Read the final text because the app cannot detect every semantic conflict in free prose.
 
-Relevant code: `electron/`, `server.mjs`, `src/state/`, `src/adapters/`, `src/camera-input/`, `src/image-tools/` and `src/services/`. The optional MCP server provides read access to saved presets and History.
+[The new absolute camera](https://github.com/DooMokDdongGae/Chaessi-Preset/blob/main/docs/CAMERA.en.md)
+
+## Generation settings and stored data
+
+High exposes adjustable V5 settings. Medium uses fixed settings and does not apply handwritten Base/Character negative prompts to generation. Your text is retained so you can return to High and use it again.
+
+Presets, History images/settings and camera work are normally stored in `%APPDATA%\Chaessi Preset`. Check the actual folder if you use a custom location. Close the app and back up the whole folder before updating.
+
+The app encrypts saved NovelAI tokens using operating-system protection. Generation and server image tools send the relevant images, text and settings to NovelAI. Canvas, Pixel Snap, saved materials and bundled help are available locally. Optional MCP integration can read saved presets and History.
 
 ## Start, update and back up
 
 1. Download the Windows x64 Portable EXE and SHA256SUMS.txt from [Official releases](https://github.com/DooMokDdongGae/Chaessi-Preset/releases).
-2. Run the EXE and choose a language. Portable users do not need Node.js. Online work requires your own NovelAI account, token and generation entitlement.
+2. Run the EXE and choose a language. Portable users do not need Node.js. Online work requires your own NovelAI account, token and generation entitlement. In settings, open the NovelAI connection, enter and save your own token, then check the connection status. Treat the token like a password and never share it.
 3. Load or write a preset, review High/Medium, size and cost, and generate one image. Continue from the latest result or History with Camera or Image tools. Open App info → Help Center for the controls.
 4. Before updating, save edits, close the app and back up the complete actual data directory separately. Keep the data and replace the EXE. To roll back, use the earlier EXE together with a backup appropriate for that version.
 
 Existing presets, categories, Wildcards and History are not batch-converted. V4.5 records remain readable, editable and saveable, but **new V4.5 generation is unsupported: explicitly switch to V5**. Older releases may not understand newer camera/composition records. Automatic updates and automatic recovery of unsaved edits after exit are not provided.
 
-For source development, run `npm ci` then `npm run electron:dev`. `npm start` runs the server; check the development data path. [Update details](docs/UPDATING.md) · [Third-party notices](THIRD_PARTY_NOTICES.md) · [License](LICENSE)
+[Update details](https://github.com/DooMokDdongGae/Chaessi-Preset/blob/main/docs/UPDATING.md) · [Third-party notices](THIRD_PARTY_NOTICES.md) · [License](LICENSE)
 
 ## Cost and limitations
 

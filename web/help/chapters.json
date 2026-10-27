@@ -1,0 +1,1990 @@
+[
+  {
+    "id": "start",
+    "image": "docs-workbench",
+    "ko": [
+      "처음 시작하기",
+      "Chaessi Preset은 NovelAI 이미지 생성을 위한 작업대입니다. 왼쪽에서 글을 고치고 오른쪽에서 결과를 확인하세요.",
+      [
+        "앱을 실행합니다. 왼쪽 작업대 버튼을 누릅니다.",
+        "베이스 프롬프트에 white shirt, garden처럼 그리고 싶은 내용을 입력합니다. 프롬프트는 UI 언어를 바꿔도 번역되지 않습니다.",
+        "아래에서 모델과 이미지 크기를 확인합니다. 새 작업은 V5로 시작합니다.",
+        "생성을 누릅니다. 결과가 오른쪽에 나오고 히스토리에 저장됩니다."
+      ],
+      "NovelAI 계정과 사용 가능한 생성 권한이 필요합니다. 설정에 따라 Anlas나 V5 스태미나가 사용될 수 있습니다."
+    ],
+    "en": [
+      "Getting started",
+      "Chaessi Preset is a workbench for NovelAI image generation. Edit on the left and check results on the right.",
+      [
+        "Launch the app and open Workbench on the left.",
+        "Write what you want in Base Prompt, such as white shirt, garden. Changing the UI language does not translate prompts.",
+        "Check the model and image size in the bottom bar. A fresh workbench starts with V5.",
+        "Press Generate. The result appears on the right and is saved in History."
+      ],
+      "A NovelAI account with generation access is required. Depending on the settings, generation may use Anlas or V5 Stamina."
+    ],
+    "ja": [
+      "はじめて使う",
+      "Chaessi Preset は NovelAI 画像生成のワークベンチです。左で編集し、右で結果を確認します。",
+      [
+        "アプリを起動し、左のワークベンチを開きます。",
+        "ベースプロンプトに white shirt, garden など描きたい内容を入力します。UI 言語を変えてもプロンプトは翻訳されません。",
+        "下のバーでモデルと画像サイズを確認します。新しい作業は V5 で始まります。",
+        "生成を押します。右に画像が表示され、履歴にも保存されます。"
+      ],
+      "生成権限のある NovelAI アカウントが必要です。設定に応じて Anlas や V5 スタミナを使う場合があります。"
+    ],
+    "illustrations": [
+      {
+        "screenshot": "app-info",
+        "caption": {
+          "ko": "v3.8.2 앱 정보에서 버전, 도움말 센터, 선택 사항인 후원을 찾을 수 있습니다.",
+          "en": "App info in v3.8.2 shows the version, Help Center and optional support.",
+          "ja": "v3.8.2のアプリ情報でバージョン、ヘルプセンター、任意の支援を確認できます。"
+        }
+      }
+    ],
+    "imageNote": {
+      "ko": "사용자가 제공한 도움말용 작품을 작업대에 표시한 v3.8.2 화면입니다. 문구와 설정은 조작 설명용이며 이 작품의 원래 생성 조건이나 새 카메라 결과를 나타내지 않습니다.",
+      "en": "v3.8.2 workbench displaying user-provided help artwork. The text and settings illustrate controls; they are not this artwork’s original generation settings or a result of the new camera.",
+      "ja": "提供されたヘルプ用作品を表示したv3.8.2の作業画面です。文章と設定は操作の説明用で、この作品の元の生成条件や新カメラの結果を示すものではありません。"
+    }
+  },
+  {
+    "id": "first-png",
+    "image": "generation",
+    "ko": [
+      "글에서 첫 PNG 만들기",
+      "T2I는 설명 글만 보고 그림을 만드는 방식이에요. 먼저 작고 단순한 장면 한 장으로 시작해요.",
+      [
+        "API 설정에서 연결을 준비한 뒤 작업대의 베이스 프롬프트에 a blue teapot on a wooden table처럼 그리고 싶은 것을 적어요.",
+        "V5 Full과 High 또는 Medium, 크기를 선택해요. High는 세부 설정과 제외 글을 쓰고, Medium은 정해진 설정을 쓰며 직접 쓴 제외 글을 사용하지 않아요.",
+        "예상 비용을 보고 생성을 눌러요. 한 번에 PNG 한 장이 만들어져요. 완료까지 기다린 뒤 오른쪽 그림을 확인해요.",
+        "결과의 저장 버튼으로 PNG를 내려받아요. 프롬프트도 나중에 고치려면 저장 또는 다른 이름으로 저장을 눌러요. 그림 저장과 프리셋 저장은 서로 다른 일이에요."
+      ],
+      "마음에 들지 않으면 글을 조금 고치고 다시 생성하세요. 시드(Seed)는 시작 무늬를 정하는 숫자이며 같은 숫자만으로 모든 설정에서 같은 결과가 보장되지는 않아요."
+    ],
+    "en": [
+      "Make your first PNG from words",
+      "T2I makes a picture from text. Start with one small, simple scene.",
+      [
+        "Prepare access in API Settings, then write a description such as a blue teapot on a wooden table in Base prompt.",
+        "Choose V5 Full, High or Medium, and dimensions. High allows detailed settings and custom undesired text; Medium uses fixed settings and ignores custom undesired text.",
+        "Check estimated cost and press Generate. It makes one PNG at a time. Wait for completion and inspect the result on the right.",
+        "Use the result download button to save PNG. Use Save or Save As to keep the prompt for later editing. Saving a picture and saving a preset are different actions."
+      ],
+      "If unhappy, edit a little and generate again. Seed is a number that selects the starting pattern; the number alone does not guarantee the same result across settings."
+    ],
+    "ja": [
+      "文章から最初の PNG を作る",
+      "T2I は文章から絵を作ります。小さく単純な場面1枚から始めましょう。",
+      [
+        "API 設定で接続を準備し、ベースプロンプトに a blue teapot on a wooden table などの説明を書きます。",
+        "V5 Full と High/Medium、サイズを選びます。High は細かな設定や除外文を使えます。Medium は固定設定で手入力の除外文は使いません。",
+        "推定費用を確認して生成を押します。PNG を1枚ずつ作ります。完了を待ち、右の絵を確認します。",
+        "結果の保存ボタンで PNG を保存します。後で文章を直すには保存か名前を付けて保存を使います。絵の保存とプリセットの保存は別の操作です。"
+      ],
+      "気に入らなければ文章を少し変えて再生成します。Seed は開始模様を決める数値で、その数だけで異なる設定の結果が一致するとは限りません。"
+    ],
+    "illustrations": [],
+    "imageNote": {
+      "ko": "v3.8.1의 화면 예시입니다. 이 장의 기능은 v3.8.2에서도 사용할 수 있지만 일부 메뉴 이름·표시는 다를 수 있습니다. 새 절대 카메라는 카메라 장을 참고하세요.",
+      "en": "Screen example from v3.8.1. The feature remains available in v3.8.2; some labels and indicators may differ. See the camera chapters for the new absolute camera.",
+      "ja": "v3.8.1の画面例です。この章の機能はv3.8.2でも使えますが、一部の名称や表示が異なる場合があります。新しい絶対カメラはカメラの章を参照してください。"
+    }
+  },
+  {
+    "id": "account",
+    "image": "settings",
+    "ko": [
+      "NovelAI 사용 준비",
+      "왼쪽 API 설정에서 토큰과 계정 상태를 관리합니다.",
+      [
+        "NovelAI에서 준비한 API 토큰을 API 설정의 토큰 칸에 붙여 넣습니다.",
+        "토큰 저장을 누릅니다. 앱에 저장한 토큰은 운영체제의 보호 기능을 이용해 암호화합니다.",
+        "상태 새로고침을 눌러 토큰과 계정 상태를 확인합니다. 위쪽에는 Anlas와 V5 스태미나가 표시됩니다.",
+        "저장된 토큰 삭제를 누르면 확인창이 나옵니다. 삭제한 뒤 생성하려면 토큰을 다시 입력합니다."
+      ],
+      "토큰은 비밀번호처럼 다루세요. 스크린샷이나 공유 파일에 넣지 마세요. 앱에 포함된 도움말은 인터넷 없이 읽을 수 있지만, 온라인 도움말 접속과 실제 생성에는 인터넷이 필요합니다."
+    ],
+    "en": [
+      "Prepare NovelAI access",
+      "Manage the token and account status in API Settings on the left.",
+      [
+        "Paste the API token obtained from NovelAI into the token field.",
+        "Press Save Token. The app encrypts the saved token using operating-system protection.",
+        "Refresh the status. Anlas and V5 Stamina are shown at the top.",
+        "Clear Saved Token opens a confirmation. After removal, enter the token again before generating."
+      ],
+      "Treat the token like a password and keep it out of screenshots and shared files. Bundled help works offline; online help and image generation require internet access."
+    ],
+    "ja": [
+      "NovelAI の利用準備",
+      "左の API 設定でトークンとアカウント状態を管理します。",
+      [
+        "NovelAI で用意した API トークンをトークン欄に貼り付けます。",
+        "トークンを保存を押します。保存したトークンはOSの保護機能を使って暗号化します。",
+        "状態を更新します。上部に Anlas と V5 スタミナが表示されます。",
+        "保存したトークンを削除すると確認画面が出ます。削除後の生成には再入力が必要です。"
+      ],
+      "トークンはパスワードと同じように扱い、スクリーンショットや共有ファイルに含めないでください。アプリ内ヘルプはオフラインで読めますが、オンラインヘルプと画像生成には接続が必要です。"
+    ],
+    "illustrations": [],
+    "imageNote": {
+      "ko": "v3.8.1의 화면 예시입니다. 이 장의 기능은 v3.8.2에서도 사용할 수 있지만 일부 메뉴 이름·표시는 다를 수 있습니다. 새 절대 카메라는 카메라 장을 참고하세요.",
+      "en": "Screen example from v3.8.1. The feature remains available in v3.8.2; some labels and indicators may differ. See the camera chapters for the new absolute camera.",
+      "ja": "v3.8.1の画面例です。この章の機能はv3.8.2でも使えますが、一部の名称や表示が異なる場合があります。新しい絶対カメラはカメラの章を参照してください。"
+    }
+  },
+  {
+    "id": "editing",
+    "image": "editor",
+    "ko": [
+      "프롬프트 편집",
+      "베이스에는 전체 그림을, 제외 프롬프트에는 피하고 싶은 내용을 적습니다.",
+      [
+        "베이스 프롬프트 칸을 선택합니다. 선택한 칸은 넓어집니다.",
+        "긴 글은 확대 편집을 누릅니다. 입력은 원래 칸에도 즉시 반영됩니다.",
+        "닫기나 Esc로 돌아옵니다. 편집한 글은 그대로 남습니다.",
+        "새 이미지가 필요할 때 생성을 누릅니다. 마지막 결과는 다음 결과가 나올 때까지 확인할 수 있습니다."
+      ],
+      "언어 전환이나 화면 이동은 편집 내용을 지우지 않습니다. 앱을 종료하기 전에는 저장하세요. 전체 프리셋이나 히스토리 프리셋을 불러오면 해당 작업 내용으로 바뀝니다."
+    ],
+    "en": [
+      "Edit prompts",
+      "Use Base Prompt for the whole picture and Undesired Content for things to avoid.",
+      [
+        "Select Base Prompt. The selected field expands.",
+        "For long text, press Expand editor. Changes also appear immediately in the original field.",
+        "Return with Close or Esc. Your edited text remains.",
+        "Press Generate for a new image. You can keep checking the previous result while editing."
+      ],
+      "Language changes and navigation keep edits. Save before quitting the app. Loading a full preset or applying a History preset replaces the current work with that saved content."
+    ],
+    "ja": [
+      "プロンプトを編集する",
+      "ベースには絵全体の内容を、除外プロンプトには避けたい内容を書きます。",
+      [
+        "ベースプロンプト欄を選択すると広がります。",
+        "長い文章には拡大編集を使います。入力は元の欄にもすぐ反映されます。",
+        "閉じるか Esc で戻ります。編集内容は残ります。",
+        "新しい画像が必要なときに生成を押します。編集しながら前の結果を確認できます。"
+      ],
+      "言語切替や画面移動では編集内容を消しません。終了前に保存してください。全体プリセットや履歴のプリセットを適用すると、その保存内容に置き換わります。"
+    ],
+    "illustrations": [],
+    "imageNote": {
+      "ko": "v3.8.1의 화면 예시입니다. 이 장의 기능은 v3.8.2에서도 사용할 수 있지만 일부 메뉴 이름·표시는 다를 수 있습니다. 새 절대 카메라는 카메라 장을 참고하세요.",
+      "en": "Screen example from v3.8.1. The feature remains available in v3.8.2; some labels and indicators may differ. See the camera chapters for the new absolute camera.",
+      "ja": "v3.8.1の画面例です。この章の機能はv3.8.2でも使えますが、一部の名称や表示が異なる場合があります。新しい絶対カメラはカメラの章を参照してください。"
+    }
+  },
+  {
+    "id": "presets",
+    "image": "presets",
+    "ko": [
+      "프롬프트 저장·수정·복원",
+      "프롬프트를 불러와 수정하고 PNG 한 장으로 확인하면서 다듬습니다.",
+      [
+        "불러오기로 저장된 프리셋을 선택합니다. 수정하면 저장하지 않은 변경 표시가 나옵니다.",
+        "저장은 현재 프리셋을 갱신합니다. 다른 이름으로 저장은 원본을 유지한 별도 사본을 만듭니다.",
+        "저장 상태로 복원은 마지막 저장·불러오기 상태로 돌아갑니다. 이전 작업으로 바로 전 작업과 오갈 수 있습니다.",
+        "덮어쓰기 전 프롬프트는 이전 저장 기록에 보관됩니다. 기록을 불러와 확인한 뒤 저장하면 현재 프리셋을 갱신합니다."
+      ],
+      "이전 저장 기록은 프리셋 폴더에 함께 보관합니다. 프리셋을 삭제하면 복구 기록도 삭제됩니다. 저장되지 않은 이전 작업은 앱 종료 후 복구되지 않으므로 종료 전에 저장하세요."
+    ],
+    "en": [
+      "Save, edit and restore prompts",
+      "Load a prompt, edit it and inspect one PNG at a time.",
+      [
+        "Load a saved preset. Editing shows an unsaved changes indicator.",
+        "Save updates the current preset. Save As keeps the original and creates a separate copy.",
+        "Restore saved returns to the last saved or loaded state. Previous work swaps with the preceding workbench state.",
+        "Before overwriting, the previous prompt is kept in Saved revisions. Load a revision, inspect it, then Save to update the current preset."
+      ],
+      "Revisions are stored with the preset. Deleting the preset also deletes its revisions. Unsaved previous work is session-only; save before quitting."
+    ],
+    "ja": [
+      "プロンプトの保存・編集・復元",
+      "保存した文章を読み込み、編集して PNG 1枚ずつで確認します。",
+      [
+        "保存済みプリセットを読み込みます。編集すると未保存の変更を表示します。",
+        "保存は現在のプリセットを更新します。名前を付けて保存は元を残して別のコピーを作ります。",
+        "保存状態に戻すで最後の保存・読み込み状態に戻ります。前の作業で直前の作業と切り替えられます。",
+        "上書き前の文章は過去の保存記録に残します。読み込んで確認し、保存すると現在のプリセットを更新します。"
+      ],
+      "記録はプリセットと一緒に保管します。プリセットを削除すると記録も削除します。未保存の前の作業は終了後に復元できないので終了前に保存してください。"
+    ],
+    "illustrations": [],
+    "imageNote": {
+      "ko": "v3.8.1의 화면 예시입니다. 이 장의 기능은 v3.8.2에서도 사용할 수 있지만 일부 메뉴 이름·표시는 다를 수 있습니다. 새 절대 카메라는 카메라 장을 참고하세요.",
+      "en": "Screen example from v3.8.1. The feature remains available in v3.8.2; some labels and indicators may differ. See the camera chapters for the new absolute camera.",
+      "ja": "v3.8.1の画面例です。この章の機能はv3.8.2でも使えますが、一部の名称や表示が異なる場合があります。新しい絶対カメラはカメラの章を参照してください。"
+    }
+  },
+  {
+    "id": "characters",
+    "image": "character",
+    "ko": [
+      "캐릭터·의상·카테고리",
+      "캐릭터마다 별도의 프롬프트를 쓰고 의상이나 캐릭터 프리셋을 불러올 수 있습니다.",
+      [
+        "캐릭터 추가를 누르고 이름과 프롬프트를 입력합니다. 제외 프롬프트는 옆 탭에서 적습니다.",
+        "그 캐릭터의 프리셋 버튼을 누릅니다. 카테고리와 하위 카테고리를 고릅니다.",
+        "검색과 정렬로 찾은 카드의 불러오기를 누릅니다. 저장 및 관리 탭에서는 저장, 새 이름으로 저장, 미리 보기, 카테고리 추가를 할 수 있습니다.",
+        "접기·펼치기, 켜짐·꺼짐, 위·아래로 작업을 정리합니다. 베이스 프롬프트의 프리셋 버튼도 같은 보관함을 사용합니다."
+      ],
+      "각 번호 슬롯은 마지막 카테고리를 기억합니다. 앱 재시작이나 전체 프리셋·히스토리 적용 후에도 번호별 선택이 유지됩니다. 슬롯 삭제는 현재 편집 내용을 제거하고 저장된 캐릭터 프리셋은 유지합니다."
+    ],
+    "en": [
+      "Characters, outfits and categories",
+      "Give each character its own prompt and load character or outfit presets.",
+      [
+        "Press Add Character and enter a name and prompt. Use the other tab for Undesired Content.",
+        "Press Preset in that Character slot, then choose a category and subcategory.",
+        "Find a card with search and sorting, then Load it. Save & manage includes Save, Save As, thumbnails and category creation.",
+        "Use Fold/Expand, On/Off and Up/Down to organize slots. Base Prompt uses the same preset library."
+      ],
+      "Each numbered slot remembers its last category, including across app restarts and full preset or History application. Deleting a slot removes its current edits but keeps saved character presets."
+    ],
+    "ja": [
+      "キャラクター・衣装・カテゴリ",
+      "キャラクターごとにプロンプトを書き、キャラクターや衣装のプリセットを読み込めます。",
+      [
+        "キャラクターを追加し、名前とプロンプトを入力します。除外プロンプトは隣のタブに書きます。",
+        "そのスロットのプリセットを押し、カテゴリとサブカテゴリを選びます。",
+        "検索と並び替えで探したカードを読み込みます。保存と管理では保存、名前を付けて保存、サムネイル、カテゴリ追加ができます。",
+        "折りたたみ、展開、オン・オフ、上・下で整理します。ベースプロンプトも同じライブラリを使います。"
+      ],
+      "番号ごとのスロットは最後のカテゴリを記憶します。再起動や全体プリセット・履歴の適用後も保持します。スロット削除は編集中の内容を消しますが、保存したキャラクタープリセットは残ります。"
+    ],
+    "illustrations": [],
+    "imageNote": {
+      "ko": "v3.8.1의 화면 예시입니다. 이 장의 기능은 v3.8.2에서도 사용할 수 있지만 일부 메뉴 이름·표시는 다를 수 있습니다. 새 절대 카메라는 카메라 장을 참고하세요.",
+      "en": "Screen example from v3.8.1. The feature remains available in v3.8.2; some labels and indicators may differ. See the camera chapters for the new absolute camera.",
+      "ja": "v3.8.1の画面例です。この章の機能はv3.8.2でも使えますが、一部の名称や表示が異なる場合があります。新しい絶対カメラはカメラの章を参照してください。"
+    }
+  },
+  {
+    "id": "wildcards",
+    "image": "wildcard",
+    "ko": [
+      "와일드카드",
+      "많은 프롬프트 후보를 한 곳에 저장하고, 이미지마다 하나를 무작위로 고를 수 있습니다.",
+      [
+        "왼쪽 와일드카드에서 + 새 와일드카드를 누릅니다. 이름은 상의, 키는 tops처럼 정합니다.",
+        "후보에 white shirt, black shirt, blue shirt를 각각 다른 줄에 넣고 저장합니다.",
+        "베이스나 캐릭터 칸의 와일드카드 버튼을 누릅니다. 목록에서 고르고 프롬프트에 삽입을 누르면 __tops__가 들어갑니다. 직접 __tops__를 적어도 됩니다.",
+        "프리셋으로 저장한 뒤 생성합니다. 그때 고른 실제 후보만 NovelAI 요청, 히스토리, 이미지 메타데이터에 기록됩니다."
+      ],
+      "여러 키를 함께 쓸 수 있습니다. 빈 줄과 중복 줄은 저장할 때 제거됩니다. 같은 후보가 연속으로 나올 수 있습니다. 키는 저장 후 고정됩니다. TXT 가져오기·내보내기와 시험 선택도 사용할 수 있습니다. 후보에 기존 ||A|B||는 쓸 수 있지만 다른 와일드카드는 참조할 수 없습니다."
+    ],
+    "en": [
+      "Wildcards",
+      "Save many prompt candidates in one place and choose one randomly for each image.",
+      [
+        "Open Wildcards and press + New Wildcard. Use a name such as Tops and a key such as tops.",
+        "Enter white shirt, black shirt and blue shirt on separate lines, then Save.",
+        "Press Wildcard next to Base Prompt or a Character field. Select an item and Insert into prompt to add __tops__. You can also type __tops__ directly.",
+        "Save the preset and generate. Only the actual chosen text is recorded in the NovelAI request, History and image metadata."
+      ],
+      "Use multiple keys together. Empty and duplicate lines are removed on save. Repeated selections are possible. Keys are fixed after saving. TXT import/export and Sample are available. Candidates may contain the existing ||A|B|| syntax, but cannot reference other Wildcards."
+    ],
+    "ja": [
+      "ワイルドカード",
+      "多数のプロンプト候補を保存し、画像ごとに1つをランダムに選べます。",
+      [
+        "ワイルドカードで + 新しいワイルドカードを押します。名前は上着、キーは tops などにします。",
+        "white shirt、black shirt、blue shirt をそれぞれ別の行に入力して保存します。",
+        "ベースやキャラクター欄のワイルドカードを押します。一覧で選び、プロンプトに挿入すると __tops__ が入ります。直接入力もできます。",
+        "プリセットとして保存し、生成します。選ばれた実際の文字だけを NovelAI リクエスト、履歴、画像メタデータに記録します。"
+      ],
+      "複数のキーを一緒に使えます。保存時に空行と重複行を除きます。同じ候補が連続する場合もあります。保存後のキーは固定です。TXT の読み込み・書き出し、試しに選ぶ機能もあります。候補に ||A|B|| は使えますが、別のワイルドカードは参照できません。"
+    ],
+    "illustrations": [],
+    "imageNote": {
+      "ko": "v3.8.1의 화면 예시입니다. 이 장의 기능은 v3.8.2에서도 사용할 수 있지만 일부 메뉴 이름·표시는 다를 수 있습니다. 새 절대 카메라는 카메라 장을 참고하세요.",
+      "en": "Screen example from v3.8.1. The feature remains available in v3.8.2; some labels and indicators may differ. See the camera chapters for the new absolute camera.",
+      "ja": "v3.8.1の画面例です。この章の機能はv3.8.2でも使えますが、一部の名称や表示が異なる場合があります。新しい絶対カメラはカメラの章を参照してください。"
+    }
+  },
+  {
+    "id": "models",
+    "image": "generation",
+    "ko": [
+      "V5 Effort와 생성 설정",
+      "V5 Full의 High와 Medium을 선택하며 한 번에 PNG 한 장을 생성합니다.",
+      [
+        "작업대 아래에서 High 또는 Medium을 고릅니다. V4.5 프리셋과 History는 읽기 호환으로 보존하며, 생성하려면 V5로 전환합니다.",
+        "Medium은 14 스텝·Euler Ancestral·Heavy UC로 고정됩니다. 직접 작성한 베이스·캐릭터 UC는 보존되지만 생성에 사용하지 않습니다.",
+        "High로 돌아오면 스텝·샘플러·UC·CFG 설정을 복원합니다. 프롬프트·강도·해상도·시드는 함께 이어집니다.",
+        "PNG나 History를 불러오면 실제 Effort를 복원합니다. 출처를 확인할 수 없다면 생성 전에 High 또는 Medium을 직접 선택합니다."
+      ],
+      "Medium은 별도 증류 모델입니다. 같은 시드라도 결과가 달라질 수 있습니다. 제외 요소는 긍정 프롬프트의 -3::hat:: 같은 음수 강조로 작성할 수 있으며 기존 UC를 자동 변환하지 않습니다."
+    ],
+    "en": [
+      "V5 Effort and settings",
+      "Choose High or Medium for V5 Full and generate one PNG at a time.",
+      [
+        "Choose High or Medium in the bottom bar. V4.5 presets and History remain readable; switch to V5 before generating.",
+        "Medium fixes 14 Steps, Euler Ancestral and Heavy UC. Custom base and character UC is preserved but unused.",
+        "Returning to High restores Steps, Sampler, UC and CFG settings. Prompts, Guidance, dimensions and Seed remain shared.",
+        "PNG and History imports restore the actual Effort. If its origin is unknown, explicitly choose High or Medium before generating."
+      ],
+      "Medium is a separate distilled model. The same Seed can produce different results. Use negative emphasis such as -3::hat:: in the positive prompt; existing UC is never automatically converted."
+    ],
+    "ja": [
+      "V5 Effort と生成設定",
+      "V5 Full の High と Medium を選び、PNG を1枚ずつ生成します。",
+      [
+        "下部で High または Medium を選びます。V4.5 のプリセットと履歴は読み込み互換で保持し、生成前に V5 に切り替えます。",
+        "Medium は14ステップ、Euler Ancestral、Heavy UC 固定です。入力したベース・キャラクター UC は保持しますが生成には使用しません。",
+        "High に戻るとステップ、サンプラー、UC、CFG の設定を復元します。文章、強さ、解像度、シードは共有します。",
+        "PNG や履歴から実際の Effort を復元します。出所が不明な場合は生成前に High または Medium を選択します。"
+      ],
+      "Medium は別の蒸留モデルです。同じシードでも結果が変わります。除外要素は肯定プロンプトの -3::hat:: など負の強調で指定でき、既存 UC は自動変換しません。"
+    ],
+    "illustrations": [],
+    "imageNote": {
+      "ko": "v3.8.1의 화면 예시입니다. 이 장의 기능은 v3.8.2에서도 사용할 수 있지만 일부 메뉴 이름·표시는 다를 수 있습니다. 새 절대 카메라는 카메라 장을 참고하세요.",
+      "en": "Screen example from v3.8.1. The feature remains available in v3.8.2; some labels and indicators may differ. See the camera chapters for the new absolute camera.",
+      "ja": "v3.8.1の画面例です。この章の機能はv3.8.2でも使えますが、一部の名称や表示が異なる場合があります。新しい絶対カメラはカメラの章を参照してください。"
+    }
+  },
+  {
+    "id": "settings",
+    "image": "resolution-picker",
+    "ko": [
+      "크기·시드·품질 설정",
+      "설정은 그림을 만드는 방법을 정하는 손잡이예요. 한꺼번에 모두 바꾸지 말고 하나씩 비교하세요.",
+      [
+        "아래 이미지 크기를 눌러 작게·보통·크게·배경화면과 가로·세로·정사각형을 고릅니다. 표시된 실제 픽셀 크기를 확인하고 적용하세요. 직접 입력은 64의 배수, 총 3,145,728픽셀 이하여야 하며 자동 반올림하지 않습니다.",
+        "Seed는 시작 무늬 번호예요. 빈칸이면 무작위예요. Steps는 만드는 단계 수, 프롬프트 강도는 설명을 따르는 정도이며 숫자가 높다고 항상 더 좋지는 않아요.",
+        "상세 설정에서 High의 Sampler(그리는 방법), CFG Rescale(강한 프롬프트 영향 조절), Quality Tags(품질 관련 글 추가)를 확인해요. Medium의 고정된 항목은 수정할 수 없어요.",
+        "Transparent Background는 투명 배경을 요청해요. 완성 그림은 PNG로 저장하세요. 잘 안 되면 이전 설정이나 프리셋을 다시 불러오세요."
+      ],
+      "품질 태그나 투명 옵션도 원하는 결과를 보장하지 않아요. High/Medium을 바꾸면 지원되는 설정과 제외 프롬프트 처리도 달라져요. 배경화면 정사각형은 지원하지 않습니다. 1,048,576픽셀을 넘는 크기는 생성 전 예상 Anlas 확인창이 나옵니다. High/Medium을 바꿔도 크기는 유지됩니다. 이미지 기반 모드는 원본 크기를 사용합니다."
+    ],
+    "en": [
+      "Size, seed and quality settings",
+      "Settings are controls for how a picture is made. Compare one change at a time.",
+      [
+        "Press Image size in the bottom bar. Choose Small, Normal, Large or Wallpaper and an orientation, then apply the displayed pixel size. Custom dimensions must be multiples of 64 and total at most 3,145,728 pixels; values are never rounded automatically.",
+        "Seed selects the starting pattern; leave it blank for random. Steps is the number of generation stages. Guidance controls prompt influence; higher is not always better.",
+        "Advanced settings offers High Sampler (drawing method), CFG Rescale (adjusting strong guidance) and Quality Tags (added quality-related text). Fixed Medium settings cannot be edited.",
+        "Transparent Background requests transparency. Save the finished picture as PNG. Return to previous settings or load your preset if needed."
+      ],
+      "Quality tags and transparency requests do not guarantee a particular result. Switching High/Medium changes supported settings and undesired-prompt handling. Wallpaper has no square preset. Sizes above 1,048,576 pixels require an estimated-Anlas confirmation before generation. High/Medium changes preserve size. Source-image modes use the source dimensions."
+    ],
+    "ja": [
+      "サイズ・シード・品質設定",
+      "絵の作り方を決めるつまみです。一度に全部変えず、一つずつ比較します。",
+      [
+        "下の画像サイズを押し、小・標準・大・壁紙と向きを選び、実際のピクセル数を確認して適用します。カスタムは64の倍数、総3,145,728ピクセル以下で、自動では丸めません。",
+        "Seed は開始模様の番号で、空欄ならランダムです。Steps は生成段階数、プロンプト強度は文章の影響です。大きい数ほど良いとは限りません。",
+        "詳細設定で High の Sampler（描く方法）、CFG Rescale（強い誘導の調整）、Quality Tags（品質の文章追加）を確認します。Medium の固定項目は編集できません。",
+        "Transparent Background は透明背景を要求します。完成は PNG で保存し、必要なら以前の設定やプリセットに戻します。"
+      ],
+      "品質タグや透明指定も結果を保証しません。High/Medium で対応設定と除外文の扱いが変わります。 壁紙の正方形はありません。1,048,576ピクセルを超えるサイズは生成前に推定Anlasを確認します。High/Mediumを変更してもサイズは維持します。画像入力モードは元画像のサイズを使います。"
+    ],
+    "illustrations": [
+      {
+        "screenshot": "resolution-custom",
+        "caption": {
+          "ko": "직접 입력에서 실제 픽셀 크기를 확인합니다. 적용은 반영하고 취소는 이전 값을 유지합니다.",
+          "en": "Custom shows exact pixels. Apply changes the workbench; Cancel preserves the previous size.",
+          "ja": "カスタムで実際の画素数を確認。適用で変更し、キャンセルは前のサイズを維持します。"
+        }
+      }
+    ],
+    "imageNote": {
+      "ko": "v3.8.1의 화면 예시입니다. 이 장의 기능은 v3.8.2에서도 사용할 수 있지만 일부 메뉴 이름·표시는 다를 수 있습니다. 새 절대 카메라는 카메라 장을 참고하세요.",
+      "en": "Screen example from v3.8.1. The feature remains available in v3.8.2; some labels and indicators may differ. See the camera chapters for the new absolute camera.",
+      "ja": "v3.8.1の画面例です。この章の機能はv3.8.2でも使えますが、一部の名称や表示が異なる場合があります。新しい絶対カメラはカメラの章を参照してください。"
+    }
+  },
+  {
+    "id": "position",
+    "image": "position",
+    "ko": [
+      "캐릭터 위치 정하기",
+      "위치 패드에서 번호를 움직여 캐릭터가 나올 위치를 정합니다.",
+      [
+        "V5에서 위치를 직접 배치로 바꿉니다.",
+        "위치 패드의 캐릭터 번호를 선택합니다.",
+        "번호를 원하는 곳으로 끕니다. 선택 캐릭터를 중앙으로 버튼으로 되돌릴 수 있습니다.",
+        "정확한 값이 필요하면 캐릭터의 위치 항목에서 X와 Y를 입력합니다."
+      ],
+      "번호가 가까우면 겹침 안내가 나옵니다. 위치는 생성을 위한 안내이며 정확한 픽셀 위치를 보장하지 않습니다. AI 자동 배치로 바꾸면 AI가 위치를 정합니다."
+    ],
+    "en": [
+      "Place characters",
+      "Move numbered markers on Position Pad to guide where characters appear.",
+      [
+        "In V5, change Position to Custom.",
+        "Select a character number on Position Pad.",
+        "Drag it to the desired location. Reset selected to center moves it back.",
+        "For precise values, open Position in the Character card and enter X and Y."
+      ],
+      "Nearby markers show an overlap notice. Positions guide generation; they do not guarantee exact pixels. AI’s Choice lets the model decide placement."
+    ],
+    "ja": [
+      "キャラクターの位置を決める",
+      "位置パッドの番号を動かし、キャラクターの位置を指定します。",
+      [
+        "V5 で位置を手動配置にします。",
+        "位置パッドのキャラクター番号を選びます。",
+        "希望する場所へドラッグします。選択キャラクターを中央へで戻せます。",
+        "細かく指定するにはキャラクターの位置項目で X と Y を入力します。"
+      ],
+      "番号が近いと重なりの案内が出ます。位置は生成への指示で、正確なピクセル位置を保証しません。AI におまかせではモデルが位置を決めます。"
+    ],
+    "illustrations": [],
+    "imageNote": {
+      "ko": "v3.8.1의 화면 예시입니다. 이 장의 기능은 v3.8.2에서도 사용할 수 있지만 일부 메뉴 이름·표시는 다를 수 있습니다. 새 절대 카메라는 카메라 장을 참고하세요.",
+      "en": "Screen example from v3.8.1. The feature remains available in v3.8.2; some labels and indicators may differ. See the camera chapters for the new absolute camera.",
+      "ja": "v3.8.1の画面例です。この章の機能はv3.8.2でも使えますが、一部の名称や表示が異なる場合があります。新しい絶対カメラはカメラの章を参照してください。"
+    }
+  },
+  {
+    "id": "images",
+    "image": "inpaint",
+    "ko": [
+      "Inpaint: 붓으로 고른 부분 다시 그리기",
+      "그림의 손이나 옷처럼 일부만 바꾸고 싶을 때 써요. 흰 마스크는 다시 그릴 곳을 표시하는 덧칠이에요.",
+      [
+        "PNG를 열어 부분 수정을 고르거나 최근 결과·History를 원본으로 사용해요.",
+        "브러시로 바꿀 곳을 칠해요. 지우개로 선택을 지우고 Undo/Redo로 되돌려요. 마스크 보기를 켜서 선택이 맞는지 확인해요.",
+        "Strength는 다시 그리는 정도, Padding은 선택 주변을 넓히는 여백입니다. 기본값으로 시작하고 한 값씩 바꿔 보세요.",
+        "High 또는 Medium과 비용을 확인한 뒤 생성하고 PNG를 저장해요. 마음에 들지 않으면 원본을 다시 선택해 마스크나 글을 고쳐요."
+      ],
+      "작은 부분만 칠해도 큰 원본은 요청 전체 크기에 따른 비용이 들 수 있습니다. 큰 이미지에서 직사각형 부분을 수정하려면 Focused Inpaint도 확인하세요."
+    ],
+    "en": [
+      "Inpaint: redraw with a brush mask",
+      "Use a painted mask to change one part, such as a hand or clothing. The white mask marks what to redraw.",
+      [
+        "Open a PNG and choose Inpaint, or use a recent result or History image as the source.",
+        "Paint the area with the brush. Erase the selection, undo or redo as needed. Toggle mask visibility to inspect it.",
+        "Strength controls how much to redraw; Padding expands the selected area around its edges. Start with the defaults and change one value at a time.",
+        "Check High/Medium and cost, generate, then save PNG. If unhappy, reselect the source and change the mask or prompt."
+      ],
+      "A small mask on a large source can still cost Anlas based on the whole request. For rectangular edits on large pictures, also read Focused Inpaint."
+    ],
+    "ja": [
+      "Inpaint：筆で選んだ場所を描き直す",
+      "手や服など一部分を変えたいときに使います。白いマスクが描き直す場所を示します。",
+      [
+        "PNG を開いて部分修正を選ぶか、最近の結果・履歴を元画像にします。",
+        "ブラシで変える場所を塗ります。消しゴムや Undo/Redo で選択を直し、マスク表示で確認します。",
+        "Strengthは描き直す程度、Paddingは選択の周囲を広げる余白です。初期値から始め、一つずつ変えます。",
+        "High/Medium と費用を確認して生成し、PNG を保存します。不満なら元画像を選び直し、マスクや文章を変えます。"
+      ],
+      "大きな元画像は小さな範囲だけを塗っても、要求全体のサイズに応じた料金がかかる場合があります。四角い範囲の修正にはFocused Inpaintも確認してください。"
+    ],
+    "illustrations": [],
+    "imageNote": {
+      "ko": "v3.8.1의 화면 예시입니다. 이 장의 기능은 v3.8.2에서도 사용할 수 있지만 일부 메뉴 이름·표시는 다를 수 있습니다. 새 절대 카메라는 카메라 장을 참고하세요.",
+      "en": "Screen example from v3.8.1. The feature remains available in v3.8.2; some labels and indicators may differ. See the camera chapters for the new absolute camera.",
+      "ja": "v3.8.1の画面例です。この章の機能はv3.8.2でも使えますが、一部の名称や表示が異なる場合があります。新しい絶対カメラはカメラの章を参照してください。"
+    }
+  },
+  {
+    "id": "png-import",
+    "image": "docs-image-intake",
+    "ko": [
+      "PNG를 불러오고 다시 사용하기",
+      "PNG는 그림 파일이에요. 생성할 때 쓴 글과 설정이 함께 들어 있는 PNG도 있어요.",
+      [
+        "상단 이미지 열기를 누르거나 PNG를 앱에 끌어 놓아요.",
+        "그림만 원본으로 쓸지, 안에 담긴 글·설정도 불러올지 구별해서 선택해요. 글·설정을 적용하면 현재 작업이 바뀌므로 먼저 프리셋을 저장해 두세요.",
+        "글이 없는 PNG도 이미지 도구나 I2I의 원본으로 쓸 수 있어요. PNG라고 해서 항상 프롬프트가 들어 있는 것은 아니에요.",
+        "History에서도 그림을 열고 프리셋·시드·설정을 따로 적용하거나 원본 이미지로 쓸 수 있어요. 작업대에 표시는 글을 바꾸지 않아요."
+      ],
+      "가공 이미지의 출력 크기와 원래 생성 설정은 다를 수 있어요. Effort를 알 수 없으면 High/Medium을 직접 골라야 해요. 원본 PNG를 따로 보관하면 다시 돌아가기 쉬워요."
+    ],
+    "en": [
+      "Import and reuse a PNG",
+      "PNG is an image file. Some PNGs also contain the prompt and settings used to generate them.",
+      [
+        "Press Open Image at the top or drop a PNG into the app.",
+        "Choose whether to use only the picture as a source or also import its prompt and settings. Applying text/settings changes current work; save your preset first.",
+        "A PNG without text can still be an input for image tools or I2I. Not every PNG contains a prompt.",
+        "In History, open a picture and apply its preset, seed or settings separately, or use it as a source. Keep in workbench leaves your text unchanged."
+      ],
+      "Processed output dimensions can differ from original generation settings. Choose High/Medium explicitly if Effort is unknown. Keep the original PNG so you can return to it."
+    ],
+    "ja": [
+      "PNG を読み込んで再利用",
+      "PNG は画像ファイルです。生成時の文章や設定も入っている PNG があります。",
+      [
+        "上の画像を開くを押すか PNG をアプリにドロップします。",
+        "絵だけを元画像として使うか、文章・設定も読み込むか選びます。文章や設定の適用は現在の作業を変えるので、先にプリセットを保存します。",
+        "文章のない PNG も画像ツールや I2I の元画像にできます。すべての PNG にプロンプトが入っているわけではありません。",
+        "履歴からも絵を開き、プリセット・シード・設定を別々に適用できます。ワークベンチに表示は文章を変えません。"
+      ],
+      "加工後のサイズと元の生成設定は異なる場合があります。Effort が不明なら High/Medium を自分で選びます。元 PNG を保管すると戻りやすくなります。"
+    ],
+    "illustrations": [],
+    "imageNote": {
+      "ko": "사용자가 제공한 도움말용 작품을 v3.8.2에서 연 화면입니다. 생성 정보가 없는 이미지이므로 가져오기 선택란은 보이지 않습니다. 이미지 사용처와 생성 정보 가져오기는 별도입니다. Precise Reference는 V5에서 지원하지 않습니다.",
+      "en": "User-provided help artwork opened in v3.8.2. This copy has no generation metadata, so import checkboxes are absent; image routing and metadata import are separate. Some dialog text remains Korean or English regardless of UI language. Precise Reference is unsupported in V5.",
+      "ja": "提供されたヘルプ用作品をv3.8.2で開いた画面です。この画像には生成情報がないため、読み込みの選択欄は表示されません。画像の使用先と生成情報の読み込みは別です。一部の表示はUI言語にかかわらず韓国語・英語のままです。V5はPrecise Referenceに対応しません。"
+    }
+  },
+  {
+    "id": "i2i",
+    "image": "docs-i2i",
+    "ko": [
+      "I2I: 그림을 참고해서 새로 그리기",
+      "I2I는 원본 그림과 설명 글을 함께 보고 다시 그리는 방식이에요. 일부만 고르는 Inpaint와 달리 그림 전체에 영향을 줄 수 있어요.",
+      [
+        "PNG를 열고 이미지에서 생성을 선택해요. 최근 결과나 History도 원본으로 사용할 수 있어요.",
+        "베이스 프롬프트에 원하는 결과를 적고 V5 High/Medium을 확인해요.",
+        "Strength는 얼마나 다시 그릴지, Noise는 입력에 더하는 잡음이에요. 작은 값부터 한 설정씩 바꿔 보세요. 출력 크기와 예상 비용도 확인해요.",
+        "생성 후 PNG 저장을 눌러요. 너무 달라졌다면 원본을 다시 선택하고 Strength를 낮춰요. 프리셋도 저장하면 글과 설정을 이어서 다듬기 쉬워요."
+      ],
+      "원본 파일을 덮어쓰지 않아요. 크기·설정·시드가 달라지면 결과도 달라져요. 특정 부분만 고치려면 기존 Inpaint 또는 Focused Inpaint를 선택하세요."
+    ],
+    "en": [
+      "I2I: redraw using a picture",
+      "I2I uses both a source picture and a prompt. Unlike selected-area Inpaint, it can affect the whole picture.",
+      [
+        "Open a PNG and choose Image to Image. Recent results and History can also be sources.",
+        "Write the desired result in Base prompt and check V5 High/Medium.",
+        "Strength controls how much to redraw; Noise adds noise to the input. Start small and change one control at a time. Check dimensions and cost.",
+        "After generating, Save PNG. If too much changed, reselect the original and lower Strength. Save the preset to continue refining its text and settings."
+      ],
+      "The original file is not overwritten. Size, settings and seed can change results. To edit just one part, choose existing Inpaint or Focused Inpaint."
+    ],
+    "ja": [
+      "I2I：絵を参考に描き直す",
+      "I2I は元画像と文章を見て描き直します。範囲指定の Inpaint と違い、絵全体に影響する場合があります。",
+      [
+        "PNG を開き、画像から生成を選びます。最近の結果や履歴も元画像にできます。",
+        "ベースプロンプトに欲しい結果を書き、V5 High/Medium を確認します。",
+        "Strength は描き直す程度、Noise は入力に足すノイズです。小さな値から一つずつ変え、サイズと費用も確認します。",
+        "生成後に PNG を保存します。変わりすぎたら元画像を選び直して Strength を下げます。プリセットを保存すると文章や設定を続けて調整できます。"
+      ],
+      "元ファイルは上書きしません。サイズ・設定・シードで結果は変わります。一部分だけなら既存 Inpaint か Focused Inpaint を選びます。"
+    ],
+    "illustrations": [],
+    "imageNote": {
+      "ko": "사용자가 제공한 도움말용 작품을 I2I 입력으로 선택한 v3.8.2 화면입니다. Strength와 Noise를 설정하는 단계이며 새로 생성한 결과가 아닙니다.",
+      "en": "v3.8.2 with user-provided help artwork selected as the I2I source. This shows the Strength and Noise settings before generation, not a newly generated result.",
+      "ja": "提供されたヘルプ用作品をI2I入力に選んだv3.8.2画面です。生成前にStrengthとNoiseを設定する段階で、新しい生成結果ではありません。"
+    }
+  },
+  {
+    "id": "history",
+    "image": "history",
+    "ko": [
+      "히스토리 보기·재사용·삭제",
+      "생성 결과와 실제 사용한 프롬프트를 히스토리에서 확인합니다.",
+      [
+        "왼쪽 히스토리를 누릅니다. 시드·모델·날짜 검색과 모델·생성 방식 필터를 사용할 수 있습니다.",
+        "미리 보기 크기를 조절하고 더 보기로 이전 기록을 불러옵니다. 이미지를 누르면 크게 볼 수 있습니다.",
+        "프리셋 적용, 시드 적용, 설정 적용 또는 원본 이미지로 사용을 고릅니다. 작업대에 표시는 현재 프롬프트를 바꾸지 않고 이미지만 보여 줍니다.",
+        "개별 삭제는 대상 확인 후 실행합니다. 여러 장은 선택해서 삭제에서 항목을 고르고 선택 항목 삭제를 누릅니다."
+      ],
+      "취소하면 삭제하지 않습니다. 히스토리를 삭제하면 그 기록의 이미지와 관련 파일도 삭제되며 앱에서 복구할 수 없습니다. 프리셋이나 설정 적용은 현재 작업의 해당 내용을 바꿉니다."
+    ],
+    "en": [
+      "Browse, reuse and delete History",
+      "History keeps generated results and the prompts actually used.",
+      [
+        "Open History. Search seed, model or date, and filter by model and generation mode.",
+        "Adjust thumbnail size and Load more for older records. Click an image for a large view.",
+        "Choose Apply Preset, Apply Seed, Apply Settings or Use as Source. Keep in workbench displays the image without changing current prompts.",
+        "For one item, confirm its deletion. For multiple items, enter Select to delete, choose records and press Delete selected."
+      ],
+      "Cancel does not delete anything. Deleting History also removes its image and associated files; the app cannot restore them. Applying a preset or settings changes the corresponding parts of the current work."
+    ],
+    "ja": [
+      "履歴の閲覧・再利用・削除",
+      "履歴には生成結果と実際に使ったプロンプトを保存します。",
+      [
+        "左の履歴を開きます。シード、モデル、日付を検索し、モデルや生成方式で絞り込めます。",
+        "サムネイルのサイズを調整し、さらに表示で古い記録を読み込みます。画像を押すと拡大できます。",
+        "プリセット、シード、設定の適用や元画像として使用を選びます。ワークベンチに表示は現在のプロンプトを変えずに画像だけを表示します。",
+        "1件の削除は対象を確認して実行します。複数は選択して削除で記録を選び、選択項目を削除を押します。"
+      ],
+      "キャンセルでは削除しません。履歴を削除すると画像と関連ファイルも消え、アプリから復元できません。プリセットや設定の適用は現在の作業の該当内容を変更します。"
+    ],
+    "illustrations": [],
+    "imageNote": {
+      "ko": "v3.8.1의 화면 예시입니다. 이 장의 기능은 v3.8.2에서도 사용할 수 있지만 일부 메뉴 이름·표시는 다를 수 있습니다. 새 절대 카메라는 카메라 장을 참고하세요.",
+      "en": "Screen example from v3.8.1. The feature remains available in v3.8.2; some labels and indicators may differ. See the camera chapters for the new absolute camera.",
+      "ja": "v3.8.1の画面例です。この章の機能はv3.8.2でも使えますが、一部の名称や表示が異なる場合があります。新しい絶対カメラはカメラの章を参照してください。"
+    }
+  },
+  {
+    "id": "language",
+    "image": "docs-workbench",
+    "ko": [
+      "언어·작업 공간·문제 해결",
+      "한국어, 영어, 일본어로 같은 기능을 사용할 수 있습니다.",
+      [
+        "위쪽 언어 메뉴를 바꿉니다. 버튼과 설명이 바뀌고 다음 실행에서도 선택을 기억합니다.",
+        "가운데 경계선을 끌어 편집과 이미지 영역의 비율을 조절합니다. 작은 창에서는 프롬프트 편집·이미지 결과 버튼으로 전환합니다.",
+        "왼쪽 도움말 센터에서 목차를 고르거나 검색합니다. 각 기능의 도움말 버튼으로 해당 설명을 바로 엽니다. 글자 크기를 바꾸고 그림을 눌러 확대합니다.",
+        "생성에 실패하면 상태 메시지를 확인합니다. 토큰, 계정 사용량, 원본·마스크, 와일드카드 키를 먼저 확인한 뒤 다시 시도합니다."
+      ],
+      "버튼 언어만 바뀌며 프롬프트와 사용자 이름은 그대로입니다. 화면 전환은 작업을 유지하지만 앱 종료 전에는 프리셋을 저장하세요. 오래된 PDF는 앱 정보에 보관되며 새 UI 안내는 도움말 센터를 사용하세요."
+    ],
+    "en": [
+      "Language, workspace and troubleshooting",
+      "The same features are available in Korean, English and Japanese.",
+      [
+        "Change the language menu at the top. Buttons and explanations change, and your choice is remembered next time.",
+        "Drag the middle divider to resize the editor and image panes. In a small window, use Edit prompts and Image result.",
+        "Open Help Center on the left to choose a chapter or search. Each tool’s Help button opens its related topic. Adjust text size and click pictures to enlarge them.",
+        "If generation fails, read the status. Check the token, account allowance, source/mask and Wildcard keys before retrying."
+      ],
+      "UI language changes leave prompts and your names unchanged. Navigation keeps work, but save presets before quitting. Older PDFs are kept in App info; use Help Center for the new UI."
+    ],
+    "ja": [
+      "言語・作業画面・困ったとき",
+      "同じ機能を韓国語、英語、日本語で使えます。",
+      [
+        "上部の言語メニューを変えます。ボタンや説明が変わり、次回も選択を記憶します。",
+        "中央の境界をドラッグして編集領域と画像領域の幅を調整します。小さいウィンドウではプロンプト編集と生成画像で切り替えます。",
+        "左のヘルプセンターで目次を選ぶか検索します。各機能のヘルプから関連する説明を直接開けます。文字サイズを変え、画像を押して拡大します。",
+        "生成に失敗したら状態メッセージを確認します。トークン、アカウントの残量、元画像・マスク、ワイルドカードのキーを確認して再試行します。"
+      ],
+      "言語を変えてもプロンプトと自分で付けた名前はそのままです。画面移動では作業を保持しますが、終了前にプリセットを保存してください。古い PDF はアプリ情報に残し、新 UI の説明にはヘルプセンターを使います。"
+    ],
+    "illustrations": [],
+    "imageNote": {
+      "ko": "사용자가 제공한 도움말용 작품을 작업대에 표시한 v3.8.2 화면입니다. 문구와 설정은 조작 설명용이며 이 작품의 원래 생성 조건이나 새 카메라 결과를 나타내지 않습니다.",
+      "en": "v3.8.2 workbench displaying user-provided help artwork. The text and settings illustrate controls; they are not this artwork’s original generation settings or a result of the new camera.",
+      "ja": "提供されたヘルプ用作品を表示したv3.8.2の作業画面です。文章と設定は操作の説明用で、この作品の元の生成条件や新カメラの結果を示すものではありません。"
+    }
+  },
+  {
+    "id": "image-tools",
+    "image": "image-tools",
+    "ko": [
+      "이미지 완성 도구",
+      "최근 결과·히스토리·업로드 PNG에서 이미지 도구를 열어 원본을 보존하며 별도 PNG를 만듭니다.",
+      [
+        "최근 결과에서 이미지 도구를 누르세요. 과거 그림은 History에서 크게 연 뒤 이미지 도구를 눌러요. 외부 PNG는 상단 이미지 도구 → PNG 선택으로 열어요.",
+        "도구 목록에서 하고 싶은 일을 골라요. 원본 사용 글은 그림을 만들 때 쓴 설명이고, 현재 작업대 글은 지금 편집 중인 설명이에요. 후자를 직접 고르면 Wildcard가 그때 한 번 정해져요.",
+        "설정을 정하고 작업·비용 확인을 눌러 크기·예상 Anlas·실제로 쓸 글을 읽어요. 왼쪽 설정이 길면 아래로 스크롤하세요.",
+        "실행하고 기다리세요. 완성 결과는 입력과 별도로 아래에 나타나며 History에 새 PNG로 저장돼요. 실패나 통신 중단 시 자동으로 유료 재시도하지 않아요.",
+        "PNG 저장으로 내 컴퓨터에 보관해요. 다른 도구 적용으로 이어서 다듬거나 I2I/Inpaint 원본으로 쓸 수 있어요. 작업대 글은 자동으로 바뀌지 않아요."
+      ],
+      "가공 PNG에는 원본 프롬프트 출처와 새 도구·실제 출력 크기를 따로 기록합니다. 큰 PNG는 저장·보기·Import가 가능하지만 기존 생성/Inpaint 입력 크기 제한은 그대로입니다. 비용 추정은 서버 가격 변경이나 계정 동시 사용에 따라 달라질 수 있습니다."
+    ],
+    "en": [
+      "Image finishing tools",
+      "Open image tools from a latest result, History or uploaded PNG. Keep the original and save a separate PNG.",
+      [
+        "Press Image tools on a latest result. For an older picture, open it in History, then Image tools. For an external PNG, use the top Image tools button and Choose PNG.",
+        "Choose what to do in Tool. Original used prompt means the text used to make the source; current workbench prompt means the text you are editing. Explicitly choosing the latter resolves its Wildcards once.",
+        "Choose settings and Review operation to read size, estimated Anlas and actual prompt. Scroll down the left settings column when necessary.",
+        "Run and wait. The completed result appears below, separately from the input, and is saved as a new History PNG. Failures and interruptions do not trigger automatic paid retries.",
+        "Save PNG to your computer. Use the result in another tool, or as I2I/Inpaint source. Your workbench text is not automatically changed."
+      ],
+      "Processed PNG metadata separates prompt origin from the tool and actual output dimensions. Large PNGs can be saved, viewed and imported; existing generation/Inpaint input limits remain. Price estimates may differ after server changes or concurrent account usage."
+    ],
+    "ja": [
+      "画像を完成させるツール",
+      "最新結果・履歴・アップロード PNG から画像ツールを開き、元画像を保ちながら別の PNG を作ります。",
+      [
+        "最新結果の画像ツールを押します。過去の絵は履歴で開いてから画像ツールへ。外部 PNG は上部の画像ツール → PNG 選択で開きます。",
+        "ツール一覧で作業を選びます。元のプロンプトは元画像を作った文章、現在の作業台は編集している文章です。後者を明示して選ぶと Wildcard を一度確定します。",
+        "設定後に作業・費用を確認し、サイズ・推定 Anlas・実際の文章を読みます。左の設定が長い場合は下にスクロールします。",
+        "実行して待ちます。完成結果は入力と別に下へ表示し、新しい履歴 PNG として保存します。失敗や中断時に有料の自動再試行はしません。",
+        "PNG 保存でパソコンに保管します。別ツールや I2I/部分修正の元画像として続けられます。作業台の文章は自動では変わりません。"
+      ],
+      "加工 PNG は元のプロンプトとツール・実際の出力サイズを区別します。大きな PNG の保存・表示・Import に対応しますが、既存生成の入力上限は変わりません。サーバー価格変更やアカウントの同時利用で推定費用が異なる場合があります。"
+    ],
+    "illustrations": [
+      {
+        "screenshot": "tool-latest-entry",
+        "caption": {
+          "ko": "최근 결과의 이미지 도구 버튼에서도 바로 시작해요. 외부 PNG는 도구 창의 PNG 선택을 눌러요.",
+          "en": "Start from the latest result’s Image tools button too. For an external PNG, use Choose PNG inside the tool dialog.",
+          "ja": "最新結果の画像ツールからも開始できます。外部 PNG はツール内の PNG 選択で開きます。"
+        }
+      },
+      {
+        "screenshot": "tool-history-entry",
+        "caption": {
+          "ko": "History 그림을 연 뒤 이미지 도구를 누릅니다.",
+          "en": "Open a History image, then press Image tools.",
+          "ja": "履歴の画像を開き、画像ツールを押します。"
+        }
+      },
+      {
+        "screenshot": "tool-result",
+        "caption": {
+          "ko": "사용자 작품에 하늘색 선을 그리고 Canvas로 저장한 기존 실제 결과입니다.",
+          "en": "An earlier actual Canvas result: a cyan stroke on user artwork.",
+          "ja": "ユーザー作品に水色の線を描いてCanvasで保存した以前の実際の結果です。"
+        }
+      }
+    ],
+    "imageNote": {
+      "ko": "v3.8.1의 화면 예시입니다. 이 장의 기능은 v3.8.2에서도 사용할 수 있지만 일부 메뉴 이름·표시는 다를 수 있습니다. 새 절대 카메라는 카메라 장을 참고하세요.",
+      "en": "Screen example from v3.8.1. The feature remains available in v3.8.2; some labels and indicators may differ. See the camera chapters for the new absolute camera.",
+      "ja": "v3.8.1の画面例です。この章の機能はv3.8.2でも使えますが、一部の名称や表示が異なる場合があります。新しい絶対カメラはカメラの章を参照してください。"
+    }
+  },
+  {
+    "id": "tool-upscale",
+    "image": "tool-upscale",
+    "tool": "upscale",
+    "ko": [
+      "Upscale: 그림을 2배 크게",
+      "그림을 크게 저장하고 싶을 때 사용해요. 가로와 세로가 각각 2배가 되어 픽셀 수는 4배예요. 작은 얼굴을 완전히 새로 그려 주는 기능은 아니에요.",
+      [
+        "이미지 도구에서 PNG 선택을 눌러 원본을 열고 업스케일 ×2를 골라요.",
+        "작업·비용 확인을 눌러 크기와 Anlas를 봅니다. 아래 예시는 1024×1024에서 2048×2048로 확대했습니다.",
+        "실행 후 PNG 저장을 눌러요. 원본과 별도로 새 결과가 History에도 남아요.",
+        "작은 부분을 확대해서 확인하세요. 마음에 들지 않으면 History의 원본으로 돌아가요."
+      ],
+      "입력 상한은 3,145,728픽셀이에요. 2배 결과는 기존 생성 입력 한도를 넘을 수 있어요. 더 큰 그림을 다시 I2I/Inpaint에 넣으려면 Canvas에서 줄이세요."
+    ],
+    "en": [
+      "Upscale: make a picture twice as wide",
+      "Use this when you need a larger PNG. Both width and height double, so there are four times as many pixels. It cannot guarantee that missing details will be recovered.",
+      [
+        "Choose PNG in Image tools, then select Upscale ×2.",
+        "Review dimensions and Anlas. The example below enlarges 1024×1024 to 2048×2048.",
+        "Run, then Save PNG. The new result also appears in History; the original stays separate.",
+        "Zoom in to inspect details. If you dislike the result, return to the original in History."
+      ],
+      "Input is limited to 3,145,728 pixels. The doubled result may exceed generation input limits; resize it in Canvas before reusing it for I2I/Inpaint."
+    ],
+    "ja": [
+      "Upscale：縦と横を2倍に",
+      "大きな PNG が欲しいときに使います。縦と横が2倍になり、画素数は4倍です。失われた細部が必ず戻るわけではありません。",
+      [
+        "画像ツールで PNG を選択し、アップスケール ×2 を選びます。",
+        "作業・費用を確認します。下の例は1024×1024から2048×2048への拡大です。",
+        "実行後に PNG を保存します。元画像とは別の結果が履歴にも残ります。",
+        "拡大して細部を確認し、気に入らなければ履歴の元画像に戻ります。"
+      ],
+      "入力上限は3,145,728画素です。拡大結果が生成入力の上限を超えたら、Canvas で縮小してから I2I/部分修正に使います。"
+    ],
+    "illustrations": [
+      {
+        "file": "upscale.webp",
+        "caption": {
+          "ko": "① 원본 → ② 실제 ×2 결과. 같은 비율로 축소해서 배치했어요.",
+          "en": "① Source → ② actual ×2 result, displayed at a common scale.",
+          "ja": "① 元画像 → ② 実際の2倍結果。同じ縮小率で配置。"
+        }
+      },
+      {
+        "file": "upscale-detail.webp",
+        "caption": {
+          "ko": "같은 부분을 확대해서 비교한 안내 그림이에요. ① 원본 ② 업스케일.",
+          "en": "Matching details enlarged for explanation: ① source ② Upscale.",
+          "ja": "同じ部分を説明用に拡大：① 元画像 ② アップスケール。"
+        }
+      }
+    ],
+    "imageNote": {
+      "ko": "v3.8.1의 화면 예시입니다. 이 장의 기능은 v3.8.2에서도 사용할 수 있지만 일부 메뉴 이름·표시는 다를 수 있습니다. 새 절대 카메라는 카메라 장을 참고하세요.",
+      "en": "Screen example from v3.8.1. The feature remains available in v3.8.2; some labels and indicators may differ. See the camera chapters for the new absolute camera.",
+      "ja": "v3.8.1の画面例です。この章の機能はv3.8.2でも使えますが、一部の名称や表示が異なる場合があります。新しい絶対カメラはカメラの章を参照してください。"
+    }
+  },
+  {
+    "id": "tool-enhance",
+    "image": "tool-enhance",
+    "tool": "enhance",
+    "ko": [
+      "Enhance: 그림을 조금 다시 다듬기",
+      "그림의 느낌을 살리면서 세부를 다시 그릴 때 써요. 원본 그림과 설명 글을 함께 참고하므로 얼굴·옷·배경이 달라질 수 있어요.",
+      [
+        "이미지 보완을 선택하고 원본에 실제 사용한 프롬프트 또는 현재 작업대 프롬프트를 골라요. 글이 없는 외부 PNG라면 작업대에 설명을 쓰고 현재 작업대를 선택해요.",
+        "Magnitude 1은 적게, 5는 더 많이 바꾸는 출발점이에요. 1~5는 Strength/Noise 조합 (0.2/0, 0.4/0, 0.5/0, 0.6/0, 0.7/0.1)이에요.",
+        "개별 설정을 켜면 Strength(다시 그리는 정도)와 Noise(입력에 더하는 잡음)를 직접 정해요. 배율 ×1/×1.5/×2와 High/Medium도 고르세요.",
+        "비용과 실제 사용할 글을 확인하고 실행 → PNG 저장. 너무 달라졌다면 원본에서 Magnitude를 낮추어 다시 시작해요."
+      ],
+      "Strength가 품질 점수는 아니에요. Medium은 직접 쓴 제외 프롬프트를 사용하지 않아요. 결과와 비교해 한 번에 한 설정만 바꿔 보세요."
+    ],
+    "en": [
+      "Enhance: redraw and refine",
+      "Use this to redraw details while referring to the source and its prompt. Faces, clothes and backgrounds can change.",
+      [
+        "Choose Enhance and the original used prompt or current workbench prompt. For an external PNG without a prompt, write one in the workbench and explicitly choose it.",
+        "Magnitude 1 starts with less change; 5 starts with more. The Strength/Noise pairs are 0.2/0, 0.4/0, 0.5/0, 0.6/0 and 0.7/0.1.",
+        "Individual settings lets you set Strength (how much to redraw) and Noise (noise added to the input). Choose ×1/×1.5/×2 and High/Medium.",
+        "Review the cost and actual prompt, run, then Save PNG. If it changes too much, return to the original and lower Magnitude."
+      ],
+      "Strength is not a quality score. Medium does not use custom Undesired Content. Compare results while changing one setting at a time."
+    ],
+    "ja": [
+      "Enhance：描き直して整える",
+      "元画像と説明文を参考に細部を描き直します。顔・服・背景が変わることもあります。",
+      [
+        "画像強化を選び、元のプロンプトか現在の作業台を選びます。文章のない外部 PNG は作業台に説明を書き、現在の作業台を指定します。",
+        "Magnitude 1は小さな変更、5は大きな変更の目安です。Strength/Noise は順に 0.2/0、0.4/0、0.5/0、0.6/0、0.7/0.1 です。",
+        "個別設定では Strength（描き直す程度）と Noise（入力に足すノイズ）を指定します。倍率 ×1/×1.5/×2 と High/Medium も選びます。",
+        "費用と実際の文章を確認して実行し、PNG を保存します。変わりすぎたら元画像から Magnitude を下げて試します。"
+      ],
+      "Strength は品質の点数ではありません。Medium は手入力の除外プロンプトを使いません。設定を一つずつ変えて比べましょう。"
+    ],
+    "illustrations": [
+      {
+        "file": "enhance.webp",
+        "caption": {
+          "ko": "① 원본 ② High Enhance 실제 결과. 표정·세부가 바뀔 수 있어요.",
+          "en": "① Source ② actual High Enhance. Expression and details can change.",
+          "ja": "① 元画像 ② 実際の High Enhance。表情や細部が変わる場合があります。"
+        }
+      }
+    ],
+    "imageNote": {
+      "ko": "v3.8.1의 화면 예시입니다. 이 장의 기능은 v3.8.2에서도 사용할 수 있지만 일부 메뉴 이름·표시는 다를 수 있습니다. 새 절대 카메라는 카메라 장을 참고하세요.",
+      "en": "Screen example from v3.8.1. The feature remains available in v3.8.2; some labels and indicators may differ. See the camera chapters for the new absolute camera.",
+      "ja": "v3.8.1の画面例です。この章の機能はv3.8.2でも使えますが、一部の名称や表示が異なる場合があります。新しい絶対カメラはカメラの章を参照してください。"
+    }
+  },
+  {
+    "id": "tool-max-enhance",
+    "image": "tool-max-enhance",
+    "tool": "max-enhance",
+    "ko": [
+      "Max✨ Enhance: 전용 방식으로 크게 다듬기",
+      "완성에 가까운 그림을 더 크게 다듬을 때 써요. 일반 Enhance의 ×2와는 다른 전용 처리이며, 그림 내용이 바뀔 수 있어요.",
+      [
+        "Max✨ 보완을 선택하고 원본 또는 현재 작업대 프롬프트를 골라요.",
+        "High/Medium과 Magnitude를 정해요. 일반 Enhance 배율 선택은 Max에 적용되지 않아요.",
+        "비용 확인에 나타난 크기를 읽고 실행합니다. 아래 예시는 1024×1024에서 1773×1773이 되었습니다. 항상 정확히 2배가 되지는 않습니다.",
+        "결과를 확인하고 PNG 저장을 눌러요. 마음에 들지 않으면 원본을 다시 선택해요."
+      ],
+      "큰 결과에는 Anlas가 들 수 있어요. 예시의 요금이 내 계정 요금과 같다고 단정하지 말고 실행 전 확인하세요. 자세한 묘사나 얼굴 일치는 보장되지 않아요."
+    ],
+    "en": [
+      "Max✨ Enhance: dedicated large-image refinement",
+      "Use this to refine a nearly finished picture at a larger size. It uses dedicated processing rather than ordinary Enhance ×2; content may change.",
+      [
+        "Select Max✨ Enhance and choose the original or current workbench prompt.",
+        "Choose High/Medium and Magnitude. The ordinary Enhance scale selector does not apply to Max.",
+        "Review dimensions and cost before running. The example below goes from 1024×1024 to 1773×1773; it is not exactly double.",
+        "Inspect the result and Save PNG. Reselect the original if you dislike the result."
+      ],
+      "Large results can cost Anlas. Do not assume the example price applies to your account. Check before running; detail and facial identity are not guaranteed."
+    ],
+    "ja": [
+      "Max✨ Enhance：専用の大きな画像強化",
+      "仕上げに近い絵を大きく整える機能です。通常の Enhance ×2 とは異なる専用処理で、内容が変わる場合があります。",
+      [
+        "Max✨ 強化を選び、元画像または作業台のプロンプトを指定します。",
+        "High/Medium と Magnitude を選びます。通常強化の倍率選択は Max には適用されません。",
+        "実行前にサイズと費用を確認します。下の例は1024×1024から1773×1773になり、必ず2倍になるわけではありません。",
+        "結果を確認して PNG を保存します。気に入らなければ元画像を選び直します。"
+      ],
+      "大きな結果には Anlas がかかる場合があります。例と同じ料金とは限りません。実行前に確認し、細部や顔の一致は保証されないと考えてください。"
+    ],
+    "illustrations": [
+      {
+        "file": "max-enhance.webp",
+        "caption": {
+          "ko": "① 원본 ② High Max 실제 결과. 일반 Enhance 예시와 비교해 보세요.",
+          "en": "① Source ② actual High Max. Compare with the ordinary Enhance chapter.",
+          "ja": "① 元画像 ② 実際の High Max。通常強化の章とも比較してください。"
+        }
+      }
+    ],
+    "imageNote": {
+      "ko": "v3.8.1의 화면 예시입니다. 이 장의 기능은 v3.8.2에서도 사용할 수 있지만 일부 메뉴 이름·표시는 다를 수 있습니다. 새 절대 카메라는 카메라 장을 참고하세요.",
+      "en": "Screen example from v3.8.1. The feature remains available in v3.8.2; some labels and indicators may differ. See the camera chapters for the new absolute camera.",
+      "ja": "v3.8.1の画面例です。この章の機能はv3.8.2でも使えますが、一部の名称や表示が異なる場合があります。新しい絶対カメラはカメラの章を参照してください。"
+    }
+  },
+  {
+    "id": "tool-bg-removal",
+    "image": "tool-bg-removal",
+    "tool": "bg-removal",
+    "ko": [
+      "Remove Background: 배경을 투명하게",
+      "인물이나 물건을 다른 배경에 올리고 싶을 때 써요. 체크무늬는 그림이 아니라 투명한 곳을 보여 주는 표시예요.",
+      [
+        "원본 PNG를 열고 배경 제거를 선택해 비용을 확인한 뒤 실행해요.",
+        "Masked는 원본에 마스크를 씌운 결과, Generated는 새로 처리한 결과, Blend는 섞은 결과예요. 세 결과의 머리카락·테두리를 살펴봐요.",
+        "마음에 드는 결과 버튼을 누르면 그 선택이 새 History 기록으로 저장돼요. 결과 선택 자체는 새 유료 생성이 아니에요.",
+        "PNG 저장을 눌러요. JPG로 바꾸면 투명을 유지할 수 없어요. 원본도 History에서 다시 사용할 수 있어요."
+      ],
+      "배경 제거는 다른 Director 도구보다 비용이 클 수 있어요. 선택 결과가 잘못되면 다른 결과를 고르거나 원본으로 돌아가세요."
+    ],
+    "en": [
+      "Remove Background: make the background transparent",
+      "Use it to place a person or object on another background. A checkerboard represents transparency; it is not part of the PNG.",
+      [
+        "Open a source PNG, choose Remove Background, review its cost and run.",
+        "Masked applies the predicted mask to the original; Generated is the processed result; Blend combines results. Inspect hair and edges in all three.",
+        "Click the variant you prefer to save a new selection record in History. Selecting a variant is not another paid generation.",
+        "Save PNG. JPEG cannot preserve transparency. You can reuse the original from History."
+      ],
+      "Background removal can cost more than other Director tools. Choose a different variant or return to the original if edges are poor."
+    ],
+    "ja": [
+      "Remove Background：背景を透明に",
+      "人物や物を別の背景に置きたいときに使います。市松模様は透明部分の表示で、PNG に描かれた模様ではありません。",
+      [
+        "元 PNG を開き、背景除去の費用を確認して実行します。",
+        "Masked は元画像にマスクを適用、Generated は処理した結果、Blend は混合結果です。3種類の髪や輪郭を見比べます。",
+        "気に入った結果を押すと新しい選択記録が履歴に保存されます。選択だけで再生成料金はかかりません。",
+        "PNG を保存します。JPEG は透明を保持できません。元画像も履歴から再利用できます。"
+      ],
+      "背景除去は他の Director ツールより高額になる場合があります。輪郭が悪ければ別の結果か元画像を選びます。"
+    ],
+    "illustrations": [
+      {
+        "file": "bg-removal.webp",
+        "caption": {
+          "ko": "① 원본 ② Masked ③ Generated ④ Blend. 체크무늬는 설명용 투명 표시예요.",
+          "en": "① Source ② Masked ③ Generated ④ Blend. Checkerboard illustrates transparency.",
+          "ja": "① 元画像 ② Masked ③ Generated ④ Blend。市松模様は透明の説明表示です。"
+        }
+      }
+    ],
+    "imageNote": {
+      "ko": "v3.8.1의 화면 예시입니다. 이 장의 기능은 v3.8.2에서도 사용할 수 있지만 일부 메뉴 이름·표시는 다를 수 있습니다. 새 절대 카메라는 카메라 장을 참고하세요.",
+      "en": "Screen example from v3.8.1. The feature remains available in v3.8.2; some labels and indicators may differ. See the camera chapters for the new absolute camera.",
+      "ja": "v3.8.1の画面例です。この章の機能はv3.8.2でも使えますが、一部の名称や表示が異なる場合があります。新しい絶対カメラはカメラの章を参照してください。"
+    }
+  },
+  {
+    "id": "tool-lineart",
+    "image": "tool-lineart",
+    "tool": "lineart",
+    "ko": [
+      "Line Art: 색 그림을 선 그림으로",
+      "색을 덜어 내고 윤곽선을 보고 싶을 때 써요. 채색 연습의 출발점으로 사용할 수 있어요.",
+      [
+        "원본 PNG를 열고 선화를 골라요.",
+        "작업·비용 확인을 눌러 크기와 비용을 읽어요. 전용 프롬프트 입력은 없어요.",
+        "실행한 뒤 눈·머리카락·옷 주름의 선을 확인해요. 세부가 빠지거나 달라질 수 있어요.",
+        "PNG 저장으로 보관하거나 다른 도구 적용 → Colorize로 채색해요. 마음에 들지 않으면 원본을 다시 골라요."
+      ],
+      "선화는 원본을 덮어쓰지 않아요. Director 도구가 입력 크기를 조정할 수 있으므로 결과 크기도 확인하세요."
+    ],
+    "en": [
+      "Line Art: turn a picture into outlines",
+      "Use this to turn a colored picture into outlines, for example as a starting point for coloring.",
+      [
+        "Open the source PNG and choose Line Art.",
+        "Review dimensions and cost. This tool has no dedicated prompt input.",
+        "Run and inspect the eyes, hair and clothing outlines. Some details may change or disappear.",
+        "Save PNG, or use the result in another tool and choose Colorize. Reselect the original if needed."
+      ],
+      "The original is preserved. Director tools may resize their input, so check output dimensions too."
+    ],
+    "ja": [
+      "Line Art：絵を線画に",
+      "色付きの絵を輪郭線にします。塗り絵の出発点にも使えます。",
+      [
+        "元 PNG を開いて線画を選びます。",
+        "サイズと費用を確認します。このツール専用の文章入力はありません。",
+        "実行後に目・髪・服の線を確認します。細部が変わる、消えることもあります。",
+        "PNG を保存するか、別ツールに渡して Colorize で色を付けます。必要なら元画像を選び直します。"
+      ],
+      "元画像は上書きしません。Director ツールが入力サイズを調整する場合があるので結果のサイズも確認します。"
+    ],
+    "illustrations": [
+      {
+        "file": "lineart.webp",
+        "caption": {
+          "ko": "① 색 그림 ② 실제 선화 결과.",
+          "en": "① Colored source ② actual Line Art output.",
+          "ja": "① 色付きの元画像 ② 実際の線画結果。"
+        }
+      }
+    ],
+    "imageNote": {
+      "ko": "v3.8.1의 화면 예시입니다. 이 장의 기능은 v3.8.2에서도 사용할 수 있지만 일부 메뉴 이름·표시는 다를 수 있습니다. 새 절대 카메라는 카메라 장을 참고하세요.",
+      "en": "Screen example from v3.8.1. The feature remains available in v3.8.2; some labels and indicators may differ. See the camera chapters for the new absolute camera.",
+      "ja": "v3.8.1の画面例です。この章の機能はv3.8.2でも使えますが、一部の名称や表示が異なる場合があります。新しい絶対カメラはカメラの章を参照してください。"
+    }
+  },
+  {
+    "id": "tool-sketch",
+    "image": "tool-sketch",
+    "tool": "sketch",
+    "ko": [
+      "Sketch: 연필로 그린 듯한 그림",
+      "또렷한 선화보다 부드럽고 거친 밑그림 느낌을 원할 때 써요.",
+      [
+        "이미지 도구에서 원본을 열고 스케치를 골라요.",
+        "전용 글이나 Defry 설정 없이 작업·비용 확인을 눌러요.",
+        "실행하고 원본과 선의 느낌을 비교해요.",
+        "PNG 저장 또는 다른 도구 적용을 눌러요. 다른 결과를 원하면 원본에서 다시 시작해요."
+      ],
+      "원본 구도나 세부가 완벽하게 유지되지는 않아요. 선화를 원했다면 Line Art도 살펴보세요."
+    ],
+    "en": [
+      "Sketch: a pencil-like drawing",
+      "Use this for a rough, pencil-like drawing instead of clean outlines.",
+      [
+        "Open the source in Image tools and choose Sketch.",
+        "Review the operation; Sketch has no dedicated prompt or Defry control.",
+        "Run and compare the drawing style with the source.",
+        "Save PNG or use it in another tool. Start again from the original for another result."
+      ],
+      "Composition and details may change. If you wanted clean outlines, try Line Art."
+    ],
+    "ja": [
+      "Sketch：鉛筆画のような絵",
+      "くっきりした線画より、やわらかくラフな下描きが欲しいときに使います。",
+      [
+        "画像ツールで元画像を開き、スケッチを選びます。",
+        "専用の文章や Defry の設定はなく、作業・費用を確認します。",
+        "実行し、元画像と線の雰囲気を比べます。",
+        "PNG 保存か別ツール適用を選びます。別の結果を試すときは元画像から始めます。"
+      ],
+      "構図や細部が完全に保たれるとは限りません。きれいな輪郭線なら Line Art も確認してください。"
+    ],
+    "illustrations": [
+      {
+        "file": "sketch.webp",
+        "caption": {
+          "ko": "① 원본 ② 실제 Sketch 결과. Line Art와 선의 느낌을 비교하세요.",
+          "en": "① Source ② actual Sketch output. Compare the strokes with Line Art.",
+          "ja": "① 元画像 ② 実際の Sketch。Line Art と線の雰囲気を比べます。"
+        }
+      }
+    ],
+    "imageNote": {
+      "ko": "v3.8.1의 화면 예시입니다. 이 장의 기능은 v3.8.2에서도 사용할 수 있지만 일부 메뉴 이름·표시는 다를 수 있습니다. 새 절대 카메라는 카메라 장을 참고하세요.",
+      "en": "Screen example from v3.8.1. The feature remains available in v3.8.2; some labels and indicators may differ. See the camera chapters for the new absolute camera.",
+      "ja": "v3.8.1の画面例です。この章の機能はv3.8.2でも使えますが、一部の名称や表示が異なる場合があります。新しい絶対カメラはカメラの章を参照してください。"
+    }
+  },
+  {
+    "id": "tool-colorize",
+    "image": "tool-colorize",
+    "tool": "colorize",
+    "ko": [
+      "Colorize: 선 그림에 색 입히기",
+      "선화나 스케치에 색을 입히고 싶을 때 써요. 짧은 전용 설명으로 원하는 색을 알려 주세요.",
+      [
+        "선화 PNG를 열거나 Line Art 결과에서 다른 도구 적용 → 채색을 골라요.",
+        "Director prompt에 blue hair, blue dress처럼 짧게 적어요. 이 글은 작업대 프롬프트와 별개예요.",
+        "Defry 0~5는 잡음이나 너무 진해지는 색을 줄이는 데 쓰는 설정이에요. 이미 색이 있는 그림을 다시 채색할 때 특히 유용해요. 0부터 한 단계씩 비교하세요.",
+        "75-token 표시를 확인하고 비용 확인 → 실행 → PNG 저장. 색이 다르면 설명을 더 구체적으로 고쳐요."
+      ],
+      "토큰은 글을 나누어 세는 조각이며 글자 수와 달라요. Defry는 품질 점수가 아니며 색·윤곽 보존을 보장하지 않아요."
+    ],
+    "en": [
+      "Colorize: add color to line drawings",
+      "Use this to color line art or a sketch. A short dedicated prompt describes the colors you want.",
+      [
+        "Open a line-art PNG, or send a Line Art result to Colorize using another tool.",
+        "Write a short Director prompt, such as blue hair, blue dress. It is separate from the workbench prompt.",
+        "Defry 0–5 helps reduce noise or overly strong colors, especially when recoloring an already colored image. Start at 0 and compare one step at a time.",
+        "Check the 75-token counter, review cost, run and Save PNG. Make the color description more specific if needed."
+      ],
+      "Tokens are pieces of text, not a character count. Defry is not a quality score and does not guarantee exact colors or outlines."
+    ],
+    "ja": [
+      "Colorize：線画に色を付ける",
+      "線画やスケッチを着色します。短い専用プロンプトで欲しい色を伝えます。",
+      [
+        "線画 PNG を開くか、Line Art の結果を別ツールに渡して着色を選びます。",
+        "Director prompt に blue hair, blue dress など短く書きます。作業台の文章とは別です。",
+        "Defry 0～5 はノイズや強すぎる色を抑える設定で、色付き画像の再着色に特に役立ちます。0から1段階ずつ比べます。",
+        "75トークン表示と費用を確認して実行し、PNG 保存。色が違う場合は説明を具体的にします。"
+      ],
+      "トークンは文章を分けた単位で、文字数とは違います。Defry は品質点数ではなく、色や輪郭の一致も保証しません。"
+    ],
+    "illustrations": [
+      {
+        "file": "colorize.webp",
+        "caption": {
+          "ko": "① 선화 ② 갈색 머리·베이지 상의·파란 청바지를 요청한 채색 예시. 색뿐 아니라 선과 세부도 달라질 수 있습니다.",
+          "en": "① Line art ② Colorize example requesting brown hair, a beige top and blue jeans. Outlines and details can change along with color.",
+          "ja": "① 線画 ② 茶色の髪・ベージュのトップス・青いジーンズを指定した着色例。色だけでなく輪郭や細部も変わる場合があります。"
+        }
+      }
+    ],
+    "imageNote": {
+      "ko": "v3.8.1의 화면 예시입니다. 이 장의 기능은 v3.8.2에서도 사용할 수 있지만 일부 메뉴 이름·표시는 다를 수 있습니다. 새 절대 카메라는 카메라 장을 참고하세요.",
+      "en": "Screen example from v3.8.1. The feature remains available in v3.8.2; some labels and indicators may differ. See the camera chapters for the new absolute camera.",
+      "ja": "v3.8.1の画面例です。この章の機能はv3.8.2でも使えますが、一部の名称や表示が異なる場合があります。新しい絶対カメラはカメラの章を参照してください。"
+    }
+  },
+  {
+    "id": "tool-emotion",
+    "image": "tool-emotion",
+    "tool": "emotion",
+    "ko": [
+      "Emotion: 표정 바꾸기",
+      "같은 그림을 바탕으로 웃음·놀람 같은 다른 표정을 시험할 때 써요.",
+      [
+        "얼굴이 잘 보이는 PNG를 열고 표정 도구를 골라요.",
+        "표정 목록에서 Happy 등 원하는 표정을 고르세요. 필요하면 Director prompt에 짧은 추가 설명을 적어요.",
+        "Defry 0~5로 표정을 적용하는 정도를 조절해요. Enhance의 Strength와 다른 설정이며, 같은 숫자라도 같은 뜻은 아니에요.",
+        "비용 확인 후 실행하고 눈과 입을 확인해요. PNG 저장을 누르거나 원본에서 다른 표정을 시도해요."
+      ],
+      "항상 원하는 표정이 나오지는 않아요. 여러 얼굴 중 특정 얼굴만 골라 바꾸는 도구도 아니에요."
+    ],
+    "en": [
+      "Emotion: change an expression",
+      "Use this to try a smile, surprise or another expression from the same source.",
+      [
+        "Open a PNG with a visible face and choose Emotion.",
+        "Choose an expression such as Happy. Optionally add a short Director prompt.",
+        "Defry 0–5 controls the expression application level. It differs from Enhance Strength; equal numbers do not mean equal effects.",
+        "Review cost, run and inspect eyes and mouth. Save PNG or try another expression from the source."
+      ],
+      "The requested expression is not guaranteed. This tool does not select one particular face among several."
+    ],
+    "ja": [
+      "Emotion：表情を変える",
+      "同じ元画像で笑顔や驚きなど別の表情を試す機能です。",
+      [
+        "顔が見やすい PNG を開き、表情ツールを選びます。",
+        "Happy などの表情を選び、必要なら Director prompt に短い補足を書きます。",
+        "Defry 0～5 で表情を適用する程度を調整します。Enhance の Strength とは別で、同じ数字でも効果は同じではありません。",
+        "費用確認後に実行し、目と口を見ます。PNG を保存するか、元画像で別の表情を試します。"
+      ],
+      "指定した表情になるとは限りません。複数の顔から特定の顔だけを指定するツールでもありません。"
+    ],
+    "illustrations": [
+      {
+        "file": "emotion.webp",
+        "caption": {
+          "ko": "① 원본 ② Happy를 선택한 결과. 한 인물의 표정과 손 모양 등 세부가 달라진 예시입니다.",
+          "en": "① Source ② Happy result. This example changes one person’s expression and other details, including the hand.",
+          "ja": "① 元画像 ② Happyを選んだ結果。一人の表情に加え、手などの細部も変化した例です。"
+        }
+      }
+    ],
+    "imageNote": {
+      "ko": "v3.8.1의 화면 예시입니다. 이 장의 기능은 v3.8.2에서도 사용할 수 있지만 일부 메뉴 이름·표시는 다를 수 있습니다. 새 절대 카메라는 카메라 장을 참고하세요.",
+      "en": "Screen example from v3.8.1. The feature remains available in v3.8.2; some labels and indicators may differ. See the camera chapters for the new absolute camera.",
+      "ja": "v3.8.1の画面例です。この章の機能はv3.8.2でも使えますが、一部の名称や表示が異なる場合があります。新しい絶対カメラはカメラの章を参照してください。"
+    }
+  },
+  {
+    "id": "tool-declutter",
+    "image": "tool-declutter",
+    "tool": "declutter",
+    "ko": [
+      "Declutter: 그림의 방해 요소 정리",
+      "그림의 글자나 방해 요소를 줄이고 싶을 때 써요. 지울 물건을 하나씩 정확하게 지정하는 도구는 아니에요.",
+      [
+        "원본 PNG를 선택하고 정리 도구를 골라요.",
+        "말풍선의 테두리를 남기려면 말풍선 보존 정리를 골라요. 일반 정리와 별도 선택이에요.",
+        "비용 확인 후 실행하고 중요한 부분이 지워지지 않았는지 살펴봐요.",
+        "PNG 저장을 누르세요. 마음에 들지 않으면 원본으로 돌아가거나 필요한 부분만 Focused Inpaint로 수정해요."
+      ],
+      "글자가 모두 사라지거나 말풍선이 반드시 보존되는 것은 아니에요. 예시도 실제 결과의 한 사례예요."
+    ],
+    "en": [
+      "Declutter: tidy up distractions",
+      "Use it to reduce text or distracting elements. It does not let you precisely name or select each object to remove.",
+      [
+        "Choose the source PNG and Declutter.",
+        "Choose Declutter (keep bubbles) to try preserving speech-bubble outlines. It is a separate choice from regular Declutter.",
+        "Review cost, run, then check that important details were not removed.",
+        "Save PNG. Return to the source if unhappy, or use Focused Inpaint for a selected area."
+      ],
+      "It may not remove every letter or preserve every bubble. The example is one actual result, not a promise."
+    ],
+    "ja": [
+      "Declutter：絵の邪魔な要素を整理",
+      "文字や邪魔な要素を減らしたいときに使います。消す物を一つずつ正確に指定する機能ではありません。",
+      [
+        "元 PNG を選び、整理ツールを選択します。",
+        "吹き出しの枠を残したい場合は吹き出し保持の整理を選びます。通常の整理とは別の選択肢です。",
+        "費用確認後に実行し、大事な部分が消えていないか確認します。",
+        "PNG を保存します。不満なら元画像に戻るか、選んだ場所を Focused Inpaint で修正します。"
+      ],
+      "すべての文字が消える、すべての吹き出しが残るとは限りません。例は実際の一結果です。"
+    ],
+    "illustrations": [
+      {
+        "file": "declutter.webp",
+        "caption": {
+          "ko": "① 설명을 위해 말풍선과 글자를 합성한 입력 ② 실제 Declutter 결과. 글자뿐 아니라 다른 세부도 달라졌어요.",
+          "en": "① Input with an explicitly added teaching speech bubble and text ② actual Declutter result. Other details changed too.",
+          "ja": "① 説明用に吹き出しと文字を合成した入力 ② 実際の Declutter 結果。他の細部も変わりました。"
+        }
+      }
+    ],
+    "imageNote": {
+      "ko": "v3.8.1의 화면 예시입니다. 이 장의 기능은 v3.8.2에서도 사용할 수 있지만 일부 메뉴 이름·표시는 다를 수 있습니다. 새 절대 카메라는 카메라 장을 참고하세요.",
+      "en": "Screen example from v3.8.1. The feature remains available in v3.8.2; some labels and indicators may differ. See the camera chapters for the new absolute camera.",
+      "ja": "v3.8.1の画面例です。この章の機能はv3.8.2でも使えますが、一部の名称や表示が異なる場合があります。新しい絶対カメラはカメラの章を参照してください。"
+    }
+  },
+  {
+    "id": "tool-canvas",
+    "image": "tool-canvas",
+    "tool": "canvas",
+    "ko": [
+      "Canvas: 직접 칠하고 자르기",
+      "AI에게 부탁하기 전에 직접 표시를 그리거나 크기를 바꾸고 싶을 때 써요. Canvas 편집과 저장은 로컬 작업으로 Anlas를 쓰지 않아요.",
+      [
+        "PNG를 열고 캔버스를 고르세요. 펜과 색·브러시 크기를 골라 그림 위에 그려요. 지우개는 투명하게 지워요.",
+        "채우기는 클릭한 곳과 이어진 비슷한 색 영역을 칠해요. 실수하면 Undo, 되돌린 작업을 다시 하려면 Redo예요.",
+        "선택으로 직사각형을 그리거나 X/Y/너비/높이를 적고 자르기를 눌러요. 크기 변경은 가로·세로를 직접 정하므로 비율이 달라질 수 있어요.",
+        "작업·비용 확인 → 실행으로 새 History PNG를 만든 뒤 PNG 저장을 눌러요. 다른 도구 적용으로 이어서 사용해요."
+      ],
+      "편집 중 화면을 닫을 때 미저장 변경 경고를 확인하세요. Undo 기록은 무한하지 않으며 앱 종료 후 남지 않아요. 최대 16,777,216픽셀까지 편집해요."
+    ],
+    "en": [
+      "Canvas: draw and crop yourself",
+      "Use Canvas to draw or resize manually. Canvas editing and saving are local and use no Anlas.",
+      [
+        "Open a PNG and choose Canvas. Select Pen, a color and brush size, then draw. Eraser makes pixels transparent.",
+        "Fill paints the connected similar-colored area you click. Undo reverses a change; Redo restores an undone change.",
+        "Use Select to draw a rectangle, or enter X/Y/width/height, then Crop. Resize sets both dimensions explicitly and can change proportions.",
+        "Review and run to save a new History PNG, then Save PNG. Use the result in another tool to continue."
+      ],
+      "Check the unsaved-edit warning before closing. Undo history is limited and does not survive quitting. Canvas supports up to 16,777,216 pixels."
+    ],
+    "ja": [
+      "Canvas：自分で塗って切り抜く",
+      "自分で印を描いたりサイズを変えたりします。Canvas の編集・保存はローカル作業で Anlas を使いません。",
+      [
+        "PNG を開いて Canvas を選びます。ペン・色・ブラシサイズを選んで描き、消しゴムは透明に消します。",
+        "塗りつぶしはクリック位置からつながる似た色の領域を塗ります。Undo で戻し、Redo でやり直します。",
+        "選択で四角を描くか X/Y/幅/高さを入力して切り抜きます。サイズ変更は縦横を直接指定するため比率が変わる場合があります。",
+        "確認・実行で新しい履歴 PNG を作り、PNG 保存します。別ツール適用で続けられます。"
+      ],
+      "閉じる前に未保存警告を確認します。Undo 履歴は有限で終了後は残りません。編集上限は16,777,216画素です。"
+    ],
+    "illustrations": [
+      {
+        "screenshot": "canvas-controls",
+        "caption": {
+          "ko": "붓 목록에서 펜·지우개·채우기·선택을 고릅니다. 아래에서 색, Undo/Redo, 선택 자르기와 크기 변경을 사용할 수 있습니다.",
+          "en": "Choose Pen, Eraser, Fill or Select from Brush. Color, Undo/Redo, Crop and Resize are available below.",
+          "ja": "筆一覧でペン・消しゴム・塗りつぶし・選択を選びます。下に色、Undo/Redo、切り抜き、サイズ変更があります。"
+        }
+      },
+      {
+        "file": "canvas.webp",
+        "caption": {
+          "ko": "① 원본 ② 실제 Canvas에서 하늘색 선을 그리고 저장한 PNG. AI 생성이 아닌 직접 편집 예시예요.",
+          "en": "① Source ② PNG actually drawn with a cyan stroke and saved in Canvas. This is manual editing, not AI generation.",
+          "ja": "① 元画像 ② Canvas で水色の線を描いて保存した実際の PNG。AI 生成ではなく手動編集です。"
+        }
+      },
+      {
+        "screenshot": "tool-result",
+        "caption": {
+          "ko": "붓으로 그린 하늘색 표시를 실제 Canvas로 저장한 결과예요. 아래 결과로 스크롤해서 PNG를 저장해요.",
+          "en": "A cyan stroke actually drawn and saved in Canvas. Scroll to the completed result to save PNG.",
+          "ja": "Canvas で実際に描いて保存した水色の印です。完成結果までスクロールして PNG を保存します。"
+        }
+      }
+    ],
+    "imageNote": {
+      "ko": "v3.8.1의 화면 예시입니다. 이 장의 기능은 v3.8.2에서도 사용할 수 있지만 일부 메뉴 이름·표시는 다를 수 있습니다. 새 절대 카메라는 카메라 장을 참고하세요.",
+      "en": "Screen example from v3.8.1. The feature remains available in v3.8.2; some labels and indicators may differ. See the camera chapters for the new absolute camera.",
+      "ja": "v3.8.1の画面例です。この章の機能はv3.8.2でも使えますが、一部の名称や表示が異なる場合があります。新しい絶対カメラはカメラの章を参照してください。"
+    }
+  },
+  {
+    "id": "tool-outpaint",
+    "image": "tool-outpaint",
+    "tool": "outpaint",
+    "ko": [
+      "Outpainting: 그림 바깥을 이어 그리기",
+      "인물 옆에 공간이 더 필요할 때 써요. Upscale은 그림 전체를 키우지만 이 기능은 바깥에 새 공간을 만들어요.",
+      [
+        "원본 PNG에서 캔버스 확장 생성을 선택하고 프롬프트 출처와 High/Medium을 정해요.",
+        "왼쪽·위·오른쪽·아래에 추가할 픽셀을 적어요. 0이면 그 방향을 늘리지 않아요. 예시는 오른쪽 128픽셀이에요.",
+        "기존 부분 수정과 같은 강도·잡음·Padding 설정을 확인해요. Padding은 경계 주변까지 마스크를 넓히므로 이음새 주변이 바뀔 수 있어요.",
+        "새 크기와 비용을 확인하고 실행 → PNG 저장. 결과는 새 History 항목이고 원본 파일은 남아요."
+      ],
+      "확장 후 크기는 8픽셀 단위, 총 3,145,728픽셀 이하여야 해요. 각 방향 최대 2048픽셀이지만 총 크기 제한도 함께 적용돼요. 큰 전체 요청은 무료가 아닐 수 있어요."
+    ],
+    "en": [
+      "Outpainting: draw beyond the edges",
+      "Use this to add space beside a subject. Upscale enlarges the whole picture; Outpainting creates new space around it.",
+      [
+        "Choose Outpainting for the source PNG, then choose the prompt source and High/Medium.",
+        "Enter pixels to add on the left, top, right and bottom. Zero leaves that edge unchanged. The example adds 128 on the right.",
+        "Review strength, noise and Padding, which use the existing Inpaint strategy. Padding expands the mask around boundaries, so seams may change.",
+        "Review the new dimensions and cost, run and Save PNG. The result is a new History item; the original file remains."
+      ],
+      "Expanded dimensions must be multiples of 8 and total no more than 3,145,728 pixels. Each edge allows up to 2048 extra pixels, subject to that total. Large requests may cost Anlas."
+    ],
+    "ja": [
+      "Outpainting：絵の外側を描き足す",
+      "人物の横などに余白が欲しいときに使います。Upscale は絵全体を拡大し、Outpainting は外側に空間を作ります。",
+      [
+        "元 PNG の拡張生成を選び、文章の出所と High/Medium を指定します。",
+        "左・上・右・下に追加する画素数を入力します。0ならその方向は増やしません。例は右128画素です。",
+        "既存の部分修正方式の強さ・ノイズ・Padding を確認します。Padding はマスクを境界周辺まで広げるため、つなぎ目も変わる場合があります。",
+        "新サイズと費用を確認して実行し、PNG 保存。結果は新しい履歴項目で元ファイルは残ります。"
+      ],
+      "拡張後は8画素単位、合計3,145,728画素以下です。各方向は最大2048画素ですが合計上限も適用します。大きな要求は有料の場合があります。"
+    ],
+    "illustrations": [
+      {
+        "file": "outpaint.webp",
+        "caption": {
+          "ko": "① 원본 ② 오른쪽 128픽셀 확장 실제 결과. 테두리 주변도 확인하세요.",
+          "en": "① Source ② actual 128-pixel right extension. Inspect the seam too.",
+          "ja": "① 元画像 ② 右128画素拡張の実際の結果。境界も確認します。"
+        }
+      }
+    ],
+    "imageNote": {
+      "ko": "v3.8.1의 화면 예시입니다. 이 장의 기능은 v3.8.2에서도 사용할 수 있지만 일부 메뉴 이름·표시는 다를 수 있습니다. 새 절대 카메라는 카메라 장을 참고하세요.",
+      "en": "Screen example from v3.8.1. The feature remains available in v3.8.2; some labels and indicators may differ. See the camera chapters for the new absolute camera.",
+      "ja": "v3.8.1の画面例です。この章の機能はv3.8.2でも使えますが、一部の名称や表示が異なる場合があります。新しい絶対カメラはカメラの章を参照してください。"
+    }
+  },
+  {
+    "id": "tool-focused-inpaint",
+    "image": "tool-focused-inpaint",
+    "tool": "focused-inpaint",
+    "ko": [
+      "Focused Inpaint: 큰 그림의 작은 곳 고치기",
+      "직사각형으로 선택한 부분을 주변과 함께 잘라 처리한 뒤 원본에 되돌려 놓아요. 기존 붓 마스크 Inpaint와 별도 도구예요.",
+      [
+        "영역 집중 부분 수정을 선택하고 X/Y/너비/높이로 고칠 직사각형을 정해요. 그림의 선택 표시를 확인하세요.",
+        "Context는 AI가 주변을 참고하도록 함께 보여 주는 여백이에요. 0~1024픽셀로 정해요. 선택 영역 자체를 넓히는 값은 아니에요.",
+        "원본/현재 프롬프트와 High/Medium을 골라요. 강도·잡음·Padding을 확인하고 비용 확인 후 실행해요.",
+        "선택 밖 픽셀은 보존돼요. 경계가 어색하면 원본에서 선택 크기나 Context를 조절해 다시 시도하세요. PNG 저장으로 완성해요."
+      ],
+      "선택은 최소 가로·세로 8픽셀이에요. 큰 원본도 부분 처리할 수 있지만 항상 무료라는 뜻은 아니에요. 계정 조건과 예상 비용을 확인하세요. 자유 모양 붓 선택은 기존 Inpaint를 사용해요."
+    ],
+    "en": [
+      "Focused Inpaint: fix a small part of a large picture",
+      "This crops a selected rectangle with its surroundings, processes it, then puts the selected result back. It is separate from the existing brush-mask Inpaint.",
+      [
+        "Choose Focused Inpaint and set X/Y/width/height for the rectangle. Check the selection shown on the picture.",
+        "Context is the surrounding margin shown to the AI as a reference, from 0 to 1024 pixels. It does not enlarge the area pasted back.",
+        "Choose original/current prompt and High/Medium. Check strength, noise and Padding, review cost and run.",
+        "Pixels outside the selection are preserved. If edges look awkward, retry from the original with a different selection or Context. Save PNG when done."
+      ],
+      "The rectangle must be at least 8×8 pixels. Processing a small region of a large source is not a promise of free usage; check account conditions and estimates. Use existing Inpaint for freeform brush masks."
+    ],
+    "ja": [
+      "Focused Inpaint：大きな絵の一部を直す",
+      "四角く選んだ部分と周辺を切り出して処理し、選択部分を元画像に戻します。既存の筆マスク Inpaint とは別のツールです。",
+      [
+        "範囲集中修正を選び、X/Y/幅/高さで四角を指定します。画像上の選択表示を確認します。",
+        "Context は周りを参考として見せる余白で、0～1024画素です。貼り戻す選択範囲を広げる値ではありません。",
+        "元/現在の文章と High/Medium を選び、強さ・ノイズ・Padding と費用を確認して実行します。",
+        "選択外の画素は保持します。境界が不自然なら元画像から選択や Context を調整して試し、PNG 保存します。"
+      ],
+      "選択は最低8×8画素です。大きな元画像の部分処理でも常に無料ではありません。条件と推定費用を確認します。自由な筆マスクは既存 Inpaint を使います。"
+    ],
+    "illustrations": [
+      {
+        "file": "focused-inpaint.webp",
+        "caption": {
+          "ko": "① 원본 ② 설명용 빨간 선택 표시 (X 64, Y 320 / 256×256) ③ 수정 결과. 선택한 계단 영역을 비교하세요.",
+          "en": "① Source ② explanatory red selection (X 64, Y 320 / 256×256) ③ edited result. Compare the selected stair area.",
+          "ja": "① 元画像 ② 説明用の赤い選択表示（X 64、Y 320 / 256×256）③ 修正結果。選択した階段部分を比べてください。"
+        }
+      }
+    ],
+    "imageNote": {
+      "ko": "v3.8.1의 화면 예시입니다. 이 장의 기능은 v3.8.2에서도 사용할 수 있지만 일부 메뉴 이름·표시는 다를 수 있습니다. 새 절대 카메라는 카메라 장을 참고하세요.",
+      "en": "Screen example from v3.8.1. The feature remains available in v3.8.2; some labels and indicators may differ. See the camera chapters for the new absolute camera.",
+      "ja": "v3.8.1の画面例です。この章の機能はv3.8.2でも使えますが、一部の名称や表示が異なる場合があります。新しい絶対カメラはカメラの章を参照してください。"
+    }
+  },
+  {
+    "id": "tool-cost",
+    "image": "tool-cost",
+    "tool": "cost",
+    "ko": [
+      "예상 비용: 실행 전에 확인하기",
+      "Anlas는 NovelAI 이미지 작업에 쓰는 재화예요. 예상 비용은 지금 설정으로 얼마가 들지 미리 계산한 값이며 영수증은 아니에요.",
+      [
+        "일반 생성은 작업대의 예상 비용 표시를 보세요. 이미지 도구는 작업·비용 확인을 눌러요.",
+        "크기·Steps·Effort·도구에 따라 비용이 달라져요. Opus 무료 조건은 계정 상태와 도구마다 달라요.",
+        "V5 생성의 작은 크기(1,048,576픽셀 이하)·28 Steps 이하 등 조건을 충족해도 유효한 Opus 상태가 필요해요. 계정 상태를 모르면 확정 무료로 읽지 마세요.",
+        "실행 후 실제 Anlas 표시를 확인해요. 통신이 끊기면 즉시 재실행하지 말고 History·계정 차감과 완료 여부를 먼저 확인하세요."
+      ],
+      "0 Anlas여도 V5 스태미나/계정 사용량을 쓸 수 있어요. 가격 변경·동시 계정 사용·상태 조회 실패로 예상/실제 값이 다르거나 알 수 없을 수 있어요. 큰 기존 Inpaint는 작은 마스크만 칠해도 무료가 보장되지 않아요."
+    ],
+    "en": [
+      "Estimated cost: check before running",
+      "Anlas is the currency used for NovelAI image operations. Estimated cost is a prediction for current settings, not a receipt.",
+      [
+        "For generation, check the workbench cost display. In image tools, press Review operation.",
+        "Dimensions, Steps, Effort and the chosen tool affect cost. Opus allowance conditions depend on the account and tool.",
+        "Eligible V5 requests up to 1,048,576 pixels and 28 Steps still require valid Opus status and other conditions. Unknown account status is not confirmed free usage.",
+        "After running, check actual Anlas. If disconnected, inspect History, account charges and completion before trying again."
+      ],
+      "Zero Anlas may still consume V5 Stamina or allowance. Prices, concurrent account use or failed status reads can make estimates differ or actual usage unknown. A small mask does not guarantee free large-image legacy Inpaint."
+    ],
+    "ja": [
+      "推定費用：実行前に確認",
+      "Anlas は NovelAI の画像作業に使う通貨です。推定費用は現在の設定から計算した予測で、領収書ではありません。",
+      [
+        "通常生成は作業台の推定費用を見ます。画像ツールは作業・費用を確認します。",
+        "サイズ・Steps・Effort・ツールで費用が変わります。Opus の無料条件はアカウントとツールによって異なります。",
+        "V5 の1,048,576画素以下・28 Steps 以下などを満たしても、有効な Opus 状態などが必要です。状態不明を無料確定と読まないでください。",
+        "実行後に実際の Anlas を確認します。通信が切れたら再実行前に履歴・残高・完了状況を確認します。"
+      ],
+      "0 Anlas でも V5 スタミナ等を使う場合があります。価格変更・同時利用・状態取得失敗で推定と実額が違う、または不明になることがあります。大きな既存 Inpaint は小さなマスクでも無料とは限りません。"
+    ],
+    "illustrations": [],
+    "imageNote": {
+      "ko": "v3.8.1의 화면 예시입니다. 이 장의 기능은 v3.8.2에서도 사용할 수 있지만 일부 메뉴 이름·표시는 다를 수 있습니다. 새 절대 카메라는 카메라 장을 참고하세요.",
+      "en": "Screen example from v3.8.1. The feature remains available in v3.8.2; some labels and indicators may differ. See the camera chapters for the new absolute camera.",
+      "ja": "v3.8.1の画面例です。この章の機能はv3.8.2でも使えますが、一部の名称や表示が異なる場合があります。新しい絶対カメラはカメラの章を参照してください。"
+    }
+  },
+  {
+    "id": "questions",
+    "image": "docs-help-center",
+    "ko": [
+      "문제가 생겼을 때 / 자주 묻는 질문",
+      "먼저 현재 작업을 저장하고, 화면에 나타난 안내를 읽어 보세요.",
+      [
+        "글이 사라졌나요? 저장 상태로 복원은 마지막 저장/불러오기 상태로 돌아가고, 이전 저장 기록은 덮어쓰기 전 글을 찾는 곳이에요. History의 프리셋 적용은 작업대 글을 바꿔요.",
+        "Wildcard는 여러 후보 단어 중 하나를 고르는 뽑기 목록이에요. 키 이름을 정확히 쓰고 후보가 비어 있지 않은지 확인해요. 결과의 실제 글은 History에서 확인해요.",
+        "Medium에서 제외 글이 안 먹나요? 글은 보관되지만 Medium 생성에는 쓰지 않아요. High로 바꾸면 보관한 설정을 다시 사용해요.",
+        "실행이 멈춘 듯하면 같은 작업을 바로 반복하지 마세요. History·계정 잔액·오류 안내를 확인하고 완료 여부를 먼저 살펴요."
+      ],
+      "PNG 저장은 그림을, 프리셋 저장은 글과 설정을 보관해요. 삭제한 History와 프리셋은 앱에서 복구할 수 없으므로 중요한 파일은 별도로 보관하세요."
+    ],
+    "en": [
+      "Questions and troubleshooting",
+      "Save your current work first, then read the message on screen.",
+      [
+        "Missing text? Restore saved returns to the last saved/loaded state; Saved revisions holds text from before overwrites. Apply Preset in History changes the workbench text.",
+        "Wildcard is a list from which one candidate is picked. Check the exact key and that candidates are not empty. History shows the text actually used.",
+        "Custom undesired text has no effect in Medium? It is retained but unused in Medium. Switch back to High to use the retained settings.",
+        "If a request seems stuck, do not repeat it immediately. Check History, balance and errors to establish whether it completed."
+      ],
+      "Save PNG keeps the picture; Save preset keeps text and settings. Deleted History and presets cannot be restored in the app. Keep important files separately."
+    ],
+    "ja": [
+      "困ったとき・よくある質問",
+      "まず現在の作業を保存し、画面のメッセージを読みましょう。",
+      [
+        "文章が消えましたか？保存状態に戻すは最後の保存/読込状態に戻ります。保存記録は上書き前の文章です。履歴のプリセット適用は作業台の文章を変えます。",
+        "Wildcard は候補から一つを選ぶリストです。キーの名前と候補が空でないことを確認します。実際に使った文章は履歴で見られます。",
+        "Medium で除外文が効きませんか？文章は保存しますが生成には使いません。High に戻すと保存した設定を使えます。",
+        "止まったように見えてもすぐ繰り返さず、履歴・残高・エラーを確認して完了したか調べます。"
+      ],
+      "PNG 保存は絵を、プリセット保存は文章と設定を保管します。削除した履歴やプリセットはアプリで復元できないので、大切なファイルは別に保管してください。"
+    ],
+    "illustrations": [],
+    "imageNote": {
+      "ko": "v3.8.2 앱에 포함된 도움말 화면입니다. 이 웹 도움말에는 배포 이후 수정한 설명과 캡션도 반영됩니다.",
+      "en": "Help bundled with the v3.8.2 app. This online guide also includes wording and caption corrections made after release.",
+      "ja": "v3.8.2アプリ内のヘルプ画面です。このオンラインガイドには公開後の説明・キャプション修正も反映しています。"
+    }
+  },
+  {
+    "id": "composition",
+    "image": "composition-layout",
+    "ko": [
+      "구도 넓히기: 그림 배치·테두리·붓",
+      "그림을 작게 놓거나 돌린 뒤 주변 배경을 이어 그립니다. 계단의 스트리트 패션 인물 예제를 따라 해 보세요.",
+      [
+        "이미지 도구에서 PNG를 열고 구도 넓히기를 누릅니다. 이미 Inpaint에서 칠했다면 그 화면의 구도 넓히기를 누르세요. 원본과 둥근 붓 마스크가 함께 넘어갑니다. 직접 그리기에서 만든 픽셀도 이어서 사용할 수 있습니다.",
+        "그림 배치에서 그림 안을 드래그해 이동합니다. 모서리 원을 끌면 크기, 위쪽 원을 끌면 각도가 바뀝니다. 휠은 화면만 확대하며 저장 크기는 바꾸지 않습니다. 화면 이동은 화면을 끌어 보는 도구입니다.",
+        "테두리 늘리기를 누르고 프레임 가장자리 손잡이를 바깥으로 끕니다. 진한 파란 빈 공간은 자동 생성 영역입니다. 그림을 다시 옮기면 빈 영역도 다시 계산됩니다.",
+        "둥근 붓으로 그림 안에서 추가로 바꿀 곳을 칠합니다. 밝은 하늘색은 직접 칠한 영역입니다. 지우개는 직접 칠한 곳만 지우며, 빈 공간의 자동 선택은 남습니다. Undo/Redo로 배치와 붓 작업을 되돌립니다."
+      ],
+      "직접 그리기(Canvas)는 픽셀을 직접 바꾸는 로컬 편집입니다. 기존 Outpainting은 숫자로 여백을 더하고, 구도 넓히기는 그림 배치와 테두리 손잡이를 사용합니다. 이 화면의 프레임이 최종 결과 크기이며, 화면 확대와 별개입니다. 8픽셀 단위·총 3,145,728픽셀 이하를 확인하세요."
+    ],
+    "en": [
+      "Expand composition: arrange, extend and paint",
+      "Place a smaller or rotated picture and draw the surrounding background. Follow the street portrait on the outdoor stairs.",
+      [
+        "Open a PNG in Image tools and press Expand composition. If you already painted in Inpaint, use its Expand composition button to carry the original and round-brush mask together. You can also continue with pixels edited in Draw pixels.",
+        "In Arrange picture, drag inside the picture to move it. Drag a corner circle to resize or the circle above it to rotate. The wheel zooms only the view, not the saved dimensions. Pan view drags the view.",
+        "Choose Extend frame and drag an edge handle outward. Dark blue empty space is selected automatically for generation. Moving the picture recalculates that empty area.",
+        "Use Round brush to paint extra areas inside the picture. Light cyan marks your strokes. Erase mask removes hand-painted selection while empty space stays selected. Undo/Redo reverses placement and brush edits."
+      ],
+      "Draw pixels (Canvas) edits pixels locally. Existing Outpainting adds margins by number; Expand composition uses placement and frame handles. The frame determines output dimensions, separately from view zoom. Output uses 8-pixel steps and at most 3,145,728 pixels."
+    ],
+    "ja": [
+      "構図を広げる：配置・枠・ブラシ",
+      "画像を小さく置いたり回転し、周囲の背景を描き足します。屋外の階段にいる人物の例で試してください。",
+      [
+        "画像ツールでPNGを開き、構図を広げるを押します。Inpaintで塗った場合はその画面の構図を広げるから元画像と丸いブラシのマスクを一緒に渡せます。直接描いたピクセルも使えます。",
+        "画像を配置で絵の内側をドラッグして移動します。角の丸でサイズ、上の丸で角度を変えます。ホイールは表示だけを拡大し保存サイズは変えません。表示を移動は画面をドラッグします。",
+        "枠を広げるを選び、辺のハンドルを外へ引きます。濃い青の空白が自動生成範囲です。画像を動かすと空白も再計算します。",
+        "丸いブラシで絵の中の追加変更範囲を塗ります。明るい水色が手塗りです。消しゴムは手塗りだけを消し、空白は選択されたままです。Undo/Redoで配置とブラシ編集を戻します。"
+      ],
+      "直接描画(Canvas)はピクセルを変えるローカル編集です。従来のOutpaintingは数値で余白を足し、構図を広げるは配置と枠のハンドルを使います。枠が最終出力サイズで、表示倍率とは別です。出力は8画素単位、合計3,145,728画素以下です。"
+    ],
+    "illustrations": [
+      {
+        "screenshot": "composition-frame",
+        "caption": {
+          "ko": "프레임 가장자리를 끌어 늘리면 파란 빈 영역이 자동 선택됩니다.",
+          "en": "Drag frame edges; blue empty space is selected automatically.",
+          "ja": "枠の辺をドラッグし、青い空白を確認します。"
+        }
+      },
+      {
+        "screenshot": "composition-mask",
+        "caption": {
+          "ko": "진한 빈 영역과 밝은 직접 칠한 영역을 구분하세요.",
+          "en": "Distinguish dark empty space from light hand-painted strokes.",
+          "ja": "濃い空白と明るい手塗りを区別します。"
+        }
+      }
+    ],
+    "imageNote": {
+      "ko": "v3.8.1의 화면 예시입니다. 이 장의 기능은 v3.8.2에서도 사용할 수 있지만 일부 메뉴 이름·표시는 다를 수 있습니다. 새 절대 카메라는 카메라 장을 참고하세요.",
+      "en": "Screen example from v3.8.1. The feature remains available in v3.8.2; some labels and indicators may differ. See the camera chapters for the new absolute camera.",
+      "ja": "v3.8.1の画面例です。この章の機能はv3.8.2でも使えますが、一部の名称や表示が異なる場合があります。新しい絶対カメラはカメラの章を参照してください。"
+    }
+  },
+  {
+    "id": "composition-characters",
+    "image": "composition-characters",
+    "ko": [
+      "구도 넓히기: 새 캐릭터 넣기",
+      "새로 연 공간에 다른 인물을 추가합니다. 야외 계단 예제는 기존 인물의 오른쪽에 베이지 블라우스·청바지를 입고 빨간 가방을 든 두 번째 성인을 요청한 실제 사례입니다.",
+      [
+        "그림을 옮기거나 테두리를 늘려 새 인물이 들어갈 공간을 만듭니다. 원본 내부에 넣으려면 그 자리도 둥근 붓으로 칠하세요.",
+        "장면 프롬프트에 전체 상황과 인물 수를 적습니다. 예를 들어 두 성인이 야외 계단에 있는 장면이라고 설명합니다. 여기의 글은 현재 구도에만 적용됩니다.",
+        "캐릭터를 펼치고 캐릭터 추가를 누릅니다. 새 인물의 외형과 행동을 적은 뒤 캐릭터 위치 도구에서 번호 마커를 원하는 자리로 끕니다. 마커 위치 사용 상태도 확인하세요.",
+        "이미지·마스크 확인에서 인물이 들어갈 곳이 흰색인지 봅니다. 크기·예상 비용을 확인하고 이 구도로 생성을 누른 뒤 실제 위치와 인물 수를 확인합니다."
+      ],
+      "기존 캐릭터는 그림을 따라 움직이고 새 캐릭터는 출력 화면에 고정됩니다. 마커는 모델의 위치 힌트이므로 정확한 좌표나 인원수를 보장하지 않습니다."
+    ],
+    "en": [
+      "Expand composition: add a character",
+      "Add another person in newly opened space. The real outdoor stairway example asks for a second adult to the right of the original subject.",
+      [
+        "Move the picture or extend the frame to make room. To add someone inside the original, paint that location with Round brush too.",
+        "Describe the whole scene and subject count in Scene prompt, for example two adults on an outdoor stairway. Edits here apply only to this composition.",
+        "Expand Characters and press Add character. Describe appearance and action, then use Character positions to drag the numbered marker. Check Use marker positions.",
+        "In Review image and mask, make sure the intended space is white. Check size and estimated cost, generate, then inspect actual placement and subject count."
+      ],
+      "Existing characters follow the picture; new characters attach to the output frame. Markers are model hints and do not guarantee exact locations or subject counts."
+    ],
+    "ja": [
+      "構図を広げる：新しい人物を追加",
+      "広げた空間に別の人物を追加します。実際の屋外の階段例は元の人物の右に別の大人を依頼しています。",
+      [
+        "絵を動かすか枠を広げて場所を作ります。元画像の内側に追加する場合は丸いブラシでその場所も塗ります。",
+        "シーンプロンプトに全体の状況と人数を書きます。例えば大人二人が屋外の階段にいる場面と説明します。ここでの編集はこの構図だけに適用されます。",
+        "キャラクターを開き、キャラクターを追加を押します。外見と動作を書き、位置ツールの番号マーカーを移動します。マーカー位置を使用も確認します。",
+        "画像・マスクを確認し、人物の場所が白か見ます。サイズと推定費用を確認して生成し、実際の位置と人数を確認します。"
+      ],
+      "既存の人物は画像を追従し、新しい人物は出力枠に固定します。マーカーはモデルへのヒントであり、正確な位置や人数を保証しません。"
+    ],
+    "illustrations": [
+      {
+        "file": "street-character.webp",
+        "caption": {
+          "ko": "① 첫 확장 ② 오른쪽 두 번째 성인 추가의 실제 결과. 마커가 항상 이 결과를 보장하지는 않습니다.",
+          "en": "① Initial expansion ② Actual second adult added on the right. Markers do not guarantee this result.",
+          "ja": "① 最初の拡張 ② 右に別の大人を追加した実際の結果。マーカーは結果を保証しません。"
+        }
+      }
+    ],
+    "imageNote": {
+      "ko": "v3.8.1의 화면 예시입니다. 이 장의 기능은 v3.8.2에서도 사용할 수 있지만 일부 메뉴 이름·표시는 다를 수 있습니다. 새 절대 카메라는 카메라 장을 참고하세요.",
+      "en": "Screen example from v3.8.1. The feature remains available in v3.8.2; some labels and indicators may differ. See the camera chapters for the new absolute camera.",
+      "ja": "v3.8.1の画面例です。この章の機能はv3.8.2でも使えますが、一部の名称や表示が異なる場合があります。新しい絶対カメラはカメラの章を参照してください。"
+    }
+  },
+  {
+    "id": "composition-results",
+    "image": "composition-review",
+    "ko": [
+      "구도 넓히기: 확인·결과 비교·경계 보정",
+      "생성 전에 실제 전송할 원본과 마스크를 보고, 완료 후 두 결과를 비교합니다.",
+      [
+        "이미지·마스크 확인을 누릅니다. 전송할 원본, 생성 마스크, 결과 반영 영역을 확인하세요. 생성 마스크의 흰색이 모델에 다시 그리도록 요청하는 곳이며, Padding 때문에 주변까지 넓어질 수 있습니다.",
+        "이 구도로 생성을 누릅니다. 원본 보존 결과는 선택 영역과 경계 연결 부분을 반영하고, 전체 생성 결과는 모델이 돌려준 그림 전체를 사용합니다. 결과 버튼만 바꾸는 것은 새 유료 생성이 아닙니다.",
+        "경계가 어색하면 두 결과를 확대 비교합니다. 원본을 정확히 보존할수록 배경 연결선이 남을 수 있습니다. 생성 설정의 경계 연결 폭을 조절하거나 결과 채택 후 이어서 수정을 눌러 둥근 붓으로 경계 양쪽을 칠해 보정하세요.",
+        "마음에 드는 결과는 PNG 저장으로 내보냅니다. 결과를 채택하면 그 PNG에서 새 붓 작업을 시작합니다. 원본으로 다른 구도 시도는 원래 그림과 배치로 돌아가며 기존 History 결과는 남습니다."
+      ],
+      "결과 반영 영역의 흰색/회색이 최종 합성 대상입니다. 원본 내부 보존과 자연스러운 연결이 항상 함께 보장되지는 않습니다. 설정이나 붓을 바꾸면 다시 확인해야 생성할 수 있습니다."
+    ],
+    "en": [
+      "Expand composition: review, compare and repair seams",
+      "Inspect the exact source and mask before generating, then compare two result variants.",
+      [
+        "Press Review image and mask. Inspect Prepared source, Generation mask and Result application mask. White in the generation mask asks the model to redraw; Padding can expand it around the edges.",
+        "Generate the composition. Preserved original applies selected areas and the blend boundary; Full generated result uses the entire model output. Switching the result button is not another paid generation.",
+        "If a seam looks awkward, compare both at high zoom. Exact source preservation can leave visible joins. Adjust Blend boundary in Generation settings, or adopt the result and use Round brush across both sides of the seam for follow-up.",
+        "Save the preferred PNG. Adopting it starts a fresh brush session on that PNG. Try another arrangement returns to the original picture and placement while keeping previous results in History."
+      ],
+      "White/gray in Result application mask marks the final compositing area. Exact preservation and seamless continuation are not always both achievable. Changes to settings or strokes require a new review."
+    ],
+    "ja": [
+      "構図を広げる：確認・結果比較・境界修正",
+      "生成前に実際に送る元画像とマスクを確認し、完了後に二つの結果を比較します。",
+      [
+        "画像・マスクを確認を押し、送信用画像、生成マスク、結果の適用範囲を見ます。生成マスクの白が描き直す場所です。Paddingで周辺まで広がる場合があります。",
+        "この構図で生成します。元画像を保持した結果は選択範囲と境界を反映し、生成結果全体はモデルの絵を全て使います。結果を切り替えるだけでは再生成料金はかかりません。",
+        "境界が不自然なら両方を拡大比較します。元画像の正確な保持で継ぎ目が残る場合があります。境界の接続幅を変えるか結果を採用し、丸いブラシで境界の両側を塗って再修正します。",
+        "好きな結果をPNG保存します。採用するとそのPNGから新しいブラシ編集を始めます。元画像で別の構図を試すと元の絵と配置に戻り、以前の結果は履歴に残ります。"
+      ],
+      "結果の適用範囲の白・灰色が合成対象です。元画像の保持と自然な接続が常に両立するとは限りません。設定や筆を変えたら再確認が必要です。"
+    ],
+    "illustrations": [
+      {
+        "screenshot": "composition-results",
+        "caption": {
+          "ko": "두 결과는 동일한 실제 생성 응답에서 나왔습니다. 버튼 선택만으로 재생성하지 않습니다.",
+          "en": "Both variants come from one real response; switching does not regenerate.",
+          "ja": "二つは同じ実際の応答です。切替だけでは再生成しません。"
+        }
+      },
+      {
+        "file": "street-composition.webp",
+        "caption": {
+          "ko": "① 원본 ② 원본 보존 ③ 전체 생성. 같은 생성 결과를 두 가지 방식으로 반영한 예시입니다.",
+          "en": "① Source ② Preserved original ③ Full generated result. Two ways of applying the same generated output.",
+          "ja": "① 元画像 ② 元画像を保持 ③ 生成結果全体。同じ生成結果を二つの方法で反映した例です。"
+        }
+      },
+      {
+        "file": "street-brush.webp",
+        "caption": {
+          "ko": "① 확장 결과 ② 붓으로 선택한 부분을 나타내는 생성 마스크 ③ 후속 수정 결과. 흰색으로 선택한 곳의 변화를 비교하세요.",
+          "en": "① Expanded image ② generation mask showing the brush selection ③ follow-up result. Compare the area selected in white.",
+          "ja": "① 拡張結果 ② ブラシで選んだ範囲の生成マスク ③ 続けて修正した結果。白い選択範囲の変化を比べてください。"
+        }
+      }
+    ],
+    "imageNote": {
+      "ko": "v3.8.1의 화면 예시입니다. 이 장의 기능은 v3.8.2에서도 사용할 수 있지만 일부 메뉴 이름·표시는 다를 수 있습니다. 새 절대 카메라는 카메라 장을 참고하세요.",
+      "en": "Screen example from v3.8.1. The feature remains available in v3.8.2; some labels and indicators may differ. See the camera chapters for the new absolute camera.",
+      "ja": "v3.8.1の画面例です。この章の機能はv3.8.2でも使えますが、一部の名称や表示が異なる場合があります。新しい絶対カメラはカメラの章を参照してください。"
+    }
+  },
+  {
+    "id": "composition-restore",
+    "image": "composition-restore",
+    "ko": [
+      "구도 넓히기: History 복원과 편집 상태 저장",
+      "생성 후의 배치 복원과 생성 전 JSON 저장은 쓰는 시점이 다릅니다.",
+      [
+        "생성을 마친 그림은 History에서 크게 연 뒤 이미지 도구를 누릅니다. 저장된 배치 다시 편집으로 원래 원본·붓 마스크·배치·캐릭터를 복원합니다.",
+        "아직 생성하지 않았거나 다른 컴퓨터에서 이어 하려면 구도 화면의 편집 상태 저장을 눌러 JSON 파일을 보관합니다. 원본과 마스크도 파일에 포함됩니다.",
+        "다음에 편집 상태 열기에서 JSON을 선택합니다. 미저장 작업을 교체할지 확인하고, 복원된 배치와 프롬프트를 살펴본 뒤 이미지·마스크를 다시 확인합니다.",
+        "완성 PNG만 저장한 경우에는 새 원본으로 쓸 수 있지만 원래의 편집 레시피를 모두 되살리지는 못합니다. 계속 수정할 작업은 JSON 또는 구도 History도 함께 보관하세요."
+      ],
+      "자동 초안 복구는 제공하지 않습니다. 앱을 닫기 전 JSON을 저장하세요. JSON에는 프롬프트와 원본 이미지가 들어 있으므로 공유 전에 내용을 확인하세요."
+    ],
+    "en": [
+      "Expand composition: History restore and editing files",
+      "History restores a generated composition; a JSON editing file can preserve work before generation.",
+      [
+        "Open a completed image in History, then Image tools. Reopen saved arrangement restores the original source, brush mask, placement and characters.",
+        "Before generation, or to continue on another computer, press Save editing session in the composition screen. The JSON includes the source and mask.",
+        "Choose the JSON with Open editing session. Confirm replacement of unsaved work, inspect placement and prompts, then review the source and mask again.",
+        "A saved final PNG can become a new source, but does not restore every original editing instruction. Keep the JSON or composition History when you need editable placement."
+      ],
+      "Automatic draft recovery is unavailable. Save JSON before quitting. It contains prompts and original image data; inspect it before sharing."
+    ],
+    "ja": [
+      "構図を広げる：履歴復元と編集ファイル",
+      "生成後の履歴復元と、生成前にも使えるJSON保存は用途が異なります。",
+      [
+        "完成した絵を履歴で開き、画像ツールへ。保存した配置を再編集で元画像・筆マスク・配置・人物を復元します。",
+        "生成前や別のパソコンで続けたい場合は編集状態を保存でJSONを保管します。元画像とマスクも含みます。",
+        "編集状態を開くでJSONを選びます。未保存作業の置換を確認し、配置と文章を見て、画像・マスクをもう一度確認します。",
+        "完成PNGだけでも新しい元画像にできますが、元の編集指示は全て復元できません。配置を編集したい場合はJSONか構図の履歴も保管してください。"
+      ],
+      "自動下書き復元はありません。終了前にJSONを保存してください。文章と元画像データを含むため、共有前に確認してください。"
+    ],
+    "illustrations": [
+      {
+        "screenshot": "composition-json",
+        "caption": {
+          "ko": "생성 전 편집 상태는 JSON으로 저장하고 다시 열 수 있습니다.",
+          "en": "Save and reopen JSON before generation.",
+          "ja": "生成前でもJSONで保存・再読込できます。"
+        }
+      }
+    ],
+    "imageNote": {
+      "ko": "v3.8.1의 화면 예시입니다. 이 장의 기능은 v3.8.2에서도 사용할 수 있지만 일부 메뉴 이름·표시는 다를 수 있습니다. 새 절대 카메라는 카메라 장을 참고하세요.",
+      "en": "Screen example from v3.8.1. The feature remains available in v3.8.2; some labels and indicators may differ. See the camera chapters for the new absolute camera.",
+      "ja": "v3.8.1の画面例です。この章の機能はv3.8.2でも使えますが、一部の名称や表示が異なる場合があります。新しい絶対カメラはカメラの章を参照してください。"
+    }
+  },
+  {
+    "id": "tool-pixel-snap",
+    "image": "pixel-snap",
+    "illustrations": [
+      {
+        "screenshot": "pixel-snap-detail",
+        "caption": {
+          "ko": "픽셀 격자 예시의 확대 비교입니다. 화면 확대와 PNG 저장 배율은 별개입니다.",
+          "en": "Enlarged comparison of the example pixel grid. View zoom and PNG export scale are separate.",
+          "ja": "ピクセルグリッド例の拡大比較です。表示倍率とPNG保存倍率は別です。"
+        }
+      }
+    ],
+    "ko": [
+      "Pixel Snap: 픽셀 아트 격자 정돈",
+      "이미 있는 픽셀 아트의 흐릿하거나 어긋난 격자를 정돈합니다. 일반 그림을 새 픽셀 아트로 생성하는 도구는 아닙니다.",
+      [
+        "이미지 도구 → Pixel Snap에서 PNG를 엽니다. 계정이나 토큰 없이 로컬에서 처리하며 비용은 0 Anlas입니다.",
+        "격자 추천을 누르고 신뢰도를 확인한 뒤 추천 격자 적용을 누릅니다. 불확실하면 가로·세로 간격과 시작 위치를 직접 맞춥니다. 원본의 픽셀 경계를 클릭해 시작 위치를 정할 수 있습니다.",
+        "미리보기에서 원본과 결과를 비교합니다. 화면 확대는 보기만 바꾸고, 저장할 PNG 배율은 논리 픽셀을 정수 배율로 확대합니다. 세부 조정에서 팔레트와 투명도, 잘린 가장자리 처리를 고를 수 있습니다.",
+        "PNG 저장으로 내보내거나 결과를 History에 저장합니다. History 저장 후 다른 도구나 I2I/Inpaint로 이어갈 수 있습니다. 설정 되돌리기와 처리 취소는 원본을 바꾸지 않습니다. NovelAI의 Pixel Snap과 옵션·결과가 같지는 않습니다."
+      ],
+      "정지 PNG, 최대 64MB·1,677만 픽셀·한 변 16,384픽셀을 지원합니다. 결과는 8비트 sRGB입니다. 혼합 격자·심한 흐림·일반 사진의 자동 추천은 정확하지 않을 수 있으므로 확대해서 확인하세요. 원본 색 유지도 셀 대표색을 선택하므로 작은 디테일이 바뀔 수 있습니다."
+    ],
+    "en": [
+      "Pixel Snap: clean up a pixel-art grid",
+      "Clean up blurry or uneven cells in existing pixel art. This does not generate new pixel art from an ordinary illustration.",
+      [
+        "Open Image tools → Pixel Snap and choose a PNG. Processing is local, requires no account or token and costs 0 Anlas.",
+        "Suggest a grid, check its confidence, then use the suggestion. If uncertain, adjust horizontal/vertical spacing and offsets manually. Click a pixel boundary in the original to set the offset.",
+        "Preview and compare original and result. View zoom changes only the display; PNG export scale enlarges logical pixels by an integer. Fine tuning offers palette, transparency and partial-edge-cell options.",
+        "Save PNG directly or save the result to History, then continue in another tool or I2I/Inpaint. Undo settings or cancel processing without changing the original. Options and results differ from NovelAI’s Pixel Snap."
+      ],
+      "Still PNG only, up to 64 MB, 16 megapixels and 16,384 pixels per side. Output is 8-bit sRGB. Mixed grids, heavy blur and photographs can confuse detection; inspect at high zoom. Keeping source colors still selects one representative per cell, which can change small details."
+    ],
+    "ja": [
+      "Pixel Snap：ピクセルアートのグリッド整理",
+      "既存のピクセルアートのぼやけたセルや不揃いなグリッドを整えます。通常のイラストから新しいピクセルアートを生成する機能ではありません。",
+      [
+        "画像ツール → Pixel Snap でPNGを開きます。アカウントやトークンなしでローカル処理し、費用は0 Anlasです。",
+        "グリッドを推定し、信頼度を確認して適用します。不確かな場合は縦横の間隔と位置を手動で調整します。元画像のピクセル境界をクリックすると位置を合わせられます。",
+        "元画像と結果を比較します。表示倍率は表示だけ、保存倍率は論理ピクセルを整数倍に拡大します。詳細調整ではパレット、透明度、端の不完全なセルを設定できます。",
+        "PNG保存か履歴への保存を選び、別ツールやI2I/Inpaintで続けられます。設定を戻す操作や処理キャンセルで元画像は変わりません。NovelAIのPixel Snapとは設定や結果が異なります。"
+      ],
+      "静止PNG、最大64MB・16メガピクセル・一辺16,384ピクセルに対応。結果は8ビットsRGBです。混合グリッド、強いぼけ、写真では推定が不正確になる場合があります。拡大して確認してください。元の色を保持する設定でもセルごとの代表色を選ぶため、細部は変わる場合があります。"
+    ],
+    "imageNote": {
+      "ko": "v3.8.1의 화면 예시입니다. 이 장의 기능은 v3.8.2에서도 사용할 수 있지만 일부 메뉴 이름·표시는 다를 수 있습니다. 새 절대 카메라는 카메라 장을 참고하세요.",
+      "en": "Screen example from v3.8.1. The feature remains available in v3.8.2; some labels and indicators may differ. See the camera chapters for the new absolute camera.",
+      "ja": "v3.8.1の画面例です。この章の機能はv3.8.2でも使えますが、一部の名称や表示が異なる場合があります。新しい絶対カメラはカメラの章を参照してください。"
+    }
+  },
+  {
+    "id": "camera-absolute",
+    "image": "camera-absolute",
+    "ko": [
+      "첫 생성부터 쓰는 절대 카메라",
+      "새 이미지와 기존 이미지 모두 정면 0°를 기준으로 원하는 구도를 지정합니다.",
+      [
+        "작업대에 Base와 Character 문구를 준비하고 왼쪽 절대 카메라를 누릅니다. 원본 이미지 없이 바로 사용할 수 있습니다.",
+        "앱을 새로 실행하면 카메라는 OFF입니다. 카메라 ON을 선택하거나 새 카메라 · 정면 0°를 눌러 시작하세요. 새 카메라는 정면 0°·상하 0°·상반신·강도 1로 시작하며 원본 이미지의 방향을 묻지 않습니다.",
+        "구체를 좌우로 끌면 방향, 위아래로 끌면 상하 시점이 바뀝니다. 방향 버튼과 키보드 화살표도 사용할 수 있습니다. Home은 정면으로 돌아갑니다.",
+        "카메라 OFF를 선택하면 카메라 전용 문구를 추가하지 않고 기존 수동 프롬프트로 생성합니다."
+      ],
+      "구체는 원하는 시점을 고르는 조작 도식입니다. 실제 장면을 회전시키거나 개별 Character Position을 움직이지 않습니다."
+    ],
+    "en": [
+      "Absolute camera from the first image",
+      "Choose a target view from front 0° for both new and reused images.",
+      [
+        "Prepare Base and Character prompts, then open Absolute camera on the left. No source image is required.",
+        "The camera is OFF when the app starts. Turn Camera ON or choose New camera · front 0°. A new camera starts at front 0°, elevation 0°, upper body and strength 1, without asking for the source viewing angle.",
+        "Drag horizontally for direction and vertically for elevation. Direction buttons and arrow keys also work; Home returns to front.",
+        "Turn Camera OFF to use the ordinary manual prompt without an added camera block."
+      ],
+      "The sphere is a control for choosing a view. It does not rotate a physical scene or move individual Character Position markers."
+    ],
+    "ja": [
+      "最初の生成から使う絶対カメラ",
+      "新規画像も既存画像も、正面0°を基準に目標の構図を指定します。",
+      [
+        "BaseとCharacterの文章を準備し、左の絶対カメラを開きます。元画像は不要です。",
+        "起動時のカメラはOFFです。カメラONを選ぶか、新しいカメラ・正面0°で開始します。新しいカメラは正面0°・上下0°・上半身・強さ1から始まり、元画像の方向は質問しません。",
+        "横ドラッグで方向、縦ドラッグで上下視点を変えます。方向ボタンと矢印キーも使えます。Homeで正面に戻ります。",
+        "カメラOFFでは専用文章を追加せず、通常の手動プロンプトを使用します。"
+      ],
+      "球体は希望する視点を選ぶ操作図です。実際の場面を回転したり、個別のCharacter Positionを動かしたりしません。"
+    ],
+    "imageNote": {
+      "ko": "v3.8.2에서 방향을 45°, 방향 강도를 1.5로 바꾼 예시입니다. 새 카메라의 초기값은 정면 0°·강도 1입니다.",
+      "en": "v3.8.2 example after setting direction to 45° and its strength to 1.5. A new camera starts at front 0° and strength 1.",
+      "ja": "v3.8.2で方向を45°、その強さを1.5に変えた例です。新しいカメラの初期値は正面0°・強さ1です。"
+    }
+  },
+  {
+    "id": "camera-framing",
+    "image": "camera-absolute",
+    "ko": [
+      "방향·샷 크기·구도",
+      "서로 다른 축을 따로 조절하고 같은 축의 상충 표현을 섞지 않습니다.",
+      [
+        "방향은 정면·앞사선·측면·뒤사선·후면 중 하나로 출력됩니다. 좌우 측면은 모두 from side를 사용할 수 있습니다.",
+        "거리 / 샷 크기를 움직이거나 목록에서 클로즈업·상반신·허벅지·전신·넓은 샷을 선택합니다. 실제 미터 단위 거리가 아닙니다.",
+        "상하 시점은 from above 또는 from below로 표현합니다. 중앙 구간에는 상하 태그를 추가하지 않습니다.",
+        "추가 구도 조절에서 높이·팬·틸트·롤을 사용합니다. 높이는 촬영 높이, 팬은 좌우 배치, 틸트는 위아래로 향하는 시점, 롤은 화면 기울기 의도를 문구로 전달합니다. 이미지 크기는 별도로 선택하며 I2I/Inpaint의 원본 크기는 자동 변경하지 않습니다."
+      ],
+      "좌우 구별, 정밀한 물리 각도, 팬·틸트의 독립 효과는 보장되지 않습니다. 높이·팬·틸트는 실험적 문구입니다."
+    ],
+    "en": [
+      "Direction, shot size and framing",
+      "Control independent axes without blending contradictory directions.",
+      [
+        "Direction chooses front, three-quarter front, side, three-quarter rear or behind. Both left and right side may use from side.",
+        "Use the distance slider or choose close-up, upper body, cowboy shot, full body or wide shot. This describes framing, not meters.",
+        "Elevation adds from above or from below. The neutral band adds no elevation phrase.",
+        "Additional framing controls express camera height, horizontal placement (pan), aiming upward or downward (tilt), and a tilted frame (roll). Image size is selected separately; I2I/Inpaint source dimensions are not changed automatically."
+      ],
+      "Exact left/right orientation, physical angles and independent pan/tilt effects are not guaranteed. Height, pan and tilt wording is experimental."
+    ],
+    "ja": [
+      "方向・ショットサイズ・構図",
+      "各軸を個別に調整し、同じ軸の対立する方向を混ぜません。",
+      [
+        "正面・斜め前・側面・斜め後ろ・背面のいずれかを出力します。左右の側面はどちらもfrom sideになる場合があります。",
+        "距離スライダーか一覧でクローズアップ・上半身・太ももまで・全身・ワイドを選びます。実際の距離ではなくフレーミングです。",
+        "上下視点はfrom aboveまたはfrom belowを追加します。中央の範囲では上下タグを追加しません。",
+        "追加調整では撮影の高さ、左右の配置（パン）、上下に向ける視点（チルト）、画面の傾き（ロール）を文章で伝えます。画像サイズは別に選び、I2I/部分修正の元サイズは自動では変えません。"
+      ],
+      "左右の正確さ、物理角度、独立したパン・チルト効果は保証しません。高さ・パン・チルトの文章は実験的です。"
+    ],
+    "imageNote": {
+      "ko": "v3.8.2에서 방향을 45°, 방향 강도를 1.5로 바꾼 예시입니다. 새 카메라의 초기값은 정면 0°·강도 1입니다.",
+      "en": "v3.8.2 example after setting direction to 45° and its strength to 1.5. A new camera starts at front 0° and strength 1.",
+      "ja": "v3.8.2で方向を45°、その強さを1.5に変えた例です。新しいカメラの初期値は正面0°・強さ1です。"
+    }
+  },
+  {
+    "id": "camera-wording",
+    "image": "camera-absolute",
+    "ko": [
+      "Base 전용 문구와 직접 편집",
+      "편집 중인 Base 원문은 그대로 두고, 생성할 때 사용할 문구를 확인합니다.",
+      [
+        "카메라 문구는 샷 크기 → 방향 → 상하 → 높이 → 팬 → 틸트 → 롤 순서로 Base 앞에 붙습니다. Character 문구를 이동하거나 재작성하지 않습니다.",
+        "각 행에서 강도를 수정합니다. 1은 중립값이며, -10~10의 수를 입력할 수 있습니다. 0은 그 행을 생략하며 음수는 개념 억제·반전을 의도하므로 원하는 방향과 달라질 수 있습니다.",
+        "문구 칸에서 직접 표현을 바꿀 수 있습니다. 직접 쓴 문구는 구체를 움직여도 유지되며 해당 행의 자동 버튼으로 좌표 기반 표현에 돌아갑니다.",
+        "1. 같은 미완성 숫자는 오류로 표시되고 생성·저장을 막습니다. 숫자를 완성하거나 고치세요. 강도 수정은 구체 위치를 바꾸지 않습니다.",
+        "문구는 300자 이내의 일반 텍스트로 입력하세요. 중괄호·대괄호·콜론·세로줄(|), Wildcard, 줄바꿈은 사용할 수 없습니다. 강조는 옆 강도 칸에서 조절합니다."
+      ],
+      "가중치는 문구를 강조하는 값이며 방향을 섞는 비율이 아닙니다. 1은 기본 중립값입니다. 숫자를 높인다고 구도나 품질이 더 정확해지는 것은 아닙니다."
+    ],
+    "en": [
+      "Base-only wording and direct editing",
+      "Keep your editable Base text intact while reviewing the wording used for generation.",
+      [
+        "Camera phrases precede Base in this order: shot, direction, elevation, height, pan, tilt, roll. Character text is never moved or rewritten.",
+        "Edit each strength between -10 and 10. One is neutral; zero omits that row. Negative emphasis can suppress or invert an idea and may oppose the intended view.",
+        "Edit wording directly. Manual text survives sphere movement; Auto on that row returns to coordinate-derived wording.",
+        "An incomplete number such as 1. remains visible and blocks saving/generation. Complete or correct it. Weight edits never move the sphere.",
+        "Enter plain text of up to 300 characters. Braces, brackets, colons, vertical bars (|), Wildcards and line breaks are unsupported; use the adjacent strength control for emphasis."
+      ],
+      "Weights emphasize wording; they are not direction-mixing ratios. One is the neutral default. Higher values do not necessarily improve framing or quality."
+    ],
+    "ja": [
+      "Base専用文章と直接編集",
+      "編集中のBase原文を保持したまま、生成に使う文章を確認します。",
+      [
+        "ショット・方向・上下・高さ・パン・チルト・ロールの順でBaseの先頭に追加します。Characterの文章は移動も再構成もしません。",
+        "各行の強さを-10～10で編集します。1は中立、0はその行を省略します。負の強調は概念を抑制・反転し、意図した方向と逆になる場合があります。",
+        "文章を直接編集できます。球体を動かしても保持され、その行の自動ボタンで座標由来の文章に戻ります。",
+        "1.のような未完成数値は表示を保持し、保存・生成を止めます。入力を完成させてください。強さの変更では球体は動きません。",
+        "文章は300文字以内の通常のテキストで入力します。波括弧・角括弧・コロン・縦棒（|）・Wildcard・改行は使えません。強調は隣の強さで調整してください。"
+      ],
+      "重みは文章の強調であり、方向の混合比率ではありません。1は中立の初期値です。数値を上げても構図や品質がより正確になるとは限りません。"
+    ],
+    "illustrations": [
+      {
+        "screenshot": "camera-wording",
+        "caption": {
+          "ko": "아래로 스크롤하면 카메라 전용 문구와 생성용 Base 미리보기를 확인할 수 있습니다.",
+          "en": "Scroll down to inspect the camera block and generated Base preview.",
+          "ja": "下へスクロールするとカメラ専用文章と生成用Baseのプレビューを確認できます。"
+        }
+      }
+    ],
+    "imageNote": {
+      "ko": "오른쪽의 축별 문구·강도와 자동 버튼을 사용합니다. 영어 프롬프트는 UI 언어를 바꿔도 번역되지 않습니다.",
+      "en": "Use the per-axis wording, strength and Auto controls on the right. English prompt text is not translated when the UI language changes.",
+      "ja": "右側の軸別文章・強さ・自動ボタンを使います。UI言語を変えても英語のプロンプトは翻訳されません。"
+    }
+  },
+  {
+    "id": "camera-review",
+    "image": "camera-review",
+    "ko": [
+      "수동 표현 충돌과 생성 전 확인",
+      "실제 전송할 문구를 읽고 결정합니다.",
+      [
+        "기존 Base·Character의 명시적인 카메라 태그를 찾으면 위치와 문구를 표시합니다. 포즈·고개·시선 문장을 임의로 해석해 삭제하지 않습니다.",
+        "선택적으로 생성용 Base에서 정확히 인식한 독립 카메라 태그만 제외할 수 있습니다. 강조가 붙은 단일 태그도 해당할 수 있습니다. 원문은 보존하고, 여러 태그를 함께 묶은 표현과 Character의 태그는 남겨 둡니다.",
+        "작업대로 돌아와 Generate를 누르면 Wildcard가 한 번 결정되고 품질·UC를 포함한 최종 문구가 표시됩니다. 남은 수동 표현을 유지하려면 명시적으로 체크합니다. 취소하고 원문을 고칠 수도 있습니다.",
+        "확인한 조건으로 생성을 눌렀을 때만 전송합니다. 요청이 시작된 뒤 바꾼 값은 진행 중인 요청에 영향을 주지 않습니다."
+      ],
+      "자유 문장 전체의 의미 충돌은 자동으로 판정할 수 없으므로 최종 문구를 읽어 보세요. 카메라는 구도·시점에 관한 지시를 전달하며, 실제 결과는 프롬프트와 생성 모델의 해석에 따라 달라집니다."
+    ],
+    "en": [
+      "Manual conflicts and final review",
+      "Read and decide which prompts will actually be sent.",
+      [
+        "Explicit camera tags in Base and Character are listed with their locations. Pose, head and gaze prose is not interpreted or deleted.",
+        "Optionally exclude recognized standalone camera tags from the Base used for generation, including a single emphasized tag. Originals stay intact. Groups containing multiple tags and Character tags remain.",
+        "Return to the workbench and press Generate. Wildcards resolve once and final prompts include quality and UC. Explicitly check to retain remaining manual expressions, or cancel and edit the originals.",
+        "Only Generate reviewed image sends the request. Later edits do not change the request already in progress."
+      ],
+      "The app cannot detect every conflict in free prose, so read the final wording. Camera settings send composition and viewpoint instructions; results depend on your prompt and the model’s interpretation."
+    ],
+    "ja": [
+      "手動表現の競合と最終確認",
+      "実際に送信する文章を読んで判断します。",
+      [
+        "Base・Characterの明示的なカメラタグを位置とともに表示します。姿勢・頭・視線の文章を解釈して削除しません。",
+        "生成用Baseから認識された単独のカメラタグを任意で除外できます。強調した単一タグも対象になる場合があります。原文は保持し、複数タグをまとめた表現とCharacterのタグは残します。",
+        "作業台で生成を押すとWildcardを一度だけ確定し、品質・UCを含む最終文章を表示します。残った手動表現を保持する場合は明示的にチェックします。キャンセルして原文を編集することもできます。",
+        "確認した条件で生成を押したときだけ送信します。開始後の編集は進行中のリクエストに影響しません。"
+      ],
+      "自由文の意味上の競合をすべて検出できるわけではないため、最終文章を確認してください。カメラは構図・視点の指示を送り、結果は文章と生成モデルの解釈によって変わります。"
+    ],
+    "imageNote": {
+      "ko": "충돌이 없는 최종 문구 확인 예시입니다. 남는 카메라 태그가 있으면 추가 확인 항목이 나타납니다.",
+      "en": "Final wording review with no remaining conflicts. An additional acknowledgement appears when camera tags remain.",
+      "ja": "競合が残っていない最終文章の確認例です。カメラタグが残る場合は追加の確認項目が表示されます。"
+    }
+  },
+  {
+    "id": "camera-reuse",
+    "image": "camera-reuse",
+    "ko": [
+      "이미지·History·저장 작업 재사용",
+      "새 카메라 시작과 저장한 v3.8.2 작업 재개를 구분합니다.",
+      [
+        "이미지의 생성 정보로 시작에서 메타데이터가 있는 PNG/WebP를 선택합니다. 문구·설정을 가져오고 정면 0°의 새 카메라로 시작합니다. 자동 I2I는 사용하지 않습니다.",
+        "History를 크게 열고 새 절대 카메라를 누르면 이전 촬영 방향과 관계없이 정면 0°에서 시작합니다. 과거 카메라 기록은 읽기 전용으로 확인할 수 있습니다.",
+        "v3.8.2 카메라 재개는 해당 버전의 History에 저장된 카메라와 원래 편집 문구를 복원합니다. 과거 v3.8.0/1 보정값은 변환하지 않습니다.",
+        "카메라 작업 저장은 문구·설정·카메라를 별도 파일로 저장합니다. 종료 후 선택한 작업 재개로 불러옵니다. 재개는 Text to Image이며 입력 이미지·마스크는 따로 준비합니다."
+      ],
+      "기존 프리셋·History·과거 카메라 파일은 보존됩니다. 구형 카메라 기록은 History에서 읽을 수 있지만 이전 세션·보정값의 편집·재실행·변환은 지원하지 않습니다. 앱 재시작 후 자동 재개하지 않으므로 작업을 저장하고 직접 재개하세요. 결과의 인물·구도·배경은 달라질 수 있습니다."
+    ],
+    "en": [
+      "Reuse images, History and saved work",
+      "Distinguish a new camera from resuming a saved v3.8.2 camera.",
+      [
+        "Start from image metadata accepts a PNG/WebP with readable generation data. It imports prompts/settings and starts a new camera at front 0° without automatic I2I.",
+        "Open History and choose New absolute camera to start at 0° regardless of the old view. Legacy camera metadata can be inspected read-only.",
+        "Resume v3.8.2 camera restores its recorded state and original editing prompts. v3.8.0/1 calibration is never converted.",
+        "Save camera work writes prompts/settings/camera to a separate file. Resume selected work after restarting. Resuming uses Text to Image; prepare source images/masks separately."
+      ],
+      "Existing presets, History and old camera files remain intact. Legacy camera details can be read in History, but old sessions/calibration cannot be edited, rerun or converted. Work does not resume automatically after restart: save and explicitly resume it. People, framing and backgrounds may change in the result."
+    ],
+    "ja": [
+      "画像・履歴・保存作業の再利用",
+      "新しいカメラの開始とv3.8.2作業の再開を区別します。",
+      [
+        "画像の生成情報から開始で、情報を読めるPNG/WebPを選びます。文章と設定を読み込み、正面0°から始めます。I2Iは自動で使いません。",
+        "履歴を開いて新しい絶対カメラを選ぶと、以前の視点に関係なく0°から始まります。旧カメラ情報は読み取り専用で確認できます。",
+        "v3.8.2カメラを再開は記録した状態と編集原文を復元します。v3.8.0/1の補正値は変換しません。",
+        "カメラ作業を保存で文章・設定・カメラを別ファイルに保存します。再起動後に選択した作業を再開できます。Text to Imageで再開するので入力画像・マスクは別に準備します。"
+      ],
+      "既存プリセット・履歴・旧カメラファイルは保持します。旧カメラ情報は履歴で読めますが、旧セッション・補正値の編集・再実行・変換はできません。再起動後は自動再開しないため、保存して自分で再開してください。人物・構図・背景は変わる場合があります。"
+    ],
+    "imageNote": {
+      "ko": "화면 아래에서 이름을 정해 저장하고 목록에서 선택한 작업을 재개합니다.",
+      "en": "Name and save the camera work at the bottom, then select saved work to resume it.",
+      "ja": "画面の下で名前を付けて保存し、一覧で選んだ作業を再開します。"
+    }
+  }
+]
