@@ -271,42 +271,51 @@
     "image": "wildcard",
     "ko": [
       "와일드카드",
-      "많은 프롬프트 후보를 한 곳에 저장하고, 이미지마다 하나를 무작위로 고를 수 있습니다.",
+      "여러 프롬프트 후보를 저장하고 무작위(Random) 또는 순차(Sequential)로 선택합니다.",
       [
-        "왼쪽 와일드카드에서 + 새 와일드카드를 누릅니다. 이름은 상의, 키는 tops처럼 정합니다.",
-        "후보에 white shirt, black shirt, blue shirt를 각각 다른 줄에 넣고 저장합니다.",
-        "베이스나 캐릭터 칸의 와일드카드 버튼을 누릅니다. 목록에서 고르고 프롬프트에 삽입을 누르면 __tops__가 들어갑니다. 직접 __tops__를 적어도 됩니다.",
-        "프리셋으로 저장한 뒤 생성합니다. 그때 고른 실제 후보만 NovelAI 요청, 히스토리, 이미지 메타데이터에 기록됩니다."
+        "왼쪽 와일드카드에서 + 새 와일드카드를 누릅니다. 이름과 tops 같은 키를 정하고 후보를 한 줄에 하나씩 입력합니다. TXT 가져오기·내보내기도 사용할 수 있습니다.",
+        "선택 방식에서 무작위 또는 순차를 고르고 저장합니다. 기존 항목과 새 항목의 기본값은 무작위이며, 참조마다 독립적으로 추첨합니다.",
+        "순차는 등록 순서대로 A → B → C → A처럼 반복합니다. 다음 항목 번호와 내용을 확인하고, 처음부터를 누르면 첫 후보로 돌아갑니다. 편집 중이라면 먼저 저장하세요.",
+        "베이스·캐릭터 또는 실제 적용되는 제외 프롬프트에 __tops__를 삽입합니다. 같은 순차 키를 한 이미지에서 여러 번 쓰면 같은 후보를 사용하고 한 번만 진행합니다. 여러 키의 순번은 각각 관리합니다.",
+        "이미지 생성과 History 저장이 모두 성공하면 다음 후보로 진행합니다. 생성 준비·문구 확인·Sample·미리보기·취소·실패에서는 진행하지 않습니다. 최종 생성 문구에 사용되지 않은 참조도 진행하지 않습니다.",
+        "Sample로 순차의 다음 후보를 미리 볼 수 있습니다. 앱을 다시 실행해도 순번이 복원되며, 무작위로 바꿨다가 순차로 돌아와도 이전 순번을 유지합니다.",
+        "History에는 실제 선택한 문구가 보존됩니다. History를 재사용하면 그 문구를 사용하며 새 순번을 소비하지 않습니다. 새 후보를 선택하려면 프롬프트에 참조 키를 다시 넣으세요."
       ],
-      "여러 키를 함께 쓸 수 있습니다. 빈 줄과 중복 줄은 저장할 때 제거됩니다. 같은 후보가 연속으로 나올 수 있습니다. 키는 저장 후 고정됩니다. TXT 가져오기·내보내기와 시험 선택도 사용할 수 있습니다. 후보에 기존 ||A|B||는 쓸 수 있지만 다른 와일드카드는 참조할 수 없습니다."
+      "빈 줄과 중복 줄은 저장 시 제거하며 키는 저장 후 고정됩니다. 후보에 ||A|B||는 쓸 수 있지만 다른 Wildcard 참조는 넣을 수 없습니다. 기존 데이터는 일괄 변환하지 않습니다. 항목을 추가·정렬하면 다음 후보를 유지하고, 삭제하면 남은 다음 후보로 이동합니다. 순차 생성 중에는 편집·초기화를 기다리세요. 이미지 도구는 순번을 진행하지 않습니다. 동일 데이터 폴더를 여러 앱에서 동시에 사용하지 마세요."
     ],
     "en": [
       "Wildcards",
-      "Save many prompt candidates in one place and choose one randomly for each image.",
+      "Save prompt candidates and choose Random or Sequential selection.",
       [
-        "Open Wildcards and press + New Wildcard. Use a name such as Tops and a key such as tops.",
-        "Enter white shirt, black shirt and blue shirt on separate lines, then Save.",
-        "Press Wildcard next to Base Prompt or a Character field. Select an item and Insert into prompt to add __tops__. You can also type __tops__ directly.",
-        "Save the preset and generate. Only the actual chosen text is recorded in the NovelAI request, History and image metadata."
+        "Open Wildcards and press + New Wildcard. Choose a name and a key such as tops, and enter one candidate per line. TXT import/export remains available.",
+        "Choose Random or Sequential and Save. Existing and new Wildcards default to Random, which draws independently for every reference.",
+        "Sequential repeats the saved order, such as A → B → C → A. Check the next item number and text. Start from first resets to the first candidate; save pending edits first.",
+        "Insert __tops__ into Base, Character or an active Undesired prompt. Repeated references to the same sequential key in one image share one choice and advance once. Each key has its own position.",
+        "Advance only after both image generation and History saving succeed. Preparation, prompt review, Sample, preview, cancellation and failure do not advance. References omitted from the final generation text do not advance either.",
+        "Sample previews the next sequential candidate. Restarting restores the position. Switching to Random and back to Sequential retains the paused position.",
+        "History keeps the actual chosen text. Reusing History uses that text without consuming another position. Insert the reference key again when you want a new choice."
       ],
-      "Use multiple keys together. Empty and duplicate lines are removed on save. Repeated selections are possible. Keys are fixed after saving. TXT import/export and Sample are available. Candidates may contain the existing ||A|B|| syntax, but cannot reference other Wildcards."
+      "Empty and duplicate lines are removed on save, and saved keys stay fixed. Candidates may use ||A|B|| but cannot reference other Wildcards. Existing data is not bulk-converted. Adding or reordering retains the next candidate; deleting it moves to the next surviving candidate. Wait for a sequential generation to finish before editing or resetting. Image tools do not advance the position. Do not use the same data folder in multiple app instances simultaneously."
     ],
     "ja": [
       "ワイルドカード",
-      "多数のプロンプト候補を保存し、画像ごとに1つをランダムに選べます。",
+      "候補を保存し、ランダム(Random)または順番(Sequential)で選択します。",
       [
-        "ワイルドカードで + 新しいワイルドカードを押します。名前は上着、キーは tops などにします。",
-        "white shirt、black shirt、blue shirt をそれぞれ別の行に入力して保存します。",
-        "ベースやキャラクター欄のワイルドカードを押します。一覧で選び、プロンプトに挿入すると __tops__ が入ります。直接入力もできます。",
-        "プリセットとして保存し、生成します。選ばれた実際の文字だけを NovelAI リクエスト、履歴、画像メタデータに記録します。"
+        "ワイルドカードで「+ 新しいワイルドカード」を押します。名前と tops などのキーを決め、候補を1行に1つ入力します。TXT の読み込み・書き出しも使えます。",
+        "選択方式でランダムまたは順番を選び、保存します。既存・新規とも初期値はランダムで、参照ごとに独立して選びます。",
+        "順番は登録順に A → B → C → A と繰り返します。次の候補番号と内容を確認し、「最初から」で先頭に戻せます。編集中の内容は先に保存してください。",
+        "ベース・キャラクターまたは実際に適用される除外プロンプトに __tops__ を挿入します。同じ順番キーを1枚で複数回使うと同じ候補になり、進むのは1回だけです。キーごとに位置を保持します。",
+        "画像生成と履歴の保存が両方成功した後だけ進みます。準備・文章確認・Sample・プレビュー・キャンセル・失敗では進みません。最終的な生成文に使われない参照も進みません。",
+        "Sample で次の順番候補を確認できます。再起動後も位置を復元し、ランダムに切り替えてから順番に戻しても以前の位置を保ちます。",
+        "履歴には実際に選んだ文章が残ります。履歴の再利用はその文章を使い、新しい順番を消費しません。次の候補を選ぶときは参照キーを再び挿入してください。"
       ],
-      "複数のキーを一緒に使えます。保存時に空行と重複行を除きます。同じ候補が連続する場合もあります。保存後のキーは固定です。TXT の読み込み・書き出し、試しに選ぶ機能もあります。候補に ||A|B|| は使えますが、別のワイルドカードは参照できません。"
+      "保存時に空行・重複行を除き、保存後のキーは固定します。候補内の ||A|B|| は使えますが、他のワイルドカードは参照できません。既存データの一括変換は行いません。追加・並べ替えでは次の候補を保ち、削除した場合は次に残る候補へ移ります。順番生成中の編集・リセットは完了まで待ってください。画像ツールでは順番は進みません。同じデータフォルダーを複数のアプリで同時使用しないでください。"
     ],
     "illustrations": [],
     "imageNote": {
-      "ko": "v3.8.1의 화면 예시입니다. 이 장의 기능은 v3.8.2에서도 사용할 수 있지만 일부 메뉴 이름·표시는 다를 수 있습니다. 새 절대 카메라는 카메라 장을 참고하세요.",
-      "en": "Screen example from v3.8.1. The feature remains available in v3.8.2; some labels and indicators may differ. See the camera chapters for the new absolute camera.",
-      "ja": "v3.8.1の画面例です。この章の機能はv3.8.2でも使えますが、一部の名称や表示が異なる場合があります。新しい絶対カメラはカメラの章を参照してください。"
+      "ko": "2026-10-28 개정 v3.8.2의 실제 Wildcard 화면입니다. 순차 선택과 다음 후보 beta(2/3)를 표시한 사용 예시입니다.",
+      "en": "Actual Wildcard UI in the 2026-10-28 revision of v3.8.2, showing Sequential and the next candidate beta (2/3).",
+      "ja": "2026-10-28 改訂 v3.8.2 の実際の画面です。順番モードと次の候補 beta（2/3）を示しています。"
     }
   },
   {

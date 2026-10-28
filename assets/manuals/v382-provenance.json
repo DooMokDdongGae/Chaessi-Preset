@@ -209,30 +209,36 @@
     },
     {
       "file": "assets/manuals/ko/wildcard.png",
-      "sha256": "6f2e39368a8ed932971b82cf0a3d0f15c311c40e2f39fb8b8218b0fa2d6a23db",
-      "source_version": "v3.8.1",
-      "source_commit": "9cdd7e41b616a79432583e662f2fd9280080293a",
-      "kind": "reused-public-asset",
-      "width": 1424,
-      "height": 1041
+      "sha256": "2f71ba5638716b1a8d4590384a4ea49a266a23e9f450147766ab0e3a0c2b0ebc",
+      "source_version": "3.8.2",
+      "source_commit": "0f73d2c",
+      "kind": "v3.8.2-app-screenshot",
+      "width": 1264,
+      "height": 821,
+      "content": "Actual revised Wildcard UI with synthetic text candidates only; no generated artwork or personal data",
+      "revision_date": "2026-10-28"
     },
     {
       "file": "assets/manuals/en/wildcard.png",
-      "sha256": "ee0ff2989aac1b44e6137d2c9e2d9cb9136d530ea293fc139d7b28503100d2e1",
-      "source_version": "v3.8.1",
-      "source_commit": "9cdd7e41b616a79432583e662f2fd9280080293a",
-      "kind": "reused-public-asset",
-      "width": 1424,
-      "height": 1041
+      "sha256": "c42325d6f2d8d92840291f514a8397f3114401de8b74936cd5f5897f2b9d9079",
+      "source_version": "3.8.2",
+      "source_commit": "0f73d2c",
+      "kind": "v3.8.2-app-screenshot",
+      "width": 1264,
+      "height": 821,
+      "content": "Actual revised Wildcard UI with synthetic text candidates only; no generated artwork or personal data",
+      "revision_date": "2026-10-28"
     },
     {
       "file": "assets/manuals/ja/wildcard.png",
-      "sha256": "0fd7bcb63615d42f651cc0d457115aa5c33a155076bfbeed4d91131ca7e96d9b",
-      "source_version": "v3.8.1",
-      "source_commit": "9cdd7e41b616a79432583e662f2fd9280080293a",
-      "kind": "reused-public-asset",
-      "width": 1424,
-      "height": 1041
+      "sha256": "60d5d33eeac44dabd33bc146fffd1791b386c7683ca3b0bbad12236cc1539128",
+      "source_version": "3.8.2",
+      "source_commit": "0f73d2c",
+      "kind": "v3.8.2-app-screenshot",
+      "width": 1264,
+      "height": 821,
+      "content": "Actual revised Wildcard UI with synthetic text candidates only; no generated artwork or personal data",
+      "revision_date": "2026-10-28"
     },
     {
       "file": "assets/manuals/ko/resolution-picker.png",

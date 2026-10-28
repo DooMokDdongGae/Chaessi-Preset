@@ -4,13 +4,17 @@
 
 [한국어](https://github.com/DooMokDdongGae/Chaessi-Preset/blob/main/README.ko.md) · [English](https://github.com/DooMokDdongGae/Chaessi-Preset/blob/main/README.en.md) · [日本語](https://github.com/DooMokDdongGae/Chaessi-Preset/blob/main/README.ja.md)
 
-**[Read all 40 chapters online](https://doomokddonggae.github.io/Chaessi-Preset/v3.8.2/?lang=en&chapter=start)** — This document and online help are maintained for v3.8.2. Help inside the released EXE and documents fixed to the source tag retain their release-time content.
+**[Read all 40 chapters online](https://doomokddonggae.github.io/Chaessi-Preset/v3.8.2/?lang=en&chapter=start)** — This document and online help describe the latest revision. The 2026-10-28 revised EXE includes Sequential Wildcards and updated bundled help; the existing v3.8.2 source tag remains fixed to the original release commit.
 
 **A local workbench for reusing your prompts, characters, outfits and results across generation and editing.** Generate with your NovelAI account, then organize the materials and continue the work in Chaessi Preset.
 
 “The creator controls and revises the prompts and process to finish the result, instead of asking AI to decide everything.” Saved presets, reviewable generation text, manual weights, source recovery and History reuse serve that purpose.
 
 [v3.8.2 Release](https://github.com/DooMokDdongGae/Chaessi-Preset/releases/tag/v3.8.2) · [Changes in v3.8.2](https://github.com/DooMokDdongGae/Chaessi-Preset/blob/main/.github/releases/v3.8.2.en.md) · [Camera guide](https://github.com/DooMokDdongGae/Chaessi-Preset/blob/main/docs/CAMERA.en.md)
+
+## 2026-10-28 — Wildcard selection update
+
+Choose Random or Sequential in the existing Wildcard manager. Sequential cycles through the saved order and shows the next candidate. It advances once after generation and History saving succeed; Sample, preview, cancellation and failure do not consume a position. Restarting retains the position; **Start from first** resets it. Existing Wildcards remain Random. [Wildcard guide](https://doomokddonggae.github.io/Chaessi-Preset/v3.8.2/?lang=en&chapter=wildcards)
 
 ## Continue a piece of work
 

@@ -4,13 +4,17 @@
 
 [한국어](https://github.com/DooMokDdongGae/Chaessi-Preset/blob/main/README.ko.md) · [English](https://github.com/DooMokDdongGae/Chaessi-Preset/blob/main/README.en.md) · [日本語](https://github.com/DooMokDdongGae/Chaessi-Preset/blob/main/README.ja.md)
 
-**[설치 없이 보는 40장 온라인 도움말](https://doomokddonggae.github.io/Chaessi-Preset/v3.8.2/?lang=ko&chapter=start)** — 이 문서와 온라인 도움말은 v3.8.2 사용법을 최신 상태로 유지합니다. 배포된 EXE 안의 도움말과 소스 태그에 고정된 문서는 배포 당시 내용으로 보존됩니다.
+**[설치 없이 보는 40장 온라인 도움말](https://doomokddonggae.github.io/Chaessi-Preset/v3.8.2/?lang=ko&chapter=start)** — 이 문서와 온라인 도움말은 최신 개정 내용을 안내합니다. 2026-10-28 개정 EXE에는 Wildcard 순차 선택과 갱신된 도움말이 포함되며, 기존 v3.8.2 소스 태그는 최초 배포 커밋으로 보존됩니다.
 
 **직접 만든 프롬프트·캐릭터·의상·작업 결과를 재사용하면서 생성과 편집을 이어가는 로컬 작업대입니다.** NovelAI 계정으로 그림을 만들고, Chaessi Preset에서 제작 재료와 다음 작업을 관리합니다.
 
 “AI가 모든 것을 자동으로 결정하는 것이 아니라, 창작자가 프롬프트와 작업 과정을 직접 통제하고 수정하면서 결과를 완성한다.” 프리셋 저장, 생성 전 문구 확인, 수동 가중치 보정, 원본 복귀와 History 재사용은 이 방향을 위한 기능입니다.
 
 [v3.8.2 정식 Release](https://github.com/DooMokDdongGae/Chaessi-Preset/releases/tag/v3.8.2) · [v3.8.2 변경사항](https://github.com/DooMokDdongGae/Chaessi-Preset/blob/main/.github/releases/v3.8.2.ko.md) · [카메라 안내](https://github.com/DooMokDdongGae/Chaessi-Preset/blob/main/docs/CAMERA.ko.md)
+
+## 2026-10-28 Wildcard 기능 추가
+
+Wildcard 관리에서 무작위(Random) 또는 순차(Sequential)를 선택할 수 있습니다. 순차는 등록 순서를 반복하며 다음 후보를 표시합니다. 생성과 History 저장이 성공한 뒤 한 번 진행하고, Sample·미리보기·취소·실패는 순번을 소비하지 않습니다. 재시작 후에도 순번을 유지하며 **처음부터**로 초기화할 수 있습니다. 기존 Wildcard는 계속 Random입니다. [Wildcard 도움말](https://doomokddonggae.github.io/Chaessi-Preset/v3.8.2/?lang=ko&chapter=wildcards)
 
 ## 한 작업을 이어가기
 
