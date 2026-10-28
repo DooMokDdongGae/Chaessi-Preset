@@ -12,6 +12,24 @@ export function createWildcardController({ showToast }) {
     const unique = new Set(lines).size;
     $("wildcardCount").textContent = `${unique} candidates | ${lines.length - unique} duplicate lines${dirty ? " | Unsaved changes" : ""}`;
     $("wildcardReference").textContent = `Reference: __${$("wildcardKey").value || "tops"}__`;
+    sequencePreview();
+  }
+  function nextCandidate() {
+    const entries = [...new Set($("wildcardEntries").value.split(/\r?\n/).map(line => line.trim()).filter(Boolean))];
+    const previous = current?.entries || [], start = current?.sequence?.next_index || 0;
+    let index = 0;
+    for (let n = 0; n < previous.length; n++) {
+      const candidate = entries.indexOf(previous[(start + n) % previous.length]);
+      if (candidate >= 0) { index = candidate; break; }
+    }
+    return {entries, index};
+  }
+  function sequencePreview() {
+    const sequential = $('wildcardMode').value === 'sequential';
+    $('wildcardSequence').hidden = !sequential;
+    $('wildcardReset').disabled = busy || !current || dirty;
+    const {entries, index} = nextCandidate();
+    $('wildcardNext').textContent = entries.length ? t('Next {index} / {count}: {entry}', {index: index + 1, count: entries.length, entry: entries[index]}) : t('Add a candidate first.');
   }
   function fill(item = null) {
     current = item; dirty = false;
@@ -19,6 +37,7 @@ export function createWildcardController({ showToast }) {
     $("wildcardKey").value = item?.key || "";
     $("wildcardKey").readOnly = Boolean(item);
     $("wildcardEntries").value = item?.entries.join("\n") || "";
+    $('wildcardMode').value = item?.selection_mode || 'random';
     $("wildcardDelete").disabled = !item;
     $("wildcardInsert").hidden = !target;
     counts(); render();
@@ -45,7 +64,7 @@ export function createWildcardController({ showToast }) {
   async function run(fn) {
     if (busy) return;
     busy = true;
-    const controls = [...dialog.querySelectorAll("button, input, textarea")];
+    const controls = [...dialog.querySelectorAll("button, input, textarea, select")];
     const disabled = controls.map(control => control.disabled);
     controls.forEach(control => { control.disabled = true; });
     try { await fn(); }
@@ -54,11 +73,12 @@ export function createWildcardController({ showToast }) {
       controls.forEach((control, i) => { control.disabled = disabled[i]; });
       $("wildcardDelete").disabled = !current;
       busy = false;
+      sequencePreview();
     }
   }
   async function save() {
-    const result = await postJson("/api/wildcards", { id: current?.id, key: $("wildcardKey").value, name: $("wildcardName").value, text: $("wildcardEntries").value });
-    fill(result.wildcard); await refresh(); status(`Saved ${result.wildcard.entries.length} candidates. Every candidate has an equal chance.`);
+    const result = await postJson("/api/wildcards", { id: current?.id, key: $("wildcardKey").value, name: $("wildcardName").value, text: $("wildcardEntries").value, selection_mode: $('wildcardMode').value });
+    fill(result.wildcard); await refresh(); status(`Saved ${result.wildcard.entries.length} candidates.`);
     return result.wildcard;
   }
   async function open(input = null) {
@@ -67,6 +87,7 @@ export function createWildcardController({ showToast }) {
     if (!dialog.open) dialog.showModal();
     await refresh();
     if (!current) fill();
+    else if (!dirty) fill((await getJson(`/api/wildcards/${encodeURIComponent(current.id)}`)).wildcard);
     status(target ? "Choose a Wildcard and click Insert into prompt." : "Create a Wildcard or select one from the list.");
   }
   $("openWildcardsButton").addEventListener("click", () => run(() => open()));
@@ -82,7 +103,12 @@ export function createWildcardController({ showToast }) {
   dialog.addEventListener("cancel", event => { if (busy || !canDiscard()) event.preventDefault(); else fill(current); });
   $("wildcardNew").addEventListener("click", () => { if (canDiscard()) { fill(); $("wildcardKey").focus(); status("Choose a key, add one candidate per line, then Save."); } });
   $("wildcardSearch").addEventListener("input", render);
-  for (const id of ["wildcardName", "wildcardKey", "wildcardEntries"]) $(id).addEventListener("input", () => { dirty = true; counts(); });
+  for (const id of ["wildcardName", "wildcardKey", "wildcardEntries", 'wildcardMode']) $(id).addEventListener("input", () => { dirty = true; counts(); });
+  $('wildcardReset').addEventListener('click', () => run(async () => {
+    if (!current || dirty) return;
+    fill((await postJson(`/api/wildcards/${encodeURIComponent(current.id)}/reset`, {})).wildcard);
+    status('Sequence reset. The next generation uses the first candidate.');
+  }));
   $("wildcardSave").addEventListener("click", () => run(save));
   $("wildcardInsert").addEventListener("click", () => run(async () => {
     if (!target?.input.isConnected) throw new Error("The prompt field changed. Close this window and open Wildcard again.");
@@ -112,7 +138,10 @@ export function createWildcardController({ showToast }) {
   });
   $("wildcardSample").addEventListener("click", () => {
     const entries = [...new Set($("wildcardEntries").value.split(/\r?\n/).map(line => line.trim()).filter(Boolean))];
-    status(entries.length ? `Sample only: ${entries[Math.floor(Math.random() * entries.length)]}` : "Add a candidate first.");
+    status(entries.length ? $('wildcardMode').value === 'sequential'
+      ? `Preview only; sequence unchanged: ${entries[nextCandidate().index]}`
+      : `Sample only: ${entries[Math.floor(Math.random() * entries.length)]}` : "Add a candidate first.");
   });
+  document.addEventListener('chaessi:language-change', sequencePreview);
   fill();
 }

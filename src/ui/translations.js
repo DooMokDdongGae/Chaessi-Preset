@@ -3,6 +3,21 @@ import {cameraInputMessages} from './camera-input-messages.js';
 import {pixelResolutionMessages} from './pixel-resolution-translations.js';
 // English source text is the stable presentation key. User data is never a key.
 const rows = `
+The image is saved in History. Check History before generating again; the Wildcard position needs recovery.	이미지는 History에 저장됐습니다. 순번 저장을 복구해야 하므로 다시 생성하기 전에 History를 확인하세요.	画像は履歴に保存されています。順番の保存を復旧する必要があります。再生成の前に履歴を確認してください。
+Choose candidates randomly or in order.	후보를 무작위 또는 등록 순서대로 선택합니다.	候補をランダムまたは登録順で選びます。
+Selection mode	선택 방식	選択方式
+Sequential	순차	順番
+Start from first	처음부터	最初から
+Next {index} / {count}: {entry}	다음 {index} / {count}: {entry}	次は {index} / {count}: {entry}
+Saved {count} candidates.	후보 {count}개를 저장했습니다.	候補を{count}件保存しました。
+Preview only; sequence unchanged: {entry}	미리보기 · 순번 유지: {entry}	プレビューのみ・順番は進みません: {entry}
+Sequence reset. The next generation uses the first candidate.	순번을 초기화했습니다. 다음 생성은 첫 번째 후보를 사용합니다.	順番をリセットしました。次の生成は最初の候補を使います。
+Random chooses independently for each reference. Sequential advances once after generation and History saving succeed. Sample does not advance the sequence. Empty and duplicate lines are removed on save. Keys stay fixed. Candidates may use ||A|B|| but cannot reference other Wildcards.	랜덤은 참조마다 독립 추첨합니다. 순차는 생성과 History 저장 성공 후 한 번 진행합니다. Sample은 순번을 진행하지 않습니다. 저장할 때 빈 줄과 중복 줄을 제거하며 키는 고정됩니다. 후보 안에 ||A|B||를 쓸 수 있지만 다른 Wildcard는 참조할 수 없습니다.	ランダムは参照ごとに独立して選びます。順番は生成と履歴の保存が成功した後に一度だけ進みます。Sampleでは進みません。保存時に空行と重複を除き、キーは固定します。候補内の||A|B||は使えますが、他のWildcardは参照できません。
+Choose Random or Sequential.	랜덤 또는 순차를 선택하세요.	ランダムまたは順番を選んでください。
+Wait for the sequential Wildcard generation to finish before editing or resetting Wildcards.	순차 Wildcard 생성이 끝난 뒤 편집하거나 초기화하세요.	順番モードの生成が終わってから編集・リセットしてください。
+Wildcard choices changed. Generate again to review the next item.	Wildcard 순서나 항목이 바뀌었습니다. 생성을 다시 눌러 다음 항목을 확인하세요.	Wildcardの順番または候補が変わりました。生成を押し直して次の候補を確認してください。
+Could not read Wildcard positions. Restore the sequence state from backup before generating.	Wildcard 순번을 읽을 수 없습니다. 생성 전에 순번 상태를 백업에서 복원하세요.	Wildcardの順番を読み取れません。生成前に状態をバックアップから復元してください。
+Wildcard position recovery needs attention. No new generation was sent.	Wildcard 순번 복구를 확인해야 합니다. 새 생성 요청은 전송하지 않았습니다.	Wildcardの順番の復旧を確認してください。新しい生成要求は送信していません。
 App info	앱 정보	アプリ情報
 Getting started	처음 시작하기	はじめて使う
 Image tools guide	이미지 도구 사용법	画像ツールの使い方

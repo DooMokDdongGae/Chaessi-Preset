@@ -51,7 +51,7 @@ import {
   storeError,
 } from "./src/services/file-store-utils.js";
 import { createWildcardStore } from "./src/services/wildcard-store.js";
-import { resolveGenerationPrompts, createPreparedPromptStore } from "./src/services/generation-prompt-resolver.js";
+import { resolveGenerationPrompts, createPreparedPromptStore, usedSequentialChoices } from "./src/services/generation-prompt-resolver.js";
 import { fetchNovelAiAccountUsage, projectNovelAiAccountUsage } from "./src/services/novelai-account-usage.js";
 import { extractFinalNovelAiImage } from "./src/services/novelai-msgpack-stream.js";
 import { createNovelAiMultipartBody } from "./src/services/novelai-multipart-request.js";
@@ -217,12 +217,13 @@ const server = http.createServer(async (req, res) => {
       assertGeneratablePreset(preset);
       const mode = normalizeGenerationMode(body?.mode);
       if(mode===GENERATION_MODES.TEXT_TO_IMAGE)assertT2IResolution(preset);
-      const resolved = resolveGenerationPrompts(preset, await wildcardStore.all(), undefined, { mode });
+      const wildcardChoices = [];
+      const resolved = resolveGenerationPrompts(preset, await wildcardStore.all(), undefined, { mode, sequentialChoices: wildcardChoices });
       const staged = prepareCameraInput(preset, resolved, body.camera_input, mode);
       const preview = staged.context ? buildV5GeneratePayload(staged.preset, {policy: mode === 'inpaint' ? 'chaessi-inpaint-strategy' : 'official'}) : null;
       if (preview) staged.preset.params.seed = preview.parameters.seed;
       const id = randomUUID();
-      preparedPrompts.put(id, staged.preset, mode, staged.context);
+      preparedPrompts.put(id, staged.preset, mode, staged.context, wildcardChoices);
       sendJson(res, 200, { ok: true, prepared_id: id, preset: staged.preset, camera_input: staged.context,
         caption: preview?.parameters.v4_prompt?.caption, negative_caption: preview?.parameters.v4_negative_prompt?.caption });
       return;
@@ -231,6 +232,9 @@ const server = http.createServer(async (req, res) => {
     if (url.pathname === "/api/wildcards") {
       if (req.method === "GET") { sendJson(res, 200, { ok: true, items: await wildcardStore.list() }); return; }
       if (req.method === "POST") { sendJson(res, 200, { ok: true, wildcard: await wildcardStore.save(await readJsonBody(req)) }); return; }
+    }
+    if (req.method === 'POST' && /^\/api\/wildcards\/[^/]+\/reset$/.test(url.pathname)) {
+      sendJson(res, 200, {ok: true, wildcard: await wildcardStore.resetSequence(decodeURIComponent(url.pathname.split('/')[3]))}); return;
     }
     if (url.pathname.startsWith("/api/wildcards/")) {
       const id = decodeURIComponent(url.pathname.slice("/api/wildcards/".length));
@@ -594,8 +598,9 @@ async function handleGenerate(body) {
   const modeState = mode === GENERATION_MODES.TEXT_TO_IMAGE
     ? { mode }
     : { ...(body?.mode_state || {}), mode };
+  const wildcardChoices = prepared?.wildcardChoices || [];
   const staged = prepared ? {preset, context: prepared.cameraInput}
-    : prepareCameraInput(preset, resolveGenerationPrompts(preset, await wildcardStore.all(), undefined, { mode }), body.camera_input, mode);
+    : prepareCameraInput(preset, resolveGenerationPrompts(preset, await wildcardStore.all(), undefined, { mode, sequentialChoices: wildcardChoices }), body.camera_input, mode);
   requireCameraReview(staged.context, body.camera_ack);
   const resolvedPreset = staged.preset;
   let payload = buildModeGeneratePayload(resolvedPreset, modeState);
@@ -657,6 +662,8 @@ async function handleGenerate(body) {
   if (!preciseReferenceValidation.ok) {
     throw httpError(400, "invalid_precise_reference_payload", "Precise Reference validation failed.", preciseReferenceValidation.errors.join("; "));
   }
+  const sequenceLease = await wildcardStore.beginSequence(usedSequentialChoices(wildcardChoices, payload, staged.context?.excluded, resolvedPreset));
+  try {
   const token = tokenProvider.getToken("novelai");
   const naiResponse = await postNovelAiPayload({ token, payload, multipartAssets });
   if (naiResponse.status !== 200) {
@@ -678,11 +685,13 @@ async function handleGenerate(body) {
   const outputMetadata = parseNovelAiPngMetadata(finalImageBytes);
   const generationPreset = effectiveGenerationPreset(resolvedPreset, payload);
   const createdAt = new Date();
+  const wildcardSelection = await wildcardStore.stageSequence(sequenceLease, finalImageBytes);
   const strength = mode === GENERATION_MODES.INPAINT
     ? payload.parameters.inpaintImg2ImgStrength
     : payload.parameters.strength;
   const noise = mode === GENERATION_MODES.IMAGE_TO_IMAGE ? payload.parameters.noise : 0;
   const saved = await generationStore.saveGeneration({
+    wildcardSelection,
     cameraInput: finishCameraRecord(staged.context, payload),
     preset: generationPreset,
     payload,
@@ -704,7 +713,8 @@ async function handleGenerate(body) {
       referenceAssets,
     },
     responseInfo: {
-      created_at: createdAt.toISOString(),
+      created_at: wildcardSelection?.created_at || createdAt.toISOString(),
+      ...(wildcardSelection ? {generation_id: wildcardSelection.id} : {}),
       received_image_format: converted.format,
       actual_generation_params: outputMetadata.parsed?.params || null,
       metadata_source: outputMetadata.metadata_source || null,
@@ -716,6 +726,8 @@ async function handleGenerate(body) {
       stream_intermediate_count: isV5 ? extracted.intermediateCount : undefined,
     },
   });
+  try { await wildcardStore.finishSequence(sequenceLease); }
+  catch { throw httpError(500, 'wildcard_sequence_save', 'The image is saved in History. Check History before generating again; the Wildcard position needs recovery.'); }
 
   return {
     ok: true,
@@ -755,6 +767,11 @@ async function handleGenerate(body) {
       precise_reference_count: referenceAssets.length,
     },
   };
+  } catch (error) {
+    try { await wildcardStore.abortSequence(sequenceLease); }
+    catch (recoveryError) { throw recoveryError; }
+    throw error;
+  }
 }
 
 function preparePreciseReferences(value) {

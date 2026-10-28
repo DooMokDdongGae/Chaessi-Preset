@@ -1,6 +1,7 @@
 import path from "node:path";
 import { rename, unlink } from "node:fs/promises";
 import { createId, listDirectories, readJsonFile, removePath, sanitizeStoreId, storeError, writeJsonFile } from "./file-store-utils.js";
+import {createWildcardSequenceState} from './wildcard-sequence-state.js';
 
 export function normalizeWildcard(input) {
   const key = String(input?.key || "").trim();
@@ -15,16 +16,19 @@ export function normalizeWildcard(input) {
   if (!entries.length) throw storeError(400, "empty_wildcard", "Add at least one candidate.");
   if (entries.length > 100_000 || entries.join("\n").length > 5_000_000) throw storeError(400, "wildcard_too_large", "Wildcard exceeds 100,000 candidates or 5 MB of text.");
   if (entries.some(value => /__[^\s]+?__/.test(value))) throw storeError(400, "nested_wildcard", "Candidates cannot contain another Wildcard reference.");
-  return { key, name: String(input.name || key).trim().slice(0, 120) || key, entries };
+  const selection_mode = input.selection_mode ?? 'random';
+  if (!['random', 'sequential'].includes(selection_mode)) throw storeError(400, 'invalid_wildcard_mode', 'Choose Random or Sequential.');
+  return { key, name: String(input.name || key).trim().slice(0, 120) || key, entries, ...(input.selection_mode !== undefined ? {selection_mode} : {}) };
 }
 
 export function createWildcardStore({ rootDir }) {
   const folder = path.join(rootDir, "data", "wildcards");
+  const sequence = createWildcardSequenceState({rootDir});
   let queue = Promise.resolve();
   const mutate = fn => { const result = queue.then(fn, fn); queue = result.catch(() => {}); return result; };
   async function get(id) {
     const safeId = sanitizeStoreId(id);
-    try { return await readJsonFile(path.join(folder, safeId, "wildcard.json")); }
+    try { return await sequence.view(await readJsonFile(path.join(folder, safeId, "wildcard.json"))); }
     catch (error) { if (error.code === "ENOENT") throw storeError(404, "wildcard_not_found", "Wildcard not found."); throw error; }
   }
   async function all() {
@@ -34,10 +38,16 @@ export function createWildcardStore({ rootDir }) {
   }
   return {
     get, all,
+    beginSequence(choices) { return mutate(async () => sequence.begin(choices, await all())); },
+    stageSequence(lease, bytes) { return mutate(() => sequence.stage(lease, bytes)); },
+    finishSequence(lease) { return mutate(() => sequence.finish(lease)); },
+    abortSequence(lease) { return mutate(() => sequence.abort(lease)); },
+    resetSequence(id) { return mutate(async () => { const item = await get(id); await sequence.reset(item); return get(id); }); },
     async list() { return (await all()).map(({ entries, ...item }) => ({ ...item, count: entries.length })); },
     save(input) { return mutate(async () => {
-      const normalized = normalizeWildcard(input);
+      await sequence.ready(); sequence.assertEditable();
       const existing = input.id ? await get(input.id) : null;
+      const normalized = normalizeWildcard({...input, selection_mode: input.selection_mode ?? existing?.selection_mode ?? 'random'});
       if (existing && existing.key !== normalized.key) throw storeError(409, "wildcard_key_immutable", "The reference key cannot change. Create a new Wildcard instead.");
       const items = await all();
       if (items.some(item => item.key === normalized.key && item.id !== existing?.id)) throw storeError(409, "wildcard_key_exists", "This reference key already exists.");
@@ -47,8 +57,9 @@ export function createWildcardStore({ rootDir }) {
       const temporary = `${target}.${createId("write")}.tmp`;
       try { await writeJsonFile(temporary, item); await rename(temporary, target); }
       finally { await unlink(temporary).catch(() => {}); }
-      return item;
+      if (existing) await sequence.reconcile(existing, item);
+      return sequence.view(item);
     }); },
-    delete(id) { return mutate(async () => { const item = await get(id); await removePath(path.join(folder, item.id)); return { id: item.id, deleted: true }; }); },
+    delete(id) { return mutate(async () => { await sequence.ready(); sequence.assertEditable(); const item = await get(id); await removePath(path.join(folder, item.id)); return { id: item.id, deleted: true }; }); },
   };
 }

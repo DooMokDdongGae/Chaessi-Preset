@@ -658,16 +658,18 @@
     </div>
     <div class="mask-brush-cursor" id="maskBrushCursor" hidden aria-hidden="true"></div>
     <dialog id="wildcardDialog" class="wildcard-dialog">
-      <div class="dialog-header"><div><h2>Wildcards</h2><p>Save many candidates. Each generation chooses one at random.</p></div><button type="button" id="wildcardClose">Close</button></div>
+      <div class="dialog-header"><div><h2>Wildcards</h2><p>Choose candidates randomly or in order.</p></div><button type="button" id="wildcardClose">Close</button></div>
       <div class="wildcard-layout">
         <section class="wildcard-library"><label>Search <input id="wildcardSearch" type="search" /></label><button type="button" id="wildcardNew">+ New Wildcard</button><div id="wildcardList" class="wildcard-list"></div></section>
         <section class="wildcard-editor">
           <label>Name <input id="wildcardName" maxlength="120" /></label>
           <label>Reference key <input id="wildcardKey" placeholder="tops" maxlength="64" /></label>
           <p class="summary" id="wildcardReference">Example: __tops__</p>
+          <label>Selection mode <select id="wildcardMode"><option value="random">Random</option><option value="sequential">Sequential</option></select></label>
+          <div id="wildcardSequence" hidden><div class="summary" id="wildcardNext" data-no-i18n role="status" aria-live="polite"></div><button type="button" id="wildcardReset">Start from first</button></div>
           <label>Candidates - one per line <textarea id="wildcardEntries" spellcheck="false" placeholder="white shirt&#10;black shirt&#10;blue shirt"></textarea></label>
           <div class="summary" id="wildcardCount">0 candidates</div>
-          <p class="summary">Equal chance for every unique candidate. Repeats are possible. Empty lines and duplicate lines are removed on save. Keys stay fixed after saving. Candidates may use ||A|B||, but cannot reference other Wildcards.</p>
+          <p class="summary">Random chooses independently for each reference. Sequential advances once after generation and History saving succeed. Sample does not advance the sequence. Empty and duplicate lines are removed on save. Keys stay fixed. Candidates may use ||A|B|| but cannot reference other Wildcards.</p>
           <div class="actions"><button type="button" id="wildcardImport">Import TXT</button><input id="wildcardFile" type="file" accept=".txt,text/plain" hidden /><button type="button" id="wildcardExport">Export TXT</button><button type="button" id="wildcardSample">Sample</button><button type="button" id="wildcardDelete" class="danger-button">Delete</button><button type="button" id="wildcardSave">Save</button><button type="button" id="wildcardInsert">Insert into prompt</button></div>
           <div id="wildcardStatus" class="summary" role="status" aria-live="polite">Create a Wildcard or select one from the list.</div>
         </section>

@@ -24,7 +24,7 @@ export function createGenerationStore({ rootDir }) {
   let mutationQueue = Promise.resolve();
 
   return {
-    async saveGeneration({ preset, payload, imageBytes, responseInfo, mode = GENERATION_MODES.TEXT_TO_IMAGE, modeSettings = {}, sourceAssets = {}, cameraInput = null }) {
+    async saveGeneration({ preset, payload, imageBytes, responseInfo, mode = GENERATION_MODES.TEXT_TO_IMAGE, modeSettings = {}, sourceAssets = {}, cameraInput = null, wildcardSelection = null }) {
       const createdAt = responseInfo.created_at ? new Date(responseInfo.created_at) : new Date();
       const date = datePart(createdAt);
       const id = responseInfo.generation_id || createTimestampId(createdAt);
@@ -106,6 +106,7 @@ export function createGenerationStore({ rootDir }) {
       }
       sidecar.raw_payload = storedPayload;
       if (cameraInput) sidecar.camera_input = structuredClone(cameraInput);
+      if (wildcardSelection) sidecar.wildcard_selection = structuredClone(wildcardSelection);
 
       await writeFile(path.join(absoluteFolder, `${id}.png`), imageBytes);
       if (sourceAssets.sourceBytes) await writeFile(path.join(absoluteFolder, `${id}.source.png`), sourceAssets.sourceBytes);
