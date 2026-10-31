@@ -20,7 +20,7 @@ async function verifyChapterDetails(page,c,locale){
  assert.equal(captions.length,1+(c.illustrations||[]).length+(c.id==='start'?1:0));
  const repo='https://github.com/DooMokDdongGae/Chaessi-Preset';
  assert.equal(await page.locator('#readme').getAttribute('href'),repo+'/blob/main/README.'+locale+'.md');
- assert.equal(await page.locator('#release').getAttribute('href'),repo+'/blob/main/.github/releases/v3.8.2.'+locale+'.md');
- assert.equal(await page.locator('#download').getAttribute('href'),repo+'/releases/download/v3.8.2/Chaessi-Preset-v3.8.2-x64.exe');
+ assert.equal(await page.locator('#release').getAttribute('href'),repo+'/blob/main/.github/releases/v'+APP_VERSION+'.'+locale+'.md');
+ assert.equal(await page.locator('#download').getAttribute('href'),repo+'/releases/download/v'+APP_VERSION+'/Chaessi-Preset-v'+APP_VERSION+'-x64.exe');
  for(const href of await page.locator('#contents a, #related a').evaluateAll(es=>es.map(e=>e.href))){const u=new URL(href);assert.equal(u.searchParams.get('lang'),locale);assert(manualChapters.some(c=>c.id===u.searchParams.get('chapter')));}
 }

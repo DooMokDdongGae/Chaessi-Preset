@@ -1,20 +1,24 @@
-# CHAESSI PRESET v3.8.2
+# CHAESSI PRESET v3.8.3
 
-[Windows x64 Portable](https://github.com/DooMokDdongGae/Chaessi-Preset/releases/download/v3.8.2/Chaessi-Preset-v3.8.2-x64.exe) · [SHA256SUMS.txt](https://github.com/DooMokDdongGae/Chaessi-Preset/releases/download/v3.8.2/SHA256SUMS.txt) · [Release](https://github.com/DooMokDdongGae/Chaessi-Preset/releases/tag/v3.8.2)
+[Windows x64 Portable](https://github.com/DooMokDdongGae/Chaessi-Preset/releases/download/v3.8.3/Chaessi-Preset-v3.8.3-x64.exe) · [SHA256SUMS.txt](https://github.com/DooMokDdongGae/Chaessi-Preset/releases/download/v3.8.3/SHA256SUMS.txt) · [Release](https://github.com/DooMokDdongGae/Chaessi-Preset/releases/tag/v3.8.3)
 
 [한국어](https://github.com/DooMokDdongGae/Chaessi-Preset/blob/main/README.ko.md) · [English](https://github.com/DooMokDdongGae/Chaessi-Preset/blob/main/README.en.md) · [日本語](https://github.com/DooMokDdongGae/Chaessi-Preset/blob/main/README.ja.md)
 
-**[설치 없이 보는 40장 온라인 도움말](https://doomokddonggae.github.io/Chaessi-Preset/v3.8.2/?lang=ko&chapter=start)** — 이 문서와 온라인 도움말은 최신 개정 내용을 안내합니다. 2026-10-28 개정 EXE에는 Wildcard 순차 선택과 갱신된 도움말이 포함되며, 기존 v3.8.2 소스 태그는 최초 배포 커밋으로 보존됩니다.
+**[설치 없이 보는 40장 온라인 도움말](https://doomokddonggae.github.io/Chaessi-Preset/v3.8.3/?lang=ko&chapter=start)** — v3.8.3은 v3.8.2의 기능과 데이터를 유지하는 Windows 입력 안정화 패치입니다. 아래 설명과 기존 도움말 이미지는 계속 사용할 수 있습니다.
 
 **직접 만든 프롬프트·캐릭터·의상·작업 결과를 재사용하면서 생성과 편집을 이어가는 로컬 작업대입니다.** NovelAI 계정으로 그림을 만들고, Chaessi Preset에서 제작 재료와 다음 작업을 관리합니다.
 
 “AI가 모든 것을 자동으로 결정하는 것이 아니라, 창작자가 프롬프트와 작업 과정을 직접 통제하고 수정하면서 결과를 완성한다.” 프리셋 저장, 생성 전 문구 확인, 수동 가중치 보정, 원본 복귀와 History 재사용은 이 방향을 위한 기능입니다.
 
-[v3.8.2 정식 Release](https://github.com/DooMokDdongGae/Chaessi-Preset/releases/tag/v3.8.2) · [v3.8.2 변경사항](https://github.com/DooMokDdongGae/Chaessi-Preset/blob/main/.github/releases/v3.8.2.ko.md) · [카메라 안내](https://github.com/DooMokDdongGae/Chaessi-Preset/blob/main/docs/CAMERA.ko.md)
+[v3.8.3 정식 Release](https://github.com/DooMokDdongGae/Chaessi-Preset/releases/tag/v3.8.3) · [v3.8.3 변경사항](https://github.com/DooMokDdongGae/Chaessi-Preset/blob/main/.github/releases/v3.8.3.ko.md) · [카메라 안내](https://github.com/DooMokDdongGae/Chaessi-Preset/blob/main/docs/CAMERA.ko.md)
+
+## v3.8.3 — Windows 입력 차단 수정
+
+큰 이미지의 비용 확인창을 닫은 뒤 프롬프트 입력이나 드롭다운이 멈추던 문제를 수정했습니다. 비용·Canvas·구도 편집·Wildcard 확인창을 앱 내부 대화상자로 바꾸고, 승인·취소·ESC·닫기와 입력 위치 복원을 정리했습니다. 기존 기능과 사용자 데이터는 유지됩니다. 업데이트 전에 앱을 종료하고 데이터 폴더를 백업하세요. [수정 내용과 적용 범위](https://github.com/DooMokDdongGae/Chaessi-Preset/blob/main/.github/releases/v3.8.3.ko.md)
 
 ## 2026-10-28 Wildcard 기능 추가
 
-Wildcard 관리에서 무작위(Random) 또는 순차(Sequential)를 선택할 수 있습니다. 순차는 등록 순서를 반복하며 다음 후보를 표시합니다. 생성과 History 저장이 성공한 뒤 한 번 진행하고, Sample·미리보기·취소·실패는 순번을 소비하지 않습니다. 재시작 후에도 순번을 유지하며 **처음부터**로 초기화할 수 있습니다. 기존 Wildcard는 계속 Random입니다. [Wildcard 도움말](https://doomokddonggae.github.io/Chaessi-Preset/v3.8.2/?lang=ko&chapter=wildcards)
+Wildcard 관리에서 무작위(Random) 또는 순차(Sequential)를 선택할 수 있습니다. 순차는 등록 순서를 반복하며 다음 후보를 표시합니다. 생성과 History 저장이 성공한 뒤 한 번 진행하고, Sample·미리보기·취소·실패는 순번을 소비하지 않습니다. 재시작 후에도 순번을 유지하며 **처음부터**로 초기화할 수 있습니다. 기존 Wildcard는 계속 Random입니다. [Wildcard 도움말](https://doomokddonggae.github.io/Chaessi-Preset/v3.8.3/?lang=ko&chapter=wildcards)
 
 ## 한 작업을 이어가기
 

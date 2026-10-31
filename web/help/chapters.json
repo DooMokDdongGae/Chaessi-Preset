@@ -281,7 +281,7 @@
         "Sample로 순차의 다음 후보를 미리 볼 수 있습니다. 앱을 다시 실행해도 순번이 복원되며, 무작위로 바꿨다가 순차로 돌아와도 이전 순번을 유지합니다.",
         "History에는 실제 선택한 문구가 보존됩니다. History를 재사용하면 그 문구를 사용하며 새 순번을 소비하지 않습니다. 새 후보를 선택하려면 프롬프트에 참조 키를 다시 넣으세요."
       ],
-      "빈 줄과 중복 줄은 저장 시 제거하며 키는 저장 후 고정됩니다. 후보에 ||A|B||는 쓸 수 있지만 다른 Wildcard 참조는 넣을 수 없습니다. 기존 데이터는 일괄 변환하지 않습니다. 항목을 추가·정렬하면 다음 후보를 유지하고, 삭제하면 남은 다음 후보로 이동합니다. 순차 생성 중에는 편집·초기화를 기다리세요. 이미지 도구는 순번을 진행하지 않습니다. 동일 데이터 폴더를 여러 앱에서 동시에 사용하지 마세요."
+      "빈 줄과 중복 줄은 저장 시 제거하며 키는 저장 후 고정됩니다. 후보에 ||A|B||는 쓸 수 있지만 다른 Wildcard 참조는 넣을 수 없습니다. 기존 데이터는 일괄 변환하지 않습니다. 항목을 추가·정렬하면 다음 후보를 유지하고, 삭제하면 남은 다음 후보로 이동합니다. 순차 생성 중에는 편집·초기화를 기다리세요. 이미지 도구는 순번을 진행하지 않습니다. 동일 데이터 폴더를 여러 앱에서 동시에 사용하지 마세요. v3.8.3의 앱 내부 확인창에서 계속을 눌러야 편집 내용을 버리거나 교체합니다. 취소·ESC·닫기는 기존 편집 내용을 유지합니다. 확인창을 닫은 뒤에도 입력을 계속할 수 있습니다."
     ],
     "en": [
       "Wildcards",
@@ -295,7 +295,7 @@
         "Sample previews the next sequential candidate. Restarting restores the position. Switching to Random and back to Sequential retains the paused position.",
         "History keeps the actual chosen text. Reusing History uses that text without consuming another position. Insert the reference key again when you want a new choice."
       ],
-      "Empty and duplicate lines are removed on save, and saved keys stay fixed. Candidates may use ||A|B|| but cannot reference other Wildcards. Existing data is not bulk-converted. Adding or reordering retains the next candidate; deleting it moves to the next surviving candidate. Wait for a sequential generation to finish before editing or resetting. Image tools do not advance the position. Do not use the same data folder in multiple app instances simultaneously."
+      "Empty and duplicate lines are removed on save, and saved keys stay fixed. Candidates may use ||A|B|| but cannot reference other Wildcards. Existing data is not bulk-converted. Adding or reordering retains the next candidate; deleting it moves to the next surviving candidate. Wait for a sequential generation to finish before editing or resetting. Image tools do not advance the position. Do not use the same data folder in multiple app instances simultaneously. The v3.8.3 in-app confirmation discards or replaces edits only when you choose Continue. Cancel, Escape and Close retain the existing edits. Input remains available after the confirmation closes."
     ],
     "ja": [
       "ワイルドカード",
@@ -309,7 +309,7 @@
         "Sample で次の順番候補を確認できます。再起動後も位置を復元し、ランダムに切り替えてから順番に戻しても以前の位置を保ちます。",
         "履歴には実際に選んだ文章が残ります。履歴の再利用はその文章を使い、新しい順番を消費しません。次の候補を選ぶときは参照キーを再び挿入してください。"
       ],
-      "保存時に空行・重複行を除き、保存後のキーは固定します。候補内の ||A|B|| は使えますが、他のワイルドカードは参照できません。既存データの一括変換は行いません。追加・並べ替えでは次の候補を保ち、削除した場合は次に残る候補へ移ります。順番生成中の編集・リセットは完了まで待ってください。画像ツールでは順番は進みません。同じデータフォルダーを複数のアプリで同時使用しないでください。"
+      "保存時に空行・重複行を除き、保存後のキーは固定します。候補内の ||A|B|| は使えますが、他のワイルドカードは参照できません。既存データの一括変換は行いません。追加・並べ替えでは次の候補を保ち、削除した場合は次に残る候補へ移ります。順番生成中の編集・リセットは完了まで待ってください。画像ツールでは順番は進みません。同じデータフォルダーを複数のアプリで同時使用しないでください。 v3.8.3のアプリ内確認では「続行」を選んだ場合だけ編集を破棄・置換します。キャンセル・ESC・閉じるは既存の編集を保持し、閉じた後も入力を続けられます。"
     ],
     "illustrations": [],
     "imageNote": {
@@ -373,7 +373,7 @@
         "상세 설정에서 High의 Sampler(그리는 방법), CFG Rescale(강한 프롬프트 영향 조절), Quality Tags(품질 관련 글 추가)를 확인해요. Medium의 고정된 항목은 수정할 수 없어요.",
         "Transparent Background는 투명 배경을 요청해요. 완성 그림은 PNG로 저장하세요. 잘 안 되면 이전 설정이나 프리셋을 다시 불러오세요."
       ],
-      "품질 태그나 투명 옵션도 원하는 결과를 보장하지 않아요. High/Medium을 바꾸면 지원되는 설정과 제외 프롬프트 처리도 달라져요. 배경화면 정사각형은 지원하지 않습니다. 1,048,576픽셀을 넘는 크기는 생성 전 예상 Anlas 확인창이 나옵니다. High/Medium을 바꿔도 크기는 유지됩니다. 이미지 기반 모드는 원본 크기를 사용합니다."
+      "품질 태그나 투명 옵션도 원하는 결과를 보장하지 않아요. High/Medium을 바꾸면 지원되는 설정과 제외 프롬프트 처리도 달라져요. 배경화면 정사각형은 지원하지 않습니다. 1,048,576픽셀을 넘는 크기는 생성 전 예상 Anlas 확인창이 나옵니다. High/Medium을 바꿔도 크기는 유지됩니다. 이미지 기반 모드는 원본 크기를 사용합니다. v3.8.3부터 큰 이미지의 비용 확인은 앱 내부 대화상자로 표시합니다. 계속을 눌러야 생성하며, 취소·ESC·닫기는 생성하지 않습니다. 닫은 뒤 프롬프트 입력과 드롭다운을 바로 사용할 수 있습니다."
     ],
     "en": [
       "Size, seed and quality settings",
@@ -384,7 +384,7 @@
         "Advanced settings offers High Sampler (drawing method), CFG Rescale (adjusting strong guidance) and Quality Tags (added quality-related text). Fixed Medium settings cannot be edited.",
         "Transparent Background requests transparency. Save the finished picture as PNG. Return to previous settings or load your preset if needed."
       ],
-      "Quality tags and transparency requests do not guarantee a particular result. Switching High/Medium changes supported settings and undesired-prompt handling. Wallpaper has no square preset. Sizes above 1,048,576 pixels require an estimated-Anlas confirmation before generation. High/Medium changes preserve size. Source-image modes use the source dimensions."
+      "Quality tags and transparency requests do not guarantee a particular result. Switching High/Medium changes supported settings and undesired-prompt handling. Wallpaper has no square preset. Sizes above 1,048,576 pixels require an estimated-Anlas confirmation before generation. High/Medium changes preserve size. Source-image modes use the source dimensions. In v3.8.3, large-image cost confirmation uses an in-app dialog. Continue approves generation; Cancel, Escape and Close do not generate. Prompt inputs and dropdowns remain usable after closing it."
     ],
     "ja": [
       "サイズ・シード・品質設定",
@@ -395,7 +395,7 @@
         "詳細設定で High の Sampler（描く方法）、CFG Rescale（強い誘導の調整）、Quality Tags（品質の文章追加）を確認します。Medium の固定項目は編集できません。",
         "Transparent Background は透明背景を要求します。完成は PNG で保存し、必要なら以前の設定やプリセットに戻します。"
       ],
-      "品質タグや透明指定も結果を保証しません。High/Medium で対応設定と除外文の扱いが変わります。 壁紙の正方形はありません。1,048,576ピクセルを超えるサイズは生成前に推定Anlasを確認します。High/Mediumを変更してもサイズは維持します。画像入力モードは元画像のサイズを使います。"
+      "品質タグや透明指定も結果を保証しません。High/Medium で対応設定と除外文の扱いが変わります。 壁紙の正方形はありません。1,048,576ピクセルを超えるサイズは生成前に推定Anlasを確認します。High/Mediumを変更してもサイズは維持します。画像入力モードは元画像のサイズを使います。 v3.8.3では大きな画像の料金確認をアプリ内に表示します。「続行」で承認し、キャンセル・ESC・閉じるでは生成しません。閉じた後も文章入力とドロップダウンをそのまま使えます。"
     ],
     "illustrations": [
       {
@@ -1240,7 +1240,7 @@
         "선택으로 직사각형을 그리거나 X/Y/너비/높이를 적고 자르기를 눌러요. 크기 변경은 가로·세로를 직접 정하므로 비율이 달라질 수 있어요.",
         "작업·비용 확인 → 실행으로 새 History PNG를 만든 뒤 PNG 저장을 눌러요. 다른 도구 적용으로 이어서 사용해요."
       ],
-      "편집 중 화면을 닫을 때 미저장 변경 경고를 확인하세요. Undo 기록은 무한하지 않으며 앱 종료 후 남지 않아요. 최대 16,777,216픽셀까지 편집해요."
+      "편집 중 화면을 닫을 때 미저장 변경 경고를 확인하세요. Undo 기록은 무한하지 않으며 앱 종료 후 남지 않아요. 최대 16,777,216픽셀까지 편집해요. v3.8.3의 앱 내부 확인창에서 계속을 눌러야 편집 내용을 버리거나 교체합니다. 취소·ESC·닫기는 기존 편집 내용을 유지합니다. 확인창을 닫은 뒤에도 입력을 계속할 수 있습니다."
     ],
     "en": [
       "Canvas: draw and crop yourself",
@@ -1251,7 +1251,7 @@
         "Use Select to draw a rectangle, or enter X/Y/width/height, then Crop. Resize sets both dimensions explicitly and can change proportions.",
         "Review and run to save a new History PNG, then Save PNG. Use the result in another tool to continue."
       ],
-      "Check the unsaved-edit warning before closing. Undo history is limited and does not survive quitting. Canvas supports up to 16,777,216 pixels."
+      "Check the unsaved-edit warning before closing. Undo history is limited and does not survive quitting. Canvas supports up to 16,777,216 pixels. The v3.8.3 in-app confirmation discards or replaces edits only when you choose Continue. Cancel, Escape and Close retain the existing edits. Input remains available after the confirmation closes."
     ],
     "ja": [
       "Canvas：自分で塗って切り抜く",
@@ -1262,7 +1262,7 @@
         "選択で四角を描くか X/Y/幅/高さを入力して切り抜きます。サイズ変更は縦横を直接指定するため比率が変わる場合があります。",
         "確認・実行で新しい履歴 PNG を作り、PNG 保存します。別ツール適用で続けられます。"
       ],
-      "閉じる前に未保存警告を確認します。Undo 履歴は有限で終了後は残りません。編集上限は16,777,216画素です。"
+      "閉じる前に未保存警告を確認します。Undo 履歴は有限で終了後は残りません。編集上限は16,777,216画素です。 v3.8.3のアプリ内確認では「続行」を選んだ場合だけ編集を破棄・置換します。キャンセル・ESC・閉じるは既存の編集を保持し、閉じた後も入力を続けられます。"
     ],
     "illustrations": [
       {
@@ -1501,7 +1501,7 @@
         "테두리 늘리기를 누르고 프레임 가장자리 손잡이를 바깥으로 끕니다. 진한 파란 빈 공간은 자동 생성 영역입니다. 그림을 다시 옮기면 빈 영역도 다시 계산됩니다.",
         "둥근 붓으로 그림 안에서 추가로 바꿀 곳을 칠합니다. 밝은 하늘색은 직접 칠한 영역입니다. 지우개는 직접 칠한 곳만 지우며, 빈 공간의 자동 선택은 남습니다. Undo/Redo로 배치와 붓 작업을 되돌립니다."
       ],
-      "직접 그리기(Canvas)는 픽셀을 직접 바꾸는 로컬 편집입니다. 기존 Outpainting은 숫자로 여백을 더하고, 구도 넓히기는 그림 배치와 테두리 손잡이를 사용합니다. 이 화면의 프레임이 최종 결과 크기이며, 화면 확대와 별개입니다. 8픽셀 단위·총 3,145,728픽셀 이하를 확인하세요."
+      "직접 그리기(Canvas)는 픽셀을 직접 바꾸는 로컬 편집입니다. 기존 Outpainting은 숫자로 여백을 더하고, 구도 넓히기는 그림 배치와 테두리 손잡이를 사용합니다. 이 화면의 프레임이 최종 결과 크기이며, 화면 확대와 별개입니다. 8픽셀 단위·총 3,145,728픽셀 이하를 확인하세요. v3.8.3의 앱 내부 확인창에서 계속을 눌러야 편집 내용을 버리거나 교체합니다. 취소·ESC·닫기는 기존 편집 내용을 유지합니다. 확인창을 닫은 뒤에도 입력을 계속할 수 있습니다."
     ],
     "en": [
       "Expand composition: arrange, extend and paint",
@@ -1512,7 +1512,7 @@
         "Choose Extend frame and drag an edge handle outward. Dark blue empty space is selected automatically for generation. Moving the picture recalculates that empty area.",
         "Use Round brush to paint extra areas inside the picture. Light cyan marks your strokes. Erase mask removes hand-painted selection while empty space stays selected. Undo/Redo reverses placement and brush edits."
       ],
-      "Draw pixels (Canvas) edits pixels locally. Existing Outpainting adds margins by number; Expand composition uses placement and frame handles. The frame determines output dimensions, separately from view zoom. Output uses 8-pixel steps and at most 3,145,728 pixels."
+      "Draw pixels (Canvas) edits pixels locally. Existing Outpainting adds margins by number; Expand composition uses placement and frame handles. The frame determines output dimensions, separately from view zoom. Output uses 8-pixel steps and at most 3,145,728 pixels. The v3.8.3 in-app confirmation discards or replaces edits only when you choose Continue. Cancel, Escape and Close retain the existing edits. Input remains available after the confirmation closes."
     ],
     "ja": [
       "構図を広げる：配置・枠・ブラシ",
@@ -1523,7 +1523,7 @@
         "枠を広げるを選び、辺のハンドルを外へ引きます。濃い青の空白が自動生成範囲です。画像を動かすと空白も再計算します。",
         "丸いブラシで絵の中の追加変更範囲を塗ります。明るい水色が手塗りです。消しゴムは手塗りだけを消し、空白は選択されたままです。Undo/Redoで配置とブラシ編集を戻します。"
       ],
-      "直接描画(Canvas)はピクセルを変えるローカル編集です。従来のOutpaintingは数値で余白を足し、構図を広げるは配置と枠のハンドルを使います。枠が最終出力サイズで、表示倍率とは別です。出力は8画素単位、合計3,145,728画素以下です。"
+      "直接描画(Canvas)はピクセルを変えるローカル編集です。従来のOutpaintingは数値で余白を足し、構図を広げるは配置と枠のハンドルを使います。枠が最終出力サイズで、表示倍率とは別です。出力は8画素単位、合計3,145,728画素以下です。 v3.8.3のアプリ内確認では「続行」を選んだ場合だけ編集を破棄・置換します。キャンセル・ESC・閉じるは既存の編集を保持し、閉じた後も入力を続けられます。"
     ],
     "illustrations": [
       {
@@ -1613,7 +1613,7 @@
         "경계가 어색하면 두 결과를 확대 비교합니다. 원본을 정확히 보존할수록 배경 연결선이 남을 수 있습니다. 생성 설정의 경계 연결 폭을 조절하거나 결과 채택 후 이어서 수정을 눌러 둥근 붓으로 경계 양쪽을 칠해 보정하세요.",
         "마음에 드는 결과는 PNG 저장으로 내보냅니다. 결과를 채택하면 그 PNG에서 새 붓 작업을 시작합니다. 원본으로 다른 구도 시도는 원래 그림과 배치로 돌아가며 기존 History 결과는 남습니다."
       ],
-      "결과 반영 영역의 흰색/회색이 최종 합성 대상입니다. 원본 내부 보존과 자연스러운 연결이 항상 함께 보장되지는 않습니다. 설정이나 붓을 바꾸면 다시 확인해야 생성할 수 있습니다."
+      "결과 반영 영역의 흰색/회색이 최종 합성 대상입니다. 원본 내부 보존과 자연스러운 연결이 항상 함께 보장되지는 않습니다. 설정이나 붓을 바꾸면 다시 확인해야 생성할 수 있습니다. v3.8.3의 앱 내부 확인창에서 계속을 눌러야 편집 내용을 버리거나 교체합니다. 취소·ESC·닫기는 기존 편집 내용을 유지합니다. 확인창을 닫은 뒤에도 입력을 계속할 수 있습니다."
     ],
     "en": [
       "Expand composition: review, compare and repair seams",
@@ -1624,7 +1624,7 @@
         "If a seam looks awkward, compare both at high zoom. Exact source preservation can leave visible joins. Adjust Blend boundary in Generation settings, or adopt the result and use Round brush across both sides of the seam for follow-up.",
         "Save the preferred PNG. Adopting it starts a fresh brush session on that PNG. Try another arrangement returns to the original picture and placement while keeping previous results in History."
       ],
-      "White/gray in Result application mask marks the final compositing area. Exact preservation and seamless continuation are not always both achievable. Changes to settings or strokes require a new review."
+      "White/gray in Result application mask marks the final compositing area. Exact preservation and seamless continuation are not always both achievable. Changes to settings or strokes require a new review. The v3.8.3 in-app confirmation discards or replaces edits only when you choose Continue. Cancel, Escape and Close retain the existing edits. Input remains available after the confirmation closes."
     ],
     "ja": [
       "構図を広げる：確認・結果比較・境界修正",
@@ -1635,7 +1635,7 @@
         "境界が不自然なら両方を拡大比較します。元画像の正確な保持で継ぎ目が残る場合があります。境界の接続幅を変えるか結果を採用し、丸いブラシで境界の両側を塗って再修正します。",
         "好きな結果をPNG保存します。採用するとそのPNGから新しいブラシ編集を始めます。元画像で別の構図を試すと元の絵と配置に戻り、以前の結果は履歴に残ります。"
       ],
-      "結果の適用範囲の白・灰色が合成対象です。元画像の保持と自然な接続が常に両立するとは限りません。設定や筆を変えたら再確認が必要です。"
+      "結果の適用範囲の白・灰色が合成対象です。元画像の保持と自然な接続が常に両立するとは限りません。設定や筆を変えたら再確認が必要です。 v3.8.3のアプリ内確認では「続行」を選んだ場合だけ編集を破棄・置換します。キャンセル・ESC・閉じるは既存の編集を保持し、閉じた後も入力を続けられます。"
     ],
     "illustrations": [
       {
@@ -1681,7 +1681,7 @@
         "다음에 편집 상태 열기에서 JSON을 선택합니다. 미저장 작업을 교체할지 확인하고, 복원된 배치와 프롬프트를 살펴본 뒤 이미지·마스크를 다시 확인합니다.",
         "완성 PNG만 저장한 경우에는 새 원본으로 쓸 수 있지만 원래의 편집 레시피를 모두 되살리지는 못합니다. 계속 수정할 작업은 JSON 또는 구도 History도 함께 보관하세요."
       ],
-      "자동 초안 복구는 제공하지 않습니다. 앱을 닫기 전 JSON을 저장하세요. JSON에는 프롬프트와 원본 이미지가 들어 있으므로 공유 전에 내용을 확인하세요."
+      "자동 초안 복구는 제공하지 않습니다. 앱을 닫기 전 JSON을 저장하세요. JSON에는 프롬프트와 원본 이미지가 들어 있으므로 공유 전에 내용을 확인하세요. v3.8.3의 앱 내부 확인창에서 계속을 눌러야 편집 내용을 버리거나 교체합니다. 취소·ESC·닫기는 기존 편집 내용을 유지합니다. 확인창을 닫은 뒤에도 입력을 계속할 수 있습니다."
     ],
     "en": [
       "Expand composition: History restore and editing files",
@@ -1692,7 +1692,7 @@
         "Choose the JSON with Open editing session. Confirm replacement of unsaved work, inspect placement and prompts, then review the source and mask again.",
         "A saved final PNG can become a new source, but does not restore every original editing instruction. Keep the JSON or composition History when you need editable placement."
       ],
-      "Automatic draft recovery is unavailable. Save JSON before quitting. It contains prompts and original image data; inspect it before sharing."
+      "Automatic draft recovery is unavailable. Save JSON before quitting. It contains prompts and original image data; inspect it before sharing. The v3.8.3 in-app confirmation discards or replaces edits only when you choose Continue. Cancel, Escape and Close retain the existing edits. Input remains available after the confirmation closes."
     ],
     "ja": [
       "構図を広げる：履歴復元と編集ファイル",
@@ -1703,7 +1703,7 @@
         "編集状態を開くでJSONを選びます。未保存作業の置換を確認し、配置と文章を見て、画像・マスクをもう一度確認します。",
         "完成PNGだけでも新しい元画像にできますが、元の編集指示は全て復元できません。配置を編集したい場合はJSONか構図の履歴も保管してください。"
       ],
-      "自動下書き復元はありません。終了前にJSONを保存してください。文章と元画像データを含むため、共有前に確認してください。"
+      "自動下書き復元はありません。終了前にJSONを保存してください。文章と元画像データを含むため、共有前に確認してください。 v3.8.3のアプリ内確認では「続行」を選んだ場合だけ編集を破棄・置換します。キャンセル・ESC・閉じるは既存の編集を保持し、閉じた後も入力を続けられます。"
     ],
     "illustrations": [
       {

@@ -1,4 +1,4 @@
-# v3.8.2 — 업데이트 · Updating · 更新
+# v3.8.3 — 업데이트 · Updating · 更新
 
 ## 한국어
 
@@ -13,9 +13,9 @@
 
 다른 이름으로 저장은 별도 프리셋을 만듭니다. 자동 업데이트나 종료 후 미저장 편집의 자동 복구는 제공하지 않습니다. 토큰·개인 History·원본 프롬프트·전체 데이터 폴더를 공유하지 마세요.
 
-이 문서와 온라인 도움말은 v3.8.2 사용법을 최신 상태로 유지합니다. 배포된 EXE 안의 도움말과 소스 태그에 고정된 문서는 배포 당시 내용으로 보존됩니다.
+이 문서와 온라인 도움말은 v3.8.3 사용법을 최신 상태로 유지합니다. 배포된 EXE 안의 도움말과 소스 태그에 고정된 문서는 배포 당시 내용으로 보존됩니다.
 
-[Release](https://github.com/DooMokDdongGae/Chaessi-Preset/releases/tag/v3.8.2) · [README](https://github.com/DooMokDdongGae/Chaessi-Preset/blob/main/README.ko.md) · [Camera](https://github.com/DooMokDdongGae/Chaessi-Preset/blob/main/docs/CAMERA.ko.md)
+[Release](https://github.com/DooMokDdongGae/Chaessi-Preset/releases/tag/v3.8.3) · [README](https://github.com/DooMokDdongGae/Chaessi-Preset/blob/main/README.ko.md) · [Camera](https://github.com/DooMokDdongGae/Chaessi-Preset/blob/main/docs/CAMERA.ko.md)
 
 ## English
 
@@ -30,9 +30,9 @@ Starting a new camera from an image or History starts in T2I at front 0°. Expli
 
 Save As creates a separate preset. Automatic updates and recovery of unsaved edits after exit are unavailable. Never share tokens, personal History, original prompts or the full data folder.
 
-This document and online help are maintained for v3.8.2. Help inside the released EXE and documents fixed to the source tag retain their release-time content.
+This document and online help are maintained for v3.8.3. Help inside the released EXE and documents fixed to the source tag retain their release-time content.
 
-[Release](https://github.com/DooMokDdongGae/Chaessi-Preset/releases/tag/v3.8.2) · [README](https://github.com/DooMokDdongGae/Chaessi-Preset/blob/main/README.en.md) · [Camera](https://github.com/DooMokDdongGae/Chaessi-Preset/blob/main/docs/CAMERA.en.md)
+[Release](https://github.com/DooMokDdongGae/Chaessi-Preset/releases/tag/v3.8.3) · [README](https://github.com/DooMokDdongGae/Chaessi-Preset/blob/main/README.en.md) · [Camera](https://github.com/DooMokDdongGae/Chaessi-Preset/blob/main/docs/CAMERA.en.md)
 
 ## 日本語
 
@@ -47,6 +47,6 @@ This document and online help are maintained for v3.8.2. Help inside the release
 
 名前を付けて保存は別のプリセットを作ります。自動更新と終了後の未保存編集の自動復旧はありません。トークン・個人履歴・原文・データフォルダ全体を共有しないでください。
 
-この文書とオンラインヘルプはv3.8.2向けに更新します。配布済みEXE内のヘルプとソースタグに固定された文書は、公開時の内容を保持します。
+この文書とオンラインヘルプはv3.8.3向けに更新します。配布済みEXE内のヘルプとソースタグに固定された文書は、公開時の内容を保持します。
 
-[Release](https://github.com/DooMokDdongGae/Chaessi-Preset/releases/tag/v3.8.2) · [README](https://github.com/DooMokDdongGae/Chaessi-Preset/blob/main/README.ja.md) · [Camera](https://github.com/DooMokDdongGae/Chaessi-Preset/blob/main/docs/CAMERA.ja.md)
+[Release](https://github.com/DooMokDdongGae/Chaessi-Preset/releases/tag/v3.8.3) · [README](https://github.com/DooMokDdongGae/Chaessi-Preset/blob/main/README.ja.md) · [Camera](https://github.com/DooMokDdongGae/Chaessi-Preset/blob/main/docs/CAMERA.ja.md)

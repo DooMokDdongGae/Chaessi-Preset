@@ -116,3 +116,10 @@ common.ja[2]=['最新結果の画像ツールを押します。過去の絵は�
 
 // Wildcard help revised with the 2026-10-28 portable update.
 manualChapters.find(c=>c.id==='wildcards').imageNote = {"ko":"2026-10-28 개정 v3.8.2의 실제 Wildcard 화면입니다. 순차 선택과 다음 후보 beta(2/3)를 표시한 사용 예시입니다.","en":"Actual Wildcard UI in the 2026-10-28 revision of v3.8.2, showing Sequential and the next candidate beta (2/3).","ja":"2026-10-28 改訂 v3.8.2 の実際の画面です。順番モードと次の候補 beta（2/3）を示しています。"};
+
+// v3.8.3 confirmation behavior; existing chapters and illustrations are retained.
+const confirmationHelpNotes = {"settings": {"ko": "v3.8.3부터 큰 이미지의 비용 확인은 앱 내부 대화상자로 표시합니다. 계속을 눌러야 생성하며, 취소·ESC·닫기는 생성하지 않습니다. 닫은 뒤 프롬프트 입력과 드롭다운을 바로 사용할 수 있습니다.", "en": "In v3.8.3, large-image cost confirmation uses an in-app dialog. Continue approves generation; Cancel, Escape and Close do not generate. Prompt inputs and dropdowns remain usable after closing it.", "ja": "v3.8.3では大きな画像の料金確認をアプリ内に表示します。「続行」で承認し、キャンセル・ESC・閉じるでは生成しません。閉じた後も文章入力とドロップダウンをそのまま使えます。"}, "discard": {"ko": "v3.8.3의 앱 내부 확인창에서 계속을 눌러야 편집 내용을 버리거나 교체합니다. 취소·ESC·닫기는 기존 편집 내용을 유지합니다. 확인창을 닫은 뒤에도 입력을 계속할 수 있습니다.", "en": "The v3.8.3 in-app confirmation discards or replaces edits only when you choose Continue. Cancel, Escape and Close retain the existing edits. Input remains available after the confirmation closes.", "ja": "v3.8.3のアプリ内確認では「続行」を選んだ場合だけ編集を破棄・置換します。キャンセル・ESC・閉じるは既存の編集を保持し、閉じた後も入力を続けられます。"}};
+for (const id of ['settings','tool-canvas','composition','composition-restore','composition-results','wildcards']) {
+  const c = manualChapters.find(c=>c.id===id);
+  for (const locale of ['ko','en','ja']) c[locale][3] += ' ' + confirmationHelpNotes[id==='settings'?'settings':'discard'][locale];
+}

@@ -1,20 +1,24 @@
-# CHAESSI PRESET v3.8.2
+# CHAESSI PRESET v3.8.3
 
-[Windows x64 Portable](https://github.com/DooMokDdongGae/Chaessi-Preset/releases/download/v3.8.2/Chaessi-Preset-v3.8.2-x64.exe) · [SHA256SUMS.txt](https://github.com/DooMokDdongGae/Chaessi-Preset/releases/download/v3.8.2/SHA256SUMS.txt) · [Release](https://github.com/DooMokDdongGae/Chaessi-Preset/releases/tag/v3.8.2)
+[Windows x64 Portable](https://github.com/DooMokDdongGae/Chaessi-Preset/releases/download/v3.8.3/Chaessi-Preset-v3.8.3-x64.exe) · [SHA256SUMS.txt](https://github.com/DooMokDdongGae/Chaessi-Preset/releases/download/v3.8.3/SHA256SUMS.txt) · [Release](https://github.com/DooMokDdongGae/Chaessi-Preset/releases/tag/v3.8.3)
 
 [한국어](https://github.com/DooMokDdongGae/Chaessi-Preset/blob/main/README.ko.md) · [English](https://github.com/DooMokDdongGae/Chaessi-Preset/blob/main/README.en.md) · [日本語](https://github.com/DooMokDdongGae/Chaessi-Preset/blob/main/README.ja.md)
 
-**[インストールせずに全40章を読む](https://doomokddonggae.github.io/Chaessi-Preset/v3.8.2/?lang=ja&chapter=start)** — この文書とオンラインヘルプは最新の改訂内容を案内します。2026-10-28 改訂 EXE には順番ワイルドカードと更新済みヘルプを含み、既存の v3.8.2 ソースタグは初回公開コミットに固定して保持します。
+**[インストールせずに全40章を読む](https://doomokddonggae.github.io/Chaessi-Preset/v3.8.3/?lang=ja&chapter=start)** — v3.8.3はv3.8.2の機能とデータを保持するWindows入力安定化パッチです。既存の説明とヘルプ画像を引き続き利用できます。
 
 **自分で作ったプロンプト・人物・衣装・作業結果を再利用し、生成と編集をつなぐローカル作業台です。** NovelAIアカウントで画像を生成し、Chaessi Presetで制作素材と次の作業を管理します。
 
 「AIにすべてを決めさせるのではなく、制作者がプロンプトと工程を自分で制御・修正し、結果を完成させる」。プリセット保存、生成文の確認、重みの手動補正、原本への復帰、履歴の再利用はこの方針のための機能です。
 
-[v3.8.2正式リリース](https://github.com/DooMokDdongGae/Chaessi-Preset/releases/tag/v3.8.2) · [v3.8.2の変更点](https://github.com/DooMokDdongGae/Chaessi-Preset/blob/main/.github/releases/v3.8.2.ja.md) · [カメラガイド](https://github.com/DooMokDdongGae/Chaessi-Preset/blob/main/docs/CAMERA.ja.md)
+[v3.8.2正式リリース](https://github.com/DooMokDdongGae/Chaessi-Preset/releases/tag/v3.8.3) · [v3.8.2の変更点](https://github.com/DooMokDdongGae/Chaessi-Preset/blob/main/.github/releases/v3.8.3.ja.md) · [カメラガイド](https://github.com/DooMokDdongGae/Chaessi-Preset/blob/main/docs/CAMERA.ja.md)
+
+## v3.8.3 — Windows入力停止の修正
+
+大きな画像の料金確認を閉じた後、プロンプト入力やドロップダウンが反応しなくなる問題を修正しました。料金・Canvas・構図編集・Wildcardの確認をアプリ内ダイアログに変更し、承認・キャンセル・ESC・閉じると入力位置の復元を整理しました。既存機能とユーザーデータは保持します。更新前にアプリを終了し、データフォルダーをバックアップしてください。[修正内容と対象範囲](https://github.com/DooMokDdongGae/Chaessi-Preset/blob/main/.github/releases/v3.8.3.ja.md)
 
 ## 2026-10-28 — ワイルドカード機能追加
 
-既存の管理画面でランダム(Random)または順番(Sequential)を選べます。順番は登録順に繰り返し、次の候補を表示します。生成と履歴の保存が成功した後に1回進み、Sample・プレビュー・キャンセル・失敗では進みません。再起動後も位置を保持し、**最初から**でリセットできます。既存のワイルドカードはランダムのままです。[ワイルドカードのヘルプ](https://doomokddonggae.github.io/Chaessi-Preset/v3.8.2/?lang=ja&chapter=wildcards)
+既存の管理画面でランダム(Random)または順番(Sequential)を選べます。順番は登録順に繰り返し、次の候補を表示します。生成と履歴の保存が成功した後に1回進み、Sample・プレビュー・キャンセル・失敗では進みません。再起動後も位置を保持し、**最初から**でリセットできます。既存のワイルドカードはランダムのままです。[ワイルドカードのヘルプ](https://doomokddonggae.github.io/Chaessi-Preset/v3.8.3/?lang=ja&chapter=wildcards)
 
 ## 作業をつなぐ
 

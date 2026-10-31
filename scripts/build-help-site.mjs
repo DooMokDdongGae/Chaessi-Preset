@@ -1,7 +1,7 @@
 // Generate a standalone, allowlisted site from the maintained online guide.
 import fs from 'node:fs/promises';import path from 'node:path';import assert from 'node:assert/strict';import {createHash} from 'node:crypto';
 import {manualChapters} from '../web/help/content.mjs';import {APP_VERSION} from '../src/state/build-version.js';
-const root=process.cwd(),out=path.resolve(process.argv[2]||'.pages-site');assert(out.startsWith(root+path.sep),'Output must stay inside the current workspace');assert.equal(manualChapters.length,40);assert.equal(APP_VERSION,'3.8.2');
+const root=process.cwd(),out=path.resolve(process.argv[2]||'.pages-site');assert(out.startsWith(root+path.sep),'Output must stay inside the current workspace');assert.equal(manualChapters.length,40);assert.equal(APP_VERSION,'3.8.3');
 // Never clean an arbitrary output tree. A new build overwrites only its explicit files.
 const versionDir=path.join(out,'v'+APP_VERSION),manifest=JSON.parse(await fs.readFile('web/help/images.json','utf8')),byFile=new Map(manifest.assets.map(a=>[a.file,a]));const refs=new Set(['assets/manuals/examples/workflow.webp']);
 for(const c of manualChapters)for(const l of ['ko','en','ja']){assert.equal(c[l].length,4);refs.add(`assets/manuals/${l}/${c.image}.png`);for(const i of c.illustrations||[])refs.add(i.screenshot?`assets/manuals/${l}/${i.screenshot}.png`:`assets/manuals/examples/${i.file}`);}
