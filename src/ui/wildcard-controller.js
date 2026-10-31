@@ -1,3 +1,4 @@
+import {confirmAction} from './confirmation.js';
 import { deleteJson, getJson, postJson } from "../api/client.js";
 import { translateText, t, formatUIError } from './i18n.js';
 import { confirmDeletion } from './delete-confirmation.js';
@@ -51,7 +52,7 @@ export function createWildcardController({ showToast }) {
       button.dataset.wildcardId = item.id;
       button.classList.toggle("is-active", item.id === current?.id);
       button.addEventListener("click", () => run(async () => {
-        if (!canDiscard()) return;
+        if (!await canDiscard()) return;
         fill((await getJson(`/api/wildcards/${encodeURIComponent(item.id)}`)).wildcard);
         status("Edit candidates, then Save. The key stays the same.");
       }));
@@ -60,7 +61,7 @@ export function createWildcardController({ showToast }) {
     if (!list.children.length) list.textContent = "No Wildcards. Click + New Wildcard.";
   }
   async function refresh() { items = (await getJson("/api/wildcards")).items; render(); }
-  function canDiscard() { return !dirty || window.confirm(translateText("Discard unsaved Wildcard changes?")); }
+  async function canDiscard() { return !dirty || confirmAction(translateText("Discard unsaved Wildcard changes?")); }
   async function run(fn) {
     if (busy) return;
     busy = true;
@@ -99,9 +100,10 @@ export function createWildcardController({ showToast }) {
       : button.closest(".character-card").querySelector("textarea.is-active");
     if (input) run(() => open(input));
   });
-  $("wildcardClose").addEventListener("click", () => { if (!busy && canDiscard()) { fill(current); dialog.close(); } });
-  dialog.addEventListener("cancel", event => { if (busy || !canDiscard()) event.preventDefault(); else fill(current); });
-  $("wildcardNew").addEventListener("click", () => { if (canDiscard()) { fill(); $("wildcardKey").focus(); status("Choose a key, add one candidate per line, then Save."); } });
+  async function close() { if (busy) return; await run(async () => { if (await canDiscard()) { fill(current); dialog.close(); } }); }
+  $("wildcardClose").addEventListener("click", close);
+  dialog.addEventListener("cancel", event => { event.preventDefault(); void close(); });
+  $("wildcardNew").addEventListener("click", async () => { let discarded = false; await run(async () => { if (await canDiscard()) { fill(); discarded = true; status("Choose a key, add one candidate per line, then Save."); } }); if (discarded) $("wildcardKey").focus(); });
   $("wildcardSearch").addEventListener("input", render);
   for (const id of ["wildcardName", "wildcardKey", "wildcardEntries", 'wildcardMode']) $(id).addEventListener("input", () => { dirty = true; counts(); });
   $('wildcardReset').addEventListener('click', () => run(async () => {
@@ -127,7 +129,7 @@ export function createWildcardController({ showToast }) {
     const file = event.target.files?.[0]; if (!file) return;
     try {
       if (file.size > 5_000_000) throw new Error("TXT file must be 5 MB or smaller.");
-      if ($("wildcardEntries").value.trim() && !canDiscard()) return;
+      if ($("wildcardEntries").value.trim() && !await canDiscard()) return;
       $("wildcardEntries").value = (await file.text()).replace(/^\uFEFF/, ""); dirty = true; counts(); status("Imported candidates. Click Save to keep them.");
     } finally { event.target.value = ""; }
   }));

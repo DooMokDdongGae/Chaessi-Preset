@@ -310,6 +310,8 @@ Delete	삭제	削除
 Delete Selected	선택 항목 삭제	選択項目を削除
 Close	닫기	閉じる
 Cancel	취소	キャンセル
+Confirm action	작업 확인	操作の確認
+Continue	계속	続行
 Name	이름	名前
 Prompt	프롬프트	プロンプト
 Base prompt	베이스 프롬프트	ベースプロンプト

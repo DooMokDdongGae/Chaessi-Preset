@@ -1449,7 +1449,7 @@ async function generateImage() {
   try { return await withButton($("generateButton"), "Generating", async () => {
     resolutionController.validate();
     syncPresetFromForm();
-    if(!generationCostController.confirmSizeCost())return;
+    if(!await generationCostController.confirmSizeCost())return;
     const sourcePreset = structuredClone(state.currentPreset);
     const cameraSnapshot = cameraInputController?.request();
     const modeRequest = generationModeController.getGenerateRequest();

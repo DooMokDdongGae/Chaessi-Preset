@@ -1,3 +1,4 @@
+import {confirmAction} from './confirmation.js';
 import {getJson,postJson} from '../api/client.js';
 import {t} from './i18n.js';
 import {createToolCanvas} from './image-tools-canvas.js';
@@ -49,9 +50,9 @@ export function createImageToolsController({getLatest,getViewed,getPreset,onSave
   function render(){const tool=$('toolKind').value;dialog.querySelectorAll('[data-tool-group]').forEach(node=>node.hidden=!node.dataset.toolGroup.split(' ').includes(tool));$('toolIndividualSettings').hidden=!$('toolIndividual').checked;$('toolMagnitude').disabled=busy||$('toolIndividual').checked;$('toolSelection').hidden=tool!=='focused-inpaint'&&!(tool==='canvas'&&$('toolBrush').value==='select');drawSelection();}
   function rect(){return Object.fromEntries(['x','y','width','height'].map(key=>[key,num('toolRect-'+key)]));}
   function drawSelection(){const r=rect(),s=editor.size(),el=$('toolSelection');el.style.left=`${r.x/s.width*100}%`;el.style.top=`${r.y/s.height*100}%`;el.style.width=`${r.width/s.width*100}%`;el.style.height=`${r.height/s.height*100}%`;}
-  function canDiscard(){return !editor.isDirty()||confirm(t('Discard unsaved canvas edits?'));}
+  async function canDiscard(){return !editor.isDirty()||confirmAction(t('Discard unsaved canvas edits?'));}
   async function load(item){
-    if(busy||!canDiscard())return;
+    if(busy||!await canDiscard())return;
     if(!item.id&&!item.file&&item.url){const response=await fetch(item.url);if(!response.ok)throw new Error('Could not open the selected image.');const blob=await response.blob();item={...item,file:new File([blob],'source.png',{type:blob.type})};}
     if(sourceUrl){URL.revokeObjectURL(sourceUrl);sourceUrl=null;}
     source=item;result=null;invalidate();
@@ -99,7 +100,7 @@ export function createImageToolsController({getLatest,getViewed,getPreset,onSave
   }
   async function run(){if(!prepared||busy)return;const id=prepared.prepared_id;setBusy(true);try{const response=await postJson('/api/image-tools/run',{prepared_id:id});prepared=null;await display(response);}catch(e){prepared=null;status(e.message,true);}finally{setBusy(false);}}
   async function select(index){if(!result||busy)return;setBusy(true);try{await display(await postJson('/api/image-tools/variant',{id:result.generation.id,index}));}catch(e){status(e.message,true);}finally{setBusy(false);}}
-  function close(){if(!busy&&canDiscard())dialog.close();}
+  async function close(){if(!busy&&await canDiscard())dialog.close();}
   $('toolClose').onclick=close;dialog.addEventListener('cancel',e=>{e.preventDefault();close();});window.addEventListener('beforeunload',e=>{if(editor.isDirty()||busy){e.preventDefault();e.returnValue='';}});
   dialog.addEventListener('change',e=>{if(e.target.closest('aside')){invalidate();render();if(e.target.id==='toolKind')dialog.querySelector('.tool-image-stage').scrollTop=0;}});$('toolDirectorPrompt').addEventListener('input',invalidate);
   $('toolReview').onclick=review;$('toolRun').onclick=run;$('toolUpload').onclick=()=>$('toolFile').click();$('toolFile').onchange=()=>{const file=$('toolFile').files[0];if(file)void load({file}).catch(e=>status(e.message,true));$('toolFile').value='';};

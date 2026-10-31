@@ -1,3 +1,4 @@
+import {confirmAction} from './confirmation.js';
 import {getJson,postJson} from '../api/client.js';
 import {createCompositionEditor} from './composition-editor.js';
 import {t} from './i18n.js';
@@ -55,7 +56,7 @@ export function createCompositionController({getPreset,onSaved,onUseSource,showT
   }
   async function open(item,options={}){
     if(busy)return;
-    if((item||options.restoreId)&&editor.isDirty()&&!confirm(t('Replace the current composition? Save the editing session to keep it.')))return;
+    if((item||options.restoreId)&&editor.isDirty()&&!await confirmAction(t('Replace the current composition? Save the editing session to keep it.')))return;
     if(!dialog.open)dialog.showModal();locked(true);
     try {if(options.restoreId){const data=await getJson('/api/image-tools/composition-session?id='+encodeURIComponent(options.restoreId));await loadSession(data.session);}
       else if(item)await loadImage(item,options.mode||'move');else if(!editor.getRecipe()){status('Choose an image first.');}else{editor.fit();}
@@ -94,7 +95,7 @@ export function createCompositionController({getPreset,onSaved,onUseSource,showT
   window.addEventListener('beforeunload',e=>{if(editor.isDirty()||busy){e.preventDefault();e.returnValue='';}});
   $('compositionReview').onclick=review;$('compositionRun').onclick=run;
   $('compositionUpload').onclick=()=>$('compositionFile').click();$('compositionFile').onchange=async()=>{const file=$('compositionFile').files[0];$('compositionFile').value='';if(file)await open({file});};
-  $('compositionImport').onclick=()=>$('compositionDraftFile').click();$('compositionDraftFile').onchange=async()=>{const file=$('compositionDraftFile').files[0];$('compositionDraftFile').value='';if(!file||busy)return;locked(true);try{if(file.size>48*1024*1024)throw new Error('Session file is too large.');const session=JSON.parse(await file.text());if(editor.isDirty()&&!confirm(t('Replace the current composition? Save the editing session to keep it.')))return;await loadSession({...session,parent_id:null});}catch(e){status(e.message,true);}finally{locked(false);}};
+  $('compositionImport').onclick=()=>$('compositionDraftFile').click();$('compositionDraftFile').onchange=async()=>{const file=$('compositionDraftFile').files[0];$('compositionDraftFile').value='';if(!file||busy)return;locked(true);try{if(file.size>48*1024*1024)throw new Error('Session file is too large.');const session=JSON.parse(await file.text());if(editor.isDirty()&&!await confirmAction(t('Replace the current composition? Save the editing session to keep it.')))return;await loadSession({...session,parent_id:null});}catch(e){status(e.message,true);}finally{locked(false);}};
   $('compositionExport').onclick=()=>{try{const state=editor.export(),session={schema:'chaessi.composition-draft.v1',...state,settings:settings()},url=URL.createObjectURL(new Blob([JSON.stringify(session)],{type:'application/json'})),a=document.createElement('a');a.href=url;a.download='chaessi-composition.json';a.click();setTimeout(()=>URL.revokeObjectURL(url),2000);}catch(e){status(e.message,true);}};
   $('compositionApplySize').onclick=()=>editor.setFrame(Number($('compositionWidth').value),Number($('compositionHeight').value));
   $('compositionApplyPlacement').onclick=()=>editor.setPlacement({scale:Number($('compositionScale').value)/100,angle:Number($('compositionAngle').value)*Math.PI/180});$('compositionReset').onclick=()=>editor.resetPlacement();
@@ -104,7 +105,7 @@ export function createCompositionController({getPreset,onSaved,onUseSource,showT
   $('compositionUseCoords').onchange=()=>editor.setCharacterPositions($('compositionUseCoords').checked);
   for(const id of ['compositionEffort','compositionStrength','compositionImageStrength','compositionNoise','compositionPadding','compositionSeam'])$(id).oninput=invalidate;
   $('compositionProtected').onclick=()=>variant(0);$('compositionFull').onclick=()=>variant(1);
-  $('compositionAdopt').onclick=async()=>{if(!result)return;try{if(revision!==lastSavedRevision&&!confirm(t('Replace the current composition? Save the editing session to keep it.')))return;await loadImage({id:result.generation.id,url:'/'+result.generation.image_path},'brush');dialog.scrollTop=0;editor.fit();}catch(e){status(e.message,true);}};
+  $('compositionAdopt').onclick=async()=>{if(!result)return;try{if(revision!==lastSavedRevision&&!await confirmAction(t('Replace the current composition? Save the editing session to keep it.')))return;await loadImage({id:result.generation.id,url:'/'+result.generation.image_path},'brush');dialog.scrollTop=0;editor.fit();}catch(e){status(e.message,true);}};
   $('compositionBranch').onclick=()=>{invalidate();$('compositionResult').hidden=true;editor.setTool('move');dialog.scrollTop=0;editor.fit();};
   $('compositionUseInpaint').onclick=async()=>{if(result){await onUseSource('/'+result.generation.image_path,'inpaint');close();}};
   // Files dropped over the editor replace the source; internal drags never trigger intake.
