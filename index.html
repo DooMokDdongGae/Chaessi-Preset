@@ -624,7 +624,10 @@
         </div>
         <select id="dialogCharacterPresetList" size="8" hidden></select>
         <div class="character-preset-card-list" id="dialogCharacterPresetCards"></div>
-        <button id="dialogCharacterPresetLoadMoreButton" class="load-more-button" type="button" hidden>Load more</button>
+        <div class="actions character-preset-pagination" id="dialogCharacterPresetPagination" hidden>
+          <button id="dialogCharacterPresetLoadMoreButton" type="button">Load more</button>
+          <button id="dialogCharacterPresetShowAllButton" type="button">Show all</button>
+        </div>
         <div class="summary" id="characterPresetDialogStatus">No preset selected.</div>
       </form>
     </dialog>

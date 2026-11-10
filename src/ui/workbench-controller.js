@@ -185,7 +185,9 @@ export function createWorkbenchController() {
   search.innerHTML = "Search presets <input id='characterPresetSearch' type='search' placeholder='Name or category…' autocomplete='off'>";
   browse.append(search);
   move(".character-preset-filter-row", browse);
-  move("#dialogCharacterPresetList", browse); move("#dialogCharacterPresetCards", browse); move("#dialogCharacterPresetLoadMoreButton", browse);
+  move("#dialogCharacterPresetList", browse);
+  move("#dialogCharacterPresetCards", browse);
+  move("#dialogCharacterPresetPagination", browse);
   const browseActions = document.createElement("div"); browseActions.className = "actions";
   for (const id of ["dialogRefreshCharacterPresetButton", "dialogApplyCharacterPresetButton"]) browseActions.append($(id));
   browse.append(browseActions);

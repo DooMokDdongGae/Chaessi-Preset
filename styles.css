@@ -922,6 +922,11 @@ pre {
   display: none;
 }
 
+.character-preset-pagination {
+  justify-content: center;
+  margin-top: 12px;
+}
+
 .visually-hidden {
   position: absolute;
   width: 1px;

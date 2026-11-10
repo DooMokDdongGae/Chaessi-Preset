@@ -637,6 +637,7 @@ Sample only: {value}	시험 선택: {value}	試しに選択: {value}
 Load {n} more ({shown}/{total})	{n}개 더 보기 ({shown}/{total})	あと {n}件を表示 ({shown}/{total})
 All {n} loaded	전체 {n}개 표시됨	全 {n}件を表示中
 Load more	더 보기	さらに表示
+Show all	전체 보기	すべて表示
 {n} chars	{n}자	{n}文字
 {n} enabled	{n}개 사용 중	{n}件有効
 {name} saved.	{name} 저장 완료.	{name} を保存しました。

@@ -1,19 +1,24 @@
-export function createPagedListController(pageSize = 50) {
+export function createPagedListController(pageSize = 50, { rememberLimit = false } = {}) {
   const normalizedPageSize = Math.max(1, Number(pageSize) || 50);
   let items = [];
-  let visibleCount = normalizedPageSize;
+  let visibleLimit = normalizedPageSize;
 
   return {
     reset(nextItems) {
       items = Array.isArray(nextItems) ? nextItems : [];
-      visibleCount = Math.min(normalizedPageSize, items.length);
+      if (!rememberLimit) visibleLimit = normalizedPageSize;
       return this.snapshot();
     },
     loadMore() {
-      visibleCount = Math.min(items.length, visibleCount + normalizedPageSize);
+      if (visibleLimit < items.length) visibleLimit += normalizedPageSize;
+      return this.snapshot();
+    },
+    showAll() {
+      visibleLimit = Infinity;
       return this.snapshot();
     },
     snapshot() {
+      const visibleCount = Math.min(visibleLimit, items.length);
       return {
         items: items.slice(0, visibleCount),
         visibleCount,

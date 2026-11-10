@@ -65,7 +65,7 @@ let lastAccountUsageRefreshAt = 0;
 let pendingImageViewerCloseEvents = 0;
 const ACCOUNT_USAGE_FOCUS_REFRESH_MS = 60_000;
 const historyPages = createPagedListController(50);
-const characterPresetPages = createPagedListController(50);
+const characterPresetPages = createPagedListController(50, { rememberLimit: true });
 const characterPresetPreferences = createCharacterPresetPreferences();
 const historyViewGuard = createLatestRequestGuard();
 const historySelection = createHistorySelectionController();
@@ -336,6 +336,10 @@ function bindActions() {
   $("dialogDeleteCharacterPresetButton").addEventListener("click", () => deleteCharacterPreset({ dialog: true }));
   $("dialogCharacterPresetCards").addEventListener("click", handleDialogCharacterPresetClick);
   $("dialogCharacterPresetLoadMoreButton").addEventListener("click", loadMoreDialogCharacterPresets);
+  $("dialogCharacterPresetShowAllButton").addEventListener("click", () => {
+    characterPresetPages.showAll();
+    renderDialogCharacterPresetCards();
+  });
   $("characterPresetSearch").addEventListener("input", () => {
     state.characterPresetSearches[state.characterPresetContextType === "base" ? "base" : state.characterPresetContextIndex] = $("characterPresetSearch").value;
     renderDialogCharacterPresetCards(getFilteredDialogCharacterPresets());
@@ -2954,8 +2958,8 @@ async function addManagedCharacterPresetSubcategory() {
   }, (error) => setSummary($("categoryManagerStatus"), error.message, false, true));
 }
 
-function renderDialogCharacterPresetCards(items, { reset = true } = {}) {
-  if (reset) characterPresetPages.reset(items);
+function renderDialogCharacterPresetCards(items) {
+  if (items !== undefined) characterPresetPages.reset(items);
   const page = characterPresetPages.snapshot();
   const selectedId = state.selectedDialogCharacterPresetId || "";
   $("dialogCharacterPresetCards").innerHTML = page.items.map((item) => renderDialogCharacterPresetCard(item, selectedId)).join("")
@@ -2965,7 +2969,7 @@ function renderDialogCharacterPresetCards(items, { reset = true } = {}) {
   } else {
     $("dialogCharacterPresetList").value = "";
   }
-  $("dialogCharacterPresetLoadMoreButton").hidden = !page.hasMore;
+  $("dialogCharacterPresetPagination").hidden = !page.hasMore;
   $("dialogCharacterPresetLoadMoreButton").textContent = page.hasMore
     ? `Load ${Math.min(50, page.totalCount - page.visibleCount)} more (${page.visibleCount}/${page.totalCount})`
     : `All ${page.totalCount} loaded`;
@@ -2973,7 +2977,7 @@ function renderDialogCharacterPresetCards(items, { reset = true } = {}) {
 
 function loadMoreDialogCharacterPresets() {
   characterPresetPages.loadMore();
-  renderDialogCharacterPresetCards([], { reset: false });
+  renderDialogCharacterPresetCards();
 }
 
 async function handleDialogCharacterPresetClick(event) {
@@ -3001,7 +3005,7 @@ async function handleDialogCharacterPresetClick(event) {
 
 function renderDialogCharacterPresetCard(item, selectedId) {
   const thumb = item.thumbnail_path
-    ? `<img src="${escapeHtml(toBrowserPath(item.thumbnail_path))}?v=${encodeURIComponent(item.updated_at || "")}" alt="" />`
+    ? `<img src="${escapeHtml(toBrowserPath(item.thumbnail_path))}?v=${encodeURIComponent(item.updated_at || "")}" alt="" loading="lazy" decoding="async" />`
     : "Slot";
   const name = item.name || item.id;
   const category = normalizeCharacterPresetCategory(item.category);
