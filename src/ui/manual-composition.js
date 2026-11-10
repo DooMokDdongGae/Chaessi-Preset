@@ -7,21 +7,21 @@ export const compositionChapters=[
   '그림 배치에서 그림 안을 드래그해 이동합니다. 모서리 원을 끌면 크기, 위쪽 원을 끌면 각도가 바뀝니다. 휠은 화면만 확대하며 저장 크기는 바꾸지 않습니다. 화면 이동은 화면을 끌어 보는 도구입니다.',
   '테두리 늘리기를 누르고 프레임 가장자리 손잡이를 바깥으로 끕니다. 진한 파란 빈 공간은 자동 생성 영역입니다. 그림을 다시 옮기면 빈 영역도 다시 계산됩니다.',
   '둥근 붓으로 그림 안에서 추가로 바꿀 곳을 칠합니다. 밝은 하늘색은 직접 칠한 영역입니다. 지우개는 직접 칠한 곳만 지우며, 빈 공간의 자동 선택은 남습니다. Undo/Redo로 배치와 붓 작업을 되돌립니다.'
- ],'직접 그리기(Canvas)는 픽셀을 직접 바꾸는 로컬 편집입니다. 기존 Outpainting은 숫자로 여백을 더하고, 구도 넓히기는 그림 배치와 테두리 손잡이를 사용합니다. 이 화면의 프레임이 최종 결과 크기이며, 화면 확대와 별개입니다. 8픽셀 단위·총 3,145,728픽셀 이하를 확인하세요.'],
+ ],'직접 그리기(Canvas)는 픽셀을 직접 바꾸는 로컬 편집입니다. 기존 Outpainting은 숫자로 여백을 더하고, 구도 넓히기는 그림 배치와 테두리 손잡이를 사용합니다. 이 화면의 프레임이 최종 결과 크기이며, 화면 확대와 별개입니다. 8픽셀 단위·총 3,145,728픽셀 이하를 확인하세요. 한 변은 64–4096픽셀입니다. 생성 캔버스와 게시 플랫폼의 파일 규격은 다를 수 있습니다.'],
  ['Expand composition: arrange, extend and paint','Place a smaller or rotated picture and draw the surrounding background. Follow the street portrait on the outdoor stairs.',[
   'In workbench Inpaint or Image tools → Outpainting, press Outpaint with custom canvas. You can also open Expand composition from Image tools. A mask painted in the workbench carries over with the source.',
   'In Output canvas and placement, choose 1:1, 9:16 or 16:9, or enter Width and Height and press Apply output size. Dimensions round to the nearest multiple of 8 pixels.',
   'In Arrange picture, drag inside the picture to move it. Drag a corner circle to resize or the circle above it to rotate. The wheel zooms only the view, not the saved dimensions. Pan view drags the view.',
   'Choose Extend frame and drag an edge handle outward. Dark blue empty space is selected automatically for generation. Moving the picture recalculates that empty area.',
   'Use Round brush to paint extra areas inside the picture. Light cyan marks your strokes. Erase mask removes hand-painted selection while empty space stays selected. Undo/Redo reverses placement and brush edits.'
- ],'Draw pixels (Canvas) edits pixels locally. Existing Outpainting adds margins by number; Expand composition uses placement and frame handles. The frame determines output dimensions, separately from view zoom. Output uses 8-pixel steps and at most 3,145,728 pixels.'],
+ ],'Draw pixels (Canvas) edits pixels locally. Existing Outpainting adds margins by number; Expand composition uses placement and frame handles. The frame determines output dimensions, separately from view zoom. Output uses 8-pixel steps and at most 3,145,728 pixels. Each side must be 64–4096 pixels. The generation canvas may differ from the publishing platform’s file requirements.'],
  ['構図を広げる：配置・枠・ブラシ','画像を小さく置いたり回転し、周囲の背景を描き足します。屋外の階段にいる人物の例で試してください。',[
   '作業台の部分修正、または画像ツールのキャンバス拡張生成で、出力キャンバスを指定して拡張を押します。画像ツールの構図を広げるからも開けます。作業台で塗ったマスクは元画像と一緒に引き継がれます。',
   '出力キャンバスと配置で1:1、9:16、16:9を選ぶか、幅と高さを入力して出力サイズを適用します。寸法は最も近い8画素単位に調整されます。',
   '画像を配置で絵の内側をドラッグして移動します。角の丸でサイズ、上の丸で角度を変えます。ホイールは表示だけを拡大し保存サイズは変えません。表示を移動は画面をドラッグします。',
   '枠を広げるを選び、辺のハンドルを外へ引きます。濃い青の空白が自動生成範囲です。画像を動かすと空白も再計算します。',
   '丸いブラシで絵の中の追加変更範囲を塗ります。明るい水色が手塗りです。消しゴムは手塗りだけを消し、空白は選択されたままです。Undo/Redoで配置とブラシ編集を戻します。'
- ],'直接描画(Canvas)はピクセルを変えるローカル編集です。従来のOutpaintingは数値で余白を足し、構図を広げるは配置と枠のハンドルを使います。枠が最終出力サイズで、表示倍率とは別です。出力は8画素単位、合計3,145,728画素以下です。']),
+ ],'直接描画(Canvas)はピクセルを変えるローカル編集です。従来のOutpaintingは数値で余白を足し、構図を広げるは配置と枠のハンドルを使います。枠が最終出力サイズで、表示倍率とは別です。出力は8画素単位、合計3,145,728画素以下です。各辺は64～4096ピクセルです。生成キャンバスのサイズは公開先のファイル規格と異なる場合があります。']),
  make('composition-characters','composition-characters',
  ['구도 넓히기: 새 캐릭터 넣기','새로 연 공간에 다른 인물을 추가합니다. 야외 계단 예제는 기존 인물의 오른쪽에 베이지 블라우스·청바지를 입고 빨간 가방을 든 두 번째 성인을 요청한 실제 사례입니다.',[
   '그림을 옮기거나 테두리를 늘려 새 인물이 들어갈 공간을 만듭니다. 원본 내부에 넣으려면 그 자리도 둥근 붓으로 칠하세요.',

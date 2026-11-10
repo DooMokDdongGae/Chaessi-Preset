@@ -1,24 +1,28 @@
-# CHAESSI PRESET v3.8.3
+# CHAESSI PRESET v3.8.4
 
-[Windows x64 Portable](https://github.com/DooMokDdongGae/Chaessi-Preset/releases/download/v3.8.3/Chaessi-Preset-v3.8.3-x64.exe) · [SHA256SUMS.txt](https://github.com/DooMokDdongGae/Chaessi-Preset/releases/download/v3.8.3/SHA256SUMS.txt) · [Release](https://github.com/DooMokDdongGae/Chaessi-Preset/releases/tag/v3.8.3)
+[Windows x64 Portable](https://github.com/DooMokDdongGae/Chaessi-Preset/releases/download/v3.8.4/Chaessi-Preset-v3.8.4-x64.exe) · [SHA256SUMS.txt](https://github.com/DooMokDdongGae/Chaessi-Preset/releases/download/v3.8.4/SHA256SUMS.txt) · [Release](https://github.com/DooMokDdongGae/Chaessi-Preset/releases/tag/v3.8.4)
 
 [한국어](https://github.com/DooMokDdongGae/Chaessi-Preset/blob/main/README.ko.md) · [English](https://github.com/DooMokDdongGae/Chaessi-Preset/blob/main/README.en.md) · [日本語](https://github.com/DooMokDdongGae/Chaessi-Preset/blob/main/README.ja.md)
 
-**[Read all 40 chapters online](https://doomokddonggae.github.io/Chaessi-Preset/v3.8.3/?lang=en&chapter=start)** — v3.8.3 is a Windows input stability patch that retains v3.8.2 features and data. The existing guide and example images remain applicable.
+**[Read all 40 chapters online](https://doomokddonggae.github.io/Chaessi-Preset/v3.8.4/?lang=en&chapter=start)** — v3.8.4 makes it easier to paint precise masks in the workbench and arrange images on an expanded canvas.
 
 **A local workbench for reusing your prompts, characters, outfits and results across generation and editing.** Generate with your NovelAI account, then organize the materials and continue the work in Chaessi Preset.
 
 “The creator controls and revises the prompts and process to finish the result, instead of asking AI to decide everything.” Saved presets, reviewable generation text, manual weights, source recovery and History reuse serve that purpose.
 
-[v3.8.3 Release](https://github.com/DooMokDdongGae/Chaessi-Preset/releases/tag/v3.8.3) · [Changes in v3.8.2](https://github.com/DooMokDdongGae/Chaessi-Preset/blob/main/.github/releases/v3.8.3.en.md) · [Camera guide](https://github.com/DooMokDdongGae/Chaessi-Preset/blob/main/docs/CAMERA.en.md)
+[v3.8.4 Release](https://github.com/DooMokDdongGae/Chaessi-Preset/releases/tag/v3.8.4) · [v3.8.4 Release Notes](https://github.com/DooMokDdongGae/Chaessi-Preset/blob/main/.github/releases/v3.8.4.en.md) · [Camera guide](https://github.com/DooMokDdongGae/Chaessi-Preset/blob/main/docs/CAMERA.en.md)
 
-## v3.8.3 — Windows input fix
+## v3.8.4 — Inpaint zoom and outpaint canvas controls
 
-Fixed prompt inputs and dropdowns becoming unresponsive after closing the cost confirmation for a large image. Cost, Canvas, composition and Wildcard confirmations now use an in-app dialog with explicit approval, Cancel, Escape and Close behavior and input-focus restoration. Existing features and user data are retained. Close the app and back up your data folder before updating. [Fix details and scope](https://github.com/DooMokDdongGae/Chaessi-Preset/blob/main/.github/releases/v3.8.3.en.md)
+Use the wheel or +/− to zoom the Inpaint view. Wheel zoom follows the cursor. Toggle Pan view or drag with the middle button. Use Fit view or 100% to reset the view. Brush and eraser strokes stay aligned to source pixels at every zoom level, with Undo/Redo available.
+
+Choose **Outpaint with custom canvas** in workbench Inpaint or Image tools → Outpainting. Select 1:1, 9:16 or 16:9, or enter Width and Height and apply the output size. Drag the source to position it and use a corner handle to resize it. Check the empty area to be filled, then review the image and mask before generating.
+
+[Release Notes](https://github.com/DooMokDdongGae/Chaessi-Preset/blob/main/.github/releases/v3.8.4.en.md)
 
 ## 2026-10-28 — Wildcard selection update
 
-Choose Random or Sequential in the existing Wildcard manager. Sequential cycles through the saved order and shows the next candidate. It advances once after generation and History saving succeed; Sample, preview, cancellation and failure do not consume a position. Restarting retains the position; **Start from first** resets it. Existing Wildcards remain Random. [Wildcard guide](https://doomokddonggae.github.io/Chaessi-Preset/v3.8.3/?lang=en&chapter=wildcards)
+Choose Random or Sequential in the existing Wildcard manager. Sequential cycles through the saved order and shows the next candidate. It advances once after generation and History saving succeed; Sample, preview, cancellation and failure do not consume a position. Restarting retains the position; **Start from first** resets it. Existing Wildcards remain Random. [Wildcard guide](https://doomokddonggae.github.io/Chaessi-Preset/v3.8.4/?lang=en&chapter=wildcards)
 
 ## Continue a piece of work
 

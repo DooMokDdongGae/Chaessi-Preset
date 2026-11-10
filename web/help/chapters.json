@@ -464,6 +464,7 @@
       "그림의 손이나 옷처럼 일부만 바꾸고 싶을 때 써요. 흰 마스크는 다시 그릴 곳을 표시하는 덧칠이에요.",
       [
         "PNG를 열어 부분 수정을 고르거나 최근 결과·History를 원본으로 사용해요.",
+        "휠 또는 +/−로 확대·축소하고, 화면 이동 버튼을 켜거나 휠 버튼을 누른 채 드래그해 화면을 옮겨요. 화면에 맞춤은 원본 전체를 보여주고, 100%는 원본 픽셀 크기로 표시해요. 붓 크기는 원본 픽셀 기준이에요.",
         "브러시로 바꿀 곳을 칠해요. 지우개로 선택을 지우고 Undo/Redo로 되돌려요. 마스크 보기를 켜서 선택이 맞는지 확인해요.",
         "Strength는 다시 그리는 정도, Padding은 선택 주변을 넓히는 여백입니다. 기본값으로 시작하고 한 값씩 바꿔 보세요.",
         "High 또는 Medium과 비용을 확인한 뒤 생성하고 PNG를 저장해요. 마음에 들지 않으면 원본을 다시 선택해 마스크나 글을 고쳐요."
@@ -475,6 +476,7 @@
       "Use a painted mask to change one part, such as a hand or clothing. The white mask marks what to redraw.",
       [
         "Open a PNG and choose Inpaint, or use a recent result or History image as the source.",
+        "Zoom with the wheel or +/−. Toggle Pan view or middle-drag to move around. Fit view shows the whole image, and 100% shows it at actual size. Brush size is measured in image pixels.",
         "Paint the area with the brush. Erase the selection, undo or redo as needed. Toggle mask visibility to inspect it.",
         "Strength controls how much to redraw; Padding expands the selected area around its edges. Start with the defaults and change one value at a time.",
         "Check High/Medium and cost, generate, then save PNG. If unhappy, reselect the source and change the mask or prompt."
@@ -486,6 +488,7 @@
       "手や服など一部分を変えたいときに使います。白いマスクが描き直す場所を示します。",
       [
         "PNG を開いて部分修正を選ぶか、最近の結果・履歴を元画像にします。",
+        "ホイールか +/− で拡大・縮小します。表示を移動をオンにするか、中ボタンを押したままドラッグします。全体表示で画像全体を確認でき、100% で実寸表示になります。ブラシサイズは元画像のピクセル単位です。",
         "ブラシで変える場所を塗ります。消しゴムや Undo/Redo で選択を直し、マスク表示で確認します。",
         "Strengthは描き直す程度、Paddingは選択の周囲を広げる余白です。初期値から始め、一つずつ変えます。",
         "High/Medium と費用を確認して生成し、PNG を保存します。不満なら元画像を選び直し、マスクや文章を変えます。"
@@ -1305,6 +1308,7 @@
       "인물 옆에 공간이 더 필요할 때 써요. Upscale은 그림 전체를 키우지만 이 기능은 바깥에 새 공간을 만들어요.",
       [
         "원본 PNG에서 캔버스 확장 생성을 선택하고 프롬프트 출처와 High/Medium을 정해요.",
+        "최종 화면비나 원본 배치를 정하려면 최종 캔버스를 정해 확장을 누르세요. 구도 편집기에서 최종 크기와 원본 위치·크기를 정할 수 있어요.",
         "왼쪽·위·오른쪽·아래에 추가할 픽셀을 적어요. 0이면 그 방향을 늘리지 않아요. 예시는 오른쪽 128픽셀이에요.",
         "기존 부분 수정과 같은 강도·잡음·Padding 설정을 확인해요. Padding은 경계 주변까지 마스크를 넓히므로 이음새 주변이 바뀔 수 있어요.",
         "새 크기와 비용을 확인하고 실행 → PNG 저장. 결과는 새 History 항목이고 원본 파일은 남아요."
@@ -1316,6 +1320,7 @@
       "Use this to add space beside a subject. Upscale enlarges the whole picture; Outpainting creates new space around it.",
       [
         "Choose Outpainting for the source PNG, then choose the prompt source and High/Medium.",
+        "To set the final aspect ratio or position the source, press Outpaint with custom canvas. The composition editor lets you set the output size, source position and scale.",
         "Enter pixels to add on the left, top, right and bottom. Zero leaves that edge unchanged. The example adds 128 on the right.",
         "Review strength, noise and Padding, which use the existing Inpaint strategy. Padding expands the mask around boundaries, so seams may change.",
         "Review the new dimensions and cost, run and Save PNG. The result is a new History item; the original file remains."
@@ -1327,6 +1332,7 @@
       "人物の横などに余白が欲しいときに使います。Upscale は絵全体を拡大し、Outpainting は外側に空間を作ります。",
       [
         "元 PNG の拡張生成を選び、文章の出所と High/Medium を指定します。",
+        "最終比率や元画像の配置を決めるには出力キャンバスを指定して拡張を押します。構図編集で出力サイズと元画像の位置・倍率を指定できます。",
         "左・上・右・下に追加する画素数を入力します。0ならその方向は増やしません。例は右128画素です。",
         "既存の部分修正方式の強さ・ノイズ・Padding を確認します。Padding はマスクを境界周辺まで広げるため、つなぎ目も変わる場合があります。",
         "新サイズと費用を確認して実行し、PNG 保存。結果は新しい履歴項目で元ファイルは残ります。"
@@ -1496,34 +1502,37 @@
       "구도 넓히기: 그림 배치·테두리·붓",
       "그림을 작게 놓거나 돌린 뒤 주변 배경을 이어 그립니다. 계단의 스트리트 패션 인물 예제를 따라 해 보세요.",
       [
-        "이미지 도구에서 PNG를 열고 구도 넓히기를 누릅니다. 이미 Inpaint에서 칠했다면 그 화면의 구도 넓히기를 누르세요. 원본과 둥근 붓 마스크가 함께 넘어갑니다. 직접 그리기에서 만든 픽셀도 이어서 사용할 수 있습니다.",
+        "작업대의 부분 수정이나 이미지 도구의 캔버스 확장 생성에서 최종 캔버스를 정해 확장을 누릅니다. 이미지 도구의 구도 넓히기로도 열 수 있습니다. 작업대에서 칠한 마스크는 원본과 함께 넘어갑니다.",
+        "최종 캔버스 크기와 배치에서 1:1, 9:16, 16:9를 선택하거나 너비와 높이를 입력하고 출력 크기를 적용합니다. 숫자는 가장 가까운 8픽셀 단위로 맞춥니다.",
         "그림 배치에서 그림 안을 드래그해 이동합니다. 모서리 원을 끌면 크기, 위쪽 원을 끌면 각도가 바뀝니다. 휠은 화면만 확대하며 저장 크기는 바꾸지 않습니다. 화면 이동은 화면을 끌어 보는 도구입니다.",
         "테두리 늘리기를 누르고 프레임 가장자리 손잡이를 바깥으로 끕니다. 진한 파란 빈 공간은 자동 생성 영역입니다. 그림을 다시 옮기면 빈 영역도 다시 계산됩니다.",
         "둥근 붓으로 그림 안에서 추가로 바꿀 곳을 칠합니다. 밝은 하늘색은 직접 칠한 영역입니다. 지우개는 직접 칠한 곳만 지우며, 빈 공간의 자동 선택은 남습니다. Undo/Redo로 배치와 붓 작업을 되돌립니다."
       ],
-      "직접 그리기(Canvas)는 픽셀을 직접 바꾸는 로컬 편집입니다. 기존 Outpainting은 숫자로 여백을 더하고, 구도 넓히기는 그림 배치와 테두리 손잡이를 사용합니다. 이 화면의 프레임이 최종 결과 크기이며, 화면 확대와 별개입니다. 8픽셀 단위·총 3,145,728픽셀 이하를 확인하세요. v3.8.3의 앱 내부 확인창에서 계속을 눌러야 편집 내용을 버리거나 교체합니다. 취소·ESC·닫기는 기존 편집 내용을 유지합니다. 확인창을 닫은 뒤에도 입력을 계속할 수 있습니다."
+      "직접 그리기(Canvas)는 픽셀을 직접 바꾸는 로컬 편집입니다. 기존 Outpainting은 숫자로 여백을 더하고, 구도 넓히기는 그림 배치와 테두리 손잡이를 사용합니다. 이 화면의 프레임이 최종 결과 크기이며, 화면 확대와 별개입니다. 8픽셀 단위·총 3,145,728픽셀 이하를 확인하세요. v3.8.3의 앱 내부 확인창에서 계속을 눌러야 편집 내용을 버리거나 교체합니다. 취소·ESC·닫기는 기존 편집 내용을 유지합니다. 확인창을 닫은 뒤에도 입력을 계속할 수 있습니다. 직접 입력한 치수는 가장 가까운 8픽셀 단위로 보정됩니다. 한 변은 64–4096픽셀이고 총 3,145,728픽셀 이하입니다. 생성 캔버스의 크기는 게시 플랫폼의 파일 규격과 다를 수 있습니다."
     ],
     "en": [
       "Expand composition: arrange, extend and paint",
       "Place a smaller or rotated picture and draw the surrounding background. Follow the street portrait on the outdoor stairs.",
       [
-        "Open a PNG in Image tools and press Expand composition. If you already painted in Inpaint, use its Expand composition button to carry the original and round-brush mask together. You can also continue with pixels edited in Draw pixels.",
+        "In workbench Inpaint or Image tools → Outpainting, press Outpaint with custom canvas. You can also open Expand composition from Image tools. A mask painted in the workbench carries over with the source.",
+        "In Output canvas and placement, choose 1:1, 9:16 or 16:9, or enter Width and Height and press Apply output size. Dimensions round to the nearest multiple of 8 pixels.",
         "In Arrange picture, drag inside the picture to move it. Drag a corner circle to resize or the circle above it to rotate. The wheel zooms only the view, not the saved dimensions. Pan view drags the view.",
         "Choose Extend frame and drag an edge handle outward. Dark blue empty space is selected automatically for generation. Moving the picture recalculates that empty area.",
         "Use Round brush to paint extra areas inside the picture. Light cyan marks your strokes. Erase mask removes hand-painted selection while empty space stays selected. Undo/Redo reverses placement and brush edits."
       ],
-      "Draw pixels (Canvas) edits pixels locally. Existing Outpainting adds margins by number; Expand composition uses placement and frame handles. The frame determines output dimensions, separately from view zoom. Output uses 8-pixel steps and at most 3,145,728 pixels. The v3.8.3 in-app confirmation discards or replaces edits only when you choose Continue. Cancel, Escape and Close retain the existing edits. Input remains available after the confirmation closes."
+      "Draw pixels (Canvas) edits pixels locally. Existing Outpainting adds margins by number; Expand composition uses placement and frame handles. The frame determines output dimensions, separately from view zoom. Output uses 8-pixel steps and at most 3,145,728 pixels. The v3.8.3 in-app confirmation discards or replaces edits only when you choose Continue. Cancel, Escape and Close retain the existing edits. Input remains available after the confirmation closes. Entered dimensions round to the nearest multiple of 8 pixels. Each side must be 64–4096 pixels, with a maximum of 3,145,728 pixels in total. The generation canvas may differ from the publishing platform’s file requirements."
     ],
     "ja": [
       "構図を広げる：配置・枠・ブラシ",
       "画像を小さく置いたり回転し、周囲の背景を描き足します。屋外の階段にいる人物の例で試してください。",
       [
-        "画像ツールでPNGを開き、構図を広げるを押します。Inpaintで塗った場合はその画面の構図を広げるから元画像と丸いブラシのマスクを一緒に渡せます。直接描いたピクセルも使えます。",
+        "作業台の部分修正、または画像ツールのキャンバス拡張生成で、出力キャンバスを指定して拡張を押します。画像ツールの構図を広げるからも開けます。作業台で塗ったマスクは元画像と一緒に引き継がれます。",
+        "出力キャンバスと配置で1:1、9:16、16:9を選ぶか、幅と高さを入力して出力サイズを適用します。寸法は最も近い8画素単位に調整されます。",
         "画像を配置で絵の内側をドラッグして移動します。角の丸でサイズ、上の丸で角度を変えます。ホイールは表示だけを拡大し保存サイズは変えません。表示を移動は画面をドラッグします。",
         "枠を広げるを選び、辺のハンドルを外へ引きます。濃い青の空白が自動生成範囲です。画像を動かすと空白も再計算します。",
         "丸いブラシで絵の中の追加変更範囲を塗ります。明るい水色が手塗りです。消しゴムは手塗りだけを消し、空白は選択されたままです。Undo/Redoで配置とブラシ編集を戻します。"
       ],
-      "直接描画(Canvas)はピクセルを変えるローカル編集です。従来のOutpaintingは数値で余白を足し、構図を広げるは配置と枠のハンドルを使います。枠が最終出力サイズで、表示倍率とは別です。出力は8画素単位、合計3,145,728画素以下です。 v3.8.3のアプリ内確認では「続行」を選んだ場合だけ編集を破棄・置換します。キャンセル・ESC・閉じるは既存の編集を保持し、閉じた後も入力を続けられます。"
+      "直接描画(Canvas)はピクセルを変えるローカル編集です。従来のOutpaintingは数値で余白を足し、構図を広げるは配置と枠のハンドルを使います。枠が最終出力サイズで、表示倍率とは別です。出力は8画素単位、合計3,145,728画素以下です。 v3.8.3のアプリ内確認では「続行」を選んだ場合だけ編集を破棄・置換します。キャンセル・ESC・閉じるは既存の編集を保持し、閉じた後も入力を続けられます。 入力した寸法は最も近い8ピクセル単位に丸めます。各辺は64～4096ピクセルで、合計は3,145,728ピクセル以下です。生成キャンバスのサイズは公開先のファイル規格と異なる場合があります。"
     ],
     "illustrations": [
       {
