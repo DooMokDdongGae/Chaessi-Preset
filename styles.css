@@ -1459,6 +1459,33 @@ pre {
   object-fit: contain;
 }
 
+.source-canvas-layer {
+  position: relative;
+  display: grid;
+  justify-items: center;
+  width: 100%;
+}
+
+.source-canvas-frame.is-mask-view {
+  overflow: clip;
+  max-height: none;
+  touch-action: none;
+}
+
+.source-canvas-frame.is-mask-view canvas {
+  max-height: min(55vh, 560px);
+}
+
+.source-canvas-frame.is-pan-mode,
+.source-canvas-frame.is-pan-mode #inpaintMaskCanvas {
+  cursor: grab;
+}
+
+.source-canvas-frame.is-panning,
+.source-canvas-frame.is-panning #inpaintMaskCanvas {
+  cursor: grabbing;
+}
+
 #inpaintMaskCanvas,
 #inpaintMaskOverlayCanvas {
   position: absolute;
@@ -1502,8 +1529,14 @@ pre {
   overflow-wrap: anywhere;
 }
 
-.source-actions {
+.source-actions,
+.mask-view-actions {
   justify-content: start;
+}
+
+.mask-view-actions output {
+  color: var(--muted);
+  font-variant-numeric: tabular-nums;
 }
 
 .mode-settings-row {
@@ -1555,8 +1588,8 @@ pre {
 }
 
 .mask-brush-cursor {
-  position: fixed;
-  z-index: 1000;
+  position: absolute;
+  z-index: 4;
   transform: translate(-50%, -50%);
   border: 2px solid rgba(103, 232, 249, 0.95);
   border-radius: 50%;

@@ -28,6 +28,15 @@ Choose image	이미지 선택	画像を選ぶ
 Save editing session	편집 상태 저장	編集状態を保存
 Open editing session	편집 상태 열기	編集状態を開く
 Size and placement	크기·배치 숫자 조절	サイズ・配置の数値調整
+Output canvas and placement	최종 캔버스 크기와 배치	出力キャンバスと配置
+Quick aspect ratios	화면비 빠른 선택	アスペクト比のクイック選択
+Outpaint with custom canvas	최종 캔버스를 정해 확장	出力キャンバスを指定して拡張
+Mask view	마스크 보기 조작	マスク表示の操作
+View zoom	현재 화면 배율	現在の表示倍率
+Actual size	실제 크기	実寸表示
+Zoom in	확대	拡大
+Zoom out	축소	縮小
+Scroll to zoom. Use Pan view or middle-drag to move. Brush size is in image pixels.	휠로 확대·축소하고, 화면 이동이나 휠 버튼 드래그로 이동합니다. 붓 크기는 원본 픽셀 기준입니다.	ホイールで拡大・縮小し、表示を移動または中ボタンのドラッグで移動します。ブラシサイズは元画像のピクセル単位です。
 Apply output size	출력 크기 적용	出力サイズを適用
 Picture scale (%)	그림 배율 (%)	画像倍率 (%)
 Angle (°)	각도 (°)	角度 (°)

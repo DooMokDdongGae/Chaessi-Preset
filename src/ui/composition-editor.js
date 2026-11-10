@@ -1,5 +1,6 @@
 import {initialComposition, validateComposition, sourceToFrame, frameToSource, resizeCompositionFrame, characterCenter, clamp} from '../image-tools/composition-geometry.js';
 import {interpolateStrokePoints} from './inpaint-mask-utils.js';
+import {zoomViewAt} from './image-view-transform.js';
 import {t} from './i18n.js';
 
 const HISTORY_BYTES = 64 * 1024 * 1024;
@@ -40,7 +41,7 @@ export function createCompositionEditor(host, {onChange = ()=>{}, onStatus = ()=
   function putAlpha() { const data=new Uint8ClampedArray(alpha.length*4);for(let i=0;i<alpha.length;i++){data[i*4]=data[i*4+1]=data[i*4+2]=255;data[i*4+3]=alpha[i];}manual.getContext('2d').putImageData(new ImageData(data,manual.width,manual.height),0,0); tint(); }
   function tint() { const c=tinted.getContext('2d');c.clearRect(0,0,tinted.width,tinted.height);c.drawImage(manual,0,0);c.globalCompositeOperation='source-in';c.fillStyle='rgba(72,211,236,.56)';c.fillRect(0,0,tinted.width,tinted.height);c.globalCompositeOperation='source-over'; }
   function restore(s) {recipe=clone(s.recipe);preset=clone(s.preset);alpha=s.alpha;putAlpha();dirty=true;schedule();onChange();}
-  function commitEdit(fn) {if(!recipe||locked)return;cancel();const before=snapshot();try{fn();validateComposition(recipe,recipe.source);checkpoint(before);schedule();}catch(e){restore(before);onStatus(e.message,true);}}
+  function commitEdit(fn) {if(!recipe||locked)return;cancel();const before=snapshot();try{fn();validateComposition(recipe,recipe.source);checkpoint(before);schedule();return true;}catch(e){restore(before);onStatus(e.message,true);}}
   function undoEdit(){if(locked||!undo.length)return;cancel();redo.push(snapshot());restore(undo.pop());trimHistory();}
   function redoEdit(){if(locked||!redo.length)return;cancel();undo.push(snapshot());restore(redo.pop());trimHistory();}
   function fit(){if(!recipe)return;const w=viewport.clientWidth,h=viewport.clientHeight;view.zoom=Math.min((w-110)/recipe.frame.width,(h-110)/recipe.frame.height,1.5);view.zoom=Math.max(.03,view.zoom);view.x=(w-recipe.frame.width*view.zoom)/2;view.y=(h-recipe.frame.height*view.zoom)/2;schedule();}
@@ -123,7 +124,7 @@ export function createCompositionEditor(host, {onChange = ()=>{}, onStatus = ()=
   function cancel(){if(!gesture)return;const g=gesture;gesture=null;view=g.view;recipe=clone(g.before.recipe);preset=clone(g.before.preset);alpha=g.before.alpha;putAlpha();if(viewport.hasPointerCapture(g.id))viewport.releasePointerCapture(g.id);schedule();onChange();}
   viewport.addEventListener('pointerdown',down);viewport.addEventListener('pointermove',move);viewport.addEventListener('pointerup',finish);
   viewport.addEventListener('pointercancel',cancel);viewport.addEventListener('lostpointercapture',()=>{if(gesture)cancel();});viewport.addEventListener('pointerleave',()=>{cursor.hidden=true;});
-  viewport.addEventListener('wheel',e=>{if(!recipe||locked)return;e.preventDefault();if(gesture)return;const p=point(e),s=screen(p);view.zoom=clamp(view.zoom*Math.exp(-e.deltaY*.0015),.03,8);view.x=s.x-p.x*view.zoom;view.y=s.y-p.y*view.zoom;schedule();updateCursor(e);},{passive:false});
+  viewport.addEventListener('wheel',e=>{if(!recipe||locked)return;e.preventDefault();if(gesture)return;const anchor=screen(point(e));view=zoomViewAt(view,clamp(view.zoom*Math.exp(-e.deltaY*.0015),.03,8),anchor);schedule();updateCursor(e);},{passive:false});
   viewport.addEventListener('keydown',e=>{if(e.key==='Escape'&&gesture){e.preventDefault();e.stopPropagation();cancel();}else if((e.ctrlKey||e.metaKey)&&e.key.toLowerCase()==='z'){e.preventDefault();e.shiftKey?redoEdit():undoEdit();}});
   window.addEventListener('blur',cancel);new ResizeObserver(()=>{if(listenersEnabled&&!gesture)fit();}).observe(viewport);
   host.querySelectorAll('[data-comp-tool]').forEach(b=>b.onclick=()=>setTool(b.dataset.compTool));
@@ -150,7 +151,19 @@ export function createCompositionEditor(host, {onChange = ()=>{}, onStatus = ()=
     setCharacterPositions(enabled){commitEdit(()=>{preset.prompt_parts.characters.forEach(c=>{c.position_mode=enabled?'custom':'auto';});});},
     addCharacter(prompt){commitEdit(()=>{if(preset.prompt_parts.characters.length>=32)throw new Error('Maximum 32 characters.');preset.prompt_parts.characters.push({id:crypto.randomUUID(),name:'',enabled:true,prompt,undesired:'',centers:[{x:.75,y:.5}],position_mode:'custom'});recipe.bindings.push('frame');});setTool('character');},
     setPlacement(changes){commitEdit(()=>Object.assign(recipe.transform,changes));},
-    setFrame(width,height){commitEdit(()=>{const a=resizeCompositionFrame(recipe,'right',width-recipe.frame.width,preset.prompt_parts.characters);const b=resizeCompositionFrame(a.recipe,'bottom',height-recipe.frame.height,a.characters);recipe=b.recipe;preset.prompt_parts.characters=b.characters;});},
+    setFrame(width,height){
+      const changed=commitEdit(()=>{
+        const edges=[['right',width-recipe.frame.width],['bottom',height-recipe.frame.height]];
+        // Shrink first so a valid final size cannot exceed the pixel cap between edits.
+        edges.sort(([,a],[,b])=>a-b);
+        for(const [edge,delta] of edges){
+          const resized=resizeCompositionFrame(recipe,edge,delta,preset.prompt_parts.characters);
+          recipe=resized.recipe;
+          preset.prompt_parts.characters=resized.characters;
+        }
+      });
+      if(changed)fit();
+    },
     resetPlacement(){commitEdit(()=>{recipe.transform={x:recipe.frame.width/2,y:recipe.frame.height/2,angle:0,scale:1};});fit();},
   };
 }

@@ -306,20 +306,35 @@
                 <div class="source-drop-zone" id="generationSourceDropZone">
                   <input id="generationSourceInput" type="file" accept="image/png,image/webp,image/jpeg" hidden />
                   <div class="source-canvas-frame" id="sourceCanvasFrame">
-                    <canvas id="generationSourceCanvas"></canvas>
-                    <canvas id="inpaintMaskOverlayCanvas" hidden></canvas>
-                    <canvas id="inpaintMaskCanvas" hidden></canvas>
+                    <div class="source-canvas-layer" id="sourceCanvasLayer">
+                      <canvas id="generationSourceCanvas"></canvas>
+                      <canvas id="inpaintMaskOverlayCanvas" hidden></canvas>
+                      <canvas id="inpaintMaskCanvas" hidden></canvas>
+                    </div>
+                    <div class="mask-brush-cursor" id="maskBrushCursor" hidden aria-hidden="true"></div>
                     <div class="source-empty-state" id="sourceEmptyState">
                       <strong>Source Image</strong>
                       <span>Drop PNG, WebP, or JPEG here</span>
                     </div>
                   </div>
                 </div>
+                <div id="maskViewControls" hidden>
+                  <div class="actions compact-actions mask-view-actions" role="group" aria-label="Mask view">
+                    <button type="button" id="maskViewFit">Fit view</button>
+                    <button type="button" id="maskViewActual" title="Actual size">100%</button>
+                    <button type="button" id="maskViewZoomOut" aria-label="Zoom out">−</button>
+                    <button type="button" id="maskViewZoomIn" aria-label="Zoom in">+</button>
+                    <button type="button" id="maskViewPan" aria-pressed="false">Pan view</button>
+                    <output id="maskViewZoom" aria-label="View zoom" aria-live="off"></output>
+                  </div>
+                  <p class="mode-help">Scroll to zoom. Use Pan view or middle-drag to move. Brush size is in image pixels.</p>
+                </div>
                 <div class="source-info" id="generationSourceInfo">No source image selected.</div>
                 <div class="actions compact-actions source-actions">
                   <button type="button" id="chooseGenerationSourceButton">Choose Image</button>
                   <button type="button" id="useLatestAsSourceButton">Use Latest Result</button>
                   <button type="button" id="removeGenerationSourceButton">Remove</button>
+                  <button type="button" id="openInpaintComposition" hidden disabled>Outpaint with custom canvas</button>
                 </div>
 
                 <div class="mode-settings-row">
@@ -656,7 +671,6 @@
     <div class="image-drag-overlay" id="imageDragOverlay" hidden aria-hidden="true">
       <strong>Drop image to choose destination</strong>
     </div>
-    <div class="mask-brush-cursor" id="maskBrushCursor" hidden aria-hidden="true"></div>
     <dialog id="wildcardDialog" class="wildcard-dialog">
       <div class="dialog-header"><div><h2>Wildcards</h2><p>Choose candidates randomly or in order.</p></div><button type="button" id="wildcardClose">Close</button></div>
       <div class="wildcard-layout">

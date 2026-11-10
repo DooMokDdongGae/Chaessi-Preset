@@ -27,6 +27,14 @@ test('Identity renderer preserves exact opaque RGBA and the original brush selec
   const source=new Uint8ClampedArray(128*128*4),manual=new Uint8Array(128*128);for(let i=0;i<128*128;i++){source.set([i%256,(i*7)%256,123,255],i*4);if(i%128>45&&i%128<60&&Math.floor(i/128)>33&&Math.floor(i/128)<50)manual[i]=255;}
   const out=renderCompositionPixels(source,manual,initialComposition(128,128));assert.deepEqual(out.image,source);assert.deepEqual(out.mask,manual);assert.ok(out.gap.every(v=>v===0));
 });
+test('Sources within the input limit open centered in a valid initial output frame',()=>{
+  for(const [width,height] of [[2048,2048],[32,96],[5000,800]]){
+    const recipe=initialComposition(width,height);
+    assert.deepEqual(validateComposition(recipe,{width,height}),recipe);
+    assert.deepEqual(sourceToFrame({x:width/2,y:height/2},recipe),{x:recipe.frame.width/2,y:recipe.frame.height/2});
+    assert.ok(width*recipe.transform.scale<=recipe.frame.width && height*recipe.transform.scale<=recipe.frame.height);
+  }
+});
 test('Rotated coverage, transparency and thin source-attached mask survive reduction without stale gaps',()=>{
   const source=new Uint8ClampedArray(128*128*4);for(let i=0;i<128*128;i++)source.set([100,50,20,255],i*4);source[(64*128+64)*4+3]=0;
   const manual=new Uint8Array(128*128);for(let y=20;y<100;y++)manual[y*128+32]=255;

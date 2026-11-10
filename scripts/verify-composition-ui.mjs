@@ -15,6 +15,7 @@ const require=createRequire(import.meta.url),{_electron}=require(process.env.CHA
 const probe=net.createServer();probe.listen(0,'127.0.0.1');await once(probe,'listening');const port=probe.address().port;await new Promise(r=>probe.close(r));
 const checks=[],errors=[];let app,page;const pass=msg=>{checks.push(msg);console.log('PASS '+msg);};
 async function click(id){await page.locator(id).click();}
+async function acceptReplacement(){await click('#actionConfirmAccept');}
 async function drag(from,to){await page.mouse.move(from.x,from.y);await page.mouse.down();await page.mouse.move(to.x,to.y,{steps:12});await page.mouse.up();}
 async function center(selector){
   // Placement and handle DOM update on animation frames. Read coordinates only
@@ -33,7 +34,13 @@ try{
   await page.waitForFunction(()=>document.querySelector('#presetName')?.value);await page.locator('#uiLanguage').selectOption('ko');await app.evaluate(({BrowserWindow})=>BrowserWindow.getAllWindows()[0].setSize(1440,1000));
   await page.locator('#basePrompt').fill('adult gardener, greenhouse, watering seedlings');
   await click('#openImageTools');await page.locator('#toolFile').setInputFiles(sourcePath);await page.waitForFunction(()=>document.querySelector('#toolCanvas').width>100);
-  await click('#toolComposition');await page.waitForFunction(()=>document.querySelector('#compositionDimensions').textContent.includes('×'));
+  await page.locator('#toolKind').selectOption('outpaint');
+  for(const [locale,label] of [['ko','최종 캔버스를 정해 확장'],['en','Outpaint with custom canvas'],['ja','出力キャンバスを指定して拡張']]){
+    await page.evaluate(async locale=>(await import('/src/ui/i18n.js')).setLanguage(locale),locale);
+    await page.getByRole('button',{name:label,exact:true}).waitFor();
+  }
+  await page.evaluate(async ()=>(await import('/src/ui/i18n.js')).setLanguage('ko'));
+  await click('#toolOutpaintComposition');await page.waitForFunction(()=>document.querySelector('#compositionDimensions').textContent.includes('×'));
   assert.equal(await page.locator('#compositionDialog h2').textContent(),'구도 넓히기');assert.equal(await page.locator('#compositionAddCharacter').textContent(),'캐릭터 추가');await page.screenshot({path:path.join(folder,'01-open.png')});
   const pending=page.waitForResponse(r=>r.url().endsWith('/api/image-tools/prepare'));await click('#compositionReview');const rejected=await pending;assert.equal(rejected.status(),400);assert.match(await rejected.text(),/Paint a region/);await page.waitForFunction(()=>!document.querySelector('#compositionClose').disabled);
 }catch(error){
@@ -42,6 +49,19 @@ try{
 }
 try{
   assert.deepEqual(errors,[]);pass('Korean composition entry; empty mask rejected without generation');await top();
+  const size=async()=>Promise.all(['#compositionWidth','#compositionHeight'].map(async id=>Number(await page.locator(id).inputValue())));
+  const originalSize=await size();
+  async function setSize(width,height){
+    await page.locator('#compositionWidth').fill(String(width));await page.locator('#compositionHeight').fill(String(height));await click('#compositionApplySize');
+  }
+  for(const [width,height] of [[1024,1024],[720,1280],[1280,720]]){
+    await click(`[data-output-size="${width},${height}"]`);assert.deepEqual(await size(),[width,height]);
+  }
+  await setSize(1024,3072);assert.deepEqual(await size(),[1024,3072]);
+  await setSize(1536,1024);assert.deepEqual(await size(),[1536,1024]);
+  await setSize(4096,4096);assert.deepEqual(await size(),[1536,1024]);
+  await setSize(...originalSize);assert.deepEqual(await size(),originalSize);await top();
+  pass('Localized Outpainting shortcut, three ratio sizes, direct dimensions and pixel cap');
   const viewport='.composition-viewport';let c=await center(viewport);
   await click('[data-comp-tool="brush"]');await page.mouse.click(c.x,c.y);await drag({x:c.x-30,y:c.y-20},{x:c.x+30,y:c.y+20});
   const brushPrepared=await review();assert.ok(brushPrepared.plan.preview.mask.png);pass('Round stamp and interpolated drag produce a reviewable mask');await top();
@@ -53,6 +73,7 @@ try{
   await click('[data-comp-tool="frame"]');handle=await center('.composition-handle.frame.right');await drag(handle,{x:handle.x+65,y:handle.y});
   let frame=await review();assert.ok(frame.plan.geometry.frame.width>transformed.plan.geometry.frame.width);await top();
   handle=await center('.composition-handle.frame.left');await drag(handle,{x:handle.x-25,y:handle.y});const leftFrame=await review();const added=leftFrame.plan.geometry.frame.width-frame.plan.geometry.frame.width;assert.ok(added>0);assert.equal(leftFrame.plan.geometry.transform.x-frame.plan.geometry.transform.x,added);frame=leftFrame;pass('Right and left frame edge drags expand output and preserve picture placement');await top();
+  await setSize(896,640);frame=await review();assert.deepEqual(frame.plan.geometry.frame,{width:896,height:640});await top();
   c=await center(viewport);await page.mouse.move(c.x,c.y);await page.mouse.wheel(0,-160);const zoomed=await review();assert.deepEqual(zoomed.plan.geometry,frame.plan.geometry);assert.equal(zoomed.plan.preview.source.sha256,frame.plan.preview.source.sha256);pass('Wheel changes the view only; prepared content is byte-identical');await top();
   await click('[data-comp-tool="eraser"]');await page.mouse.click(c.x+20,c.y);assert.equal(await page.locator('#compositionRun').isDisabled(),true);await click('[data-comp-action="undo"]');await review();await top();
   // Cancel a captured drag; leave neither a half-transform nor a stale plan.
@@ -62,16 +83,62 @@ try{
   const chars=await review();assert.equal(chars.plan.character_positions.length,1);pass('Add character and drag marker; prompt snapshot is separate from workbench');
   await page.screenshot({path:path.join(folder,'02-review.png')});
   const run=page.waitForResponse(r=>r.url().endsWith('/api/image-tools/run'));await click('#compositionRun');const response=await run;assert.equal(response.status(),200,await response.text());const saved=await response.json();await page.waitForFunction(()=>document.querySelector('#compositionResultImage').naturalWidth>0);await page.waitForFunction(()=>!document.querySelector('#compositionClose').disabled);
-  assert.equal(saved.variants.length,2);assert.equal(saved.operation.tool,'composition');pass('Generate once with mocked provider; protected/raw variants and History saved');await page.screenshot({path:path.join(folder,'03-result.png')});
+  assert.equal(saved.variants.length,2);assert.equal(saved.operation.tool,'composition');assert.deepEqual(saved.operation.actual_output_size,{width:896,height:640});pass('Generate the requested 896 × 640 canvas with mocked provider; protected/raw variants and History saved');await page.screenshot({path:path.join(folder,'03-result.png')});
   await click('#compositionAdopt');await page.waitForFunction(()=>document.querySelector('#compositionResult').hidden);const adoptedW=Number(await page.locator('#compositionWidth').inputValue());assert.equal(adoptedW,saved.operation.actual_output_size.width);assert.equal(await page.locator('[data-comp-tool="brush"]').getAttribute('aria-pressed'),'true');pass('Result adoption starts identity brush editing, keeping the saved arrangement intact');
   await click('#compositionClose');await click('#toolClose');
   // Reopen successful History via the image tools entry and restore the source recipe.
-  await click('#latestImageTools');await page.locator('#toolRestoreComposition').waitFor({state:'visible'});await click('#toolRestoreComposition');await page.waitForFunction(()=>document.querySelector('#compositionDialog').open);const restored=await review();assert.deepEqual(restored.plan.geometry,chars.plan.geometry);assert.equal(restored.plan.preview.source.sha256,chars.plan.preview.source.sha256);assert.equal(restored.plan.preview.mask.sha256,chars.plan.preview.mask.sha256);pass('History restores immutable source, manual mask, placement and characters without double transform');
+  await click('[data-workspace-view="history"]');await click(`[data-view-generation="${saved.generation.id}"]`);
+  await click('#viewerImageTools');await page.locator('#toolRestoreComposition').waitFor({state:'visible'});await click('#toolRestoreComposition');await page.waitForFunction(()=>document.querySelector('#compositionDialog').open);const restored=await review();assert.deepEqual(restored.plan.geometry,chars.plan.geometry);assert.equal(restored.plan.preview.source.sha256,chars.plan.preview.source.sha256);assert.equal(restored.plan.preview.mask.sha256,chars.plan.preview.mask.sha256);
+  await top();c=await center(viewport);await page.mouse.move(c.x,c.y);await page.mouse.wheel(0,-160);
+  const restoredZoom=await review();assert.deepEqual(restoredZoom.plan.geometry,restored.plan.geometry);assert.equal(restoredZoom.plan.preview.mask.sha256,restored.plan.preview.mask.sha256);
+  pass('History restores source, mask, placement and characters; wheel zoom preserves the prepared content');
   await top();await app.evaluate(({BrowserWindow})=>BrowserWindow.getAllWindows()[0].setSize(1000,760));await page.screenshot({path:path.join(folder,'04-compact.png')});await app.evaluate(({BrowserWindow})=>BrowserWindow.getAllWindows()[0].setSize(1440,1000));
-  await click('#compositionClose');await click('#toolClose');await click('[data-workspace-view="workbench"]');await click('[data-generation-mode="inpaint"]');
+  await click('#compositionClose');await click('#toolClose');await click('#imageViewerCloseButton');await click('[data-workspace-view="workbench"]');await click('[data-generation-mode="inpaint"]');
   await page.locator('#generationSourceInput').setInputFiles(sourcePath);await page.waitForFunction(()=>document.querySelector('#generationSourceCanvas').width===1280||document.querySelector('#generationSourceCanvas').width===768);
-  const oldMask=page.locator('#inpaintMaskCanvas');await oldMask.scrollIntoViewIfNeeded();let oldCenter=await center('#inpaintMaskCanvas');await page.mouse.click(oldCenter.x,oldCenter.y);
+  const oldMask=page.locator('#inpaintMaskCanvas'),maskFrame='#sourceCanvasFrame';
+  const maskPng=()=>oldMask.evaluate(el=>el.toDataURL());
+  const maskAlpha=()=>oldMask.evaluate(el=>el.getContext('2d').getImageData(el.width/2,el.height/2,1,1).data[3]);
+  const bounds=()=>oldMask.boundingBox();
+  const blank=await maskPng(),fitted=await bounds();
+  const zoomText=()=>page.locator('#maskViewZoom').textContent();
+  await click('#maskViewActual');assert.equal(await zoomText(),'100%');
+  assert.ok(Math.abs((await bounds()).width-await oldMask.evaluate(el=>el.width))<.1);
+  await click('#maskViewZoomIn');assert.equal(await zoomText(),'125%');
+  await click('#maskViewZoomOut');assert.equal(await zoomText(),'100%');
+  c=await center(maskFrame);
+  const anchor={x:c.x+15,y:c.y-20},beforeWheel=await bounds();
+  await page.mouse.move(anchor.x,anchor.y);await page.mouse.wheel(0,-180);
+  await page.waitForFunction(()=>parseInt(document.querySelector('#maskViewZoom').value)>100);
+  const afterWheel=await bounds();
+  assert.ok(Math.abs((anchor.x-beforeWheel.x)/beforeWheel.width-(anchor.x-afterWheel.x)/afterWheel.width)<.001);
+  assert.ok(Math.abs((anchor.y-beforeWheel.y)/beforeWheel.height-(anchor.y-afterWheel.y)/afterWheel.height)<.001);
+  await click('#maskViewFit');assert.ok(Math.abs((await bounds()).width-fitted.width)<.1);
+  pass('Workbench Fit, actual size, zoom buttons and cursor-anchored wheel');
+  await click('#maskViewActual');await click('#maskViewZoomIn');
+  await click('#maskViewPan');c=await center(maskFrame);
+  let maskCenter=await center('#inpaintMaskCanvas');
+  await drag(c,{x:c.x+38,y:c.y-25});
+  assert.ok(Math.abs((await bounds()).x-maskCenter.x+(await bounds()).width/2-38)<1);
+  await click('[data-mask-tool="brush"]');assert.equal(await page.locator('#maskViewPan').getAttribute('aria-pressed'),'false');c=await center(maskFrame);
+  await page.mouse.move(c.x,c.y);await page.mouse.down({button:'middle'});await page.mouse.move(c.x-10,c.y+5);await page.mouse.up({button:'middle'});
+  assert.equal(await maskPng(),blank);
+  maskCenter=await center('#inpaintMaskCanvas');await page.mouse.move(maskCenter.x,maskCenter.y);
+  assert.ok(Math.abs((await page.locator('#maskBrushCursor').boundingBox()).width-60)<1);
+  await drag(maskCenter,{x:maskCenter.x+15,y:maskCenter.y});
+  assert.equal(await maskAlpha(),255);
+  await page.screenshot({path:path.join(folder,'05-workbench-mask-zoom.png')});
+  await click('[data-mask-tool="eraser"]');maskCenter=await center('#inpaintMaskCanvas');
+  await page.mouse.click(maskCenter.x,maskCenter.y);assert.equal(await maskAlpha(),0);
+  await click('#undoMaskButton');assert.equal(await maskAlpha(),255);await click('#undoMaskButton');assert.equal(await maskPng(),blank);
+  await click('[data-mask-tool="brush"]');await click('#maskViewFit');
+  let oldCenter=await center('#inpaintMaskCanvas');await page.mouse.click(oldCenter.x,oldCenter.y);
+  pass('Workbench pan and middle drag leave the mask untouched; zoomed brush and eraser hit original pixels');
   const legacy=await page.evaluate(()=>({source:document.querySelector('#generationSourceCanvas').toDataURL(),mask:document.querySelector('#inpaintMaskCanvas').toDataURL()}));
+  await click('#maskViewActual');
+  await click('[data-generation-mode="image-to-image"]');assert.equal(await page.locator('#maskViewControls').isVisible(),false);
+  await click('[data-generation-mode="text-to-image"]');assert.equal(await page.locator('#modeSourcePanel').isVisible(),false);
+  await click('[data-generation-mode="inpaint"]');assert.equal(await maskPng(),legacy.mask);assert.ok(Math.abs((await bounds()).width-fitted.width)<.1);
+  pass('Switching generation modes retains the native mask and returns Inpaint to Fit');
   await click('#openInpaintComposition');await page.waitForFunction(()=>document.querySelector('#compositionDialog').open);const request=page.waitForRequest(r=>r.url().endsWith('/api/image-tools/prepare'));const handed=await review();const body=(await request).postDataJSON();
   assert.equal(body.source_png,legacy.source.split(',')[1]);assert.equal(body.settings.manual_mask_png,legacy.mask.split(',')[1]);pass('Legacy round-brush source and alpha mask hand off byte-for-byte without reset');
   // Electron owns native downloads; observe the real DownloadItem rather than
@@ -87,7 +154,7 @@ try{
   for(let n=0;n<100&&await app.evaluate(()=>globalThis.compositionDownloadState)!=='completed';n++)await new Promise(r=>setTimeout(r,100));
   assert.equal(await app.evaluate(()=>globalThis.compositionDownloadState),'completed');
   assert.equal(JSON.parse(await readFile(draftPath,'utf8')).schema,'chaessi.composition-draft.v1');
-  await click('[data-comp-action="clear"]');await page.locator('#compositionDraftFile').setInputFiles(draftPath);await page.waitForFunction(()=>!document.querySelector('[data-comp-action="clear"]').disabled);const imported=await review();assert.equal(imported.plan.preview.source.sha256,handed.plan.preview.source.sha256);assert.equal(imported.plan.preview.mask.sha256,handed.plan.preview.mask.sha256);assert.equal(await page.locator('#compositionBrushSize').inputValue(),'72');assert.equal(await page.locator('[data-comp-action="mask"]').textContent(),'마스크 표시');pass('Portable editing-session export/import restores source, mask, placement and brush preferences');
+  await click('[data-comp-action="clear"]');await page.locator('#compositionDraftFile').setInputFiles(draftPath);await acceptReplacement();await page.waitForFunction(()=>!document.querySelector('[data-comp-action="clear"]').disabled);const imported=await review();assert.equal(imported.plan.preview.source.sha256,handed.plan.preview.source.sha256);assert.equal(imported.plan.preview.mask.sha256,handed.plan.preview.mask.sha256);assert.equal(await page.locator('#compositionBrushSize').inputValue(),'72');assert.equal(await page.locator('[data-comp-action="mask"]').textContent(),'마스크 표시');pass('Portable editing-session export/import restores source, mask, placement and brush preferences');
   await click('#compositionClose');assert.equal(await oldMask.evaluate(el=>el.toDataURL()),legacy.mask);await click('#undoMaskButton');assert.equal(await oldMask.evaluate(el=>el.getContext('2d').getImageData(el.width/2,el.height/2,1,1).data[3]),0);
   await click('#redoMaskButton');assert.equal(await oldMask.evaluate(el=>el.toDataURL()),legacy.mask);await click('[data-mask-tool="eraser"]');await oldMask.scrollIntoViewIfNeeded();oldCenter=await center('#inpaintMaskCanvas');await page.mouse.click(oldCenter.x,oldCenter.y);assert.equal(await oldMask.evaluate(el=>el.getContext('2d').getImageData(el.width/2,el.height/2,1,1).data[3]),0);pass('Returning preserves legacy undo/redo and round eraser behavior');
   await click('#openImageTools');await page.locator('#toolFile').setInputFiles(sourcePath);await page.waitForFunction(()=>document.querySelector('#toolCanvas').width===1280||document.querySelector('#toolCanvas').width===768);await click('#toolDraw');

@@ -5,9 +5,19 @@ export const COMPOSITION_PIXEL_LIMIT = 3_145_728;
 export const SOURCE_PIXEL_LIMIT = 4_194_304;
 export const clamp = (n, lo, hi) => Math.min(hi, Math.max(lo, n));
 export function initialComposition(width, height) {
-  return {schema: COMPOSITION_SCHEMA, source: {width, height},
-    frame: {width: Math.ceil(width / 8) * 8, height: Math.ceil(height / 8) * 8},
-    transform: {x: width / 2, y: height / 2, scale: 1, angle: 0}, bindings: []};
+  const frame = {width: Math.ceil(width / 8) * 8, height: Math.ceil(height / 8) * 8};
+  let scale = 1, x = width / 2, y = height / 2;
+  if (frame.width * frame.height > COMPOSITION_PIXEL_LIMIT ||
+      Math.min(frame.width, frame.height) < 64 || Math.max(frame.width, frame.height) > 4096) {
+    const fit = Math.min(1, Math.sqrt(COMPOSITION_PIXEL_LIMIT / (width * height)), 4096 / Math.max(width, height));
+    frame.width = Math.max(64, Math.floor(width * fit / 8) * 8);
+    frame.height = Math.max(64, Math.floor(height * fit / 8) * 8);
+    scale = Math.max(.05, Math.min(1, frame.width / width, frame.height / height));
+    x = frame.width / 2;
+    y = frame.height / 2;
+  }
+  return {schema: COMPOSITION_SCHEMA, source: {width, height}, frame,
+    transform: {x, y, scale, angle: 0}, bindings: []};
 }
 export function validateComposition(value, source) {
   if (value?.schema !== COMPOSITION_SCHEMA) throw new Error('Unsupported composition session.');

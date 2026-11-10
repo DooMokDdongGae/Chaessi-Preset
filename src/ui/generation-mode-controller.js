@@ -3,6 +3,7 @@ import {
   interpolateStrokePoints,
   maskAlphaToRgbPixels,
 } from "./inpaint-mask-utils.js";
+import { zoomViewAt } from "./image-view-transform.js";
 import {
   getImageFilesFromTransfer,
   hasFileTransfer,
@@ -27,8 +28,6 @@ export function createGenerationModeController({ showToast, getLatestImagePath, 
     maskPainted: false,
     undoStack: [],
     redoStack: [],
-    drawing: false,
-    previousPoint: null,
     i2iStrength: 0.7,
     i2iNoise: 0.05,
     inpaintStrength: 1,
@@ -41,13 +40,22 @@ export function createGenerationModeController({ showToast, getLatestImagePath, 
   };
 
   const elements = {};
+  let view = { zoom: 1, x: 0, y: 0 };
+  let gesture = null;
+  let panMode = false;
 
   function bind() {
     Object.assign(elements, {
       sourcePanel: byId("modeSourcePanel"),
       sourceInput: byId("generationSourceInput"),
       sourceDropZone: byId("generationSourceDropZone"),
+      sourceFrame: byId("sourceCanvasFrame"),
+      sourceLayer: byId("sourceCanvasLayer"),
       sourceCanvas: byId("generationSourceCanvas"),
+      viewControls: byId("maskViewControls"),
+      viewZoom: byId("maskViewZoom"),
+      viewPan: byId("maskViewPan"),
+      compositionButton: byId("openInpaintComposition"),
       maskCanvas: byId("inpaintMaskCanvas"),
       maskOverlayCanvas: byId("inpaintMaskOverlayCanvas"),
       brushCursor: byId("maskBrushCursor"),
@@ -121,8 +129,8 @@ export function createGenerationModeController({ showToast, getLatestImagePath, 
     byId("redoMaskButton").addEventListener("click", redoMask);
     byId("clearMaskButton").addEventListener("click", () => clearMask({ record: true }));
     elements.toggleMaskButton.addEventListener("click", toggleMaskVisibility);
-    window.addEventListener("resize", updateBrushCursor);
-    document.addEventListener("scroll", updateBrushCursor, true);
+    document.addEventListener("scroll", hideBrushCursor, true);
+    bindMaskView();
     bindMaskPointerEvents();
     updateGenerationPadding();
     renderMode();
@@ -150,9 +158,15 @@ export function createGenerationModeController({ showToast, getLatestImagePath, 
     elements.sourcePanel.hidden = !requiresSource;
     elements.inpaintTools.hidden = state.mode !== MODES.INPAINT;
     elements.noiseLabel.hidden = state.mode !== MODES.IMAGE_TO_IMAGE;
-    elements.maskCanvas.hidden = state.mode !== MODES.INPAINT || !state.source;
-    elements.maskOverlayCanvas.hidden = state.mode !== MODES.INPAINT || !state.source;
-    if (state.mode !== MODES.INPAINT || !state.source) hideBrushCursor();
+    const maskActive = state.mode === MODES.INPAINT && Boolean(state.source);
+    elements.maskCanvas.hidden = !maskActive;
+    elements.maskOverlayCanvas.hidden = !maskActive;
+    elements.viewControls.hidden = !maskActive;
+    elements.compositionButton.hidden = state.mode !== MODES.INPAINT;
+    elements.compositionButton.disabled = !maskActive;
+    elements.sourceFrame.classList.toggle("is-mask-view", maskActive);
+    if (maskActive) renderMaskView();
+    else resetMaskView();
     if (state.mode === MODES.IMAGE_TO_IMAGE) {
       elements.strength.value = String(state.i2iStrength);
       elements.noise.value = String(state.i2iNoise);
@@ -181,6 +195,7 @@ export function createGenerationModeController({ showToast, getLatestImagePath, 
     }
     const bitmap = await createImageBitmap(item.file);
     try {
+      resetMaskView();
       const canvas = elements.sourceCanvas;
       canvas.width = bitmap.width;
       canvas.height = bitmap.height;
@@ -214,6 +229,7 @@ export function createGenerationModeController({ showToast, getLatestImagePath, 
   }
 
   function clearSource() {
+    resetMaskView();
     state.source = null;
     state.maskPainted = false;
     state.undoStack = [];
@@ -243,45 +259,142 @@ export function createGenerationModeController({ showToast, getLatestImagePath, 
     state.redoStack = [];
   }
 
-  function bindMaskPointerEvents() {
+  function renderMaskView() {
+    const { sourceFrame, sourceLayer, sourceCanvas } = elements;
+    // Bound panning so every image can still be reached by dragging.
+    const limitX = Math.max(0, (sourceFrame.clientWidth + sourceCanvas.clientWidth * view.zoom) / 2 - 24);
+    const limitY = Math.max(0, (sourceFrame.clientHeight + sourceCanvas.clientHeight * view.zoom) / 2 - 24);
+    view.x = Math.max(-limitX, Math.min(limitX, view.x));
+    view.y = Math.max(-limitY, Math.min(limitY, view.y));
+    sourceLayer.style.transform = `translate(${view.x}px, ${view.y}px) scale(${view.zoom})`;
+    const displayedWidth = sourceCanvas.getBoundingClientRect().width;
+    elements.viewZoom.value = displayedWidth && sourceCanvas.width ? `${Math.round(displayedWidth / sourceCanvas.width * 100)}%` : "";
+  }
+
+  function resetMaskView() {
+    endMaskGesture();
+    setPanMode(false);
+    fitMaskView();
+  }
+
+  function fitMaskView() {
+    if (gesture) return;
+    view = { zoom: 1, x: 0, y: 0 };
+    renderMaskView();
+    hideBrushCursor();
+  }
+
+  function setPanMode(enabled) {
+    panMode = enabled;
+    elements.viewPan.setAttribute("aria-pressed", String(enabled));
+    elements.viewPan.classList.toggle("is-active", enabled);
+    elements.sourceFrame.classList.toggle("is-pan-mode", enabled);
+    hideBrushCursor();
+  }
+
+  function fittedMaskScale() {
+    const canvas = elements.sourceCanvas;
+    return canvas.getBoundingClientRect().width / (canvas.width * view.zoom);
+  }
+
+  function zoomMaskView(zoom, anchor = { x: 0, y: 0 }) {
+    if (gesture || elements.viewControls.hidden) return;
+    const fitScale = fittedMaskScale();
+    if (!fitScale) return;
+    view = zoomViewAt(view, Math.min(8 / fitScale, Math.max(0.25, zoom)), anchor);
+    renderMaskView();
+    hideBrushCursor();
+  }
+
+  function bindMaskView() {
+    byId("maskViewFit").addEventListener("click", fitMaskView);
+    byId("maskViewActual").addEventListener("click", () => zoomMaskView(1 / fittedMaskScale()));
+    byId("maskViewZoomOut").addEventListener("click", () => zoomMaskView(view.zoom / 1.25));
+    byId("maskViewZoomIn").addEventListener("click", () => zoomMaskView(view.zoom * 1.25));
+    elements.viewPan.addEventListener("click", () => { if (!gesture) setPanMode(!panMode); });
+    elements.sourceFrame.addEventListener("wheel", (event) => {
+      if (elements.viewControls.hidden || event.ctrlKey || event.metaKey || !event.deltaY) return;
+      event.preventDefault();
+      const rect = elements.sourceFrame.getBoundingClientRect();
+      const delta = event.deltaY * (event.deltaMode === 1 ? 16 : event.deltaMode === 2 ? rect.height : 1);
+      zoomMaskView(view.zoom * Math.exp(-delta * 0.0015), {
+        x: event.clientX - rect.left - rect.width / 2,
+        y: event.clientY - rect.top - rect.height / 2,
+      });
+      if (!gesture) updatePointerCursor(event);
+    }, { passive: false });
+    new ResizeObserver(() => {
+      if (!elements.viewControls.hidden && !gesture) renderMaskView();
+      hideBrushCursor();
+    }).observe(elements.sourceFrame);
+  }
+
+  function endMaskGesture(event) {
+    if (!gesture || (event && event.pointerId !== gesture.id)) return;
+    const { id, pan } = gesture;
+    gesture = null;
+    elements.sourceFrame.classList.remove("is-panning");
+    if (elements.sourceFrame.hasPointerCapture(id)) elements.sourceFrame.releasePointerCapture(id);
+    if (!pan) updateMaskPaintedState();
+    if (event?.type === "pointerup") updatePointerCursor(event);
+    else hideBrushCursor();
+  }
+
+  function updatePointerCursor(event) {
+    const rect = elements.sourceFrame.getBoundingClientRect();
+    const inside = event.clientX >= rect.left && event.clientX < rect.right &&
+      event.clientY >= rect.top && event.clientY < rect.bottom;
+    if (!inside || panMode || gesture?.pan || elements.viewControls.hidden) {
+      hideBrushCursor();
+      return null;
+    }
     const canvas = elements.maskCanvas;
-    canvas.addEventListener("pointerdown", (event) => {
-      if (!state.source || state.mode !== MODES.INPAINT) return;
+    const point = pointerToCanvas(event, canvas);
+    state.cursorPoint = point;
+    state.cursorInside = pointIsInsideCanvas(point, canvas);
+    updateBrushCursor();
+    return point;
+  }
+
+  function bindMaskPointerEvents() {
+    const { sourceFrame: frame, maskCanvas: canvas } = elements;
+    frame.addEventListener("pointerdown", (event) => {
+      if (elements.viewControls.hidden || gesture || ![0, 1].includes(event.button)) return;
+      const pan = event.button === 1 || panMode;
+      if (!pan && event.target !== canvas) return;
       event.preventDefault();
-      canvas.setPointerCapture(event.pointerId);
-      pushUndoSnapshot();
-      state.drawing = true;
-      state.previousPoint = pointerToCanvas(event, canvas);
-      state.cursorPoint = state.previousPoint;
-      state.cursorInside = true;
-      updateBrushCursor();
-      drawMaskStroke(state.previousPoint, state.previousPoint);
+      frame.setPointerCapture(event.pointerId);
+      gesture = { id: event.pointerId, pan };
+      if (pan) {
+        gesture.lastX = event.clientX;
+        gesture.lastY = event.clientY;
+        frame.classList.add("is-panning");
+        hideBrushCursor();
+      } else {
+        const point = updatePointerCursor(event);
+        pushUndoSnapshot();
+        gesture.previousPoint = point;
+        drawMaskStroke(point, point);
+      }
     });
-    canvas.addEventListener("pointermove", (event) => {
-      const point = pointerToCanvas(event, canvas);
-      state.cursorPoint = point;
-      state.cursorInside = pointIsInsideCanvas(point, canvas);
-      updateBrushCursor();
-      if (!state.drawing) return;
-      event.preventDefault();
-      drawMaskStroke(state.previousPoint, point);
-      state.previousPoint = point;
+    frame.addEventListener("pointermove", (event) => {
+      if (gesture && event.pointerId !== gesture.id) return;
+      if (gesture?.pan) {
+        view.x += event.clientX - gesture.lastX;
+        view.y += event.clientY - gesture.lastY;
+        gesture.lastX = event.clientX;
+        gesture.lastY = event.clientY;
+        renderMaskView();
+        return;
+      }
+      const point = updatePointerCursor(event);
+      if (!gesture) return;
+      if (point) drawMaskStroke(gesture.previousPoint || point, point);
+      gesture.previousPoint = point;
     });
-    const stop = (event) => {
-      state.drawing = false;
-      state.previousPoint = null;
-      updateMaskPaintedState();
-      renderMaskOverlay();
-      if (event && !pointIsInsideCanvas(pointerToCanvas(event, canvas), canvas)) hideBrushCursor();
-    };
-    canvas.addEventListener("pointerup", stop);
-    canvas.addEventListener("pointercancel", stop);
-    canvas.addEventListener("pointerenter", (event) => {
-      state.cursorPoint = pointerToCanvas(event, canvas);
-      state.cursorInside = true;
-      updateBrushCursor();
-    });
-    canvas.addEventListener("pointerleave", hideBrushCursor);
+    for (const type of ["pointerup", "pointercancel", "lostpointercapture"]) frame.addEventListener(type, endMaskGesture);
+    frame.addEventListener("pointerleave", hideBrushCursor);
+    window.addEventListener("blur", () => { endMaskGesture(); hideBrushCursor(); });
   }
 
   function drawMaskStroke(from, to) {
@@ -313,6 +426,7 @@ export function createGenerationModeController({ showToast, getLatestImagePath, 
   }
 
   function setMaskTool(tool) {
+    setPanMode(false);
     state.maskTool = tool === "eraser" ? "eraser" : "brush";
     document.querySelectorAll("[data-mask-tool]").forEach((button) => {
       button.classList.toggle("is-active", button.dataset.maskTool === state.maskTool);
@@ -406,8 +520,9 @@ export function createGenerationModeController({ showToast, getLatestImagePath, 
       displayedWidth: rect.width,
       displayedHeight: rect.height,
     });
-    const left = rect.left + point.x * metrics.widthScale;
-    const top = rect.top + point.y * metrics.heightScale;
+    const frame = elements.sourceFrame.getBoundingClientRect();
+    const left = rect.left - frame.left + point.x * metrics.widthScale;
+    const top = rect.top - frame.top + point.y * metrics.heightScale;
     Object.assign(elements.brushCursor.style, {
       left: `${left}px`,
       top: `${top}px`,

@@ -224,9 +224,7 @@ async function init() {
       if(response.operation.estimated_cost?.kind!=='local')await refreshAccountUsage();
     },
   });
-  const compositionButton=document.createElement('button');compositionButton.id='openInpaintComposition';compositionButton.type='button';compositionButton.textContent='Expand composition';
-  compositionButton.onclick=()=>{try{const source=generationModeController.getCompositionSource();void imageToolsController.openComposition(source);}catch(error){showToast(error.message,true);}};
-  $('inpaintTools').append(compositionButton);
+  $('openInpaintComposition').onclick=()=>{try{const source=generationModeController.getCompositionSource();void imageToolsController.openComposition(source);}catch(error){showToast(error.message,true);}};
   preciseReferenceController = createPreciseReferenceController({
     showToast,
     getMode: () => generationModeController.getMode(),

@@ -4,13 +4,20 @@ import {createCompositionEditor} from './composition-editor.js';
 import {t} from './i18n.js';
 
 const dataUrl = value => 'data:image/png;base64,'+value;
+const OUTPUT_SIZES = [['1:1',1024,1024],['9:16',720,1280],['16:9',1280,720]];
 export function createCompositionController({getPreset,onSaved,onUseSource,showToast}) {
   const dialog=document.createElement('dialog');dialog.id='compositionDialog';dialog.className='composition-dialog';
   dialog.innerHTML=`<header class="dialog-header"><div><h2>Expand composition</h2><p>Arrange the picture, fill empty space, and touch up with the round brush.</p></div><button type="button" id="compositionClose">Close</button></header>
   <div class="composition-layout"><section id="compositionEditor"></section><aside class="composition-sidebar">
     <div class="actions"><button id="compositionUpload">Choose image</button><button id="compositionExport">Save editing session</button><button id="compositionImport">Open editing session</button></div>
     <input id="compositionFile" type="file" accept="image/png,image/jpeg,image/webp" hidden><input id="compositionDraftFile" type="file" accept="application/json,.json" hidden>
-    <details><summary>Size and placement</summary><div class="tool-grid"><label>Width<input id="compositionWidth" type="number" step="8" min="64" max="4096"></label><label>Height<input id="compositionHeight" type="number" step="8" min="64" max="4096"></label></div><button id="compositionApplySize">Apply output size</button><div class="tool-grid"><label>Picture scale (%)<input id="compositionScale" type="number" min="5" max="800" step="1"></label><label>Angle (°)<input id="compositionAngle" type="number" min="-180" max="180"></label></div><button id="compositionApplyPlacement">Apply placement</button><button id="compositionReset">Center original picture</button></details>
+    <details open><summary>Output canvas and placement</summary>
+      <div class="actions" role="group" aria-label="Quick aspect ratios">${OUTPUT_SIZES.map(([ratio,width,height])=>`<button type="button" data-output-size="${width},${height}" title="${width} × ${height}">${ratio}</button>`).join('')}</div>
+      <div class="tool-grid"><label>Width<input id="compositionWidth" type="number" step="8" min="64" max="4096"></label><label>Height<input id="compositionHeight" type="number" step="8" min="64" max="4096"></label></div>
+      <button id="compositionApplySize">Apply output size</button>
+      <div class="tool-grid"><label>Picture scale (%)<input id="compositionScale" type="number" min="5" max="800" step="1"></label><label>Angle (°)<input id="compositionAngle" type="number" min="-180" max="180"></label></div>
+      <button id="compositionApplyPlacement">Apply placement</button><button id="compositionReset">Center original picture</button>
+    </details>
     <details open><summary>Scene prompt</summary><p>Changes here apply only to this composition.</p><textarea id="compositionPrompt" rows="3" data-no-i18n></textarea><label>Undesired content<textarea id="compositionNegative" rows="2" data-no-i18n></textarea></label><button id="compositionCurrentPrompt">Copy current workbench prompt</button></details>
     <details><summary>Characters</summary><p>Place a new character in the blue area or paint space for it.</p><label><input id="compositionUseCoords" type="checkbox">Use marker positions</label><div id="compositionCharacters"></div><button id="compositionAddCharacter">Add character</button></details>
     <details><summary>Generation settings</summary><label>Effort<select id="compositionEffort"><option value="high">High</option><option value="medium">Medium</option></select></label><label>Inpaint Strength<input id="compositionStrength" type="number" min="0" max="1" step="0.05" value="1"></label><label>Image Strength<input id="compositionImageStrength" type="number" min="0" max="1" step="0.05" value="0.7"></label><label>Image Noise<input id="compositionNoise" type="number" min="0" max="1" step="0.05" value="0"></label><label>Padding (px)<input id="compositionPadding" type="number" min="0" max="32" step="8" value="16"></label><label>Blend boundary (px)<input id="compositionSeam" type="number" min="0" max="32" step="1" value="8"></label><p>The original interior is preserved. The selected area and boundary can change.</p></details>
@@ -98,6 +105,9 @@ export function createCompositionController({getPreset,onSaved,onUseSource,showT
   $('compositionImport').onclick=()=>$('compositionDraftFile').click();$('compositionDraftFile').onchange=async()=>{const file=$('compositionDraftFile').files[0];$('compositionDraftFile').value='';if(!file||busy)return;locked(true);try{if(file.size>48*1024*1024)throw new Error('Session file is too large.');const session=JSON.parse(await file.text());if(editor.isDirty()&&!await confirmAction(t('Replace the current composition? Save the editing session to keep it.')))return;await loadSession({...session,parent_id:null});}catch(e){status(e.message,true);}finally{locked(false);}};
   $('compositionExport').onclick=()=>{try{const state=editor.export(),session={schema:'chaessi.composition-draft.v1',...state,settings:settings()},url=URL.createObjectURL(new Blob([JSON.stringify(session)],{type:'application/json'})),a=document.createElement('a');a.href=url;a.download='chaessi-composition.json';a.click();setTimeout(()=>URL.revokeObjectURL(url),2000);}catch(e){status(e.message,true);}};
   $('compositionApplySize').onclick=()=>editor.setFrame(Number($('compositionWidth').value),Number($('compositionHeight').value));
+  dialog.querySelectorAll('[data-output-size]').forEach(button=>{
+    button.onclick=()=>editor.setFrame(...button.dataset.outputSize.split(',').map(Number));
+  });
   $('compositionApplyPlacement').onclick=()=>editor.setPlacement({scale:Number($('compositionScale').value)/100,angle:Number($('compositionAngle').value)*Math.PI/180});$('compositionReset').onclick=()=>editor.resetPlacement();
   for(const id of ['compositionPrompt','compositionNegative'])$(id).onchange=()=>editor.setPrompt($('compositionPrompt').value,$('compositionNegative').value);
   $('compositionCurrentPrompt').onclick=()=>{editor.replacePreset(getPreset());charSignature='';syncControls();};

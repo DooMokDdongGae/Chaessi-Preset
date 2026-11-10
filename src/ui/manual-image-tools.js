@@ -96,6 +96,7 @@ const entries=[
  ['인물 옆에 공간이 더 필요할 때 써요. Upscale은 그림 전체를 키우지만 이 기능은 바깥에 새 공간을 만들어요.','Use this to add space beside a subject. Upscale enlarges the whole picture; Outpainting creates new space around it.','人物の横などに余白が欲しいときに使います。Upscale は絵全体を拡大し、Outpainting は外側に空間を作ります。'],
  [
  ['원본 PNG에서 캔버스 확장 생성을 선택하고 프롬프트 출처와 High/Medium을 정해요.','Choose Outpainting for the source PNG, then choose the prompt source and High/Medium.','元 PNG の拡張生成を選び、文章の出所と High/Medium を指定します。'],
+ ['최종 화면비나 원본 배치를 정하려면 최종 캔버스를 정해 확장을 누르세요. 구도 편집기에서 최종 크기와 원본 위치·크기를 정할 수 있어요.','To set the final aspect ratio or position the source, press Outpaint with custom canvas. The composition editor lets you set the output size, source position and scale.','最終比率や元画像の配置を決めるには出力キャンバスを指定して拡張を押します。構図編集で出力サイズと元画像の位置・倍率を指定できます。'],
  ['왼쪽·위·오른쪽·아래에 추가할 픽셀을 적어요. 0이면 그 방향을 늘리지 않아요. 예시는 오른쪽 128픽셀이에요.','Enter pixels to add on the left, top, right and bottom. Zero leaves that edge unchanged. The example adds 128 on the right.','左・上・右・下に追加する画素数を入力します。0ならその方向は増やしません。例は右128画素です。'],
  ['기존 부분 수정과 같은 강도·잡음·Padding 설정을 확인해요. Padding은 경계 주변까지 마스크를 넓히므로 이음새 주변이 바뀔 수 있어요.','Review strength, noise and Padding, which use the existing Inpaint strategy. Padding expands the mask around boundaries, so seams may change.','既存の部分修正方式の強さ・ノイズ・Padding を確認します。Padding はマスクを境界周辺まで広げるため、つなぎ目も変わる場合があります。'],
  ['새 크기와 비용을 확인하고 실행 → PNG 저장. 결과는 새 History 항목이고 원본 파일은 남아요.','Review the new dimensions and cost, run and Save PNG. The result is a new History item; the original file remains.','新サイズと費用を確認して実行し、PNG 保存。結果は新しい履歴項目で元ファイルは残ります。']],
