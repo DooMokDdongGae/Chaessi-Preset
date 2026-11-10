@@ -18,6 +18,8 @@ Use the wheel or +/− to zoom the Inpaint view. Wheel zoom follows the cursor. 
 
 Choose **Outpaint with custom canvas** in workbench Inpaint or Image tools → Outpainting. Select 1:1, 9:16 or 16:9, or enter Width and Height and apply the output size. Drag the source to position it and use a corner handle to resize it. Check the empty area to be filled, then review the image and mask before generating.
 
+The Base and Character preset pickers start with 50 items. **Load more** adds 50 at a time, and **Show all** displays every matching preset. Both pickers share the display limit and remember it after applying a preset, reopening the picker, or changing search, categories, or sorting. Restarting the app resets the limit to 50.
+
 [Release Notes](https://github.com/DooMokDdongGae/Chaessi-Preset/blob/main/.github/releases/v3.8.4.en.md)
 
 ## 2026-10-28 — Wildcard selection update
