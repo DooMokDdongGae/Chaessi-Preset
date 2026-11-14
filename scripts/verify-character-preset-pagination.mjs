@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
 import { createRequire } from "node:module";
-import { mkdir, writeFile } from "node:fs/promises";
+import { mkdir, writeFile, readFile, readdir } from "node:fs/promises";
+import { createHash } from "node:crypto";
 import { once } from "node:events";
 import net from "node:net";
 import path from "node:path";
@@ -61,12 +62,11 @@ const cardSelector = "#dialogCharacterPresetCards [data-dialog-character-preset-
 const historySelector = "#historyList .history-card";
 const loadMore = "#dialogCharacterPresetLoadMoreButton";
 const showAll = "#dialogCharacterPresetShowAllButton";
-const slot = '#characterCards [data-character-index="0"]';
 const dialog = "#characterPresetDialog";
 const listResponse = response => new URL(response.url()).pathname === "/api/character-presets"
   && response.request().method() === "GET";
 
-async function launch() {
+async function launch(slotCount = 1) {
   app = await _electron.launch({
     executablePath: process.env.CHAESSI_ELECTRON || require("electron"),
     args: ["tests/electron-fixture.cjs"],
@@ -80,6 +80,7 @@ async function launch() {
   });
   assert.equal(path.resolve(await app.evaluate(({ app }) => app.getPath("userData"))), path.resolve(profile));
   page = await app.firstWindow();
+  page.setDefaultTimeout(20_000);
   page.on("pageerror", error => errors.push(error.message));
   page.on("request", request => {
     const url = new URL(request.url());
@@ -92,25 +93,18 @@ async function launch() {
   });
   await page.waitForFunction(() => document.querySelector("#presetName")?.value);
   await page.locator("#uiLanguage").selectOption("en");
-  if (!await page.locator(slot).count()) await page.locator("#addCharacterButton").click();
+  while (await page.locator("#characterCards [data-character-index]").count() < slotCount) {
+    await page.locator("#addCharacterButton").click();
+  }
 }
 
 async function expectCount(selector, count) {
   await page.waitForFunction(({ selector, count }) => document.querySelectorAll(selector).length === count, { selector, count });
 }
-async function open(context, count) {
-  const loaded = page.waitForResponse(listResponse);
-  await page.locator(context === "base" ? "#basePromptPresetButton" : slot + " [data-character-preset-save]").click();
-  assert((await loaded).ok());
-  await page.locator(dialog).waitFor({ state: "visible" });
-  await expectCount(cardSelector, count);
-}
 async function close() {
+  // Escape in a focused search input clears its text before cancelling a dialog.
+  await page.locator("#closeCharacterPresetDialog").focus();
   await page.keyboard.press("Escape");
-  await page.locator(dialog).waitFor({ state: "hidden" });
-}
-async function apply(index) {
-  await page.locator('[data-dialog-character-load="pagination_preset_' + index + '"]').click();
   await page.locator(dialog).waitFor({ state: "hidden" });
 }
 async function more(count) {
@@ -118,67 +112,173 @@ async function more(count) {
   await expectCount(cardSelector, count);
 }
 
+const restorations = [];
+const loadingRaces = [];
+const heldListReleases = [];
+const expected = new Map();
+const cards = "#dialogCharacterPresetCards";
+const slotSelector = index => '#characterCards [data-character-index="' + index + '"]';
+const settled = () => page.evaluate(() => new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve))));
+
+async function navigation() {
+  await settled();
+  return page.locator(cards).evaluate(el => {
+    const value = id => document.getElementById(id).value;
+    const rect = el.getBoundingClientRect();
+    const firstVisible = [...el.children].findIndex(card => card.getBoundingClientRect().bottom > rect.top);
+    return {
+      count: el.querySelectorAll("[data-dialog-character-preset-id]").length,
+      scrollTop: el.scrollTop,
+      maxScroll: el.scrollHeight - el.clientHeight,
+      firstVisible,
+      search: value("characterPresetSearch"),
+      category: value("dialogCharacterCategoryFilter"),
+      subCategory: value("dialogCharacterSubCategoryFilter"),
+      sort: value("characterPresetSort"),
+    };
+  });
+}
+
+async function remember(context) {
+  const actual = await navigation();
+  expected.set(context, actual);
+  return actual;
+}
+
+async function checkNavigation(context, count = expected.get(context)?.count) {
+  await expectCount(cardSelector, count);
+  const actual = await navigation();
+  const saved = expected.get(context);
+  if (saved) {
+    for (const key of ["search", "category", "subCategory", "sort"]) {
+      assert.equal(actual[key], saved[key], context + " " + key);
+    }
+    const scrollTop = Math.min(saved.scrollTop, actual.maxScroll);
+    assert(Math.abs(actual.scrollTop - scrollTop) <= 1,
+      context + " pixel scroll expected " + scrollTop + ", got " + actual.scrollTop);
+    restorations.push({ context, count, expectedScrollTop: scrollTop, actualScrollTop: actual.scrollTop, firstVisible: actual.firstVisible });
+  }
+  return actual;
+}
+
+async function reopen(context, count) {
+  const loaded = page.waitForResponse(listResponse);
+  await page.locator(context === "base" ? "#basePromptPresetButton"
+    : slotSelector(context) + " [data-character-preset-save]").click();
+  const response = await loaded;
+  assert(response.ok());
+  await response.finished();
+  await page.locator(dialog).waitFor({ state: "visible" });
+  await checkNavigation(context, count);
+}
+
+async function scrollFraction(fraction) {
+  await page.locator(cards).evaluate((el, ratio) => {
+    el.scrollTop = Math.round((el.scrollHeight - el.clientHeight) * ratio);
+  }, fraction);
+  await settled();
+  assert((await navigation()).scrollTop > 0);
+}
+
+async function visibleCard() {
+  const id = await page.locator(cards).evaluate(el => {
+    const box = el.getBoundingClientRect();
+    return [...el.querySelectorAll("[data-dialog-character-preset-id]")].find(card => {
+      const rect = card.getBoundingClientRect();
+      return rect.top >= box.top + 2 && rect.bottom <= box.bottom - 2;
+    })?.dataset.dialogCharacterPresetId;
+  });
+  assert(id, "A fully visible preset card is required");
+  return { id, index: Number(id.replace("pagination_preset_", "")), locator: page.locator('[data-dialog-character-preset-id="' + id + '"]') };
+}
+
+async function verifyOthers(excluded) {
+  for (const context of ["base", 0, 2].filter(key => key !== excluded)) {
+    await reopen(context);
+    await close();
+  }
+}
+
+async function holdStaleListResponse() {
+  let release, arrived;
+  const gate = new Promise(resolve => { release = resolve; });
+  const received = new Promise(resolve => { arrived = resolve; });
+  heldListReleases.push(release);
+  await page.route(/\/api\/character-presets(?:\?|$)/, async route => {
+    const response = await route.fetch();
+    const body = await response.json();
+    arrived();
+    await gate;
+    // A stale response has fewer entries so an accidental overwrite is observable.
+    await route.fulfill({ response, json: { ...body, items: body.items.slice(0, 1) } });
+  }, { times: 1 });
+  return {
+    received,
+    async deliver() {
+      const loaded = page.waitForResponse(listResponse);
+      release();
+      await (await loaded).finished();
+      await settled();
+    },
+  };
+}
+
+async function historySnapshot() {
+  const folder = path.join(profile, "data", "generations");
+  const files = await readdir(folder, { recursive: true, withFileTypes: true });
+  const snapshots = await Promise.all(files.filter(file => file.isFile()).map(async file => ({
+    file: path.relative(folder, path.join(file.parentPath, file.name)),
+    sha256: createHash("sha256").update(await readFile(path.join(file.parentPath, file.name))).digest("hex"),
+  })));
+  return snapshots.sort((a, b) => a.file.localeCompare(b.file));
+}
+
+let renderMs;
 try {
   await launch();
-  await open("base", smallCount);
+  while (await page.locator("#characterCards [data-character-index]").count() < 3) {
+    await page.locator("#addCharacterButton").click();
+  }
+
+  await reopen("base", smallCount);
   assert(await page.locator(loadMore).isHidden());
   assert(await page.locator(showAll).isHidden());
+  assert.equal((await navigation()).scrollTop, 0);
   await close();
-  pass("A library with 24 items displays all items without pagination controls");
+  pass("A 24-item library shows all items without pagination controls");
 
   await seedPresets(smallCount, total);
-  await open("base", 50);
+  await reopen("base", 50);
+  assert.equal((await navigation()).scrollTop, 0);
   await more(100);
+  await scrollFraction(0.4);
+  await remember("base");
   await close();
-  await open("base", 100);
-  await more(150);
+  await reopen("base");
   await close();
-  await open("base", 150);
-  pass("The initial 50 grow to 100 and 150, and each limit survives closing and reopening");
+  pass("Base starts at 50, retains 100 items and restores the real list pixel offset");
 
-  await apply(120);
-  assert.equal(await page.locator("#basePrompt").inputValue(), promptFor(120));
-  assert.equal(await page.locator("#presetName").inputValue(), nameFor(120));
-  await open("base", 150);
+  await reopen(0, 50);
+  assert.equal((await navigation()).scrollTop, 0);
+  for (const count of [100, 150, 200, 250]) await more(count);
+  await scrollFraction(0.55);
+  await remember(0);
   await close();
-  await open("character", 150);
-  await apply(140);
-  assert.equal(await page.locator(slot + ' [data-character-field="prompt"]').inputValue(), promptFor(140));
-  await open("character", 150);
-  pass("Base and Character share the limit and preserve it after applying a preset");
-
-  const search = page.locator("#characterPresetSearch");
-  await search.fill("Preset 000");
-  await expectCount(cardSelector, 10);
-  assert(await page.locator(showAll).isHidden());
-  await search.fill("nothing-matches-this");
-  await expectCount(cardSelector, 0);
-  await search.fill("");
-  await expectCount(cardSelector, 150);
-  await page.locator("#dialogCharacterCategoryFilter").selectOption("조명");
-  await expectCount(cardSelector, smallCount);
-  await page.locator("#dialogCharacterCategoryFilter").selectOption("여성 의상");
-  await page.locator("#dialogCharacterSubCategoryFilter").selectOption("Casual / 캐주얼");
-  await expectCount(cardSelector, 150);
-  await page.locator("#characterPresetSort").selectOption("name-desc");
-  await expectCount(cardSelector, 150);
-  assert.equal(await page.locator(cardSelector + " strong").first().textContent(), nameFor(1199));
-  await page.locator("#dialogCharacterCategoryFilter").selectOption("");
-  await page.locator("#characterPresetSort").selectOption("name-asc");
-  await expectCount(cardSelector, 150);
+  await reopen("base");
   await close();
-  pass("Search, empty results, category, subcategory and sort retain the 150-item limit");
+  pass("Character 1 independently starts at 50 and retains 250 without changing Base");
 
   for (const [language, label] of [["ko", "전체 보기"], ["ja", "すべて表示"], ["en", "Show all"]]) {
     await page.locator("#uiLanguage").selectOption(language);
-    await open("base", 150);
+    await reopen(2, 50);
+    assert.equal((await navigation()).scrollTop, 0);
     await page.getByRole("button", { name: label, exact: true }).waitFor();
     await close();
   }
-  pass("The Show all action is available in Korean, Japanese and English");
+  pass("A fresh Character 3 starts at 50, with the existing Korean, Japanese and English controls");
 
-  await open("base", 150);
-  const renderMs = await page.locator(showAll).evaluate(async button => {
+  await reopen(2, 50);
+  renderMs = await page.locator(showAll).evaluate(async button => {
     const start = performance.now();
     button.click();
     await new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve)));
@@ -186,37 +286,184 @@ try {
   });
   await expectCount(cardSelector, total);
   assert(await page.locator(loadMore).isHidden());
-  const thumbnails = page.locator(cardSelector + " img");
-  assert.equal(await thumbnails.count(), total);
   assert.equal(await page.locator(cardSelector + ' img[loading="lazy"][decoding="async"]').count(), total);
-  const unseen = thumbnails.nth(900);
-  assert.equal(await unseen.evaluate(img => img.naturalWidth), 0);
   const initiallyRequested = thumbnailRequests.size;
+  const unseen = page.locator(cardSelector + " img").nth(900);
+  assert.equal(await unseen.evaluate(img => img.naturalWidth), 0);
   assert(initiallyRequested < total);
   await unseen.scrollIntoViewIfNeeded();
   await page.waitForFunction(img => img.complete && img.naturalWidth > 0, await unseen.elementHandle());
-  console.log(JSON.stringify({ total, renderMs, initiallyRequested, thumbnailAtIndex900LoadedOnScroll: true }));
-  pass("All 1,200 cards render and a distant thumbnail loads when scrolled into view");
+  assert((await remember(2)).firstVisible >= 450);
+  await close();
+  pass("Character 3 Show all renders 1,200 cards and lazily loads thumbnails beyond item 451");
 
-  await page.locator("#characterPresetSearch").fill("Preset 000");
-  await expectCount(cardSelector, 10);
-  await page.locator("#characterPresetSearch").fill("");
-  await expectCount(cardSelector, total);
-  await apply(1100);
-  assert.equal(await page.locator("#basePrompt").inputValue(), promptFor(1100));
-  await open("character", total);
+  await reopen(1, 50);
+  assert.equal((await navigation()).scrollTop, 0);
+  await close();
+  await page.locator("#addCharacterButton").click();
+  await reopen(3, 50);
+  assert.equal((await navigation()).scrollTop, 0);
+  await close();
+  for (let round = 0; round < 3; round++) {
+    for (const context of ["base", 0, 2]) {
+      await reopen(context);
+      await close();
+    }
+  }
+  pass("Repeated Base 100 / Character 1 250 / Character 3 all transitions restore independent pixels; unused Character 2 and newly added Character 4 start fresh");
+
+  for (const context of ["base", 0]) {
+    await reopen(context);
+    const target = await visibleCard();
+    await target.locator.locator("strong").click();
+    await remember(context);
+    await close();
+    await reopen(context);
+    await target.locator.locator("[data-dialog-character-load]").click();
+    await page.locator(dialog).waitFor({ state: "hidden" });
+    const input = context === "base" ? "#basePrompt" : slotSelector(context) + ' [data-character-field="prompt"]';
+    assert.equal(await page.locator(input).inputValue(), promptFor(target.index));
+    await reopen(context);
+    await close();
+  }
+  await verifyOthers(0);
+  pass("Selecting and applying Base and Character presets preserves each list and scroll position");
+
+  await reopen(0);
   await page.locator('[data-library-tab="save"]').click();
-  await page.locator("#characterPresetNameInput").fill("New pagination test preset");
+  await page.locator('[data-library-tab="browse"]').click();
+  await checkNavigation(0);
+  await page.locator('[data-library-tab="save"]').click();
+  await page.keyboard.press("Escape");
+  await page.locator(dialog).waitFor({ state: "hidden" });
+  await reopen(0);
+  await page.locator("#closeCharacterPresetDialog").click();
+  await page.locator(dialog).waitFor({ state: "hidden" });
+  await reopen(0);
+  await close();
+  pass("Save/manage tab, Escape and header Close retain the visible-list position instead of replacing it with hidden-list zero");
+
+  await reopen(0);
+  const selected = await visibleCard();
+  await selected.locator.locator("strong").click();
+  await remember(0);
+  await page.locator('[data-library-tab="save"]').click();
+  await page.locator("#dialogSaveCharacterPresetButton").click();
+  await page.locator(dialog).waitFor({ state: "hidden" });
+  await reopen(0);
+  await checkNavigation(0);
+  await page.locator('[data-library-tab="save"]').click();
+  await page.locator("#characterPresetNameInput").fill("zz Navigation test preset");
   await page.locator("#dialogSaveAsCharacterPresetButton").click();
   await page.locator(dialog).waitFor({ state: "hidden" });
-  await open("character", total + 1);
-  const newCard = page.locator(cardSelector).filter({ hasText: "New pagination test preset" });
-  await newCard.locator("[data-dialog-character-delete]").click();
-  await page.locator("#deleteConfirmAccept").click();
-  await expectCount(cardSelector, total);
-  assert.equal(await newCard.count(), 0);
+  await reopen(0);
   await close();
-  pass("Show all survives filtering, apply, switching dialogs, Save As and confirmed deletion");
+  expected.get(2).count = total + 1;
+  await verifyOthers(0);
+  pass("Overwrite and Save As preserve the active hidden-list position and other slots, including Show all after an added preset");
+
+  await reopen(2);
+  await scrollFraction(1);
+  await remember(2);
+  const removed = await visibleCard();
+  await removed.locator.locator("[data-dialog-character-delete]").click();
+  const beforeDelete = await navigation();
+  await page.locator("#deleteConfirmCancel").click();
+  await checkNavigation(2);
+  await removed.locator.locator("[data-dialog-character-delete]").click();
+  await page.locator("#deleteConfirmAccept").click();
+  expected.get(2).count = total;
+  await expectCount(cardSelector, total);
+  const afterDelete = await checkNavigation(2);
+  assert(afterDelete.maxScroll < beforeDelete.scrollTop, "Deleting at the bottom must exercise scroll clamping");
+  assert.equal(afterDelete.scrollTop, afterDelete.maxScroll);
+  assert.equal(await removed.locator.count(), 0);
+  await remember(2);
+  await close();
+  await verifyOthers(2);
+  pass("Cancelled deletion keeps scroll; confirmed deletion clamps to the new bottom, refreshes Show all and preserves Base and Character 1");
+
+  await reopen(0);
+  const search = page.locator("#characterPresetSearch");
+  await search.fill("Preset 000");
+  await expectCount(cardSelector, 10);
+  assert.equal((await navigation()).scrollTop, 0);
+  await search.fill("nothing-matches-this");
+  await expectCount(cardSelector, 0);
+  await search.fill("Preset 00");
+  await page.locator("#dialogCharacterCategoryFilter").selectOption("조명");
+  await expectCount(cardSelector, smallCount);
+  await page.locator("#characterPresetSort").selectOption("name-desc");
+  assert.equal(await page.locator(cardSelector + " strong").first().textContent(), nameFor(23));
+  await scrollFraction(0.5);
+  await remember(0);
+  await close();
+  await verifyOthers(0);
+  await reopen(0);
+  await close();
+  pass("Search, empty results, category and descending sort belong to Character 1 and preserve every other slot's filters and scroll");
+
+  await reopen(0);
+  await search.fill("");
+  await page.locator("#dialogCharacterCategoryFilter").selectOption("여성 의상");
+  await page.locator("#dialogCharacterSubCategoryFilter").selectOption("Casual / 캐주얼");
+  await expectCount(cardSelector, 250);
+  await scrollFraction(0.25);
+  await remember(0);
+  await close();
+  await verifyOthers(0);
+  await reopen(0);
+  await checkNavigation(0);
+  await close();
+  pass("Small filtered results retain the 250-item allowance, and category, subcategory, sort and pixels restore independently");
+
+  await reopen(2);
+  await search.fill("Preset 000");
+  await expectCount(cardSelector, 10);
+  await search.fill("");
+  await expectCount(cardSelector, total);
+  await scrollFraction(0.95);
+  await remember(2);
+  const refreshed = page.waitForResponse(listResponse);
+  await page.locator("#dialogRefreshCharacterPresetButton").click();
+  await (await refreshed).finished();
+  await checkNavigation(2);
+  await close();
+  await verifyOthers(2);
+  pass("Show all survives filters and an explicit asynchronous refresh preserves the actual list pixels");
+
+  await reopen(2);
+  await close();
+  const baseLoading = await holdStaleListResponse();
+  await page.locator("#basePromptPresetButton").click();
+  await baseLoading.received;
+  assert.equal(await page.locator(cardSelector).count(), 0, "Loading must not expose another slot's cards");
+  await page.locator("#closeCharacterPresetDialog").click();
+  await page.locator(dialog).waitFor({ state: "hidden" });
+  await reopen("base");
+  await baseLoading.deliver();
+  loadingRaces.push({ scenario: "delayed Base close and same-slot reopen", ...(await checkNavigation("base")) });
+  await close();
+  await verifyOthers("base");
+  pass("Closing Base before its delayed response preserves the saved 100-item scroll and ignores the old response after reopening");
+
+  await reopen(2);
+  await close();
+  await page.locator("#addCharacterButton").click();
+  const freshLoading = await holdStaleListResponse();
+  await page.locator(slotSelector(4) + " [data-character-preset-save]").click();
+  await freshLoading.received;
+  assert.equal(await page.locator(cardSelector).count(), 0);
+  await close();
+  await reopen(0);
+  await freshLoading.deliver();
+  loadingRaces.push({ scenario: "delayed fresh slot closed before switching to Character 1", ...(await checkNavigation(0)) });
+  await close();
+  await reopen(4, 50);
+  assert.equal((await navigation()).scrollTop, 0);
+  await close();
+  await verifyOthers(0);
+  pass("Escape while a fresh slot is loading keeps its 50/zero state and a late response cannot replace another slot's filtered list");
 
   await page.locator('[data-workspace-view="history"]').click();
   await expectCount(historySelector, 50);
@@ -228,27 +475,48 @@ try {
   await expectCount(historySelector, 0);
   await page.locator("#historySearch").fill("");
   await expectCount(historySelector, 50);
-  pass("History still loads 50 at a time and resets to 50 when its filter changes");
+  await page.locator('[data-workspace-view="workbench"]').click();
+  pass("History keeps its existing 50/100/118 pagination and reset behavior");
 
+  const savedCategories = await page.evaluate(() => localStorage.getItem("chaessi.character-preset-categories.v1"));
+  assert.deepEqual(JSON.parse(savedCategories).slots[0], { category: "여성 의상", subCategory: "Casual / 캐주얼" });
+  const historyFilesBefore = await historySnapshot();
   await app.evaluate(({ BrowserWindow }) => BrowserWindow.getAllWindows()[0].webContents.session.flushStorageData());
   await app.close();
   app = null;
   await assert.rejects(fetch("http://127.0.0.1:" + port + "/api/health"), "The first local server must stop before restart");
-  await launch();
-  await open("base", 50);
-  assert(await page.locator(showAll).isVisible());
-  await close();
-  assert.deepEqual(errors, []);
-  pass("Quitting and relaunching Electron with the same profile restores the initial 50");
 
-  await writeFile(path.join(profile, "results.json"), JSON.stringify({
-    checks, errors, total, renderMs, initiallyRequested, paidCalls: 0,
-  }, null, 2));
-  console.log(checks.length + " checks passed. Evidence: " + profile);
+  // The editor starts with its default preset; recreate fields by number for this check.
+  await launch(5);
+  assert.equal(await page.evaluate(() => localStorage.getItem("chaessi.character-preset-categories.v1")), savedCategories);
+  expected.clear();
+  for (const context of ["base", 0, 1, 2, 3, 4]) {
+    await reopen(context, 50);
+    const restarted = await navigation();
+    assert.equal(restarted.scrollTop, 0, "Restart scroll " + context);
+    if (context === 0) {
+      assert.equal(restarted.category, "여성 의상");
+      assert.equal(restarted.subCategory, "Casual / 캐주얼");
+    }
+    await close();
+  }
+  assert.deepEqual(await historySnapshot(), historyFilesBefore);
+  assert.deepEqual(errors, []);
+  pass("A full app restart resets every slot to 50 and pixel zero, while retaining exact saved categories and the synthetic History files");
+
+  const result = {
+    checks, errors, total, renderMs, initiallyRequested, restorations, loadingRaces, savedCategories,
+    historyFiles: historyFilesBefore.length, paidCalls: 0,
+  };
+  await writeFile(path.join(profile, "results.json"), JSON.stringify(result, null, 2));
+  await page.screenshot({ path: path.join(profile, "final.png") });
+  console.log(JSON.stringify({ checks: checks.length, renderMs, restorations: restorations.length, initiallyRequested, profile }));
 } catch (error) {
   await page?.screenshot({ path: path.join(profile, "failure.png") }).catch(() => {});
+  await writeFile(path.join(profile, "failure.json"), JSON.stringify({ message: error.message, checks, errors, restorations }, null, 2));
   console.error("App status:", await page?.locator("#toast").textContent().catch(() => ""));
   throw error;
 } finally {
+  for (const release of heldListReleases) release();
   if (app) await app.close();
 }

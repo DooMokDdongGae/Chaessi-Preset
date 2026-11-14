@@ -65,7 +65,10 @@ let lastAccountUsageRefreshAt = 0;
 let pendingImageViewerCloseEvents = 0;
 const ACCOUNT_USAGE_FOCUS_REFRESH_MS = 60_000;
 const historyPages = createPagedListController(50);
-const characterPresetPages = createPagedListController(50, { rememberLimit: true });
+const characterPresetNavigation = new Map();
+let initialCharacterPresetSort = "name-asc";
+let renderedCharacterPresetNavigation = null;
+const characterPresetListGuard = createLatestRequestGuard();
 const characterPresetPreferences = createCharacterPresetPreferences();
 const historyViewGuard = createLatestRequestGuard();
 const historySelection = createHistorySelectionController();
@@ -153,8 +156,12 @@ async function init() {
   installLanguageUI();
   createManualReader();
   createSortControl('characterPresetSort', document.querySelector('.library-search').parentElement, () => {
-    renderDialogCharacterPresetCards(getFilteredDialogCharacterPresets());
+    const navigation = getCharacterPresetNavigation();
+    const resetScroll = navigation.sort !== $('characterPresetSort').value;
+    navigation.sort = $('characterPresetSort').value;
+    renderDialogCharacterPresetCards(getFilteredDialogCharacterPresets(), { resetScroll });
   });
+  initialCharacterPresetSort = $('characterPresetSort').value;
   const characterTools = document.createElement('div'); characterTools.className = 'preset-library-tools';
   document.querySelector('.library-search').before(characterTools);
   characterTools.append(document.querySelector('.library-search'), $('characterPresetSort').closest('label'));
@@ -335,14 +342,19 @@ function bindActions() {
   $("dialogApplyCharacterPresetButton").addEventListener("click", () => applyCharacterPreset({ dialog: true }));
   $("dialogDeleteCharacterPresetButton").addEventListener("click", () => deleteCharacterPreset({ dialog: true }));
   $("dialogCharacterPresetCards").addEventListener("click", handleDialogCharacterPresetClick);
+  $("characterPresetDialog").addEventListener("click", rememberCharacterPresetScroll, true);
+  $("characterPresetDialog").addEventListener("cancel", rememberCharacterPresetScroll);
+  $("characterPresetDialog").addEventListener("click", (event) => {
+    if (event.target.closest('[data-library-tab="browse"]')) restoreCharacterPresetScroll();
+  });
   $("dialogCharacterPresetLoadMoreButton").addEventListener("click", loadMoreDialogCharacterPresets);
   $("dialogCharacterPresetShowAllButton").addEventListener("click", () => {
-    characterPresetPages.showAll();
+    getCharacterPresetNavigation().pages.showAll();
     renderDialogCharacterPresetCards();
   });
   $("characterPresetSearch").addEventListener("input", () => {
     state.characterPresetSearches[state.characterPresetContextType === "base" ? "base" : state.characterPresetContextIndex] = $("characterPresetSearch").value;
-    renderDialogCharacterPresetCards(getFilteredDialogCharacterPresets());
+    renderDialogCharacterPresetCards(getFilteredDialogCharacterPresets(), { resetScroll: true });
   });
   for (const id of ["historySearch", "historyModelFilter", "historyModeFilter"]) {
     $(id).addEventListener("input", () => {
@@ -397,7 +409,7 @@ function bindActions() {
     if (state.selectedDialogCharacterPresetId && !filtered.some((item) => item.id === state.selectedDialogCharacterPresetId)) {
       state.selectedDialogCharacterPresetId = "";
     }
-    renderDialogCharacterPresetCards(getFilteredDialogCharacterPresets());
+    renderDialogCharacterPresetCards(getFilteredDialogCharacterPresets(), { resetScroll: true });
   });
   $("dialogCharacterSubCategoryFilter").addEventListener("change", () => {
     state.dialogCharacterSubCategoryFilter = $("dialogCharacterSubCategoryFilter").value;
@@ -406,7 +418,7 @@ function bindActions() {
     if (state.selectedDialogCharacterPresetId && !filtered.some((item) => item.id === state.selectedDialogCharacterPresetId)) {
       state.selectedDialogCharacterPresetId = "";
     }
-    renderDialogCharacterPresetCards(filtered);
+    renderDialogCharacterPresetCards(filtered, { resetScroll: true });
   });
   $("characterPresetCategoryInput").addEventListener("change", () => syncCharacterSubCategoryInput());
   $("characterUseCurrentImageButton").addEventListener("click", useCurrentImageAsCharacterThumbnail);
@@ -1129,10 +1141,14 @@ async function saveCharacterPresetRequest(preset, { includeThumbnail = true } = 
 }
 
 async function openBasePromptPresetDialog() {
+  rememberCharacterPresetScroll();
+  const opening = characterPresetListGuard.begin();
   syncPresetFromForm();
   await loadCharacterPresetCategories();
+  if (!characterPresetListGuard.isCurrent(opening)) return;
   state.characterPresetContextType = "base";
   state.characterPresetContextIndex = null;
+  $("characterPresetSort").value = getCharacterPresetNavigation().sort;
   $("characterPresetSearch").value = state.characterPresetSearches.base || "";
   restoreCharacterPresetCategoryFilter();
   initializeCharacterPresetCategoryControls();
@@ -1140,14 +1156,18 @@ async function openBasePromptPresetDialog() {
   clearCharacterThumbnailPreview({ markCleared: false });
   updateCharacterPresetDialog();
   $("characterPresetDialog").showModal();
-  await loadCharacterList({ dialog: true });
+  await loadCharacterList({ dialog: true, restoreScroll: true });
 }
 
 async function openCharacterPresetDialog(index) {
+  rememberCharacterPresetScroll();
+  const opening = characterPresetListGuard.begin();
   syncPresetFromForm();
   await loadCharacterPresetCategories();
+  if (!characterPresetListGuard.isCurrent(opening)) return;
   state.characterPresetContextType = "slot";
   state.characterPresetContextIndex = index;
+  $("characterPresetSort").value = getCharacterPresetNavigation().sort;
   $("characterPresetSearch").value = state.characterPresetSearches[index] || "";
   restoreCharacterPresetCategoryFilter();
   initializeCharacterPresetCategoryControls();
@@ -1155,10 +1175,13 @@ async function openCharacterPresetDialog(index) {
   clearCharacterThumbnailPreview({ markCleared: false });
   updateCharacterPresetDialog();
   $("characterPresetDialog").showModal();
-  await loadCharacterList({ dialog: true });
+  await loadCharacterList({ dialog: true, restoreScroll: true });
 }
 
 function updateCharacterPresetDialog() {
+  renderedCharacterPresetNavigation = null;
+  $("dialogCharacterPresetCards").replaceChildren();
+  $("dialogCharacterPresetPagination").hidden = true;
   const source = getCharacterPresetDialogSource({ quiet: true });
   if (!source) return;
   $("characterPresetContext").textContent = source.label;
@@ -1247,8 +1270,12 @@ function setCharacterThumbnailPreview(src) {
   $("characterPresetThumbnailPreview").innerHTML = `<img src="${escapeHtml(src)}" alt="" />`;
 }
 
-async function loadCharacterList({ dialog = false } = {}) {
+async function loadCharacterList({ dialog = false, restoreScroll = false } = {}) {
+  const navigation = dialog ? getCharacterPresetNavigation() : null;
+  const request = dialog ? characterPresetListGuard.begin() : null;
   const response = await getJson("/api/character-presets");
+  if (dialog && (!characterPresetListGuard.isCurrent(request)
+    || !$("characterPresetDialog").open || navigation !== getCharacterPresetNavigation())) return;
   state.characterPresets = response.items || [];
   if (dialog && state.selectedDialogCharacterPresetId && !state.characterPresets.some((item) => item.id === state.selectedDialogCharacterPresetId)) {
     state.selectedDialogCharacterPresetId = "";
@@ -1258,7 +1285,7 @@ async function loadCharacterList({ dialog = false } = {}) {
   if (dialog) {
     syncCharacterPresetSaveCategoryOptions(response.items || []);
     syncCharacterCategoryFilterOptions(response.items || []);
-    renderDialogCharacterPresetCards(getFilteredDialogCharacterPresets());
+    renderDialogCharacterPresetCards(getFilteredDialogCharacterPresets(), { restoreScroll });
     const filteredCount = getFilteredDialogCharacterPresets().length;
     setSummary($("characterPresetDialogStatus"), `${response.items?.length || 0} character presets loaded. ${filteredCount} shown. Select a card to load into ${getCharacterPresetDialogTargetLabel()}.`, true);
   }
@@ -2958,9 +2985,41 @@ async function addManagedCharacterPresetSubcategory() {
   }, (error) => setSummary($("categoryManagerStatus"), error.message, false, true));
 }
 
-function renderDialogCharacterPresetCards(items) {
-  if (items !== undefined) characterPresetPages.reset(items);
-  const page = characterPresetPages.snapshot();
+function getCharacterPresetNavigation() {
+  // Navigation belongs to numbered fields, independently of their loaded preset.
+  const key = state.characterPresetContextType === "base" ? "base" : state.characterPresetContextIndex;
+  if (!characterPresetNavigation.has(key)) {
+    characterPresetNavigation.set(key, {
+      pages: createPagedListController(50, { rememberLimit: true }),
+      scrollTop: 0,
+      sort: initialCharacterPresetSort,
+    });
+  }
+  return characterPresetNavigation.get(key);
+}
+
+function rememberCharacterPresetScroll() {
+  const cards = $("dialogCharacterPresetCards");
+  // Hidden browse panes report zero, which must not replace their saved position.
+  if ($("characterPresetDialog").open && cards.getClientRects().length
+    && renderedCharacterPresetNavigation === getCharacterPresetNavigation()) {
+    getCharacterPresetNavigation().scrollTop = cards.scrollTop;
+  }
+}
+
+function restoreCharacterPresetScroll() {
+  const cards = $("dialogCharacterPresetCards");
+  if ($("characterPresetDialog").open && cards.getClientRects().length) {
+    cards.scrollTop = getCharacterPresetNavigation().scrollTop;
+  }
+}
+
+function renderDialogCharacterPresetCards(items, { resetScroll = false, restoreScroll = false } = {}) {
+  if (!restoreScroll) rememberCharacterPresetScroll();
+  const navigation = getCharacterPresetNavigation();
+  if (resetScroll) navigation.scrollTop = 0;
+  if (items !== undefined) navigation.pages.reset(items);
+  const page = navigation.pages.snapshot();
   const selectedId = state.selectedDialogCharacterPresetId || "";
   $("dialogCharacterPresetCards").innerHTML = page.items.map((item) => renderDialogCharacterPresetCard(item, selectedId)).join("")
     || "<div class=\"summary\">No character presets in this category.</div>";
@@ -2973,10 +3032,12 @@ function renderDialogCharacterPresetCards(items) {
   $("dialogCharacterPresetLoadMoreButton").textContent = page.hasMore
     ? `Load ${Math.min(50, page.totalCount - page.visibleCount)} more (${page.visibleCount}/${page.totalCount})`
     : `All ${page.totalCount} loaded`;
+  renderedCharacterPresetNavigation = navigation;
+  restoreCharacterPresetScroll();
 }
 
 function loadMoreDialogCharacterPresets() {
-  characterPresetPages.loadMore();
+  getCharacterPresetNavigation().pages.loadMore();
   renderDialogCharacterPresetCards();
 }
 
