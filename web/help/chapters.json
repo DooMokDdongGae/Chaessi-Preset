@@ -234,7 +234,7 @@
         "그 캐릭터의 프리셋 버튼을 누릅니다. 카테고리와 하위 카테고리를 고릅니다.",
         "검색과 정렬로 찾은 카드의 불러오기를 누릅니다. 저장 및 관리 탭에서는 저장, 새 이름으로 저장, 미리 보기, 카테고리 추가를 할 수 있습니다.",
         "처음에는 50개를 표시합니다. 더 보기로 50개씩 늘리거나 전체 보기로 현재 조건에 맞는 프리셋을 모두 표시합니다.",
-        "늘린 범위와 전체 보기 상태는 베이스·캐릭터 선택창이 공유합니다. 프리셋을 적용하거나 창을 다시 열고 검색·분류·정렬을 바꿔도 유지됩니다. 앱을 다시 실행하면 50개로 돌아갑니다.",
+        "베이스와 각 캐릭터 번호별로 표시 범위·전체 보기·스크롤·정렬을 독립적으로 기억합니다. 적용하거나 창을 다시 열면 해당 칸의 위치를 복원합니다. 검색·분류·정렬 변경은 해당 칸의 스크롤을 처음으로 돌립니다. 앱을 다시 실행하면 각 칸은 50개 표시와 맨 위에서 시작합니다.",
         "접기·펼치기, 켜짐·꺼짐, 위·아래로 작업을 정리합니다. 베이스 프롬프트의 프리셋 버튼도 같은 보관함을 사용합니다."
       ],
       "각 번호 슬롯은 마지막 카테고리를 기억합니다. 앱 재시작이나 전체 프리셋·히스토리 적용 후에도 번호별 선택이 유지됩니다. 슬롯 삭제는 현재 편집 내용을 제거하고 저장된 캐릭터 프리셋은 유지합니다."
@@ -247,7 +247,7 @@
         "Press Preset in that Character slot, then choose a category and subcategory.",
         "Find a card with search and sorting, then Load it. Save & manage includes Save, Save As, thumbnails and category creation.",
         "The list starts with 50 presets. Use Load more to add 50 at a time or Show all to display every matching preset.",
-        "Base and Character share the display limit, including Show all. It stays in effect after applying a preset, reopening the picker, or changing search, categories, or sorting. Restart the app to return to 50.",
+        "Base and each numbered Character field remember their own display limit, Show all mode, scroll position, and sorting. Applying a preset or reopening the picker restores that field's position. Changing search, categories, or sorting scrolls only the current field's list to the top. Restarting the app resets each field to 50 items and the top.",
         "Use Fold/Expand, On/Off and Up/Down to organize slots. Base Prompt uses the same preset library."
       ],
       "Each numbered slot remembers its last category, including across app restarts and full preset or History application. Deleting a slot removes its current edits but keeps saved character presets."
@@ -260,7 +260,7 @@
         "そのスロットのプリセットを押し、カテゴリとサブカテゴリを選びます。",
         "検索と並び替えで探したカードを読み込みます。保存と管理では保存、名前を付けて保存、サムネイル、カテゴリ追加ができます。",
         "最初に50件を表示します。さらに表示で50件ずつ追加でき、すべて表示で条件に一致するプリセットをすべて表示できます。",
-        "ベースとキャラクターの選択画面で表示範囲を共有します。すべて表示も含め、適用・開き直し・検索・カテゴリ・並び順の変更後も保持されます。アプリを再起動すると50件表示に戻ります。",
+        "ベースと各キャラクター番号の欄で、表示件数・すべて表示・スクロール位置・並び順をそれぞれ記憶します。適用後や開き直したときは、その欄の位置を復元します。検索・カテゴリ・並び順の変更時は現在の欄だけ先頭に戻ります。アプリを再起動すると各欄は50件表示・先頭から始まります。",
         "折りたたみ、展開、オン・オフ、上・下で整理します。ベースプロンプトも同じライブラリを使います。"
       ],
       "番号ごとのスロットは最後のカテゴリを記憶します。再起動や全体プリセット・履歴の適用後も保持します。スロット削除は編集中の内容を消しますが、保存したキャラクタープリセットは残ります。"
