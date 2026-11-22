@@ -369,12 +369,16 @@
   },
   {
     "id": "settings",
-    "image": "resolution-picker",
+    "image": "resolution-v385",
     "ko": [
       "크기·시드·품질 설정",
       "설정은 그림을 만드는 방법을 정하는 손잡이예요. 한꺼번에 모두 바꾸지 말고 하나씩 비교하세요.",
       [
-        "아래 이미지 크기를 눌러 작게·보통·크게·배경화면과 가로·세로·정사각형을 고릅니다. 표시된 실제 픽셀 크기를 확인하고 적용하세요. 직접 입력은 64의 배수, 총 3,145,728픽셀 이하여야 하며 자동 반올림하지 않습니다.",
+        "작업대 아래 「이미지 크기」를 누르세요. 가로는 옆으로 넓고 세로는 위아래로 길며 정사각형은 두 변이 같습니다. 두 숫자는 가로 × 세로 픽셀입니다.",
+        "「보통」에서 기본 가로 1216 × 832, 와이드 가로 1344 × 768, 기본 세로 832 × 1216, 롱 세로 768 × 1344, 정사각형 1024 × 1024 중에서 고르세요. 처음 시작하는 크기는 기본 세로입니다.",
+        "여러 인물이나 넓은 배경에는 기본 가로보다 더 넓게 펼쳐진 와이드 가로를 써 보세요. 전신을 담을 공간이 필요하면 기본 세로보다 길쭉한 롱 세로를 써 보세요. 실제 구도와 인물이 담기는 범위는 프롬프트와 생성 결과에 따라 달라집니다.",
+        "더 많은 픽셀이 필요하면 「크게」를 고르세요. 기본 가로 1536 × 1024, 와이드 가로 1664 × 960, 기본 세로 1024 × 1536, 롱 세로 960 × 1664, 정사각형 1472 × 1472를 제공합니다. 생성 전 예상 비용을 확인하세요.",
+        "「이 크기 적용」으로 현재 작업대의 크기를 바꿉니다. 프롬프트와 카메라 설정, 저장된 프리셋의 크기는 유지됩니다. 직접 입력은 가로·세로 각각 64의 배수, 총 3,145,728픽셀 이하입니다. 「가로·세로 바꾸기」로 두 값을 교환할 수 있습니다.",
         "Seed는 시작 무늬 번호예요. 빈칸이면 무작위예요. Steps는 만드는 단계 수, 프롬프트 강도는 설명을 따르는 정도이며 숫자가 높다고 항상 더 좋지는 않아요.",
         "상세 설정에서 High의 Sampler(그리는 방법), CFG Rescale(강한 프롬프트 영향 조절), Quality Tags(품질 관련 글 추가)를 확인해요. Medium의 고정된 항목은 수정할 수 없어요.",
         "Transparent Background는 투명 배경을 요청해요. 완성 그림은 PNG로 저장하세요. 잘 안 되면 이전 설정이나 프리셋을 다시 불러오세요."
@@ -385,7 +389,11 @@
       "Size, seed and quality settings",
       "Settings are controls for how a picture is made. Compare one change at a time.",
       [
-        "Press Image size in the bottom bar. Choose Small, Normal, Large or Wallpaper and an orientation, then apply the displayed pixel size. Custom dimensions must be multiples of 64 and total at most 3,145,728 pixels; values are never rounded automatically.",
+        "Choose “Image size” at the bottom of the workbench. Landscape is wider than it is tall, portrait is taller, and square has equal sides. Sizes are shown as width × height in pixels.",
+        "Under “Normal”, choose Standard landscape 1216 × 832, Wide landscape 1344 × 768, Standard portrait 832 × 1216, Tall portrait 768 × 1344, or Square 1024 × 1024. The starting size is Standard portrait.",
+        "Try Wide landscape for a group or a broad background. It gives you a wider frame than Standard landscape. Tall portrait gives you a longer frame for a full-length figure than Standard portrait. The prompt and generation result still determine how the figure is framed.",
+        "For more pixels choose “Large”. It offers Standard landscape 1536 × 1024, Wide landscape 1664 × 960, Standard portrait 1024 × 1536, Tall portrait 960 × 1664, and Square 1472 × 1472. Check the estimated cost before generating.",
+        "Choose “Apply size” to change the current workbench dimensions. Prompts, camera settings and sizes in saved presets stay as they are. Custom width and height must each be multiples of 64 and total at most 3,145,728 pixels. Use “Swap width and height” to exchange them.",
         "Seed selects the starting pattern; leave it blank for random. Steps is the number of generation stages. Guidance controls prompt influence; higher is not always better.",
         "Advanced settings offers High Sampler (drawing method), CFG Rescale (adjusting strong guidance) and Quality Tags (added quality-related text). Fixed Medium settings cannot be edited.",
         "Transparent Background requests transparency. Save the finished picture as PNG. Return to previous settings or load your preset if needed."
@@ -396,7 +404,11 @@
       "サイズ・シード・品質設定",
       "絵の作り方を決めるつまみです。一度に全部変えず、一つずつ比較します。",
       [
-        "下の画像サイズを押し、小・標準・大・壁紙と向きを選び、実際のピクセル数を確認して適用します。カスタムは64の倍数、総3,145,728ピクセル以下で、自動では丸めません。",
+        "作業台の下にある「画像サイズ」を押します。横長は横に広く、縦長は縦に長く、正方形は縦横が同じです。数値は幅 × 高さ（ピクセル）です。",
+        "「標準」では標準横長 1216 × 832、ワイド横長 1344 × 768、標準縦長 832 × 1216、ロング縦長 768 × 1344、正方形 1024 × 1024 を選べます。初期値は標準縦長です。",
+        "複数人や広い背景には、標準横長より横に広いワイド横長を試してください。全身を収める余白が欲しいときは、標準縦長より縦に長いロング縦長が使えます。実際の構図や人物が収まる範囲はプロンプトと生成結果によって変わります。",
+        "より多くの画素が必要なら「大」を選びます。標準横長 1536 × 1024、ワイド横長 1664 × 960、標準縦長 1024 × 1536、ロング縦長 960 × 1664、正方形 1472 × 1472 があります。生成前に推定費用を確認してください。",
+        "「サイズを適用」で現在の作業台のサイズを変更します。プロンプト、カメラ設定、保存済みプリセットのサイズは維持されます。カスタムの幅と高さはそれぞれ64の倍数で、総画素数は3,145,728以下です。「縦横を交換」で2つの値を入れ替えられます。",
         "Seed は開始模様の番号で、空欄ならランダムです。Steps は生成段階数、プロンプト強度は文章の影響です。大きい数ほど良いとは限りません。",
         "詳細設定で High の Sampler（描く方法）、CFG Rescale（強い誘導の調整）、Quality Tags（品質の文章追加）を確認します。Medium の固定項目は編集できません。",
         "Transparent Background は透明背景を要求します。完成は PNG で保存し、必要なら以前の設定やプリセットに戻します。"
@@ -407,16 +419,16 @@
       {
         "screenshot": "resolution-custom",
         "caption": {
-          "ko": "직접 입력에서 실제 픽셀 크기를 확인합니다. 적용은 반영하고 취소는 이전 값을 유지합니다.",
-          "en": "Custom shows exact pixels. Apply changes the workbench; Cancel preserves the previous size.",
-          "ja": "カスタムで実際の画素数を確認。適用で変更し、キャンセルは前のサイズを維持します。"
+          "ko": "직접 입력 예시(v3.8.1). 가로와 세로를 확인한 뒤 적용하거나 취소할 수 있습니다.",
+          "en": "Custom size example from v3.8.1. Check the width and height, then apply or cancel.",
+          "ja": "v3.8.1のカスタムサイズの例です。幅と高さを確認して適用するか、キャンセルできます。"
         }
       }
     ],
     "imageNote": {
-      "ko": "v3.8.1의 화면 예시입니다. 이 장의 기능은 v3.8.2에서도 사용할 수 있지만 일부 메뉴 이름·표시는 다를 수 있습니다. 새 절대 카메라는 카메라 장을 참고하세요.",
-      "en": "Screen example from v3.8.1. The feature remains available in v3.8.2; some labels and indicators may differ. See the camera chapters for the new absolute camera.",
-      "ja": "v3.8.1の画面例です。この章の機能はv3.8.2でも使えますが、一部の名称や表示が異なる場合があります。新しい絶対カメラはカメラの章を参照してください。"
+      "ko": "v3.8.5의 보통 크기 5개입니다. 기본 세로(832 × 1216)가 선택되어 있습니다.",
+      "en": "The five Large sizes in v3.8.5. Tall portrait (960 × 1664) is selected.",
+      "ja": "v3.8.5の「大」で選べる5つのサイズです。ロング縦長（960 × 1664）が選択されています。"
     }
   },
   {
@@ -2010,5 +2022,62 @@
       "en": "Name and save the camera work at the bottom, then select saved work to resume it.",
       "ja": "画面の下で名前を付けて保存し、一覧で選んだ作業を再開します。"
     }
+  },
+  {
+    "id": "reader-transfer",
+    "image": "reader-preview-v385",
+    "imageNote": {
+      "ko": "v3.8.5 미리보기입니다. 베이스의 기존 문구 뒤에 쉼표와 공백 한 칸, 리더에서 가져온 문구가 이어집니다.",
+      "en": "v3.8.5 transfer preview. Base Positive is empty, so Append places the selected text in Final text without a leading separator.",
+      "ja": "v3.8.5の受信プレビューです。ベースのポジティブ欄が空なので、「末尾に追加」を選んでも区切り文字は先頭に入りません。"
+    },
+    "ko": [
+      "메타데이터 리더에서 프롬프트 받기",
+      "별도 설치한 채씨 메타데이터 리더의 문구를 이 작업대의 초안에 보냅니다. 실행 중인 창을 선택할 수 있고 chaessi.prompt-transfer/1을 지원하는 리더가 필요합니다. 리더 패키지의 docs/INSTALL.ko.md를 따라 Chrome 확장을 연결하고 NovelAI Inspect 접근을 허용하세요. 전송에는 NovelAI 토큰이나 유료 생성이 필요하지 않습니다.",
+      [
+        "Chrome의 NovelAI Inspect에서 이미지를 고른 뒤 리더의 「NovelAI Inspect 가져오기」를 누르세요. 탭 선택창이 뜨면 해당 탭을 고르세요.",
+        "리더의 「가져온 이미지」에서 이미지를 고르고 「프롬프트 편집」에서 보낼 글을 고치세요.",
+        "원하는 범위를 선택하고 「선택 문구 담기」를 누르세요. 칸 전체를 보내려면 「전체 문구 담기」를 누르세요. 여러 칸에서 반복할 수 있습니다.",
+        "리더에서 「프리셋으로 보내기」를 누르면 담아 둔 문구가 순서대로 보입니다.",
+        "단일 파일 Portable을 직접 연 뒤 「프리셋 연결」을 누르세요. 「실행 중인 프리셋」에서 버전·실행 파일 경로·PID를 확인하고 「이 프리셋 연결」을 누르세요. 폴더형 배포본은 직접 실행되는 EXE를 「+ 다른 채씨 프리셋 EXE 선택」으로 등록하고, 닫힌 상태에서 경로와 해시를 확인해 실행할 수 있습니다.",
+        "「보낼 문구」에서 한 행을 고르고 「받을 프롬프트 칸」에 베이스·캐릭터의 긍정 또는 제외 프롬프트를 지정하세요. Medium에서는 긍정만 선택할 수 있습니다. 새 캐릭터가 필요하면 빈 슬롯을 1번부터 차례로 지정하세요.",
+        "「추가」는 현재 문구와 보낼 문구가 모두 있을 때 쉼표와 공백 한 칸으로 잇습니다. 「덮어 쓰기」는 고른 칸의 글을 바꿉니다. 행마다 지정하고 「위로」와 「아래로」로 순서를 맞추세요.",
+        "「프리셋에서 변경 확인」을 누르고 프리셋 창에서 현재 문구와 적용 후 문구를 확인하세요. 새 슬롯 생성이나 빈 문구 덮어쓰기는 따로 확인합니다. 「초안에 적용」은 함께 보낸 내용을 한 번에 반영하고, 「취소」하면 문구가 리더 목록에 남습니다.",
+        "방금 반영한 내용을 복구하려면 프리셋에서 「리더 전송 되돌리기」를 누르세요. 보관하려면 작업대 위쪽의 「저장」을 직접 누르세요. 전송으로 자동 저장, History 기록, 이미지 생성 또는 NovelAI 호출이 시작되지 않습니다."
+      ],
+      "미리보기 후 초안이 바뀌면 리더의 「받을 칸 새로고침」을 누르고 대상을 다시 선택하세요. 되돌리기가 충돌하면 현재 편집 상태를 확인하세요. 한 줄씩 나뉜 문구는 LF 줄바꿈을 사용합니다. CR 또는 CRLF가 거부된 경우 리더에 남은 편집본을 확인하세요."
+    ],
+    "en": [
+      "Receive prompts from Metadata Reader",
+      "Send text from the separately installed Chaessi Metadata Reader to your current workbench draft. Use a Reader that can select running Presets and supports chaessi.prompt-transfer/1. Follow docs/INSTALL.ko.md in the Reader package to pair its Chrome extension and allow NovelAI Inspect access. Prompt transfer needs no NovelAI token or paid generation.",
+      [
+        "Select an image in NovelAI Inspect in Chrome. In Reader, choose “Import from NovelAI Inspect”. If asked to choose a tab, select the one showing your image.",
+        "Select the image in “Imported images” and edit the text in “Edit prompts”.",
+        "Highlight the words you want and choose “Add selection”. To send the entire field, use “Add full text”. Repeat for any other fields.",
+        "Choose “Send to Preset” in Reader to see the queued text in order.",
+        "Open the single-file Portable yourself, then choose “Connect to Preset”. Under “Running Presets”, check the version, executable path and PID before choosing “Connect to this Preset”. For a folder build, use “+ Choose another Preset EXE” to register the directly running EXE. When it is closed, you can review its path and hash and approve its launch.",
+        "Choose a row under “Text to send”. In “Destination prompt field”, select Base or a Character and choose Positive or Undesired. Medium offers Positive only. To create Characters, assign available new slots consecutively, starting at 1.",
+        "Choose “Append” to join the existing and incoming text with a comma and a space when both contain text. Choose “Replace” to replace the selected field. Set each row and use “Move up” or “Move down” to adjust their order.",
+        "Choose “Review changes in Preset”. In the Preset window, compare Current text with Final text. Confirm any new Character or empty replacement separately. “Apply to draft” applies the batch together. “Cancel” keeps the items in Reader.",
+        "To reverse the last transfer, choose “Undo Reader transfer” in Preset. To keep the draft, choose “Save” at the top of the workbench yourself. Transfer does not automatically save, write History, generate images or call NovelAI."
+      ],
+      "If the draft changes during preview, choose “Refresh fields” in Reader and select the destinations again. If Undo reports a conflict, check your current edits. Multiline text uses LF line endings. If CR or CRLF is rejected, review the copy still in Reader."
+    ],
+    "ja": [
+      "メタデータリーダーからプロンプトを受け取る",
+      "別途インストールしたChaessi Metadata Readerから、開いている作業台の下書きに文章を送れます。起動中のプリセットを選択でき、chaessi.prompt-transfer/1に対応するリーダーが必要です。リーダーに同梱のdocs/INSTALL.ko.mdに従ってChrome拡張機能を接続し、NovelAI Inspectへのアクセスを許可してください。転送にNovelAIトークンや有料の画像生成は不要です。",
+      [
+        "ChromeのNovelAI Inspectで画像を選び、リーダーで「NovelAI Inspect から取り込む」を押します。タブの選択画面が出たら、その画像のタブを選んでください。",
+        "「取り込んだ画像」で対象の画像を選び、「プロンプトを編集」で送りたい文章を整えます。",
+        "送りたい範囲を選んで「選択部分を追加」を押します。欄全体を送るには「全文を追加」を使います。別の欄からも続けて追加できます。",
+        "リーダーで「プリセットに送る」を押すと、追加した文章が順番に表示されます。",
+        "単一ファイルのPortableを先に自分で起動し、「プリセットに接続」を押します。「起動中のプリセット」でバージョン・実行ファイルのパス・PIDを確認し、「このプリセットに接続」を押します。フォルダー版は「＋ 別のプリセットEXEを選択」で直接動作するEXEを登録できます。終了中はパスとハッシュを確認して起動を許可します。",
+        "「送るテキスト」の行を選び、「送信先のプロンプト欄」でベースまたはキャラクターのポジティブ・除外プロンプトを指定します。Mediumで選べるのはポジティブのみです。新しいキャラクターは空きスロットの1番から順に指定します。",
+        "「末尾に追加」は元の文と送る文の両方がある場合にコンマと半角スペースでつなぎます。「上書き」は指定した欄の文章を置き換えます。行ごとに設定し、「上へ」「下へ」で適用順を調整します。",
+        "「プリセットで変更内容を確認」を押し、プリセット側で「現在のテキスト」と「適用後のテキスト」を確認します。新しいスロットの作成や空文字での上書きには個別に同意してください。「下書きに適用」でまとめて反映します。「キャンセル」するとリーダーの一覧に残ります。",
+        "直前の転送を取り消すには、プリセット側で「リーダー転送を元に戻す」を押します。下書きを残すには、作業台の上部にある「保存」を自分で押してください。転送による自動保存、履歴への記録、画像生成、NovelAIへのリクエストはありません。"
+      ],
+      "プレビュー後に下書きが変わった場合は、リーダーの「送信先を更新」で送信先を指定し直します。取り消しが競合したときは現在の編集内容を確認してください。複数行にはLF改行を使用します。CRやCRLFが拒否された場合は、リーダーに残っている文章を確認してください。"
+    ]
   }
 ]

@@ -1,5 +1,11 @@
 # Changelog
 
+## v3.8.5
+
+- 한국어 · 보통·크게에 와이드 가로와 롱 세로를 추가했습니다. 메타데이터 리더의 문구를 선택한 창에서 검토하고 현재 초안에 적용할 수 있습니다. [자세한 변경사항](.github/releases/v3.8.5.ko.md)
+- English · Normal and Large now offer Wide landscape and Tall portrait. Review selected text from Metadata Reader and apply it to the draft in the window you choose. [Release notes](.github/releases/v3.8.5.en.md)
+- 日本語 · 標準・大でワイド横長とロング縦長を選べます。選択した画面でメタデータリーダーからの文章を確認し、現在の下書きに適用できます。[リリースノート](.github/releases/v3.8.5.ja.md)
+
 ## v3.8.0
 
 - 한국어: 생성된 이미지에서 카메라 구도를 탐색하고 현재 위치의 가중치를 보정합니다. 직접 문구 편집, 카메라 관리 재연결·해제, 미완성 입력 취소, 원본별 작업과 History 재개를 지원합니다. 3개국어 도움말 7장을 추가했습니다.

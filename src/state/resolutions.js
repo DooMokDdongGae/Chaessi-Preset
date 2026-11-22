@@ -1,9 +1,8 @@
-// Public V4/V5 size contract observed 2026-10-20; independently verified size table.
-// These are data/validation rules, not vendor implementation code.
+// WideLandscape and TallPortrait are app shortcuts for supported custom dimensions.
 export const RESOLUTION_PRESETS = Object.freeze({
   Small: {Landscape:[768,512], Portrait:[512,768], Square:[640,640]},
-  Normal: {Landscape:[1216,832], Portrait:[832,1216], Square:[1024,1024]},
-  Large: {Landscape:[1536,1024], Portrait:[1024,1536], Square:[1472,1472]},
+  Normal: {Landscape:[1216,832], WideLandscape:[1344,768], Portrait:[832,1216], TallPortrait:[768,1344], Square:[1024,1024]},
+  Large: {Landscape:[1536,1024], WideLandscape:[1664,960], Portrait:[1024,1536], TallPortrait:[960,1664], Square:[1472,1472]},
   Wallpaper: {Landscape:[1920,1088], Portrait:[1088,1920]},
 });
 export const RESOLUTION_MAX_PIXELS = 3_145_728;
@@ -21,3 +20,8 @@ export function resolutionError(width,height) {
   return null;
 }
 export function assertResolution(width,height) {const error=resolutionError(width,height);if(error)throw new Error(error);}
+
+export function applyResolutionToDraft(preset, width, height) {
+  assertResolution(width, height);
+  return { ...preset, params: { ...preset.params, width: Number(width), height: Number(height) } };
+}

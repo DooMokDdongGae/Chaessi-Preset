@@ -13,32 +13,37 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const projectRoot = path.resolve(__dirname, "..");
 const serverPath = path.join(projectRoot, "server.mjs");
-const serverPort = Number(process.env.PORT || 4174);
-const serverBaseUrl = `http://127.0.0.1:${serverPort}`;
-const serverHealthUrl = `http://127.0.0.1:${serverPort}/api/health`;
+let serverPort = 0;
 
 let serverProcess = null;
 let stopping = false;
 
 export function getServerHealthUrl() {
-  return serverHealthUrl;
+  return getServerBaseUrl() + "/api/health";
 }
 
 export function getServerBaseUrl() {
-  return serverBaseUrl;
+  return `http://127.0.0.1:${serverPort}`;
 }
 
-export async function startServerProcess() {
+export async function startServerProcess({ isolated = false, onLost } = {}) {
   if (serverProcess && !serverProcess.killed) return serverProcess;
 
   stopping = false;
   const command = getServerCommand();
-  const savedTokenEnv = await loadSavedTokenEnv();
+  serverPort = 0;
+  const preferredPort = process.env.PORT || (isolated ? "0" : "4174");
+  const inherited = { ...process.env };
+  if (isolated) {
+    for (const key of ["NAI_ACCESS_TOKEN", "NOVELAI_TOKEN", "OPENAI_API_KEY", "GEMINI_API_KEY"]) delete inherited[key];
+  }
+  const savedTokenEnv = isolated ? {} : await loadSavedTokenEnv();
   serverProcess = spawn(command.executable, [serverPath], {
     cwd: projectRoot,
     env: {
-      ...process.env,
-      PORT: String(serverPort),
+      ...inherited,
+      PORT: preferredPort,
+      CHAESSI_ELECTRON_SERVER: "1",
       CHAESSI_USER_DATA_DIR: app.getPath("userData"),
       ...command.env,
       ...savedTokenEnv,
@@ -57,7 +62,11 @@ export async function startServerProcess() {
     if (text) process.stderr.write(`[server] ${text}`);
   });
 
+  serverProcess.once("error", () => {
+    serverProcess = null;
+  });
   serverProcess.on("exit", (code, signal) => {
+    if (!stopping && serverPort) onLost?.();
     if (!stopping && code !== 0) {
       console.error(`[Chaessi Preset] Local server exited unexpectedly: code=${code ?? "none"} signal=${signal ?? "none"}`);
     }
@@ -65,6 +74,11 @@ export async function startServerProcess() {
   });
 
   serverProcess.on("message", (message) => {
+    if (message?.channel === "server-ready" && !serverPort &&
+        Number.isInteger(message.port) && message.port > 0 && message.port <= 65535) {
+      serverPort = message.port;
+      return;
+    }
     handleTokenStorageMessage(message).catch((error) => {
       sendTokenStorageReply(message?.requestId, {
         ok: false,
@@ -160,7 +174,8 @@ export async function waitForServerHealth({ timeoutMs = 10_000, intervalMs = 250
     }
 
     try {
-      const response = await fetch(serverHealthUrl);
+      if (!serverPort) { await delay(intervalMs); continue; }
+      const response = await fetch(getServerHealthUrl(), { signal: AbortSignal.timeout(1000) });
       if (response.ok) {
         const body = await response.json().catch(() => null);
         if (body?.ok) return body;
@@ -171,7 +186,7 @@ export async function waitForServerHealth({ timeoutMs = 10_000, intervalMs = 250
     await delay(intervalMs);
   }
 
-  const error = new Error(`Local server did not become ready at ${serverHealthUrl}`);
+  const error = new Error(`Local server did not become ready at ${getServerHealthUrl()}`);
   error.publicMessage = "Local server did not become ready.";
   error.cause = lastError;
   throw error;

@@ -1,7 +1,7 @@
 // Generate a standalone, allowlisted site from the maintained online guide.
 import fs from 'node:fs/promises';import path from 'node:path';import assert from 'node:assert/strict';import {createHash} from 'node:crypto';
 import {manualChapters} from '../web/help/content.mjs';import {APP_VERSION} from '../src/state/build-version.js';
-const root=process.cwd(),out=path.resolve(process.argv[2]||'.pages-site');assert(out.startsWith(root+path.sep),'Output must stay inside the current workspace');assert.equal(manualChapters.length,40);assert.equal(APP_VERSION,'3.8.4');
+const root=process.cwd(),out=path.resolve(process.argv[2]||'.pages-site');assert(out.startsWith(root+path.sep),'Output must stay inside the current workspace');assert.equal(APP_VERSION,JSON.parse(await fs.readFile('package.json','utf8')).version);assert(manualChapters.some(c=>c.id==='reader-transfer'));
 // Never clean an arbitrary output tree. A new build overwrites only its explicit files.
 const versionDir=path.join(out,'v'+APP_VERSION),manifest=JSON.parse(await fs.readFile('web/help/images.json','utf8')),byFile=new Map(manifest.assets.map(a=>[a.file,a]));const refs=new Set(['assets/manuals/examples/workflow.webp']);
 for(const c of manualChapters)for(const l of ['ko','en','ja']){assert.equal(c[l].length,4);refs.add(`assets/manuals/${l}/${c.image}.png`);for(const i of c.illustrations||[])refs.add(i.screenshot?`assets/manuals/${l}/${i.screenshot}.png`:`assets/manuals/examples/${i.file}`);}
@@ -9,4 +9,4 @@ const images={};for(const file of refs){assert(/^assets\/manuals\/(ko|en|ja|exam
 for(const file of ['index.html','guide.js','guide.css'])await fs.copyFile(path.join('web/help',file),path.join(versionDir,file));
 await fs.writeFile(path.join(versionDir,'content.json'),JSON.stringify({version:APP_VERSION,documentationRef:'main',repository:'https://github.com/DooMokDdongGae/Chaessi-Preset',chapters:manualChapters,images}));
 await fs.writeFile(path.join(out,'index.html'),`<!doctype html><html lang="ko"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>CHAESSI PRESET ${APP_VERSION} Help Center</title><p><a href="v${APP_VERSION}/">CHAESSI PRESET ${APP_VERSION} · 도움말 / Help / ヘルプ</a></p><script>location.replace('v${APP_VERSION}/'+location.search+location.hash)</script></html>`);
-console.log(JSON.stringify({version:APP_VERSION,chapters:40,localized_chapters:120,images:refs.size,files:refs.size+5,output:path.relative(root,out)}));
+console.log(JSON.stringify({version:APP_VERSION,chapters:manualChapters.length,localized_chapters:manualChapters.length*3,images:refs.size,files:refs.size+5,output:path.relative(root,out)}));

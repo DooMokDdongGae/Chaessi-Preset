@@ -1,16 +1,48 @@
-# CHAESSI PRESET v3.8.4
+# CHAESSI PRESET v3.8.5
 
-[Windows x64 Portable](https://github.com/DooMokDdongGae/Chaessi-Preset/releases/download/v3.8.4/Chaessi-Preset-v3.8.4-x64.exe) · [SHA256SUMS.txt](https://github.com/DooMokDdongGae/Chaessi-Preset/releases/download/v3.8.4/SHA256SUMS.txt) · [Release](https://github.com/DooMokDdongGae/Chaessi-Preset/releases/tag/v3.8.4)
+v3.8.5 소스와 검수용 빌드가 준비되었습니다. v3.8.5 GitHub Release는 아직 발행되지 않았으며, 공개 배포는 별도 승인 후 진행합니다. 현재 공개 다운로드는 [v3.8.4 Windows Portable 및 SHA-256](https://github.com/DooMokDdongGae/Chaessi-Preset/releases/tag/v3.8.4)입니다.
 
 [한국어](https://github.com/DooMokDdongGae/Chaessi-Preset/blob/main/README.ko.md) · [English](https://github.com/DooMokDdongGae/Chaessi-Preset/blob/main/README.en.md) · [日本語](https://github.com/DooMokDdongGae/Chaessi-Preset/blob/main/README.ja.md)
 
-**[설치 없이 보는 40장 온라인 도움말](https://doomokddonggae.github.io/Chaessi-Preset/v3.8.4/?lang=ko&chapter=start)** — v3.8.4는 작업대에서 마스크를 정밀하게 칠하고 확장 캔버스를 배치하기 쉽게 만들었습니다.
+v3.8.5에서는 가로로 넓거나 세로로 긴 크기를 고르고, 메타데이터 리더에서 선택한 글을 현재 초안으로 가져올 수 있습니다. [전체 41장 온라인 도움말](https://doomokddonggae.github.io/Chaessi-Preset/v3.8.5/?lang=ko&chapter=start)
 
 **직접 만든 프롬프트·캐릭터·의상·작업 결과를 재사용하면서 생성과 편집을 이어가는 로컬 작업대입니다.** NovelAI 계정으로 그림을 만들고, Chaessi Preset에서 제작 재료와 다음 작업을 관리합니다.
 
 “AI가 모든 것을 자동으로 결정하는 것이 아니라, 창작자가 프롬프트와 작업 과정을 직접 통제하고 수정하면서 결과를 완성한다.” 프리셋 저장, 생성 전 문구 확인, 수동 가중치 보정, 원본 복귀와 History 재사용은 이 방향을 위한 기능입니다.
 
-[v3.8.4 정식 Release](https://github.com/DooMokDdongGae/Chaessi-Preset/releases/tag/v3.8.4) · [v3.8.4 변경사항](https://github.com/DooMokDdongGae/Chaessi-Preset/blob/main/.github/releases/v3.8.4.ko.md) · [카메라 안내](https://github.com/DooMokDdongGae/Chaessi-Preset/blob/main/docs/CAMERA.ko.md)
+[v3.8.5 변경사항](.github/releases/v3.8.5.ko.md) · [카메라 안내](docs/CAMERA.ko.md)
+
+## 와이드·롱 이미지 크기
+
+작업대 아래 **이미지 크기**에서 **보통** 또는 **크게**를 고릅니다. 각 버튼의 가로 × 세로 픽셀을 확인하고 **이 크기 적용**을 누르세요. 새 와이드·롱 버튼은 V5에서 사용할 수 있는 사용자 지정 치수를 작업대에 등록한 빠른 선택입니다.
+
+| 범주 | 기본 가로 | 와이드 가로 | 기본 세로 | 롱 세로 | 정사각형 |
+| --- | --- | --- | --- | --- | --- |
+| 보통 | 1216 × 832 | 1344 × 768 | 832 × 1216 | 768 × 1344 | 1024 × 1024 |
+| 크게 | 1536 × 1024 | 1664 × 960 | 1024 × 1536 | 960 × 1664 | 1472 × 1472 |
+
+여러 인물과 넓은 배경에는 와이드 가로, 전신을 세로로 담을 공간이 필요할 때는 롱 세로를 써 보세요. 실제 구도는 프롬프트와 생성 결과에 따라 달라집니다. 초기값은 832 × 1216이며 작게·배경화면·직접 입력과 가로·세로 교환도 사용할 수 있습니다. 저장된 프리셋의 치수와 카메라·프롬프트는 자동으로 바뀌지 않습니다. 크게는 픽셀 수가 많아 비용이 달라질 수 있으니 생성 전 예상치를 확인하세요. [이미지 크기 도움말](https://doomokddonggae.github.io/Chaessi-Preset/v3.8.5/?lang=ko&chapter=settings)
+
+<a id="reader-setup"></a>
+
+## 메타데이터 리더 설치와 연결
+
+채씨 메타데이터 리더는 별도 배포됩니다. 리더를 제공한 곳에서 **실행 창 선택**과 **chaessi.prompt-transfer/1**을 지원하는 패키지를 받으세요. 호환 확인 기준은 리더 리비전 **4dbdd1d**입니다. Windows에서 Python 3.10 이상(Tcl/Tk 포함), Chrome 120 이상과 리더 연결 확장 0.3.1을 사용합니다.
+
+### 처음 한 번 설정하기
+
+1. 리더 폴더에서 `python -B chrome_bridge/extension/prepare.py`를 실행하세요. Chrome의 `chrome://extensions`에서 개발자 모드를 켜고 **압축해제된 확장 프로그램을 로드합니다**로 리더의 `chrome_bridge/extension` 폴더를 선택하세요.
+2. 리더 폴더의 **Start Reader.cmd**를 실행합니다. 리더에 동봉된 **docs/INSTALL.ko.md**에 따라 이 PC에서 만들어진 연결 키를 Chrome 확장의 **리더의 연결 키**에 입력하고 **최초 연결 저장**을 누르세요.
+3. **NovelAI Inspect 접근 허용**을 누르고 Chrome의 권한 요청을 승인합니다. 리더에 Chrome이 연결되었다고 표시되면 Inspect를 사용할 수 있습니다.
+
+### 문구 보내기
+
+1. Chrome의 NovelAI Inspect에서 이미지를 선택하고 리더의 **NovelAI Inspect 가져오기**를 누르세요. 프롬프트를 편집한 뒤 원하는 부분을 선택해 **선택 문구 담기**를 누르세요.
+2. **프리셋으로 보내기 → 프리셋 연결**을 누르세요. 단일 파일 Portable은 먼저 직접 실행하세요. **실행 중인 프리셋**에서 버전·실행 경로·PID로 받을 창을 확인하고 **이 프리셋 연결**을 누릅니다. 폴더형 배포본은 직접 실행되는 EXE를 등록해 닫힌 상태에서도 확인 후 실행할 수 있습니다.
+3. 행마다 받을 베이스·캐릭터 칸과 **추가** 또는 **덮어 쓰기**를 고른 뒤 **프리셋에서 변경 확인**을 누르세요. 수신 창에서 전후 문구를 비교하고 **초안에 적용** 또는 **취소**를 누르세요.
+4. 적용 직후에는 **리더 전송 되돌리기**로 복구할 수 있습니다. 보관하려면 작업대 위쪽의 **저장**을 직접 누르세요. 전송에는 NovelAI 토큰이나 유료 생성이 필요하지 않으며 자동 저장·History 기록·이미지 생성은 시작되지 않습니다.
+
+[리더 연결 9단계 도움말](https://doomokddonggae.github.io/Chaessi-Preset/v3.8.5/?lang=ko&chapter=reader-transfer)
 
 ## v3.8.4 — 부분수정과 아웃페인팅 조작 개선
 
@@ -48,7 +80,7 @@ Wildcard 관리에서 무작위(Random) 또는 순차(Sequential)를 선택할 �
 | 이미지 완성 | Upscale, Enhance / Max✨ Enhance, Remove Background, Line Art, Sketch, Colorize, Emotion, Declutter, Outpainting, Focused Inpaint |
 | 로컬 편집 | Canvas 펜·지우개·채우기·자르기·크기 변경·Undo/Redo, Pixel Snap 격자 정돈. 두 기능은 로컬 0 Anlas |
 | 결과 재사용 | History PNG·생성 조건·이미지 도구 기록, PNG/WebP 메타데이터 읽기, 결과 비교·저장·I2I/Inpaint 연결 |
-| 도움말 | 한국어·영어·일본어 40장, 검색·목차·문맥 이동·그림 확대. 앱 내 문서는 오프라인 사용 가능 |
+| 도움말 | 한국어·영어·일본어 41장, 검색·목차·문맥 이동·그림 확대. 앱 내 문서는 오프라인 사용 가능 |
 
 ![실제 작업대](web/help/assets/manuals/ko/docs-workbench.png)
 

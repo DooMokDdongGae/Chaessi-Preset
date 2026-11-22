@@ -1,6 +1,6 @@
 {
-  "version": "3.8.2",
-  "chapters": 40,
+  "version": "3.8.5",
+  "chapters": 41,
   "assets": [
     {
       "file": "assets/manuals/examples/workflow.webp",
@@ -246,15 +246,6 @@
       "revision_date": "2026-10-28"
     },
     {
-      "file": "assets/manuals/ko/resolution-picker.png",
-      "sha256": "61977680537988e299e30fed66c9c0933acc15ba462c56c07d4422df06620971",
-      "source_version": "v3.8.1",
-      "source_commit": "9cdd7e41b616a79432583e662f2fd9280080293a",
-      "kind": "reused-public-asset",
-      "width": 650,
-      "height": 467
-    },
-    {
       "file": "assets/manuals/ko/resolution-custom.png",
       "sha256": "c9bd76f06914cbd5e5348f987ed76329fa35797878da9cbe8c86041f579a8f08",
       "source_version": "v3.8.1",
@@ -264,15 +255,6 @@
       "height": 395
     },
     {
-      "file": "assets/manuals/en/resolution-picker.png",
-      "sha256": "07eabd4cab9849a84fe61b64ebe06dd08c02198d3b609c90584c038d31fd67b6",
-      "source_version": "v3.8.1",
-      "source_commit": "9cdd7e41b616a79432583e662f2fd9280080293a",
-      "kind": "reused-public-asset",
-      "width": 650,
-      "height": 467
-    },
-    {
       "file": "assets/manuals/en/resolution-custom.png",
       "sha256": "d8a8f82ba099db3e94abfae27c838320794f498b12cc053d9d8d38b5246cf042",
       "source_version": "v3.8.1",
@@ -280,15 +262,6 @@
       "kind": "reused-public-asset",
       "width": 650,
       "height": 395
-    },
-    {
-      "file": "assets/manuals/ja/resolution-picker.png",
-      "sha256": "d84a05bd5d798b91a64e7889f2d0590ace8dd37d6c10ef3ee4878f71e4833e6f",
-      "source_version": "v3.8.1",
-      "source_commit": "9cdd7e41b616a79432583e662f2fd9280080293a",
-      "kind": "reused-public-asset",
-      "width": 650,
-      "height": 467
     },
     {
       "file": "assets/manuals/ja/resolution-custom.png",
@@ -1510,6 +1483,54 @@
       "height": 1001,
       "source_version": "3.8.2",
       "captured_at": "2026-10-27T10:27:44.001Z"
+    },
+    {
+      "file": "assets/manuals/ko/resolution-v385.png",
+      "sha256": "a587685e01bc8c2752b918b5e8649665fcb27fd7757d0f362aebba13dabc1757",
+      "width": 650,
+      "height": 469,
+      "kind": "application-dialog-screenshot",
+      "source_version": "3.8.5"
+    },
+    {
+      "file": "assets/manuals/ko/reader-preview-v385.png",
+      "sha256": "dc00dd78b423dda6342555e0ad376a46efc67a7fdb4f7a0d10d2f852b8588f59",
+      "width": 832,
+      "height": 347,
+      "kind": "application-dialog-screenshot",
+      "source_version": "3.8.5"
+    },
+    {
+      "file": "assets/manuals/en/resolution-v385.png",
+      "sha256": "b534c1c5afa087a8ee2b60629dfb8b3ebb57aa85715744b6f9cceb49e8f1de6e",
+      "width": 650,
+      "height": 489,
+      "kind": "application-dialog-screenshot",
+      "source_version": "3.8.5"
+    },
+    {
+      "file": "assets/manuals/en/reader-preview-v385.png",
+      "sha256": "4050e238b1ecb483f46c3597c77cb670e233ed0e6f7cc0b7d5d21b4ce58136c4",
+      "width": 832,
+      "height": 347,
+      "kind": "application-dialog-screenshot",
+      "source_version": "3.8.5"
+    },
+    {
+      "file": "assets/manuals/ja/resolution-v385.png",
+      "sha256": "bc974c60ac2e87805018517b4449715272dff319140377269043591b23649dee",
+      "width": 650,
+      "height": 469,
+      "kind": "application-dialog-screenshot",
+      "source_version": "3.8.5"
+    },
+    {
+      "file": "assets/manuals/ja/reader-preview-v385.png",
+      "sha256": "a986996768057a6aabe75e20e82e28b18e93ba500f6f0a8fef24709d25b965d1",
+      "width": 832,
+      "height": 347,
+      "kind": "application-dialog-screenshot",
+      "source_version": "3.8.5"
     }
   ]
 }

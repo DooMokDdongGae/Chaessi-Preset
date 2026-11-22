@@ -1,5 +1,7 @@
 import { app, BrowserWindow, Menu, shell } from "electron";
 import path from "node:path";
+import { mkdirSync, mkdtempSync } from "node:fs";
+import { attachTransfer } from "./transfer-main.mjs";
 import { fileURLToPath } from "node:url";
 import {
   getServerBaseUrl,
@@ -15,11 +17,28 @@ const projectRoot = path.resolve(__dirname, "..");
 const appIconPath = path.join(projectRoot, "assets", "branding", "chaessi-preset.ico");
 const supportUrl = "https://buymeacoffee.com/magiconcert";
 
-// Explicit PRIVATE launcher/testing override. Normal app identity and profile are unchanged.
-if (process.env.CHAESSI_PRIVATE_TEST_PROFILE) {
-  const profile = process.env.CHAESSI_PRIVATE_TEST_PROFILE;
-  if (!path.isAbsolute(profile)) throw new Error('PRIVATE profile must be an absolute path.');
-  app.setPath('userData', profile);
+const profileOverride = process.env.CHAESSI_PRIVATE_TEST_PROFILE;
+const isolated = Boolean(profileOverride);
+if (isolated) {
+  const profile = profileOverride;
+  const profilePath = path.resolve(profile).toLowerCase();
+  const publicPath = path.resolve(app.getPath("appData"), "Chaessi Preset").toLowerCase();
+  if (!path.isAbsolute(profile) || profilePath === publicPath || profilePath.startsWith(publicPath + path.sep) ||
+      publicPath.startsWith(profilePath + path.sep) || profilePath === path.parse(profilePath).root) {
+    throw new Error("A separate absolute review profile is required.");
+  }
+  mkdirSync(profile, { recursive: true });
+  app.setPath("userData", path.resolve(profile));
+}
+// Keep the primary PUBLIC session at its existing path and origin. Concurrent
+// windows need their own Chromium session; each publishes its own receiver.
+const profile = app.getPath("userData");
+if (!app.requestSingleInstanceLock()) {
+  app.setPath("sessionData", mkdtempSync(path.join(profile, "window-")));
+} else if (isolated) {
+  const session = path.join(profile, "primary-window");
+  mkdirSync(session, { recursive: true });
+  app.setPath("sessionData", session);
 }
 
 function createWindow({ serverStatus = "starting" } = {}) {
@@ -28,11 +47,11 @@ function createWindow({ serverStatus = "starting" } = {}) {
     height: 860,
     minWidth: 960,
     minHeight: 640,
-    title: "Chaessi Preset",
+    title: app.getName(),
     icon: appIconPath,
     backgroundColor: "#10111d",
     webPreferences: {
-      preload: path.join(__dirname, "preload.mjs"),
+      preload: path.join(__dirname, "transfer-preload.cjs"),
       contextIsolation: true,
       nodeIntegration: false,
       sandbox: true,
@@ -56,6 +75,7 @@ function createWindow({ serverStatus = "starting" } = {}) {
   });
 
   if (serverStatus === "ready") {
+    attachTransfer(window, getServerBaseUrl());
     window.loadURL(getServerBaseUrl()).catch((error) => {
       window.loadURL(createShellHtml({
         serverStatus: "failed",
@@ -149,7 +169,7 @@ app.whenReady().then(async () => {
 
   let serverStatus = "starting";
   try {
-    await startServerProcess();
+    await startServerProcess({ isolated, onLost: () => app.quit() });
     await waitForServerHealth();
     serverStatus = "ready";
   } catch (error) {

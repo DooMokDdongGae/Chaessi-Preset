@@ -12,6 +12,7 @@ import { createCharacterPositionPad } from "./ui/character-position-pad.js";
 import { createCharacterPresetPreferences } from "./ui/character-preset-preferences.js";
 import { createWorkbenchController } from "./ui/workbench-controller.js";
 import {createResolutionController} from './ui/resolution-controller.js';
+import {applyResolutionToDraft} from './state/resolutions.js';
 import { installLanguageUI, getLanguage, t, formatUIError } from "./ui/i18n.js";
 import { createSortControl, sortPresets } from "./ui/preset-sorting.js";
 import { confirmDeletion } from "./ui/delete-confirmation.js";
@@ -38,6 +39,8 @@ import { getEffectiveParams, getModelProfile, NOVELAI_V45_FULL_MODEL, NOVELAI_V5
 import { switchPresetModel, syncActiveModelState } from "./state/model-state.js";
 import { switchPresetEffort } from "./state/effort-state.js";
 import { createPromptWorkflow } from "./ui/prompt-workflow.js";
+import { installTransferPreview } from "./ui/transfer-preview.js";
+import { createTransferEditor } from "./ui/transfer-editor.js";
 import { createWildcardController } from "./ui/wildcard-controller.js";
 import {
   DEFAULT_CHARACTER_PRESET_CATEGORY,
@@ -57,6 +60,7 @@ let preciseReferenceController = null;
 let imageIntakeController = null;
 let characterPositionPadController = null;
 let workbenchController = null;
+let transferPreview = null;
 const promptTokenizers = { t5: null, qwen: null };
 let promptTokenCounterTimer = null;
 let promptTokenizerError = null;
@@ -212,7 +216,15 @@ async function init() {
   });
   generationModeController.bind();
   generationCostController = installGenerationCost({ getPreset: () => state.currentPreset, getMode: () => generationModeController.getMode() });
-  resolutionController=createResolutionController({getMode:()=>generationModeController.getMode(),onChange:()=>{syncPresetFromForm();renderCharacterPositionPad();updateCurrentSummary();generationCostController.render();}});
+  resolutionController = createResolutionController({
+    getMode: () => generationModeController.getMode(),
+    onChange: (width, height) => {
+      state.currentPreset = applyResolutionToDraft(state.currentPreset, width, height);
+      renderCharacterPositionPad();
+      updateCurrentSummary();
+      generationCostController.render();
+    },
+  });
   imageToolsController = createImageToolsController({
     getLatest: () => state.lastGenerationResponse?.generation?.id ? { id: state.lastGenerationResponse.generation.id, url: state.lastGeneratedImage } : null,
     getViewed: () => state.imageViewerContext?.imagePath ? { id: state.imageViewerContext.id || null, url: state.imageViewerContext.imagePath } : null,
@@ -255,9 +267,9 @@ async function init() {
   imageIntakeController.bind();
   bindActions();
   bindImageIntake();
-  await refreshHealth();
+  const health = await refreshHealth();
   await refreshTokenStatus();
-  await refreshAccountUsage();
+  await refreshAccountUsage(health.accountRefreshOnStartup);
   await loadCharacterPresetCategories();
   const defaultResponse = await getJson("/api/preset/default");
   state.currentPreset = defaultResponse.preset;
@@ -289,6 +301,17 @@ async function init() {
   const latestCamera = document.createElement('button'); latestCamera.type='button'; latestCamera.id='cameraInputLatest'; latestCamera.textContent='New absolute camera';
   latestCamera.onclick=async()=>{try{const id=state.lastGenerationResponse?.generation?.id;if(id)await cameraInputController.fromHistory((await getJson(`/api/generations/${encodeURIComponent(id)}`)).generation);}catch(error){showToast(error.message,true);}};
   $('latestResultActions').append(latestCamera);
+  if (window.promptTransfer) {
+    transferPreview = installTransferPreview({bridge:window.promptTransfer, ...createTransferEditor({
+      state, fields, renderCharacterCards, renderCharacterPositionPad,
+      refresh:() => { updateCurrentSummary(); schedulePromptTokenCounterUpdate(); },
+    })});
+    try {
+      await transferPreview.ready();
+    } catch {
+      showToast("Reader connection unavailable. Check the local registry permissions and restart Preset.", true);
+    }
+  }
 }
 
 function bindActions() {
@@ -504,7 +527,7 @@ function bindActions() {
   $("saveTokenButton").addEventListener("click", saveNovelAiToken);
   $("clearTokenButton").addEventListener("click", clearSavedNovelAiToken);
   window.addEventListener("focus", () => {
-    if (Date.now() - lastAccountUsageRefreshAt >= ACCOUNT_USAGE_FOCUS_REFRESH_MS) void refreshAccountUsage();
+    if (!window.promptTransfer && Date.now() - lastAccountUsageRefreshAt >= ACCOUNT_USAGE_FOCUS_REFRESH_MS) void refreshAccountUsage();
   });
 
   Object.values(fields).filter((field) => field !== fields.charactersJson && field !== fields.model && field !== fields.effort).forEach((field) => {
@@ -595,8 +618,9 @@ function bindImageIntake() {
 }
 async function refreshHealth() {
   const health = await getJson("/api/health");
-  $("aboutChannel").textContent = t(!health.version ? "Version unavailable" : health.version.includes("private") ? "PRIVATE development build" : "PUBLIC build");
+  $("aboutChannel").textContent = t(health.version ? "PUBLIC build" : "Version unavailable");
   $("aboutVersion").textContent = `Chaessi Preset ${health.version || "—"}`;
+  return health;
 }
 
 async function refreshTokenStatus() {
@@ -609,14 +633,16 @@ async function refreshTokenStatus() {
   );
 }
 
-async function refreshAccountUsage() {
-  lastAccountUsageRefreshAt = Date.now();
+async function refreshAccountUsage(enabled = true) {
   try {
-    const response = await getJson("/api/novelai/account-usage");
+    const response = await generationCostController.refreshAccount(enabled);
+    if (!response) return;
+    lastAccountUsageRefreshAt = Date.now();
     $("anlasBalanceStatus").textContent = formatAccountMetric("Anlas", response.anlas_balance);
     $("staminaStatus").textContent = formatAccountMetric("V5 Stamina", response.stamina_percent, "%");
     return response;
   } catch {
+    lastAccountUsageRefreshAt = Date.now();
     $("anlasBalanceStatus").textContent = "Anlas unavailable";
     $("staminaStatus").textContent = "V5 Stamina unavailable";
     return null;
@@ -2062,6 +2088,7 @@ function getEditedImportResult() {
 }
 
 function renderPresetForm() {
+  transferPreview?.invalidate();
   const focus = workbenchController?.captureFocus();
   state.currentPreset = sanitizePresetSnapshot(state.currentPreset);
   const preset = state.currentPreset;
@@ -2159,6 +2186,12 @@ function renderCharacterCards(characters) {
   const visibleCharacters = characters.slice(0, maxCharacters);
   $("characterCards").innerHTML = visibleCharacters.map((character, index) => renderCharacterCard(character, index, "preset")).join("")
     || "<div class=\"summary\">No character prompts. Add one or import metadata with characters.</div>";
+  // Setting the value directly preserves a leading newline when a card is redrawn.
+  for (const card of $("characterCards").querySelectorAll("[data-character-index]")) {
+    const character = visibleCharacters[Number(card.dataset.characterIndex)];
+    card.querySelector('[data-character-field="prompt"]').value = character.prompt;
+    card.querySelector('[data-character-field="undesired"]').value = character.undesired;
+  }
   bindCharacterCardActions();
 }
 
@@ -2259,8 +2292,8 @@ function renderCharacterCard(character, index, scope) {
         <button type="button" class="${activeTab === "undesired" ? "is-active" : ""}" data-character-tab="undesired" ${medium ? "hidden" : ""}>Undesired Content</button>
         <button type="button" data-expand-prompt="" title="Open a large prompt editor">Expand editor</button>
       </div>
-      <textarea class="character-pane ${activeTab === "prompt" ? "is-active" : ""}" data-character-field="prompt" spellcheck="false">${escapeHtml(character.prompt || "")}</textarea>
-      <textarea class="character-pane ${activeTab === "undesired" ? "is-active" : ""}" data-character-field="undesired" ${medium ? "hidden" : ""} spellcheck="false">${escapeHtml(character.undesired || "")}</textarea>
+      <textarea class="character-pane ${activeTab === "prompt" ? "is-active" : ""}" data-character-field="prompt" spellcheck="false"></textarea>
+      <textarea class="character-pane ${activeTab === "undesired" ? "is-active" : ""}" data-character-field="undesired" ${medium ? "hidden" : ""} spellcheck="false"></textarea>
       <div class="prompt-token-counter character-token-counter is-loading" data-character-token-counter>Loading tokenizer...</div>
       <details class="character-position">
         <summary>${positionStep === "0.001" ? "Position (Advanced)" : "Position"}</summary>

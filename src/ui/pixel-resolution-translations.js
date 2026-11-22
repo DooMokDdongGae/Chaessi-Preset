@@ -1,6 +1,8 @@
 const rows=`
 Fine tuning	세부 조정	詳細調整
 Image size	이미지 크기	画像サイズ
+Size category	크기 범주	サイズの種類
+Orientation	방향	向き
 Choose a size, then an orientation.	크기와 가로·세로 방향을 선택하세요.	サイズと向きを選んでください。
 Small	작게	小
 Normal	보통	標準
@@ -9,6 +11,10 @@ Wallpaper	배경화면	壁紙
 Custom	직접 입력	カスタム
 Landscape	가로	横長
 Portrait	세로	縦長
+Standard landscape	기본 가로	標準横長
+Wide landscape	와이드 가로	ワイド横長
+Standard portrait	기본 세로	標準縦長
+Tall portrait	롱 세로	ロング縦長
 Square	정사각형	正方形
 Not available	지원하지 않음	利用不可
 Apply size	이 크기 적용	サイズを適用

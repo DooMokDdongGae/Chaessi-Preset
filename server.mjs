@@ -72,7 +72,8 @@ import { parseNovelAiPngMetadata } from "./src/importers/nai-metadata.js";
 import { parseImageMetadata } from "./src/importers/image-metadata.js";
 
 const HEALTH_APP_NAME = "Chaessi Preset";
-const APP_VERSION = JSON.parse(readFileSync(new URL("./package.json", import.meta.url), "utf8")).version;
+const appPackage = JSON.parse(readFileSync(new URL("./package.json", import.meta.url), "utf8"));
+const APP_VERSION = appPackage.version;
 const PORT = Number(process.env.PORT || 4174);
 const ROOT = path.dirname(fileURLToPath(import.meta.url));
 const DATA_ROOT = path.resolve(process.env.CHAESSI_USER_DATA_DIR || ROOT);
@@ -89,8 +90,11 @@ const MIGRATABLE_DATA_DIRS = [
   "wildcards",
 ];
 
-loadLocalEnvFallback();
-await migrateProjectDataToUserData();
+const isolatedProfile = Boolean(process.env.CHAESSI_PRIVATE_TEST_PROFILE);
+if (!isolatedProfile) {
+  loadLocalEnvFallback();
+  await migrateProjectDataToUserData();
+}
 const tokenProvider = createTokenProvider({
   secretStore: new EnvSecretStore(),
 });
@@ -116,6 +120,8 @@ const server = http.createServer(async (req, res) => {
         ok: true,
         app: HEALTH_APP_NAME,
         version: APP_VERSION,
+        channel: "public",
+        accountRefreshOnStartup: !isolatedProfile,
       });
       return;
     }
@@ -425,9 +431,25 @@ process.on?.("message", (message) => {
   pending.reject(error);
 });
 
-server.listen(PORT, "127.0.0.1", () => {
-  console.log(`[${APP_NAME}] API server listening on http://127.0.0.1:${PORT}`);
+const electronChild = process.env.CHAESSI_ELECTRON_SERVER === "1" && process.connected;
+function handleBindError(error) {
+  if (electronChild && PORT !== 0 && error.code === "EADDRINUSE") {
+    server.listen(0, "127.0.0.1");
+    return;
+  }
+  throw error;
+}
+server.once("error", handleBindError);
+server.once("listening", () => {
+  server.off("error", handleBindError);
+  const port = server.address().port;
+  if (electronChild) {
+    process.send({ channel: "server-ready", port });
+    process.once("disconnect", () => process.exit(0));
+  }
+  console.log(`[${APP_NAME}] API server listening on http://127.0.0.1:${port}`);
 });
+server.listen(PORT, "127.0.0.1");
 
 async function handleTokenStatus() {
   const provider = "novelai";

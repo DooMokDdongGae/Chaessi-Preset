@@ -15,7 +15,19 @@ export function installGenerationCost({getPreset,getMode}){
   }catch{node.textContent='Estimated cost unavailable.';}}
   const schedule=()=>{clearTimeout(timer);timer=setTimeout(render,200);};document.addEventListener('input',schedule);document.addEventListener('change',schedule);document.addEventListener('click',schedule);document.addEventListener('chaessi:language-change',render);
   new MutationObserver(schedule).observe($('generationSourceInfo'),{childList:true,subtree:true,characterData:true});
-  async function refresh(){try{available=(await getJson('/api/novelai/cost-account')).opus_available;}catch{available=null;}render();}
+  async function refreshAccount(enabled) {
+    if (!enabled) return;
+    try {
+      const usage = await getJson('/api/novelai/account-usage');
+      available = usage.opus_available;
+      return usage;
+    } catch (error) {
+      available = null;
+      throw error;
+    } finally {
+      render();
+    }
+  }
   async function confirmSizeCost(){
     if(getMode()!=='text-to-image')return true;
     const width=Number($('paramWidth').value),height=Number($('paramHeight').value);
@@ -24,5 +36,6 @@ export function installGenerationCost({getPreset,getMode}){
     let cost;try{cost=estimateGeneration({model:'nai-diffusion-5-full'+(effort==='medium'?'-medium':''),parameters:{width,height,steps}},{opusAvailable:available}).anlas;}catch{cost=null;}
     return confirmAction(t('Generate {width} × {height} at {effort}? Estimated {cost} Anlas.',{width,height,effort:effort==='medium'?'Medium':'High',cost:cost??t('Unknown')}));
   }
-  $('refreshTokenStatusButton')?.addEventListener('click',refresh);render();void refresh();return {refresh,render,confirmSizeCost};
+  render();
+  return {refreshAccount,render,confirmSizeCost};
 }

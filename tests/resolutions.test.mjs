@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {RESOLUTION_PRESETS,classifyResolution,resolutionError} from '../src/state/resolutions.js';
+import {RESOLUTION_PRESETS,applyResolutionToDraft,classifyResolution,resolutionError} from '../src/state/resolutions.js';
 import {createDefaultPreset} from '../src/state/preset-schema.js';
 import {buildV5GeneratePayload,validateV5Payload} from '../src/adapters/novelai-v5-full.js';
 import {switchPresetEffort} from '../src/state/effort-state.js';
@@ -12,14 +12,46 @@ import {createPresetStore} from '../src/services/preset-store.js';
 import {switchPresetModel} from '../src/state/model-state.js';
 import {parseRawJsonImport} from '../src/importers/raw-json-import.js';
 
-test('Every official size round-trips to its category and exact High/Medium payload',()=>{
+test('Every picker size round-trips to its category and exact High/Medium payload',()=>{
   let count=0;
   for(const [category,shapes]of Object.entries(RESOLUTION_PRESETS))for(const [orientation,[width,height]]of Object.entries(shapes)){
     count++;assert.deepEqual(classifyResolution(width,height),{category,orientation});assert.equal(resolutionError(width,height),null);
     const preset=createDefaultPreset({params:{model:'nai-diffusion-5-full',width,height,effort:'high'}});
     for(const effort of ['high','medium','high']){const changed=switchPresetEffort(preset,effort),payload=buildV5GeneratePayload(changed);assert.equal(payload.parameters.width,width);assert.equal(payload.parameters.height,height);assert.equal(validateV5Payload(payload).ok,true);assert.equal(changed.params.width,width);const cost=estimateGeneration(payload,{opusAvailable:true});assert.equal(cost.anlas>0,width*height>1_048_576);}
   }
-  assert.equal(count,11);assert.equal(RESOLUTION_PRESETS.Wallpaper.Square,undefined);
+  assert.equal(count,15);assert.equal(RESOLUTION_PRESETS.Wallpaper.Square,undefined);
+});
+
+test('Additional choices preserve all previous sizes, their reciprocals and the default', () => {
+  const expected = {
+    Small: [[768,512], [512,768], [640,640]],
+    Normal: [[1216,832], [1344,768], [832,1216], [768,1344], [1024,1024]],
+    Large: [[1536,1024], [1664,960], [1024,1536], [960,1664], [1472,1472]],
+    Wallpaper: [[1920,1088], [1088,1920]],
+  };
+  for (const [category, sizes] of Object.entries(expected)) {
+    assert.deepEqual(Object.values(RESOLUTION_PRESETS[category]), sizes);
+    for (const [width, height] of sizes) {
+      assert.equal(classifyResolution(String(height), String(width)).category, category);
+    }
+  }
+  const {width, height} = createDefaultPreset().params;
+  assert.deepEqual([width, height], [832,1216]);
+});
+
+test('Applying only dimensions preserves exact prompts, character positions and inactive model state', () => {
+  const preset = createDefaultPreset({
+    prompt_parts: {base:'  synthetic\nbase ', undesired:'  synthetic UC ', characters:[
+      {prompt:'\n synthetic character ', undesired:'\t', position_mode:'custom', centers:[{x:0.32,y:0.69}]},
+    ]},
+    params: {model:'nai-diffusion-5-full', seed:54992},
+    model_states: {'nai-diffusion-4-5-full': {params:{width:1152,height:768}}},
+  });
+  const before = structuredClone(preset);
+  const after = applyResolutionToDraft(preset, 960, 1664);
+  assert.deepEqual(after, {...before, params:{...before.params, width:960, height:1664}});
+  assert.deepEqual(preset, before);
+  assert.throws(() => applyResolutionToDraft(preset, 960, 1665));
 });
 
 test('Saved sizes, revisions, legacy model snapshots and raw imports keep exact dimensions',async()=>{

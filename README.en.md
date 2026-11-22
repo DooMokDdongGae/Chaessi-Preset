@@ -1,16 +1,48 @@
-# CHAESSI PRESET v3.8.4
+# CHAESSI PRESET v3.8.5
 
-[Windows x64 Portable](https://github.com/DooMokDdongGae/Chaessi-Preset/releases/download/v3.8.4/Chaessi-Preset-v3.8.4-x64.exe) · [SHA256SUMS.txt](https://github.com/DooMokDdongGae/Chaessi-Preset/releases/download/v3.8.4/SHA256SUMS.txt) · [Release](https://github.com/DooMokDdongGae/Chaessi-Preset/releases/tag/v3.8.4)
+The v3.8.5 source and review build are ready. The v3.8.5 GitHub Release awaits separate approval and has not been published. The current public download is [v3.8.4 Windows Portable and SHA-256 checksums](https://github.com/DooMokDdongGae/Chaessi-Preset/releases/tag/v3.8.4).
 
 [한국어](https://github.com/DooMokDdongGae/Chaessi-Preset/blob/main/README.ko.md) · [English](https://github.com/DooMokDdongGae/Chaessi-Preset/blob/main/README.en.md) · [日本語](https://github.com/DooMokDdongGae/Chaessi-Preset/blob/main/README.ja.md)
 
-**[Read all 40 chapters online](https://doomokddonggae.github.io/Chaessi-Preset/v3.8.4/?lang=en&chapter=start)** — v3.8.4 makes it easier to paint precise masks in the workbench and arrange images on an expanded canvas.
+v3.8.5 adds wide and tall image sizes and lets you bring selected text from Metadata Reader into the current draft. [Read all 41 chapters online](https://doomokddonggae.github.io/Chaessi-Preset/v3.8.5/?lang=en&chapter=start)
 
 **A local workbench for reusing your prompts, characters, outfits and results across generation and editing.** Generate with your NovelAI account, then organize the materials and continue the work in Chaessi Preset.
 
 “The creator controls and revises the prompts and process to finish the result, instead of asking AI to decide everything.” Saved presets, reviewable generation text, manual weights, source recovery and History reuse serve that purpose.
 
-[v3.8.4 Release](https://github.com/DooMokDdongGae/Chaessi-Preset/releases/tag/v3.8.4) · [v3.8.4 Release Notes](https://github.com/DooMokDdongGae/Chaessi-Preset/blob/main/.github/releases/v3.8.4.en.md) · [Camera guide](https://github.com/DooMokDdongGae/Chaessi-Preset/blob/main/docs/CAMERA.en.md)
+[v3.8.5 release notes](.github/releases/v3.8.5.en.md) · [Camera guide](docs/CAMERA.en.md)
+
+## Wide and tall image sizes
+
+Choose **Image size** at the bottom of the workbench, then **Normal** or **Large**. Check the width × height on the button and choose **Apply size**. The new Wide landscape and Tall portrait buttons are workbench shortcuts for V5 custom dimensions.
+
+| Size | Standard landscape | Wide landscape | Standard portrait | Tall portrait | Square |
+| --- | --- | --- | --- | --- | --- |
+| Normal | 1216 × 832 | 1344 × 768 | 832 × 1216 | 768 × 1344 | 1024 × 1024 |
+| Large | 1536 × 1024 | 1664 × 960 | 1024 × 1536 | 960 × 1664 | 1472 × 1472 |
+
+Try Wide landscape for a group or a broad background. Tall portrait gives you more vertical space for a full-length figure. Framing depends on the prompt and the generated result. The starting size is 832 × 1216. Small, Wallpaper, Custom and width/height swap are still available. Your saved sizes, prompts and camera settings stay as you set them. Large uses more pixels and can change the cost. Check the estimate before generating. [Image size guide](https://doomokddonggae.github.io/Chaessi-Preset/v3.8.5/?lang=en&chapter=settings)
+
+<a id="reader-setup"></a>
+
+## Set up and connect Metadata Reader
+
+Chaessi Metadata Reader is distributed separately. Obtain a package that can **select running Preset windows** and supports **chaessi.prompt-transfer/1** from your Reader provider. The compatibility reference is Reader revision **4dbdd1d**. On Windows, use Python 3.10 or later with Tcl/Tk, Chrome 120 or later, and Reader bridge extension 0.3.1.
+
+### First-time setup
+
+1. Run `python -B chrome_bridge/extension/prepare.py` in the Reader folder. In your usual Chrome profile, open `chrome://extensions`, enable Developer mode, choose **Load unpacked** and select the Reader package’s `chrome_bridge/extension` folder.
+2. Run **Start Reader.cmd**. Find the locally generated connection key as described in **docs/INSTALL.ko.md** in the Reader package. In the extension’s setup page, enter it in **리더의 연결 키** (Reader connection key) and choose **최초 연결 저장** (save pairing).
+3. Choose **NovelAI Inspect 접근 허용** (allow NovelAI Inspect access) and approve the Chrome permission. Once Reader shows Chrome is connected, you can import from Inspect.
+
+### Send text to Preset
+
+1. Select an image in NovelAI Inspect in Chrome and choose **Import from NovelAI Inspect** in Reader. Edit the prompt, highlight the words you want, and choose **Add selection**.
+2. Choose **Send to Preset → Connect to Preset**. Open the single-file Portable yourself first. Under **Running Presets**, check the version, executable path and PID, then choose **Connect to this Preset**. For a folder build, you can register the directly running EXE and approve its launch when it is closed.
+3. Assign a Base or Character field and **Append** or **Replace** to each row. Choose **Review changes in Preset**. In the receiving window, compare the current and final text, then choose **Apply to draft** or **Cancel**.
+4. Use **Undo Reader transfer** to reverse the last transfer. Choose **Save** at the top of the workbench yourself to keep the edits. Transfer needs no NovelAI token or paid generation and does not automatically save, write History or generate an image.
+
+[Nine-step Reader connection guide](https://doomokddonggae.github.io/Chaessi-Preset/v3.8.5/?lang=en&chapter=reader-transfer)
 
 ## v3.8.4 — Inpaint zoom and outpaint canvas controls
 
@@ -48,7 +80,7 @@ Build a preset → edit prompts → generate with V5 → inspect → adjust came
 | Image tools | Upscale, Enhance / Max✨ Enhance, Remove Background, Line Art, Sketch, Colorize, Emotion, Declutter, Outpainting and Focused Inpaint |
 | Local editing | Canvas pen, eraser, fill, crop, resize and Undo/Redo; Pixel Snap grid cleanup. Both run locally for 0 Anlas |
 | Reuse | History PNGs, settings and operation records; PNG/WebP metadata import; compare, save and hand results to I2I/Inpaint |
-| Help | 40 chapters in Korean, English and Japanese, with search, contents, contextual links and image zoom; available offline in the app |
+| Help | 41 chapters in Korean, English and Japanese, with search, contents, contextual links and image zoom; available offline in the app |
 
 ![Actual workbench](web/help/assets/manuals/en/docs-workbench.png)
 

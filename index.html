@@ -59,9 +59,11 @@
                 <button type="button" id="restoreSavedPresetButton">Restore saved</button>
                 <button type="button" id="previousWorkbenchButton">Previous work</button>
                 <button type="button" id="presetRevisionsButton">Saved revisions</button>
+                <button type="button" id="transferUndo" hidden>Undo Reader transfer</button>
               </div>
             </div>
             <p id="presetEditStatus" role="status" aria-live="polite"></p>
+            <p id="transferStatus" role="status" aria-live="polite" hidden></p>
             <div class="preset-editor-grid">
               <section class="tool-surface preset-prompt-surface">
                 <div class="section-row">
@@ -709,6 +711,18 @@
         <section><h3>App guide / 전체 앱 설명서</h3><p>Legacy PDF reference. Open Help Center for current features.</p><div class="actions"><a href="/manuals/app-ko.pdf" target="_blank" rel="noopener">한국어 PDF</a><a href="/manuals/app-en.pdf" target="_blank" rel="noopener">English PDF</a></div></section>
         <section><h3>Wildcard guide / Wildcard 설명서</h3><p>Create a list, insert a reference, and generate with a selected candidate.</p><div class="actions"><a href="/manuals/wildcard-ko.pdf" target="_blank" rel="noopener">한국어 PDF</a><a href="/manuals/wildcard-en.pdf" target="_blank" rel="noopener">English PDF</a></div></section>
       </div></details>
+    </dialog>
+    <dialog id="transferPreviewDialog" class="transfer-preview" aria-labelledby="transferTitle">
+      <header class="dialog-header"><h2 id="transferTitle">Reader prompt transfer</h2></header>
+      <h3>Transfer order</h3>
+      <ol id="transferSteps"></ol>
+      <div id="transferResults"></div>
+      <div class="transfer-consent" id="transferConfirmCreate"></div>
+      <div class="transfer-consent" id="transferConfirmClear"></div>
+      <footer class="actions">
+        <button id="transferCancel" type="button" autofocus>Cancel</button>
+        <button id="transferApply" type="button">Apply to draft</button>
+      </footer>
     </dialog>
     <script type="module" src="/src/app.js"></script>
   </body>

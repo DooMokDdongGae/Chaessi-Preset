@@ -1,6 +1,7 @@
 import {readFile} from 'node:fs/promises';
 import path from 'node:path';
 import {randomUUID} from 'node:crypto';
+import {hasOpusAllowance} from '../services/novelai-account-usage.js';
 import {buildToolPlan,publicToolPlan} from './plan.js';
 import {base64Png,composeFocus,inspectToolPng,shaOptions} from './image-assets.js';
 import {decodeToolZip} from './zip-images.js';
@@ -41,7 +42,7 @@ export function createImageToolService({rootDir,generationStore,wildcardStore,ge
     const id=randomUUID();prepared.set(id,{plan,expires:Date.now()+5*60_000});
     return {ok:true,prepared_id:id,plan:publicToolPlan(plan)};
   }
-  async function account(token){try{const r=await fetchImpl('https://image.novelai.net/user/data',{headers:{Authorization:`Bearer ${token}`},signal:AbortSignal.timeout(12_000)});if(!r.ok)return null;const sub=(await r.json()).subscription,b=sub?.trainingStepsLeft;return {anlas:typeof b==='number'?b:Number(b?.fixedTrainingStepsLeft??0)+Number(b?.purchasedTrainingSteps??0),opus:sub?.active===true&&sub?.tier===3&&sub?.usage?.isNegative!==true};}catch{return null;}}
+  async function account(token){try{const r=await fetchImpl('https://image.novelai.net/user/data',{headers:{Authorization:`Bearer ${token}`},signal:AbortSignal.timeout(12_000)});if(!r.ok)return null;const sub=(await r.json()).subscription,b=sub?.trainingStepsLeft;return {anlas:typeof b==='number'?b:Number(b?.fixedTrainingStepsLeft??0)+Number(b?.purchasedTrainingSteps??0),opus:hasOpusAllowance(sub)};}catch{return null;}}
   async function run(id){
     if(busy)throw storeError(409,'image_tool_busy','An image operation is already running.');
     const item=prepared.get(id);prepared.delete(id);

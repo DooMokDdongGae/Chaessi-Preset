@@ -33,6 +33,7 @@ export function parseNovelAiAccountUsage(payload) {
   return {
     anlasBalance: normalizeAnlasBalance(subscription.trainingStepsLeft),
     staminaPercent: normalizeStaminaPercent(subscription.usage),
+    opusAvailable: hasOpusAllowance(subscription),
   };
 }
 
@@ -40,7 +41,12 @@ export function projectNovelAiAccountUsage(usage) {
   return {
     anlas_balance: usage?.anlasBalance ?? null,
     stamina_percent: usage?.staminaPercent ?? null,
+    opus_available: usage?.opusAvailable ?? null,
   };
+}
+
+export function hasOpusAllowance(subscription) {
+  return subscription?.active === true && subscription.tier === 3 && subscription.usage?.isNegative !== true;
 }
 
 export function normalizeAnlasBalance(value) {

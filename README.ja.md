@@ -1,16 +1,48 @@
-# CHAESSI PRESET v3.8.4
+# CHAESSI PRESET v3.8.5
 
-[Windows x64 Portable](https://github.com/DooMokDdongGae/Chaessi-Preset/releases/download/v3.8.4/Chaessi-Preset-v3.8.4-x64.exe) · [SHA256SUMS.txt](https://github.com/DooMokDdongGae/Chaessi-Preset/releases/download/v3.8.4/SHA256SUMS.txt) · [Release](https://github.com/DooMokDdongGae/Chaessi-Preset/releases/tag/v3.8.4)
+v3.8.5のソースと検証用ビルドを用意しました。v3.8.5のGitHub Releaseは未発行で、一般配布には別途承認が必要です。現在の公開ダウンロードは [v3.8.4 Windows PortableとSHA-256](https://github.com/DooMokDdongGae/Chaessi-Preset/releases/tag/v3.8.4) です。
 
 [한국어](https://github.com/DooMokDdongGae/Chaessi-Preset/blob/main/README.ko.md) · [English](https://github.com/DooMokDdongGae/Chaessi-Preset/blob/main/README.en.md) · [日本語](https://github.com/DooMokDdongGae/Chaessi-Preset/blob/main/README.ja.md)
 
-**[インストールせずに全40章を読む](https://doomokddonggae.github.io/Chaessi-Preset/v3.8.4/?lang=ja&chapter=start)** — v3.8.4では、作業台での細かなマスク描画と、拡張キャンバス上での画像配置がしやすくなりました。
+v3.8.5では、ワイド横長とロング縦長の画像サイズを選べます。メタデータリーダーで選択した文章を、現在の下書きに取り込めます。 [全41章のオンラインヘルプ](https://doomokddonggae.github.io/Chaessi-Preset/v3.8.5/?lang=ja&chapter=start)
 
 **自分で作ったプロンプト・人物・衣装・作業結果を再利用し、生成と編集をつなぐローカル作業台です。** NovelAIアカウントで画像を生成し、Chaessi Presetで制作素材と次の作業を管理します。
 
 「AIにすべてを決めさせるのではなく、制作者がプロンプトと工程を自分で制御・修正し、結果を完成させる」。プリセット保存、生成文の確認、重みの手動補正、原本への復帰、履歴の再利用はこの方針のための機能です。
 
-[v3.8.2正式リリース](https://github.com/DooMokDdongGae/Chaessi-Preset/releases/tag/v3.8.4) · [v3.8.4 Release Notes](https://github.com/DooMokDdongGae/Chaessi-Preset/blob/main/.github/releases/v3.8.4.ja.md) · [カメラガイド](https://github.com/DooMokDdongGae/Chaessi-Preset/blob/main/docs/CAMERA.ja.md)
+[v3.8.5リリースノート](.github/releases/v3.8.5.ja.md) · [カメラガイド](docs/CAMERA.ja.md)
+
+## ワイド横長とロング縦長の画像サイズ
+
+作業台の下にある **画像サイズ** を開き、**標準** または **大** を選びます。各ボタンに表示される幅 × 高さを確認し、**サイズを適用** を押してください。 新しいワイド横長とロング縦長のボタンは、V5のカスタム寸法を作業台で選ぶためのショートカットです。
+
+| サイズ | 標準横長 | ワイド横長 | 標準縦長 | ロング縦長 | 正方形 |
+| --- | --- | --- | --- | --- | --- |
+| 標準 | 1216 × 832 | 1344 × 768 | 832 × 1216 | 768 × 1344 | 1024 × 1024 |
+| 大 | 1536 × 1024 | 1664 × 960 | 1024 × 1536 | 960 × 1664 | 1472 × 1472 |
+
+複数人や広い背景にはワイド横長、全身を収める縦の余白が欲しいときはロング縦長を試してください。実際の構図はプロンプトと生成結果によって変わります。初期値は832 × 1216です。小・壁紙・カスタム・縦横の交換も利用できます。保存済みのサイズや、設定したプロンプト・カメラはそのままです。大きなサイズは画素数が増え、費用が変わる場合があります。生成前に見積もりを確認してください。 [画像サイズのヘルプ](https://doomokddonggae.github.io/Chaessi-Preset/v3.8.5/?lang=ja&chapter=settings)
+
+<a id="reader-setup"></a>
+
+## メタデータリーダーの導入と接続
+
+Chaessi Metadata Readerは別途配布されています。リーダーの提供元から、**起動中のプリセットの選択** と **chaessi.prompt-transfer/1** に対応するパッケージを入手してください。互換性の基準はリーダーのリビジョン **4dbdd1d** です。WindowsでTcl/Tk付きのPython 3.10以降、Chrome 120以降、リーダー接続拡張機能0.3.1を使います。
+
+### 初回設定
+
+1. リーダーのフォルダーで `python -B chrome_bridge/extension/prepare.py` を実行します。普段使うChromeプロファイルで `chrome://extensions` を開き、デベロッパーモードを有効にします。「パッケージ化されていない拡張機能を読み込む」で、リーダーに含まれる `chrome_bridge/extension` フォルダーを選びます。
+2. **Start Reader.cmd** を実行します。リーダー同梱の **docs/INSTALL.ko.md** に従って、このPCで作成された接続キーを確認します。拡張機能の設定画面で **리더의 연결 키**（リーダーの接続キー）に入力し、**최초 연결 저장**（初回接続を保存）を押します。
+3. **NovelAI Inspect 접근 허용**（NovelAI Inspectへのアクセスを許可）を選び、Chromeの権限リクエストを許可します。リーダーにChromeとの接続が表示されたら、Inspectから取り込めます。
+
+### プリセットに文章を送る
+
+1. ChromeのNovelAI Inspectで画像を選び、リーダーの **NovelAI Inspect から取り込む** を押します。プロンプトを編集し、送りたい部分を選んで **選択部分を追加** を押します。
+2. **プリセットに送る → プリセットに接続** を押します。単一ファイルのPortableは先に自分で開きます。**起動中のプリセット** でバージョン・実行ファイルのパス・PIDを確認して **このプリセットに接続** を押します。フォルダー版は直接動作するEXEを登録して、終了中に確認のうえ起動できます。
+3. 行ごとにベースまたはキャラクターの送信先と **末尾に追加** または **上書き** を選び、**プリセットで変更内容を確認** を押します。受信側で変更前後を見比べ、**下書きに適用** または **キャンセル** を選びます。
+4. 直前の転送は **リーダー転送を元に戻す** で取り消せます。下書きを残すには、作業台の上部にある **保存** を自分で押します。転送にNovelAIトークンや有料の画像生成は不要です。自動保存、履歴への記録、画像生成は行われません。
+
+[リーダー接続の9つの手順](https://doomokddonggae.github.io/Chaessi-Preset/v3.8.5/?lang=ja&chapter=reader-transfer)
 
 ## v3.8.4 — 部分修正の拡大とキャンバス拡張の操作改善
 
@@ -48,7 +80,7 @@
 | 画像仕上げ | Upscale、Enhance / Max✨ Enhance、Remove Background、Line Art、Sketch、Colorize、Emotion、Declutter、Outpainting、Focused Inpaint |
 | ローカル編集 | Canvasのペン・消しゴム・塗りつぶし・切り抜き・サイズ変更・Undo/Redo、Pixel Snapの格子整理。どちらもローカル0 Anlas |
 | 再利用 | 履歴PNG・生成条件・処理記録、PNG/WebPメタデータ読み込み、比較・保存・I2I/Inpaintへの受け渡し |
-| ヘルプ | 韓国語・英語・日本語の40章。検索・目次・関連項目移動・画像拡大。アプリ内文書はオフラインで使用可能 |
+| ヘルプ | 韓国語・英語・日本語の41章。検索・目次・関連項目移動・画像拡大。アプリ内文書はオフラインで使用可能 |
 
 ![実際の作業画面](web/help/assets/manuals/ja/docs-workbench.png)
 

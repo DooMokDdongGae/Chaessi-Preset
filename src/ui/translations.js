@@ -3,6 +3,27 @@ import {cameraInputMessages} from './camera-input-messages.js';
 import {pixelResolutionMessages} from './pixel-resolution-translations.js';
 // English source text is the stable presentation key. User data is never a key.
 const rows = `
+Undo Reader transfer	리더 전송 되돌리기	リーダー転送を元に戻す
+Reader prompt transfer	리더 프롬프트 전송	リーダーからのプロンプト転送
+Reader connection unavailable. Check the local registry permissions and restart Preset.	리더에 연결할 수 없습니다. 로컬 등록 폴더의 접근 권한을 확인하고 프리셋을 다시 실행하세요.	リーダーに接続できません。ローカル登録フォルダーのアクセス権を確認してプリセットを再起動してください。
+Transfer order	적용 순서	適用順
+Apply to draft	초안에 적용	下書きに適用
+Current text	현재 문구	現在のテキスト
+Final text	적용 후 문구	適用後のテキスト
+Separator: comma and space	구분자 · 쉼표와 공백 한 칸	区切り文字 · コンマと半角スペース
+Create Character {n}	캐릭터 {n} 슬롯 생성에 동의	キャラクター{n}のスロット作成に同意
+Allow empty replacement for {target}	{target}에 빈 문자열 덮어쓰기 허용	{target}の空文字での上書きを許可
+Transfer applied to the current draft.	현재 초안에 전송 문구를 적용했습니다.	現在の下書きに転送内容を適用しました。
+Transfer cancelled.	전송을 취소했습니다.	転送を取り消しました。
+The draft changed. Refresh the targets in Reader and preview again.	초안이 변경됐습니다. 리더에서 대상을 새로 조회한 뒤 다시 미리 보세요.	下書きが変更されました。リーダーで転送先を更新して再度プレビューしてください。
+The transfer preview expired.	전송 미리보기 시간이 만료됐습니다.	転送プレビューの有効期限が切れました。
+Unable to apply the transfer.	전송 내용을 적용할 수 없습니다.	転送内容を適用できませんでした。
+Transfer undone.	전송 전 초안으로 되돌렸습니다.	転送前の下書きに戻しました。
+The draft changed. Undo cannot replace the current edits.	초안이 변경되어 되돌릴 수 없습니다. 현재 편집 내용은 유지됩니다.	下書きが変更されたため元に戻せません。現在の編集内容を保持します。
+Append	뒤에 추가	末尾に追加
+Replace	덮어쓰기	上書き
+Image {n}	이미지 {n}	画像{n}
+Positive	긍정 프롬프트	ポジティブ
 The image is saved in History. Check History before generating again; the Wildcard position needs recovery.	이미지는 History에 저장됐습니다. 순번 저장을 복구해야 하므로 다시 생성하기 전에 History를 확인하세요.	画像は履歴に保存されています。順番の保存を復旧する必要があります。再生成の前に履歴を確認してください。
 Choose candidates randomly or in order.	후보를 무작위 또는 등록 순서대로 선택합니다.	候補をランダムまたは登録順で選びます。
 Selection mode	선택 방식	選択方式
