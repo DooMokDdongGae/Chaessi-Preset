@@ -94,16 +94,55 @@ test("Only renderer expiry decides a pending batch outcome", async t => {
   assert.equal((await post("status", { requestId: body.requestId })).state, "expired");
 });
 
-test("Unsupported text, absent fields, non-string IDs and sparse slot creation reject the batch", () => {
+test("Unsupported text, absent fields, non-string IDs and malformed slot IDs reject the batch", () => {
   for (const mutate of [
     b => { b.requestId = [b.requestId]; }, b => { b.items[0].text = "\ud800"; }, b => { b.items[0].text = "a\r\nb"; },
-    b => { delete b.items[0].text; }, b => { b.items[0].slot = "new:2"; },
+    b => { delete b.items[0].text; }, b => { b.items[0].slot = "new:0"; },
+    b => { b.items[0].slot = "new:03"; }, b => { b.items[0].slot = "new:1.5"; },
     b => { b.items[0].text = "a".repeat(256 * 1024 + 1); }, b => { b.items[0].source.path = "unexpected"; },
   ]) {
     const batch = example(); mutate(batch);
     assert.throws(() => validatePreview(batch), /INVALID|TOO_LARGE/);
   }
   assert.doesNotThrow(() => validatePreview(example()));
+});
+
+test("Authenticated sparse destinations reach the renderer in the requested order", async t => {
+  const order = ["new:4", "new:2", "new:4"];
+  const { post } = await fixture(t, async (operation, body) => {
+    assert.equal(operation, "preview");
+    assert.deepEqual(body.items.map(item => item.slot), order);
+    return { state: "pending" };
+  });
+  const body = example();
+  body.items = order.map(slot => ({ ...body.items[0], slot }));
+  await post("probe", {});
+  assert.equal((await post("preview", body)).state, "pending");
+});
+
+test("A busy dialog permits retry and pending waits for the renderer acknowledgement", async t => {
+  const dispatched = Promise.withResolvers();
+  const opened = Promise.withResolvers();
+  let busy = true;
+  const { post } = await fixture(t, async operation => {
+    assert.equal(operation, "preview");
+    if (busy) throw new Error("BUSY");
+    dispatched.resolve();
+    await opened.promise;
+    return { state: "pending" };
+  });
+  const body = example();
+  await post("probe", {});
+  assert.equal((await post("preview", body)).error, "BUSY");
+  busy = false;
+  const response = post("preview", body);
+  await dispatched.promise;
+  try {
+    assert.equal((await post("status", { requestId: body.requestId }, { fresh: true })).error, "NOT_READY");
+  } finally {
+    opened.resolve();
+  }
+  assert.equal((await response).state, "pending");
 });
 
 test("Windows discovery files inherit a protected directory DACL and can be atomically replaced", { skip: process.platform !== "win32" }, async t => {

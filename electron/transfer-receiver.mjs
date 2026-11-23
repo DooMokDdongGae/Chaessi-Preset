@@ -24,7 +24,6 @@ const digest = bytes => createHash("sha256").update(bytes).digest("hex");
 export function validatePreview(body) {
   if (!keys(body, ["requestId", "revision", "items"]) || typeof body.requestId !== "string" || !uuid.test(body.requestId) ||
       !literal(body.revision) || !Array.isArray(body.items) || !body.items.length || body.items.length > 128) reject("INVALID");
-  const additions = new Set();
   for (const item of body.items) {
     if (!keys(item, ["source", "slot", "field", "mode", "text"]) || !literal(item.slot) ||
         !field(item.field) || !["append", "replace"].includes(item.mode) || typeof item.text !== "string" ||
@@ -32,12 +31,9 @@ export function validatePreview(body) {
         !keys(item.source, ["image", "number", "field"]) || !integer(item.source.image, 1) ||
         !integer(item.source.number) || !field(item.source.field)) reject("INVALID");
     if (Buffer.byteLength(item.text) > 256 * 1024) reject("TOO_LARGE");
-    if (item.slot.startsWith("new:")) {
-      if (!/^new:[1-9]\d{0,2}$/.test(item.slot)) reject("INVALID");
-      additions.add(Number(item.slot.slice(4)));
-    }
+    // The live renderer checks each requested offset against the current model's remaining slots.
+    if (item.slot.startsWith("new:") && !/^new:[1-9]\d{0,2}$/.test(item.slot)) reject("INVALID");
   }
-  if (additions.size && Math.max(...additions) !== additions.size) reject("INVALID");
 }
 
 function validateTargets(value) {

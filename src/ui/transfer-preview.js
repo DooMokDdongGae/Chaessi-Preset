@@ -24,6 +24,17 @@ function consent(parent, caption) {
   parent.append(row);
 }
 
+function formatSlotNumbers(numbers) {
+  const ranges = [];
+  for (let start = 0; start < numbers.length; start++) {
+    let end = start;
+    while (numbers[end + 1] === numbers[end] + 1) end++;
+    ranges.push(start === end ? String(numbers[start]) : numbers[start] + "–" + numbers[end]);
+    start = end;
+  }
+  return ranges.join(", ");
+}
+
 function renderPlan(plan) {
   const steps = byId("transferSteps"), results = byId("transferResults");
   for (const step of plan.steps) {
@@ -37,8 +48,14 @@ function renderPlan(plan) {
     row.append(details);
     steps.append(row);
   }
-  for (let i = 1; i <= plan.createCount; i++) {
-    consent(byId("transferConfirmCreate"), t("Create Character {n}", {n:plan.originalCount + i}));
+  const create = byId("transferConfirmCreate");
+  const requested = plan.createdSlots.filter(slot => slot.requested).map(slot => slot.number);
+  const skipped = plan.createdSlots.filter(slot => !slot.requested).map(slot => slot.number);
+  if (requested.length) {
+    create.append(element("p", t("Applying will create Character slots {numbers}.", {numbers:formatSlotNumbers(requested)})));
+  }
+  if (skipped.length) {
+    create.append(element("p", t("Skipped Character slots {numbers} will be created empty and turned off.", {numbers:formatSlotNumbers(skipped)})));
   }
   for (const group of plan.groups) {
     const card = element("section");

@@ -1,6 +1,8 @@
 # CHAESSI PRESET v3.8.5
 
-v3.8.5のソースと検証用ビルドを用意しました。v3.8.5のGitHub Releaseは未発行で、一般配布には別途承認が必要です。現在の公開ダウンロードは [v3.8.4 Windows PortableとSHA-256](https://github.com/DooMokDdongGae/Chaessi-Preset/releases/tag/v3.8.4) です。
+自由なスロット配置を使うには、Presetとリーダーの両方で2026年11月23日修正版をダウンロードしてください。片方が旧ビルドの場合、番号を飛ばした配置を送れないことがあります。
+
+[v3.8.5 Windows PortableとSHA-256](https://github.com/DooMokDdongGae/Chaessi-Preset/releases/tag/v3.8.5) · [メタデータリーダーv1.0.0のインストーラーとChrome拡張機能](https://github.com/DooMokDdongGae/Chaessi-Metadata-Reader/releases/tag/v1.0.0)。接続・スロット修正版でも両アプリのバージョン番号は同じです。各Releaseで改訂日（2026年11月23日）、ビルドのコミット、ファイルのチェックサムを確認してください。
 
 [한국어](https://github.com/DooMokDdongGae/Chaessi-Preset/blob/main/README.ko.md) · [English](https://github.com/DooMokDdongGae/Chaessi-Preset/blob/main/README.en.md) · [日本語](https://github.com/DooMokDdongGae/Chaessi-Preset/blob/main/README.ja.md)
 
@@ -27,22 +29,25 @@ v3.8.5では、ワイド横長とロング縦長の画像サイズを選べま�
 
 ## メタデータリーダーの導入と接続
 
-Chaessi Metadata Readerは別途配布されています。リーダーの提供元から、**起動中のプリセットの選択** と **chaessi.prompt-transfer/1** に対応するパッケージを入手してください。互換性の基準はリーダーのリビジョン **4dbdd1d** です。WindowsでTcl/Tk付きのPython 3.10以降、Chrome 120以降、リーダー接続拡張機能0.3.1を使います。
+Windows x64で[リーダーv1.0.0のRelease](https://github.com/DooMokDdongGae/Chaessi-Metadata-Reader/releases/tag/v1.0.0)からインストーラーとChrome拡張機能のZIPを入手し、同じReleaseの `SHA256SUMS.txt` で両方を確認します。同じPCでPreset v3.8.5 Portableを使います。両方とも2026年11月23日の修正版を選んでください。
 
 ### 初回設定
 
-1. リーダーのフォルダーで `python -B chrome_bridge/extension/prepare.py` を実行します。普段使うChromeプロファイルで `chrome://extensions` を開き、デベロッパーモードを有効にします。「パッケージ化されていない拡張機能を読み込む」で、リーダーに含まれる `chrome_bridge/extension` フォルダーを選びます。
-2. **Start Reader.cmd** を実行します。リーダー同梱の **docs/INSTALL.ko.md** に従って、このPCで作成された接続キーを確認します。拡張機能の設定画面で **리더의 연결 키**（リーダーの接続キー）に入力し、**최초 연결 저장**（初回接続を保存）を押します。
-3. **NovelAI Inspect 접근 허용**（NovelAI Inspectへのアクセスを許可）を選び、Chromeの権限リクエストを許可します。リーダーにChromeとの接続が表示されたら、Inspectから取り込めます。
+1. `Chaessi-Metadata-Reader-Setup-x64.exe` でインストールし、Windowsのスタートメニューからリーダーを開きます。
+2. `Chaessi-Metadata-Reader-Chrome-Extension.zip` をそのまま使い続けるフォルダーに展開します。Chromeの `chrome://extensions` でデベロッパーモードを有効にし、「パッケージ化されていない拡張機能を読み込む」で `manifest.json` のあるフォルダーを選びます。
+3. リーダーで **Chrome 接続設定 → 接続キーをコピー** を選びます。同じChromeプロファイルの拡張機能で **리더의 연결 키**（リーダーの接続キー）に貼り付けて **최초 연결 저장**（初回接続を保存）を押し、**NovelAI Inspect 접근 허용**（Inspectへのアクセスを許可）を選びます。
 
-### プリセットに文章を送る
+[リーダーの導入と初回接続の手順](https://github.com/DooMokDdongGae/Chaessi-Metadata-Reader/blob/main/README.ja.md#ai-setup)
 
-1. ChromeのNovelAI Inspectで画像を選び、リーダーの **NovelAI Inspect から取り込む** を押します。プロンプトを編集し、送りたい部分を選んで **選択部分を追加** を押します。
-2. **プリセットに送る → プリセットに接続** を押します。単一ファイルのPortableは先に自分で開きます。**起動中のプリセット** でバージョン・実行ファイルのパス・PIDを確認して **このプリセットに接続** を押します。フォルダー版は直接動作するEXEを登録して、終了中に確認のうえ起動できます。
-3. 行ごとにベースまたはキャラクターの送信先と **末尾に追加** または **上書き** を選び、**プリセットで変更内容を確認** を押します。受信側で変更前後を見比べ、**下書きに適用** または **キャンセル** を選びます。
-4. 直前の転送は **リーダー転送を元に戻す** で取り消せます。下書きを残すには、作業台の上部にある **保存** を自分で押します。転送にNovelAIトークンや有料の画像生成は不要です。自動保存、履歴への記録、画像生成は行われません。
+### 選んだ欄に文章を送る
 
-[リーダー接続の9つの手順](https://doomokddonggae.github.io/Chaessi-Preset/v3.8.5/?lang=ja&chapter=reader-transfer)
+1. ChromeのNovelAI Inspectで画像を選び、リーダーの **NovelAI Inspect から取り込む** を押します。文章を編集し、送りたい範囲を選んで **選択部分を追加** を押します。
+2. ダウンロードしたPreset Portableを先に自分で起動します。リーダーの送信待ち一覧で **プリセットに接続** を押し、**起動中のプリセット** でバージョン・実行ファイルのパス・PIDを確認して **このプリセットに接続** を選びます。対応するフォルダー版では、登録済みEXEの起動を許可できます。
+3. 行ごとにベースまたはキャラクターのポジティブ・除外欄と **末尾に追加** または **上書き** を選びます。Mediumはポジティブのみです。既存の欄と新しい番号を組み合わせたり、番号を飛ばしたり、大きい番号から指定したりできます。同じ欄に送る行の順序は **上へ／下へ** で調整します。
+4. **プリセットに送る** を一度押して、選んだPreset画面のプレビューを確認します。リーダーの後ろにある場合はWindowsのタスクバーでその画面に切り替えます。既存のキャラクターが2人で5番だけに送る場合、3・4番は空の無効（Off）スロットとして表示されます。変更前後の文章と作成する番号を確認し、**下書きに適用** または **キャンセル** を選びます。空文字で上書きする場合のみ別途確認が必要です。
+5. **リーダー転送を元に戻す** で、新規スロットを含めて取り消せます。残したい場合は作業台上部の **保存** を押してください。転送にNovelAIトークンや有料の画像生成は不要です。
+
+[受信画面の選択・再試行・取り消しの手順](https://doomokddonggae.github.io/Chaessi-Preset/v3.8.5/?lang=ja&chapter=reader-transfer)
 
 ## v3.8.4 — 部分修正の拡大とキャンバス拡張の操作改善
 
@@ -116,7 +121,7 @@ HighではV5設定を調整できます。Mediumは固定設定を使い、手�
 
 ## 開始・更新・バックアップ
 
-1. [公式リリース](https://github.com/DooMokDdongGae/Chaessi-Preset/releases)からWindows x64 Portable EXEとSHA256SUMS.txtを取得します。
+1. [公式リリース](https://github.com/DooMokDdongGae/Chaessi-Preset/releases)からWindows x64 Portable EXEと`Chaessi-Preset-v3.8.5-x64.exe.sha256`を取得します。
 2. EXEを実行して言語を選びます。Portableに別途Node.jsは不要です。オンライン処理には自分のNovelAIアカウント・トークン・生成権限が必要です。 設定のNovelAI接続で自分のトークンを入力・保存し、接続状態を確認します。トークンはパスワードと同じように扱い、共有しないでください。
 3. プリセットを読み込むか文章を書き、High/Medium・サイズ・費用を確認して1枚生成します。最新結果や履歴からカメラ・画像ツールへ進みます。アプリ情報 → ヘルプセンターで操作を確認できます。
 4. 更新前に編集を保存して終了し、実際のデータフォルダ全体を別途バックアップします。データを残してEXEを交換します。戻すときは旧EXEとその版に合うバックアップを組み合わせます。

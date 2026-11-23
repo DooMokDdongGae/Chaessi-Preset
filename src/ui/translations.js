@@ -11,7 +11,8 @@ Apply to draft	초안에 적용	下書きに適用
 Current text	현재 문구	現在のテキスト
 Final text	적용 후 문구	適用後のテキスト
 Separator: comma and space	구분자 · 쉼표와 공백 한 칸	区切り文字 · コンマと半角スペース
-Create Character {n}	캐릭터 {n} 슬롯 생성에 동의	キャラクター{n}のスロット作成に同意
+Applying will create Character slots {numbers}.	적용하면 캐릭터 {numbers}번 슬롯이 생성됩니다.	適用するとキャラクター枠 {numbers} が作成されます。
+Skipped Character slots {numbers} will be created empty and turned off.	건너뛴 캐릭터 {numbers}번 슬롯은 비어 있는 꺼짐 상태로 생성됩니다.	間にあるキャラクター枠 {numbers} は空のオフ状態で作成されます。
 Allow empty replacement for {target}	{target}에 빈 문자열 덮어쓰기 허용	{target}の空文字での上書きを許可
 Transfer applied to the current draft.	현재 초안에 전송 문구를 적용했습니다.	現在の下書きに転送内容を適用しました。
 Transfer cancelled.	전송을 취소했습니다.	転送を取り消しました。

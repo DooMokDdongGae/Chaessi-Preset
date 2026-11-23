@@ -1,6 +1,8 @@
 # CHAESSI PRESET v3.8.5
 
-The v3.8.5 source and review build are ready. The v3.8.5 GitHub Release awaits separate approval and has not been published. The current public download is [v3.8.4 Windows Portable and SHA-256 checksums](https://github.com/DooMokDdongGae/Chaessi-Preset/releases/tag/v3.8.4).
+For free slot placement, download the November 23, 2026 revisions of both Preset and Reader. An earlier build of either app can reject a request that skips a Character number.
+
+[v3.8.5 Windows Portable and SHA-256](https://github.com/DooMokDdongGae/Chaessi-Preset/releases/tag/v3.8.5) · [Metadata Reader v1.0.0 installer and Chrome extension](https://github.com/DooMokDdongGae/Chaessi-Metadata-Reader/releases/tag/v1.0.0). Both apps keep their version numbers for the connection and slot fix. Check the revision date (November 23, 2026), build commit and file checksum in the releases.
 
 [한국어](https://github.com/DooMokDdongGae/Chaessi-Preset/blob/main/README.ko.md) · [English](https://github.com/DooMokDdongGae/Chaessi-Preset/blob/main/README.en.md) · [日本語](https://github.com/DooMokDdongGae/Chaessi-Preset/blob/main/README.ja.md)
 
@@ -27,22 +29,25 @@ Try Wide landscape for a group or a broad background. Tall portrait gives you mo
 
 ## Set up and connect Metadata Reader
 
-Chaessi Metadata Reader is distributed separately. Obtain a package that can **select running Preset windows** and supports **chaessi.prompt-transfer/1** from your Reader provider. The compatibility reference is Reader revision **4dbdd1d**. On Windows, use Python 3.10 or later with Tcl/Tk, Chrome 120 or later, and Reader bridge extension 0.3.1.
+On Windows x64, get the installer and Chrome extension ZIP from the [Reader v1.0.0 release](https://github.com/DooMokDdongGae/Chaessi-Metadata-Reader/releases/tag/v1.0.0). Compare both files with its `SHA256SUMS.txt`. Use Preset v3.8.5 Portable on the same PC. Select the November 23, 2026 revision of both apps.
 
 ### First-time setup
 
-1. Run `python -B chrome_bridge/extension/prepare.py` in the Reader folder. In your usual Chrome profile, open `chrome://extensions`, enable Developer mode, choose **Load unpacked** and select the Reader package’s `chrome_bridge/extension` folder.
-2. Run **Start Reader.cmd**. Find the locally generated connection key as described in **docs/INSTALL.ko.md** in the Reader package. In the extension’s setup page, enter it in **리더의 연결 키** (Reader connection key) and choose **최초 연결 저장** (save pairing).
-3. Choose **NovelAI Inspect 접근 허용** (allow NovelAI Inspect access) and approve the Chrome permission. Once Reader shows Chrome is connected, you can import from Inspect.
+1. Install `Chaessi-Metadata-Reader-Setup-x64.exe` and open Reader from the Windows Start menu.
+2. Extract `Chaessi-Metadata-Reader-Chrome-Extension.zip` into a folder you plan to keep. In Chrome, open `chrome://extensions`, turn on Developer mode, choose **Load unpacked** and select the folder containing `manifest.json`.
+3. In Reader, choose **Chrome connection setup → Copy connection key**. In the extension for the same Chrome profile, paste the key into **리더의 연결 키** (Reader connection key), choose **최초 연결 저장** (save pairing) and allow **NovelAI Inspect 접근 허용** (Inspect access).
 
-### Send text to Preset
+[Reader installation and first-time pairing](https://github.com/DooMokDdongGae/Chaessi-Metadata-Reader/blob/main/README.en.md#ai-setup)
 
-1. Select an image in NovelAI Inspect in Chrome and choose **Import from NovelAI Inspect** in Reader. Edit the prompt, highlight the words you want, and choose **Add selection**.
-2. Choose **Send to Preset → Connect to Preset**. Open the single-file Portable yourself first. Under **Running Presets**, check the version, executable path and PID, then choose **Connect to this Preset**. For a folder build, you can register the directly running EXE and approve its launch when it is closed.
-3. Assign a Base or Character field and **Append** or **Replace** to each row. Choose **Review changes in Preset**. In the receiving window, compare the current and final text, then choose **Apply to draft** or **Cancel**.
-4. Use **Undo Reader transfer** to reverse the last transfer. Choose **Save** at the top of the workbench yourself to keep the edits. Transfer needs no NovelAI token or paid generation and does not automatically save, write History or generate an image.
+### Send text to the fields you choose
 
-[Nine-step Reader connection guide](https://doomokddonggae.github.io/Chaessi-Preset/v3.8.5/?lang=en&chapter=reader-transfer)
+1. Select an image in NovelAI Inspect in Chrome and choose **Import from NovelAI Inspect** in Reader. Edit the text, highlight the words to send and choose **Add selection**.
+2. Open the downloaded Preset Portable yourself. From the list of queued text in Reader, choose **Connect to Preset**. Under **Running Presets**, check the version, executable path and PID, then choose **Connect to this Preset**. For a compatible folder build, you can approve launching its registered EXE.
+3. For each row, choose a Base or Character field, Positive or Undesired, and **Append** or **Replace**. Medium accepts Positive fields only. Mix existing fields with new Character numbers, skip numbers or assign a higher one first. For multiple rows going to one field, set their order with **Move up/Move down**.
+4. Choose **Send to Preset** once and check the preview in the Preset window you chose. If Reader covers it, switch to that window using the Windows taskbar. With two existing Characters, sending only to Character 5 shows empty, disabled (Off) slots 3 and 4. Review the current and final text and the slots to be created, then choose **Apply to draft** or **Cancel**. Sending an empty string in Replace mode requires separate confirmation.
+5. **Undo Reader transfer** reverses the edits and any new slots together. To keep the draft, choose **Save** at the top of the workbench. Transfer needs no NovelAI token or paid generation.
+
+[Window selection, retry and Undo guide](https://doomokddonggae.github.io/Chaessi-Preset/v3.8.5/?lang=en&chapter=reader-transfer)
 
 ## v3.8.4 — Inpaint zoom and outpaint canvas controls
 
@@ -116,7 +121,7 @@ The app encrypts saved NovelAI tokens using operating-system protection. Generat
 
 ## Start, update and back up
 
-1. Download the Windows x64 Portable EXE and SHA256SUMS.txt from [Official releases](https://github.com/DooMokDdongGae/Chaessi-Preset/releases).
+1. Download the Windows x64 Portable EXE and `Chaessi-Preset-v3.8.5-x64.exe.sha256` from [Official releases](https://github.com/DooMokDdongGae/Chaessi-Preset/releases).
 2. Run the EXE and choose a language. Portable users do not need Node.js. Online work requires your own NovelAI account, token and generation entitlement. In settings, open the NovelAI connection, enter and save your own token, then check the connection status. Treat the token like a password and never share it.
 3. Load or write a preset, review High/Medium, size and cost, and generate one image. Continue from the latest result or History with Camera or Image tools. Open App info → Help Center for the controls.
 4. Before updating, save edits, close the app and back up the complete actual data directory separately. Keep the data and replace the EXE. To roll back, use the earlier EXE together with a backup appropriate for that version.

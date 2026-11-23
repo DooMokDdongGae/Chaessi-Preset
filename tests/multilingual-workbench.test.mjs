@@ -34,6 +34,23 @@ test('Every UI message has three translations with identical parameter names', (
   assert.equal(translateText('Sample only: $&', 'ko'), '시험 선택: $&');
   assert.equal(translateText(formatUIError('HTTP 502: upstream diagnostic'), 'ja'), 'エラーの詳細: HTTP 502: upstream diagnostic');
 });
+test('Reader help matches the online chapter and teaches one send action with skipped slots', async () => {
+  const { manualChapters: online } = await import('../web/help/content.mjs');
+  const chapter = manualChapters.find(c => c.id === 'reader-transfer');
+  assert.deepEqual(chapter, online.find(c => c.id === chapter.id));
+  const labels = {
+    ko: ['프리셋으로 보내기', '초안에 적용', '리더 전송 되돌리기'],
+    en: ['Send to Preset', 'Apply to draft', 'Undo Reader transfer'],
+    ja: ['プリセットに送る', '下書きに適用', 'リーダー転送を元に戻す'],
+  };
+  for (const [locale, [send, apply, undo]] of Object.entries(labels)) {
+    const steps = chapter[locale][2];
+    assert.equal(steps.filter(step => step.includes(send)).length, 1, locale);
+    const preview = steps.find(step => step.includes(apply) && step.includes('Off'));
+    assert.ok(preview && ['3', '4', '5'].every(number => preview.includes(number)), locale);
+    assert.ok(steps.some(step => step.includes(undo)), locale);
+  }
+});
 test('Integrated guide keeps the same chapters and step counts in all three languages', () => {
   assert.equal(manualChapters.length, 41);
   assert.equal(new Set(manualChapters.map(c => c.id)).size, manualChapters.length);

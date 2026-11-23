@@ -36,8 +36,8 @@ export function createTransferEditor({state, fields, renderCharacterCards, rende
     const existing = cards();
     const count = characters.length;
     if (count !== plan.originalCount) stale();
-    const newCharacters = Array.from({length:plan.createCount}, (_, i) => createCharacterPart({
-      name:"Character " + (count + i + 1), position_mode:$("characterPositionMode").value,
+    const newCharacters = plan.createdSlots.map(({number, requested}) => createCharacterPart({
+      name:"Character " + number, enabled:requested, position_mode:$("characterPositionMode").value,
     }));
     const changes = [];
     let characterEdits = Boolean(newCharacters.length);

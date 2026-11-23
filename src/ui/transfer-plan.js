@@ -28,7 +28,7 @@ export function planTransfer(body, catalogue, parts) {
       !body.items.length || body.items.length > 128) reject("INVALID");
   if (body.revision !== catalogue.revision) reject("STALE");
   const available = new Map(catalogue.targets.map(target => [target.slot, target]));
-  const newSlots = new Set();
+  const requestedOrdinals = new Set();
   const groups = new Map();
   const steps = [];
   for (const item of body.items) {
@@ -46,7 +46,7 @@ export function planTransfer(body, catalogue, parts) {
       const ordinal = match && Number(match[1]);
       if (!ordinal || ordinal > catalogue.canCreate) reject("INVALID");
       destination = {number:parts.characters.length + ordinal, fields:available.get("base").fields};
-      newSlots.add(ordinal);
+      requestedOrdinals.add(ordinal);
     }
     if (!destination.fields.includes(item.field)) reject("INVALID");
     const number = destination.number;
@@ -63,6 +63,10 @@ export function planTransfer(body, catalogue, parts) {
     group.clear ||= item.mode === "replace" && item.text === "";
     steps.push({source:item.source, number, field:item.field, mode:item.mode, text:item.text, separator});
   }
-  for (let i = 1; i <= newSlots.size; i++) if (!newSlots.has(i)) reject("INVALID");
-  return {groups:[...groups.values()], steps, createCount:newSlots.size, originalCount:parts.characters.length};
+  // Character numbers are positions in a dense array. Only requested positions start enabled.
+  const createdSlots = Array.from({length:Math.max(0, ...requestedOrdinals)}, (_, index) => ({
+    number:parts.characters.length + index + 1,
+    requested:requestedOrdinals.has(index + 1),
+  }));
+  return {groups:[...groups.values()], steps, createdSlots, originalCount:parts.characters.length};
 }

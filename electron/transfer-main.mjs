@@ -37,19 +37,21 @@ export function attachTransfer(window, origin) {
         reject(new Error("TIMEOUT"));
       }, 2500) : undefined;
       inflight.set(id, { resolve, reject, timer });
-      try { contents.send("transfer:request", { id, operation, body, expiresAt }); }
+      try {
+        if (operation === "preview") {
+          if (window.isMinimized()) window.restore();
+          window.show();
+          window.focus();
+          // Windows can retain the foreground for Reader even after a focus request.
+          if (process.platform === "win32" && !window.isFocused()) window.flashFrame(true);
+        }
+        contents.send("transfer:request", { id, operation, body, expiresAt });
+      }
       catch {
         clearTimeout(timer);
         inflight.delete(id);
         reject(new Error("NOT_READY"));
       }
-    }).then(result => {
-      if (operation === "preview" && result?.state === "pending" && !window.isDestroyed()) {
-        if (window.isMinimized()) window.restore();
-        window.show();
-        window.focus();
-      }
-      return result;
     });
   }
 
@@ -99,6 +101,7 @@ export function attachTransfer(window, origin) {
   ipcMain.handle("transfer:finish", (event, id, state) => trusted(event) && !!receiver?.finish(id, state));
   contents.on("will-navigate", event => event.preventDefault());
   window.on("page-title-updated", event => event.preventDefault());
+  if (process.platform === "win32") window.on("focus", () => window.flashFrame(false));
   contents.on("will-redirect", event => event.preventDefault());
   contents.on("did-navigate", retire);
   contents.on("render-process-gone", retire);

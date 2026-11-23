@@ -2033,51 +2033,51 @@
     },
     "ko": [
       "메타데이터 리더에서 프롬프트 받기",
-      "별도 설치한 채씨 메타데이터 리더의 문구를 이 작업대의 초안에 보냅니다. 실행 중인 창을 선택할 수 있고 chaessi.prompt-transfer/1을 지원하는 리더가 필요합니다. 리더 패키지의 docs/INSTALL.ko.md를 따라 Chrome 확장을 연결하고 NovelAI Inspect 접근을 허용하세요. 전송에는 NovelAI 토큰이나 유료 생성이 필요하지 않습니다.",
+      "같은 PC에서 채씨 메타데이터 리더 1.0.0의 편집 문구를 CHAESSI PRESET 3.8.5 초안으로 보냅니다. 두 앱 모두 2026-11-23 연결·슬롯 수정 빌드를 사용하세요. 리더 설치판과 Chrome 확장은 리더의 공식 Release에서 별도로 받습니다. 전송에는 NovelAI 토큰이나 유료 생성이 필요하지 않습니다.",
       [
-        "Chrome의 NovelAI Inspect에서 이미지를 고른 뒤 리더의 「NovelAI Inspect 가져오기」를 누르세요. 탭 선택창이 뜨면 해당 탭을 고르세요.",
+        "Chrome의 NovelAI Inspect에서 이미지를 고른 뒤 리더의 「NovelAI Inspect 가져오기」를 누르세요. 탭 선택창이 뜨면 그 이미지가 있는 탭을 고르세요.",
         "리더의 「가져온 이미지」에서 이미지를 고르고 「프롬프트 편집」에서 보낼 글을 고치세요.",
         "원하는 범위를 선택하고 「선택 문구 담기」를 누르세요. 칸 전체를 보내려면 「전체 문구 담기」를 누르세요. 여러 칸에서 반복할 수 있습니다.",
-        "리더에서 「프리셋으로 보내기」를 누르면 담아 둔 문구가 순서대로 보입니다.",
-        "단일 파일 Portable을 직접 연 뒤 「프리셋 연결」을 누르세요. 「실행 중인 프리셋」에서 버전·실행 파일 경로·PID를 확인하고 「이 프리셋 연결」을 누르세요. 폴더형 배포본은 직접 실행되는 EXE를 「+ 다른 채씨 프리셋 EXE 선택」으로 등록하고, 닫힌 상태에서 경로와 해시를 확인해 실행할 수 있습니다.",
-        "「보낼 문구」에서 한 행을 고르고 「받을 프롬프트 칸」에 베이스·캐릭터의 긍정 또는 제외 프롬프트를 지정하세요. Medium에서는 긍정만 선택할 수 있습니다. 새 캐릭터가 필요하면 빈 슬롯을 1번부터 차례로 지정하세요.",
-        "「추가」는 현재 문구와 보낼 문구가 모두 있을 때 쉼표와 공백 한 칸으로 잇습니다. 「덮어 쓰기」는 고른 칸의 글을 바꿉니다. 행마다 지정하고 「위로」와 「아래로」로 순서를 맞추세요.",
-        "「프리셋에서 변경 확인」을 누르고 프리셋 창에서 현재 문구와 적용 후 문구를 확인하세요. 새 슬롯 생성이나 빈 문구 덮어쓰기는 따로 확인합니다. 「초안에 적용」은 함께 보낸 내용을 한 번에 반영하고, 「취소」하면 문구가 리더 목록에 남습니다.",
-        "방금 반영한 내용을 복구하려면 프리셋에서 「리더 전송 되돌리기」를 누르세요. 보관하려면 작업대 위쪽의 「저장」을 직접 누르세요. 전송으로 자동 저장, History 기록, 이미지 생성 또는 NovelAI 호출이 시작되지 않습니다."
+        "다운로드한 Preset Portable을 직접 연 뒤 리더의 보낼 문구 목록에서 「프리셋 연결」을 누르세요. 「실행 중인 프리셋」에서 버전·실행 파일 경로·PID로 받을 창을 식별하고 「이 프리셋 연결」을 누르세요. 목록이 비었으면 Preset 창이 열렸는지 확인하고 새로고침하세요.",
+        "행마다 「받을 프롬프트 칸」을 고르세요. 출발 칸이나 번호에 관계없이 베이스, 기존 캐릭터 또는 모델 한도 안의 새 캐릭터로 보낼 수 있습니다. 중간 번호를 건너뛰거나 큰 번호부터 지정해도 됩니다. Medium에서는 긍정 칸만 선택할 수 있습니다.",
+        "「추가」는 두 문구가 모두 있을 때 쉼표와 공백 한 칸으로 잇습니다. 「덮어 쓰기」는 선택한 칸의 글을 교체합니다. 같은 칸으로 여러 문구를 보내면 「위로」와 「아래로」로 정한 순서대로 반영됩니다.",
+        "대상을 정한 뒤 「프리셋으로 보내기」를 한 번 누르세요. 「프리셋에서 확인 대기 중」이면 선택했던 Preset 창을 보세요. 리더 뒤에 있으면 작업 표시줄에서 그 창으로 전환하세요. 미리보기가 열린 시점에는 초안이 아직 바뀌지 않았습니다.",
+        "프리셋에서 현재 문구와 적용 후 문구, 새로 만들 번호를 확인하세요. 예를 들어 캐릭터가 2개일 때 5번으로만 보내면 3·4번은 빈 비활성(Off) 슬롯이고 5번이 목적지입니다. 「초안에 적용」을 한 번 누르면 함께 반영됩니다. 빈 문구로 덮어쓸 때만 별도 확인이 필요합니다. 「취소」하면 초안은 그대로이고 항목은 리더 목록에 남습니다.",
+        "되돌리려면 프리셋에서 「리더 전송 되돌리기」를 누르세요. 전송으로 만든 슬롯도 함께 되돌립니다. 보관하려면 작업대 위쪽 「저장」을 직접 누르세요. 전송 자체로 프리셋 저장·History 기록·이미지 생성이 시작되지 않습니다."
       ],
-      "미리보기 후 초안이 바뀌면 리더의 「받을 칸 새로고침」을 누르고 대상을 다시 선택하세요. 되돌리기가 충돌하면 현재 편집 상태를 확인하세요. 한 줄씩 나뉜 문구는 LF 줄바꿈을 사용합니다. CR 또는 CRLF가 거부된 경우 리더에 남은 편집본을 확인하세요."
+      "대상으로 고르지 않은 기존 칸은 그대로입니다. 초안이 바뀌어 전송이 거부되면 「받을 칸 새로고침」 후 대상을 다시 고르세요. 실패하거나 확인 시간이 지나면 보낼 문구는 리더에 남습니다. 결과가 불명확하면 다시 보내기 전에 같은 창에서 「적용 결과 확인」을 누르세요. 적용 후 초안을 편집하면 되돌리기가 충돌할 수 있습니다. 여러 줄의 문구는 LF 줄바꿈을 사용하세요. CR·CRLF가 거부되어도 편집본은 리더에 남습니다."
     ],
     "en": [
       "Receive prompts from Metadata Reader",
-      "Send text from the separately installed Chaessi Metadata Reader to your current workbench draft. Use a Reader that can select running Presets and supports chaessi.prompt-transfer/1. Follow docs/INSTALL.ko.md in the Reader package to pair its Chrome extension and allow NovelAI Inspect access. Prompt transfer needs no NovelAI token or paid generation.",
+      "Send edited text from Chaessi Metadata Reader 1.0.0 to a CHAESSI PRESET 3.8.5 draft on the same PC. Use the November 23, 2026 connection and slot revision of both apps. Get the separate Reader installer and Chrome extension from the official Reader release. Prompt transfer needs no NovelAI token or paid generation.",
       [
         "Select an image in NovelAI Inspect in Chrome. In Reader, choose “Import from NovelAI Inspect”. If asked to choose a tab, select the one showing your image.",
         "Select the image in “Imported images” and edit the text in “Edit prompts”.",
-        "Highlight the words you want and choose “Add selection”. To send the entire field, use “Add full text”. Repeat for any other fields.",
-        "Choose “Send to Preset” in Reader to see the queued text in order.",
-        "Open the single-file Portable yourself, then choose “Connect to Preset”. Under “Running Presets”, check the version, executable path and PID before choosing “Connect to this Preset”. For a folder build, use “+ Choose another Preset EXE” to register the directly running EXE. When it is closed, you can review its path and hash and approve its launch.",
-        "Choose a row under “Text to send”. In “Destination prompt field”, select Base or a Character and choose Positive or Undesired. Medium offers Positive only. To create Characters, assign available new slots consecutively, starting at 1.",
-        "Choose “Append” to join the existing and incoming text with a comma and a space when both contain text. Choose “Replace” to replace the selected field. Set each row and use “Move up” or “Move down” to adjust their order.",
-        "Choose “Review changes in Preset”. In the Preset window, compare Current text with Final text. Confirm any new Character or empty replacement separately. “Apply to draft” applies the batch together. “Cancel” keeps the items in Reader.",
-        "To reverse the last transfer, choose “Undo Reader transfer” in Preset. To keep the draft, choose “Save” at the top of the workbench yourself. Transfer does not automatically save, write History, generate images or call NovelAI."
+        "Highlight the words you want and choose “Add selection”. For an entire field, choose “Add full text”. Repeat for any other fields.",
+        "Open the downloaded Preset Portable yourself. In Reader’s list of queued text, choose “Connect to Preset”. Under “Running Presets”, check the version, executable path and PID, then choose “Connect to this Preset”. If the list is empty, wait for the Preset window to open and refresh it.",
+        "Choose a “Destination prompt field” for each row. Any source can go to Base, an existing Character or a new Character within the model limit. You can skip Character numbers or assign a higher number first. Medium offers Positive fields only.",
+        "Choose “Append” to join two nonempty texts with a comma and a space. “Replace” replaces the selected field. If several rows go to the same field, use “Move up” and “Move down” to set the order.",
+        "Once the destinations are set, choose “Send to Preset” once. When Reader shows “Waiting for confirmation in Preset”, switch to the Preset window you chose. If Reader covers it, use the Windows taskbar. Opening the preview leaves the draft untouched.",
+        "In Preset, review the current text, final text and slots to be created. If you have two Characters and send only to Character 5, the preview shows empty, disabled (Off) slots 3 and 4 and the new destination, 5. Choose “Apply to draft” once to apply the batch. Sending an empty string in Replace mode requires separate confirmation. “Cancel” keeps the draft intact and the items in Reader.",
+        "Choose “Undo Reader transfer” to reverse the transfer, including newly created slots. To keep the edits, choose “Save” at the top of the workbench. Transfer does not automatically save, write History or generate an image."
       ],
-      "If the draft changes during preview, choose “Refresh fields” in Reader and select the destinations again. If Undo reports a conflict, check your current edits. Multiline text uses LF line endings. If CR or CRLF is rejected, review the copy still in Reader."
+      "Existing fields you leave unassigned keep their contents. If changes to the draft invalidate the request, choose “Refresh fields” in Reader and select the destinations again. If sending fails or the preview expires, your items stay in Reader. If the result is uncertain, use “Check transfer status” for the same window before retrying. Later edits can prevent Undo. Use LF line endings for multiline text. If CR or CRLF is rejected, the text remains in Reader."
     ],
     "ja": [
       "メタデータリーダーからプロンプトを受け取る",
-      "別途インストールしたChaessi Metadata Readerから、開いている作業台の下書きに文章を送れます。起動中のプリセットを選択でき、chaessi.prompt-transfer/1に対応するリーダーが必要です。リーダーに同梱のdocs/INSTALL.ko.mdに従ってChrome拡張機能を接続し、NovelAI Inspectへのアクセスを許可してください。転送にNovelAIトークンや有料の画像生成は不要です。",
+      "同じPCで、Chaessi Metadata Reader 1.0.0で編集した文章をCHAESSI PRESET 3.8.5の下書きに送ります。両方とも2026年11月23日の接続・スロット修正版を使用してください。リーダーのインストーラーとChrome拡張機能は、リーダーの公式Releaseから別途入手します。転送にNovelAIトークンや有料の画像生成は不要です。",
       [
-        "ChromeのNovelAI Inspectで画像を選び、リーダーで「NovelAI Inspect から取り込む」を押します。タブの選択画面が出たら、その画像のタブを選んでください。",
-        "「取り込んだ画像」で対象の画像を選び、「プロンプトを編集」で送りたい文章を整えます。",
-        "送りたい範囲を選んで「選択部分を追加」を押します。欄全体を送るには「全文を追加」を使います。別の欄からも続けて追加できます。",
-        "リーダーで「プリセットに送る」を押すと、追加した文章が順番に表示されます。",
-        "単一ファイルのPortableを先に自分で起動し、「プリセットに接続」を押します。「起動中のプリセット」でバージョン・実行ファイルのパス・PIDを確認し、「このプリセットに接続」を押します。フォルダー版は「＋ 別のプリセットEXEを選択」で直接動作するEXEを登録できます。終了中はパスとハッシュを確認して起動を許可します。",
-        "「送るテキスト」の行を選び、「送信先のプロンプト欄」でベースまたはキャラクターのポジティブ・除外プロンプトを指定します。Mediumで選べるのはポジティブのみです。新しいキャラクターは空きスロットの1番から順に指定します。",
-        "「末尾に追加」は元の文と送る文の両方がある場合にコンマと半角スペースでつなぎます。「上書き」は指定した欄の文章を置き換えます。行ごとに設定し、「上へ」「下へ」で適用順を調整します。",
-        "「プリセットで変更内容を確認」を押し、プリセット側で「現在のテキスト」と「適用後のテキスト」を確認します。新しいスロットの作成や空文字での上書きには個別に同意してください。「下書きに適用」でまとめて反映します。「キャンセル」するとリーダーの一覧に残ります。",
-        "直前の転送を取り消すには、プリセット側で「リーダー転送を元に戻す」を押します。下書きを残すには、作業台の上部にある「保存」を自分で押してください。転送による自動保存、履歴への記録、画像生成、NovelAIへのリクエストはありません。"
+        "ChromeのNovelAI Inspectで画像を選び、リーダーの「NovelAI Inspect から取り込む」を押します。タブの選択画面が出たら、その画像があるタブを選んでください。",
+        "「取り込んだ画像」で画像を選び、「プロンプトを編集」で送る文章を整えます。",
+        "送りたい範囲を選んで「選択部分を追加」を押します。欄全体を送るには「全文を追加」を使います。他の欄からも続けて追加できます。",
+        "ダウンロードしたPreset Portableを先に自分で起動し、リーダーの送信待ち一覧で「プリセットに接続」を押します。「起動中のプリセット」でバージョン・実行ファイルのパス・PIDを確認し、「このプリセットに接続」を選びます。一覧が空なら、Presetの画面が開いてから更新してください。",
+        "行ごとに「送信先のプロンプト欄」を選びます。送り元の欄や番号に関係なく、ベース、既存のキャラクター、モデルの上限内の新しいキャラクターに送れます。番号を飛ばしたり、大きい番号から割り当てたりできます。Mediumではポジティブのみ選べます。",
+        "「末尾に追加」は両方に文章がある場合にコンマと半角スペースでつなぎます。「上書き」は指定した欄の文章を置き換えます。同じ欄に複数の行を送るときは「上へ」「下へ」で適用順を調整します。",
+        "送信先を指定したら「プリセットに送る」を一度押します。「プリセットで確認待ち」と表示されたら、選択したPreset画面に切り替えます。リーダーの後ろに隠れている場合は、Windowsのタスクバーから開いてください。プレビューを開いた時点では下書きは変わりません。",
+        "Presetで変更前後の文章と作成するスロットの番号を確認します。たとえばキャラクターが2人いて5番だけに送る場合、3・4番は空の無効（Off）スロット、5番は新しい送信先として表示されます。「下書きに適用」を一度押すとまとめて反映します。空文字で上書きする場合のみ別途確認が必要です。「キャンセル」すると下書きはそのまま、項目はリーダーに残ります。",
+        "「リーダー転送を元に戻す」で、新しく作成したスロットを含めて取り消せます。残したい場合は作業台上部の「保存」を自分で押してください。転送による自動保存、履歴への記録、画像生成はありません。"
       ],
-      "プレビュー後に下書きが変わった場合は、リーダーの「送信先を更新」で送信先を指定し直します。取り消しが競合したときは現在の編集内容を確認してください。複数行にはLF改行を使用します。CRやCRLFが拒否された場合は、リーダーに残っている文章を確認してください。"
+      "指定しなかった既存の欄はそのまま残ります。下書きが変わって送信が拒否された場合は、リーダーの「送信先を更新」で指定し直してください。送信失敗や確認期限切れでも項目はリーダーに残ります。結果が不明なときは再送の前に同じ画面で「反映状況を確認」を選びます。転送後に別の編集を行うと取り消せない場合があります。複数行の改行はLFを使用します。CRやCRLFが拒否された場合も文章はリーダーに残ります。"
     ]
   }
 ]

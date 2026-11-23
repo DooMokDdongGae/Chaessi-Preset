@@ -4,7 +4,7 @@
 
 1. 편집을 저장하고 실행 중인 모든 버전을 종료합니다.
 2. 기본 데이터 폴더 `%APPDATA%\Chaessi Preset` 전체를 별도로 백업합니다. 저장 위치를 바꾼 경우 실제 폴더를 백업하세요.
-3. 공식 Release에서 EXE와 SHA256SUMS.txt를 받고 체크섬을 확인합니다. 데이터를 지우지 말고 EXE만 교체합니다.
+3. 공식 Release에서 EXE와 `Chaessi-Preset-v3.8.5-x64.exe.sha256`를 받고 체크섬을 확인합니다. 데이터를 지우지 말고 EXE만 교체합니다.
 4. 새 EXE를 실행합니다. 같은 데이터 폴더를 여러 버전에서 동시에 열지 마세요. 이전 버전으로 돌아갈 때는 그 버전의 EXE와 대응하는 백업을 함께 사용합니다.
 
 기존 프리셋, 캐릭터·의상, 분류, Wildcard, 설정, 이미지와 History는 유지됩니다. 기존 데이터를 일괄 변환하지 않습니다. 구형 카메라 정보는 History에서 읽을 수 있지만 이전 세션·보정값의 편집·재실행·변환은 지원하지 않습니다. 이전 카메라 작업을 실행하려면 v3.8.1과 해당 버전의 데이터 백업을 사용하세요. V4.5 자료는 읽기·편집·저장할 수 있으며 새 생성에는 V5를 선택해야 합니다.
@@ -21,7 +21,7 @@
 
 1. Save edits and close all running versions.
 2. Back up the whole data folder, normally `%APPDATA%\Chaessi Preset`. If you changed the location, back up the actual folder.
-3. Download the EXE and SHA256SUMS.txt from the official Release and verify the checksum. Replace the EXE while keeping your data.
+3. Download the EXE and `Chaessi-Preset-v3.8.5-x64.exe.sha256` from the official Release and verify the checksum. Replace the EXE while keeping your data.
 4. Run the new EXE. Do not open the same data folder in multiple versions at once. To roll back, use the earlier EXE together with its matching backup.
 
 Existing presets, characters/outfits, categories, Wildcards, settings, images and History remain available without a forced batch conversion. Legacy camera details can be read in History, but old sessions/calibration cannot be edited, rerun or converted. Use v3.8.1 with a matching data backup to run earlier camera work. V4.5 records remain readable, editable and saveable; select V5 for new generation.
@@ -38,7 +38,7 @@ This document and online help are maintained for v3.8.5. Help inside the release
 
 1. 編集を保存し、起動中のすべてのバージョンを終了します。
 2. データフォルダ全体を別途バックアップします。既定は `%APPDATA%\Chaessi Preset` です。保存先を変えている場合は実際のフォルダを使ってください。
-3. 公式ReleaseからEXEとSHA256SUMS.txtを取得し、チェックサムを確認します。データを削除せずEXEだけを交換します。
+3. 公式ReleaseからEXEと`Chaessi-Preset-v3.8.5-x64.exe.sha256`を取得し、チェックサムを確認します。データを削除せずEXEだけを交換します。
 4. 新しいEXEを実行します。同じデータフォルダを複数のバージョンで同時に開かないでください。旧版に戻すときは、その版のEXEと対応するバックアップを併用します。
 
 既存のプリセット、人物・衣装、分類、Wildcard、設定、画像、履歴は保持し、一括強制変換しません。旧カメラ情報は履歴で読めますが、旧セッション・補正値の編集・再実行・変換には対応しません。以前のカメラ作業を実行するにはv3.8.1と対応するデータバックアップを使ってください。V4.5資料は読み込み・編集・保存でき、新しい生成にはV5を選びます。

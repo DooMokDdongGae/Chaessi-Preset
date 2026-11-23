@@ -2,9 +2,9 @@
 
 ## v3.8.5
 
-- 한국어 · 보통·크게에 와이드 가로와 롱 세로를 추가했습니다. 메타데이터 리더의 문구를 선택한 창에서 검토하고 현재 초안에 적용할 수 있습니다. [자세한 변경사항](.github/releases/v3.8.5.ko.md)
-- English · Normal and Large now offer Wide landscape and Tall portrait. Review selected text from Metadata Reader and apply it to the draft in the window you choose. [Release notes](.github/releases/v3.8.5.en.md)
-- 日本語 · 標準・大でワイド横長とロング縦長を選べます。選択した画面でメタデータリーダーからの文章を確認し、現在の下書きに適用できます。[リリースノート](.github/releases/v3.8.5.ja.md)
+- 한국어 · 보통·크게에 와이드 가로와 롱 세로를 추가했습니다. 메타데이터 리더의 문구를 선택한 창에서 검토하고 현재 초안에 적용할 수 있습니다. 11월 23일 수정본에서 받을 창을 선택한 뒤 한 번 보내고, 새 캐릭터 번호를 건너뛰거나 역순으로 지정할 수 있습니다. [자세한 변경사항](.github/releases/v3.8.5.ko.md)
+- English · Normal and Large now offer Wide landscape and Tall portrait. Review selected text from Metadata Reader and apply it to the draft in the window you choose. The November 23 revision sends with one action after window selection and accepts new Character numbers with gaps or in reverse order. [Release notes](.github/releases/v3.8.5.en.md)
+- 日本語 · 標準・大でワイド横長とロング縦長を選べます。選択した画面でメタデータリーダーからの文章を確認し、現在の下書きに適用できます。 11月23日の修正版では受信画面を選んで一度の操作で送信でき、新しいキャラクター番号の飛び指定や逆順の指定に対応しました。 [リリースノート](.github/releases/v3.8.5.ja.md)
 
 ## v3.8.0
 
