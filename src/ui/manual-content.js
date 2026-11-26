@@ -6,6 +6,7 @@ import { imageToolChapters } from './manual-image-tools.js';
 import {pixelSnapChapter,updateResolutionGuide} from './manual-pixel-snap.js';
 import { readerTransferChapter } from './manual-reader-transfer.js';
 import {attachCompositionHelp} from './manual-composition.js';
+import { referenceChapters } from './manual-reference.js';
 // One chapter structure shared by all three languages; packaged offline with the app.
 const chapter = (id, image, ko, en, ja) => ({ id, image, ko, en, ja });
 export const manualChapters = [
@@ -63,9 +64,9 @@ const updates = {
     ja: ['プロンプトの保存・編集・復元', '保存した文章を読み込み、編集して PNG 1枚ずつで確認します。', ['保存済みプリセットを読み込みます。編集すると未保存の変更を表示します。', '保存は現在のプリセットを更新します。名前を付けて保存は元を残して別のコピーを作ります。', '保存状態に戻すで最後の保存・読み込み状態に戻ります。前の作業で直前の作業と切り替えられます。', '上書き前の文章は過去の保存記録に残します。読み込んで確認し、保存すると現在のプリセットを更新します。'], '記録はプリセットと一緒に保管します。プリセットを削除すると記録も削除します。未保存の前の作業は終了後に復元できないので終了前に保存してください。'],
   },
   models: {
-    ko: ['V5 Effort와 생성 설정', 'V5 Full의 High와 Medium을 선택하며 한 번에 PNG 한 장을 생성합니다.', ['작업대 아래에서 High 또는 Medium을 고릅니다. V4.5 프리셋과 History는 읽기 호환으로 보존하며, 생성하려면 V5로 전환합니다.', 'Medium은 14 스텝·Euler Ancestral·Heavy UC로 고정됩니다. 직접 작성한 베이스·캐릭터 UC는 보존되지만 생성에 사용하지 않습니다.', 'High로 돌아오면 스텝·샘플러·UC·CFG 설정을 복원합니다. 프롬프트·강도·해상도·시드는 함께 이어집니다.', 'PNG나 History를 불러오면 실제 Effort를 복원합니다. 출처를 확인할 수 없다면 생성 전에 High 또는 Medium을 직접 선택합니다.'], 'Medium은 별도 증류 모델입니다. 같은 시드라도 결과가 달라질 수 있습니다. 제외 요소는 긍정 프롬프트의 -3::hat:: 같은 음수 강조로 작성할 수 있으며 기존 UC를 자동 변환하지 않습니다.'],
-    en: ['V5 Effort and settings', 'Choose High or Medium for V5 Full and generate one PNG at a time.', ['Choose High or Medium in the bottom bar. V4.5 presets and History remain readable; switch to V5 before generating.', 'Medium fixes 14 Steps, Euler Ancestral and Heavy UC. Custom base and character UC is preserved but unused.', 'Returning to High restores Steps, Sampler, UC and CFG settings. Prompts, Guidance, dimensions and Seed remain shared.', 'PNG and History imports restore the actual Effort. If its origin is unknown, explicitly choose High or Medium before generating.'], 'Medium is a separate distilled model. The same Seed can produce different results. Use negative emphasis such as -3::hat:: in the positive prompt; existing UC is never automatically converted.'],
-    ja: ['V5 Effort と生成設定', 'V5 Full の High と Medium を選び、PNG を1枚ずつ生成します。', ['下部で High または Medium を選びます。V4.5 のプリセットと履歴は読み込み互換で保持し、生成前に V5 に切り替えます。', 'Medium は14ステップ、Euler Ancestral、Heavy UC 固定です。入力したベース・キャラクター UC は保持しますが生成には使用しません。', 'High に戻るとステップ、サンプラー、UC、CFG の設定を復元します。文章、強さ、解像度、シードは共有します。', 'PNG や履歴から実際の Effort を復元します。出所が不明な場合は生成前に High または Medium を選択します。'], 'Medium は別の蒸留モデルです。同じシードでも結果が変わります。除外要素は肯定プロンプトの -3::hat:: など負の強調で指定でき、既存 UC は自動変換しません。'],
+    ko: ['V5 Effort와 생성 설정', 'V5 Full의 High와 Medium을 선택하며 한 번에 PNG 한 장을 생성합니다.', ['작업대 아래에서 High 또는 Medium을 고릅니다. V5 Full High 텍스트 생성에서 정밀 참조를 쓸 수 있습니다. 이번 후보는 신규 V4.5 Vibe UI·요청을 제공하지 않으며 기존 V4.5 자료와 History 호환은 유지합니다.', 'Medium은 14 스텝·Euler Ancestral·Heavy UC로 고정됩니다. 직접 작성한 베이스·캐릭터 UC는 보존되지만 생성에 사용하지 않습니다.', 'High로 돌아오면 스텝·샘플러·UC·CFG 설정을 복원합니다. 프롬프트·강도·해상도·시드는 함께 이어집니다.', 'PNG나 History를 불러오면 실제 Effort를 복원합니다. 출처를 확인할 수 없다면 생성 전에 High 또는 Medium을 직접 선택합니다.'], 'Medium은 별도 증류 모델입니다. 같은 시드라도 결과가 달라질 수 있습니다. 제외 요소는 긍정 프롬프트의 -3::hat:: 같은 음수 강조로 작성할 수 있으며 기존 UC를 자동 변환하지 않습니다.'],
+    en: ['V5 Effort and settings', 'Choose High or Medium for V5 Full and generate one PNG at a time.', ['Choose High or Medium in the bottom bar. V5 Full High Text to Image supports Precise Reference. This candidate disables the new V4.5 Vibe UI and requests while preserving legacy V4.5 data and History compatibility.', 'Medium fixes 14 Steps, Euler Ancestral and Heavy UC. Custom base and character UC is preserved but unused.', 'Returning to High restores Steps, Sampler, UC and CFG settings. Prompts, Guidance, dimensions and Seed remain shared.', 'PNG and History imports restore the actual Effort. If its origin is unknown, explicitly choose High or Medium before generating.'], 'Medium is a separate distilled model. The same Seed can produce different results. Use negative emphasis such as -3::hat:: in the positive prompt; existing UC is never automatically converted.'],
+    ja: ['V5 Effort と生成設定', 'V5 Full の High と Medium を選び、PNG を1枚ずつ生成します。', ['下部で High または Medium を選びます。V5 Full High のテキスト生成では精密参照を利用できます。今回の候補では新規 V4.5 Vibe UI・要求を無効にし、既存 V4.5 データ・履歴互換を保持します。', 'Medium は14ステップ、Euler Ancestral、Heavy UC 固定です。入力したベース・キャラクター UC は保持しますが生成には使用しません。', 'High に戻るとステップ、サンプラー、UC、CFG の設定を復元します。文章、強さ、解像度、シードは共有します。', 'PNG や履歴から実際の Effort を復元します。出所が不明な場合は生成前に High または Medium を選択します。'], 'Medium は別の蒸留モデルです。同じシードでも結果が変わります。除外要素は肯定プロンプトの -3::hat:: など負の強調で指定でき、既存 UC は自動変換しません。'],
   },
 };
 for (const [id, locales] of Object.entries(updates)) Object.assign(manualChapters.find(chapter => chapter.id === id), locales);
@@ -128,3 +129,4 @@ for (const id of ['settings','tool-canvas','composition','composition-restore','
   const c = manualChapters.find(c=>c.id===id);
   for (const locale of ['ko','en','ja']) c[locale][3] += ' ' + confirmationHelpNotes[id==='settings'?'settings':'discard'][locale];
 }
+manualChapters.push(...referenceChapters);

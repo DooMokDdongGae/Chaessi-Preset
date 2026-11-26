@@ -377,11 +377,18 @@
               <section class="precise-reference-panel" id="preciseReferencePanel" tabindex="0" aria-labelledby="preciseReferenceHeading">
                 <div class="section-row">
                   <div>
-                    <h3 id="preciseReferenceHeading">Precise Reference</h3>
-                    <p class="mode-help">Add files, drop images here, or focus this panel and paste.</p>
+                    <h3 id="preciseReferenceHeading">Image references</h3>
+                    <p class="mode-help" id="referenceInputHint">Add files, drop images here, or focus this panel and paste.</p>
                   </div>
                   <button type="button" id="addPreciseReferenceButton">Add Reference</button>
                   <input id="preciseReferenceInput" type="file" accept="image/png,image/webp,image/jpeg" multiple hidden />
+                </div>
+                <div class="actions reference-tabs" role="group" aria-label="Reference type">
+                  <button type="button" data-reference-kind="precise" aria-pressed="true">Precise Reference</button>
+                  <button type="button" data-reference-kind="vibe" aria-pressed="false" hidden disabled>Vibe Transfer</button>
+                </div>
+                <div id="vibeOptions" class="actions" hidden>
+                  <label class="inline"><input id="normalizeVibeStrength" type="checkbox" checked /> Normalize strengths</label>
                 </div>
                 <div class="precise-reference-summary">
                   <span id="preciseReferenceCount">0 active / 0 total</span>
@@ -390,6 +397,7 @@
                 <div class="summary precise-reference-warning" id="preciseReferenceWarning" hidden></div>
                 <div class="summary" id="preciseReferenceEmpty">No Precise References selected.</div>
                 <div class="precise-reference-list" id="preciseReferenceList"></div>
+                <div class="actions" id="referenceLibraryTools"></div>
               </section>
               <div class="generate-command-row">
 
@@ -459,6 +467,7 @@
           <button type="button" id="imageIntakeI2IButton">Image to Image</button>
           <button type="button" id="imageIntakeInpaintButton">Inpaint</button>
           <button type="button" id="imageIntakePreciseButton">Precise Reference</button>
+          <button type="button" id="imageIntakeVibeButton" hidden disabled>Vibe Transfer</button>
         </div>
         <section class="image-intake-metadata" id="imageIntakeMetadata" hidden>
           <h3>NovelAI Metadata</h3>

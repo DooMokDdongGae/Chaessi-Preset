@@ -84,14 +84,13 @@ export function createWorkbenchController() {
   const syncEmpty = () => { empty.hidden = Boolean($("generatedImage").getAttribute("src")); };
   new MutationObserver(syncEmpty).observe($("generatedImage"), { attributes: true, attributeFilter: ["src"] }); syncEmpty();
   const reference = document.createElement("details"); reference.className = "reference-disclosure";
-  reference.innerHTML = "<summary>Precise Reference <span id='referenceDisclosureCount'></span></summary>";
+  reference.innerHTML = "<summary>Image references <span id='referenceDisclosureCount'></span></summary>";
   const referencePanel = $("preciseReferencePanel"); referencePanel.before(reference); reference.append(referencePanel);
   const syncReference = () => {
     reference.hidden = referencePanel.hidden;
     $("referenceDisclosureCount").textContent = $("preciseReferenceCount").textContent;
-    if ($("preciseReferenceList").children.length) reference.open = true;
   };
-  new MutationObserver(syncReference).observe($("preciseReferenceList"), { childList: true }); syncReference();
+  new MutationObserver(syncReference).observe($("preciseReferenceCount"), { childList: true, characterData: true, subtree: true }); syncReference();
   new MutationObserver(syncReference).observe(referencePanel, { attributes: true, attributeFilter: ["hidden"] });
   const view = name => {
     const history = name === "history";

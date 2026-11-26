@@ -231,6 +231,45 @@ Expands the binary region sent to NovelAI before 8x8 mask alignment.	NovelAI에 
 Mask tool	마스크 도구	マスクのツール
 Add files, drop images here, or focus this panel and paste.	파일을 추가하거나 이미지를 끌어 놓으세요. 이 영역에서 붙여넣기도 가능합니다.	ファイルを追加するか、画像をドロップします。この領域に貼り付けることもできます。
 No Precise References selected.	선택한 정밀 참조가 없습니다.	精密参照が選択されていません。
+Image references	이미지 참조	画像参照
+Vibe Transfer	바이브 전송	Vibe Transfer
+Normalize strengths	강도 정규화	強さを正規化
+Add Vibe	바이브 추가	Vibe を追加
+Add or drop an image or NovelAI Vibe file. Paste an image while this panel is focused.	이미지 또는 NovelAI 바이브 파일을 추가하거나 끌어 놓으세요. 이 영역에 이미지를 붙여넣을 수도 있습니다.	画像または NovelAI Vibe ファイルを追加・ドロップできます。この領域を選択して画像を貼り付けることもできます。
+{n} reference slots available.	사용 가능한 참조 슬롯 {n}개.	使用できる参照スロットは {n} 件です。
+Choose Precise Reference or Vibe Transfer for multiple images.	여러 이미지는 정밀 참조 또는 바이브 전송을 선택하세요.	複数の画像には精密参照または Vibe Transfer を選択してください。
+No Vibes selected.	등록된 바이브가 없습니다.	Vibe が登録されていません。
+Information Extracted	정보 추출량	情報抽出量
+Outfit	의상	衣装
+Prefer same outfit	같은 의상 선호	同じ衣装を優先
+Fidelity	충실도	忠実度
+Encode · up to 2 Anlas	인코딩 · 최대 2 Anlas	エンコード · 最大 2 Anlas
+Encoding…	인코딩 중…	エンコード中…
+Encoding ready	인코딩 준비됨	エンコード済み
+Encoding required	인코딩 필요	エンコードが必要
+The combined Vibe Strength is too large.	바이브 강도의 합이 너무 큽니다.	Vibe の強さの合計が大きすぎます。
+Vibe encoding ready · {n} Anlas	바이브 인코딩 준비됨 · {n} Anlas	Vibe エンコード完了 · {n} Anlas
+{applied} ready / {total} registered	사용 준비 {applied}개 / 등록 {total}개	準備済み {applied}件 / 登録 {total}件
+Generation strength {value}	생성 적용 강도 {value}	生成時の強さ {value}
+Reference fee {n} Anlas per image	이미지당 참조 비용 {n} Anlas	画像1枚あたりの参照料金 {n} Anlas
+{n} enabled references held	활성 참조 {n}개 적용 보류	有効な参照 {n}件を保留
+V5 Inpaint ignores Precise Reference. Your cards are kept.	V5 부분 수정에는 정밀 참조가 적용되지 않습니다. 등록한 카드는 유지됩니다.	V5 のインペイントでは精密参照を適用しません。登録したカードは保持します。
+Precise Reference transmission is unavailable in this build. Your cards are kept.	이 빌드에서는 정밀 참조 전송을 사용할 수 없습니다. 등록한 카드는 유지됩니다.	このビルドでは精密参照を送信できません。登録したカードは保持します。
+Precise Reference is held for this model or mode.	현재 모델 또는 모드에서 정밀 참조 적용을 보류합니다.	このモデルまたはモードでは精密参照を保留します。
+Vibe Transfer requires V4.5 Full Text to Image.	바이브 전송은 V4.5 Full의 텍스트 생성에서 사용할 수 있습니다.	Vibe Transfer は V4.5 Full のテキスト生成で利用できます。
+Vibe Transfer is unavailable in this build.	이 빌드에서는 바이브 전송을 사용할 수 없습니다.	このビルドでは Vibe Transfer を利用できません。
+{width} × {height} · center crop {w} × {h}	{width} × {height} · 중앙 자르기 {w} × {h}	{width} × {height} · 中央切り抜き {w} × {h}
+References outside the current model and mode are held.	현재 모델과 모드에서 사용할 수 없는 참조는 적용을 보류합니다.	現在のモデルとモードでは使用できない参照を保留します。
+Encode the enabled Vibes before generating.	생성 전에 켜둔 바이브를 인코딩하세요.	生成前に有効な Vibe をエンコードしてください。
+Enable and encode a Vibe in V4.5 Text to Image.	V4.5 텍스트 생성에서 바이브를 켜고 인코딩하세요.	V4.5 のテキスト生成で Vibe を有効にしてエンコードしてください。
+V4.5 Text to Image requires an encoded Vibe.	V4.5 텍스트 생성에는 인코딩한 바이브가 필요합니다.	V4.5 のテキスト生成にはエンコード済みの Vibe が必要です。
+Estimated {anlas} Anlas · {discounted} with Opus	예상 {anlas} Anlas · Opus 적용 시 {discounted} Anlas	推定 {anlas} Anlas · Opus 適用時 {discounted} Anlas
+Generate {width} × {height} with Vibe Transfer? Estimated {n} Anlas.	바이브 전송으로 {width} × {height} 이미지를 생성할까요? 예상 {n} Anlas.	Vibe Transfer で {width} × {height} の画像を生成しますか？ 推定 {n} Anlas。
+Up to {n} reference cards can be registered.	참조 카드는 최대 {n}개 등록할 수 있습니다.	参照カードは最大 {n}件まで登録できます。
+An original reference image is required.	레퍼런스 원본 이미지가 필요합니다.	参照元画像が必要です。
+Reference image exceeds the local pixel limit.	참조 이미지가 앱의 픽셀 한도를 초과합니다.	参照画像がアプリの画素数上限を超えています。
+Reference PNG exceeds the request size limit.	참조 PNG가 요청 크기 한도를 초과합니다.	参照 PNG がリクエストサイズの上限を超えています。
+Invalid Vibe encoding response.	바이브 인코딩 응답을 확인할 수 없습니다.	Vibe エンコードの応答を確認できません。
 No additional reference cost.	추가 참조 비용 없음.	参照の追加費用なし。
 Type	유형	種類
 Style	그림체	画風
@@ -713,6 +752,8 @@ export const messages = Object.fromEntries(rows.map(row => { const [en, ko, ja] 
 Object.assign(messages,compositionMessages);
 Object.assign(messages,pixelResolutionMessages);
 Object.assign(messages,cameraInputMessages);
+messages['Saved Vibe references are kept but not applied. This build supports V5 Full High Precise Reference.']={en:'Saved Vibe references are kept but not applied. This build supports V5 Full High Precise Reference.',ko:'저장된 바이브 참조는 보존되지만 적용되지 않습니다. 이 빌드는 V5 Full High 정밀 참조를 지원합니다.',ja:'保存済みの Vibe 参照は保持しますが適用しません。このビルドは V5 Full High の精密参照に対応しています。'};
+messages['Choose Precise Reference or Vibe Transfer for multiple images.']={en:'Choose Precise Reference for multiple images.',ko:'여러 이미지는 정밀 참조를 선택하세요.',ja:'複数の画像には精密参照を選択してください。'};
 messages['Legacy PDF reference. Open Help Center for current features.']={en:'Legacy PDF reference. Open Help Center for current features.',ko:'기존 PDF 참고 자료입니다. 최신 기능은 도움말 센터에서 확인하세요.',ja:'従来のPDF参考資料です。最新機能はヘルプセンターを開いてください。'};
 for (const [key, en] of Object.entries({ '여성 캐릭터': 'Female characters', '남성 캐릭터': 'Male characters', '여성 의상': 'Female outfits', '남성 의상': 'Male outfits', '구도·카메라': 'Composition / Camera', '배경·소품': 'Background / Props', '조명': 'Lighting', '그림체': 'Art style', '품질': 'Quality', '기타': 'Other' })) messages[key].en = en;
 for (const key of Object.keys(messages).filter(key => key.includes(' / ') && /[가-힣]/.test(key))) messages[key].en = key.split(' / ')[0];

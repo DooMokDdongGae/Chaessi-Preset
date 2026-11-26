@@ -11,6 +11,7 @@ const SECRET_KEYS = new Set([
   "NAI_ACCESS_TOKEN",
   "signed_hash",
   "image_cache_secret_key",
+  "cache_secret_key",
   "cookie",
   "set-cookie",
   "session",
@@ -21,6 +22,8 @@ const SOURCE_ASSET_KEYS = new Set([
   "mask",
   "controlnet_condition",
   "director_reference_images",
+  "director_reference_images_cached",
+  "reference_image_multiple_cached",
   "reference_image_multiple",
 ]);
 

@@ -1,4 +1,4 @@
-import { EFFORT_MEMORY_KEYS, getPresetEffort, NOVELAI_V5_FULL_MODEL } from "./model-profiles.js";
+import { EFFORT_MEMORY_KEYS, getPresetEffort, NOVELAI_V45_FULL_MODEL, NOVELAI_V5_FULL_MODEL } from "./model-profiles.js";
 
 // Prompts and shared settings stay in the editor; only the official five fields are remembered.
 export function switchPresetEffort(preset, effort) {
@@ -16,6 +16,11 @@ export function effectiveGenerationPreset(preset, payload) {
   const next = structuredClone(preset);
   delete next.model_states;
   delete next.effort_states;
+  if (payload.model === NOVELAI_V45_FULL_MODEL) {
+    next.params.seed = payload.parameters.seed;
+    next.params.extra_noise_seed = payload.parameters.extra_noise_seed;
+    return next;
+  }
   const effort = getPresetEffort(next);
   if (payload.action === "infill") delete next.params.dataset;
   next.params = { ...next.params, model: NOVELAI_V5_FULL_MODEL, effort,

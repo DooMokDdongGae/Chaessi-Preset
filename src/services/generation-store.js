@@ -71,6 +71,7 @@ export function createGenerationStore({ rootDir }) {
       sidecar.generation.mode = mode;
       sidecar.generation.model = payload.model;
       sidecar.generation.action = payload.action;
+      if (sourceAssets.vibeUsage) sidecar.generation.vibe_transfer = sourceAssets.vibeUsage;
       sidecar.generation.width = payload.parameters.width;
       sidecar.generation.height = payload.parameters.height;
       if (mode !== GENERATION_MODES.TEXT_TO_IMAGE) {
@@ -104,6 +105,7 @@ export function createGenerationStore({ rootDir }) {
           enabled: true,
         }));
       }
+      if (sourceAssets.preciseUsage?.length) sidecar.precise_reference_usage = sourceAssets.preciseUsage;
       sidecar.raw_payload = storedPayload;
       if (cameraInput) sidecar.camera_input = structuredClone(cameraInput);
       if (wildcardSelection) sidecar.wildcard_selection = structuredClone(wildcardSelection);

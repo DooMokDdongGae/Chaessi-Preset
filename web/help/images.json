@@ -1,6 +1,6 @@
 {
-  "version": "3.8.5",
-  "chapters": 41,
+  "version": "3.9.0",
+  "chapters": 45,
   "assets": [
     {
       "file": "assets/manuals/examples/workflow.webp",
@@ -1531,6 +1531,33 @@
       "height": 347,
       "kind": "application-dialog-screenshot",
       "source_version": "3.8.5"
+    },
+    {
+      "file": "assets/manuals/examples/v5-current-overview.jpg",
+      "kind": "supported-cua-current-source-synthetic-isolated",
+      "bytes": 98908,
+      "sha256": "cae961ccf3a8119da24382dcd088db805ba9e4ad2373be23df50afc3459b1ad7",
+      "width": 1280,
+      "height": 720,
+      "source_version": "3.9.0"
+    },
+    {
+      "file": "assets/manuals/examples/v5-current-reference.jpg",
+      "kind": "supported-cua-current-source-synthetic-isolated",
+      "bytes": 92802,
+      "sha256": "34f1b61ad8a0ee1360ea2fce08ee5803ad5a88fb980ae432d4aab8b227af8c8e",
+      "width": 1280,
+      "height": 720,
+      "source_version": "3.9.0"
+    },
+    {
+      "file": "assets/manuals/examples/v5-current-library.jpg",
+      "kind": "supported-cua-current-source-synthetic-isolated",
+      "bytes": 57711,
+      "sha256": "65d0ebbd1f1ae1ffdc72ffa211b3b15034f84aeba338d14300d32e3c6b7d98bf",
+      "width": 1280,
+      "height": 720,
+      "source_version": "3.9.0"
     }
   ]
 }

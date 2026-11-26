@@ -9,7 +9,7 @@ test('Build version matches the package source and About contains no stale liter
 test('All thirteen tool topics and all three languages resolve to decodable packaged illustrations',async()=>{
  assert.equal(manualChapters.filter(c=>c.tool).length,13);const checked=new Set();
  for(const c of manualChapters)for(const locale of ['ko','en','ja']){
-  const files=[`assets/manuals/${locale}/${c.image}.png`,...(c.illustrations??[]).map(i=>{assert.ok(i.caption[locale]);return i.screenshot?`assets/manuals/${locale}/${i.screenshot}.png`:`assets/manuals/examples/${i.file}`;})];
+  const files=[...(c.imageFile?[`assets/manuals/examples/${c.imageFile}`]:c.image?[`assets/manuals/${locale}/${c.image}.png`]:[]),...(c.illustrations??[]).map(i=>{assert.ok(i.caption[locale]);return i.screenshot?`assets/manuals/${locale}/${i.screenshot}.png`:`assets/manuals/examples/${i.file}`;})];
   for(const f of files){assert.ok(!f.includes('..'));if(checked.has(f))continue;checked.add(f);const data=await readFile(new URL('../'+f,import.meta.url));const image=await sharp(data).metadata();assert.ok(image.width>0&&image.height>0);assert.ok(!image.exif&&!image.xmp,'No source metadata in help assets');}
  }
  assert.ok(checked.size>=90);

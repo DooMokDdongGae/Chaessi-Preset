@@ -52,7 +52,7 @@ test('Reader help matches the online chapter and teaches one send action with sk
   }
 });
 test('Integrated guide keeps the same chapters and step counts in all three languages', () => {
-  assert.equal(manualChapters.length, 41);
+  assert.equal(manualChapters.length, 45);
   assert.equal(new Set(manualChapters.map(c => c.id)).size, manualChapters.length);
   assert.ok(manualChapters.some(c=>c.id==='tool-pixel-snap'));
   assert.equal(manualChapters.find(c => c.id === 'reader-transfer').en[2].length, 9);

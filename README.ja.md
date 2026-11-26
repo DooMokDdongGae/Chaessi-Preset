@@ -1,35 +1,37 @@
-# CHAESSI PRESET v3.8.5
+# CHAESSI PRESET v3.9.0
 
-自由なスロット配置を使うには、Presetとリーダーの両方で2026年11月23日修正版をダウンロードしてください。片方が旧ビルドの場合、番号を飛ばした配置を送れないことがあります。
+V5 Precise Reference と独立した参照ライブラリを備えた Windows x64 Portable です。V5 Full・High・テキスト生成で Character、Style、Character & Style、Outfit を組み合わせ、同じ衣装を優先・Strength・順序・有効状態を調整します。適用参照1枚につき出力画像1枚あたり5 Anlasが加算されます。生成前に適用数と推定総費用を確認してください。
 
-[v3.8.5 Windows PortableとSHA-256](https://github.com/DooMokDdongGae/Chaessi-Preset/releases/tag/v3.8.5) · [メタデータリーダーv1.0.0のインストーラーとChrome拡張機能](https://github.com/DooMokDdongGae/Chaessi-Metadata-Reader/releases/tag/v1.0.0)。接続・スロット修正版でも両アプリのバージョン番号は同じです。各Releaseで改訂日（2026年11月23日）、ビルドのコミット、ファイルのチェックサムを確認してください。
+[公式 v3.9.0 ダウンロード](https://github.com/DooMokDdongGae/Chaessi-Preset/releases/tag/v3.9.0) · [更新方法](docs/UPDATING.md) · [変更点](.github/releases/v3.9.0.ja.md) · [全45章オンラインヘルプ](https://doomokddonggae.github.io/Chaessi-Preset/v3.9.0/?lang=ja&chapter=v5-reference)
 
-[한국어](https://github.com/DooMokDdongGae/Chaessi-Preset/blob/main/README.ko.md) · [English](https://github.com/DooMokDdongGae/Chaessi-Preset/blob/main/README.en.md) · [日本語](https://github.com/DooMokDdongGae/Chaessi-Preset/blob/main/README.ja.md)
+公式 Portable ZIP を展開して `Chaessi-Preset-v3.9.0-x64.exe` を起動します。展開したファイルは同じフォルダに保管してください。転送には [Reader 1.1.0](https://github.com/DooMokDdongGae/Chaessi-Metadata-Reader/releases/tag/v1.1.0) を使います。検証に失敗するときは公式ZIPを再展開し、その実行ファイルを選び直してください。
 
-v3.8.5では、ワイド横長とロング縦長の画像サイズを選べます。メタデータリーダーで選択した文章を、現在の下書きに取り込めます。 [全41章のオンラインヘルプ](https://doomokddonggae.github.io/Chaessi-Preset/v3.8.5/?lang=ja&chapter=start)
+単体参照・構成全体の保存、読み込み、名前変更、名前を付けて保存、削除に対応します。Base/Character プリセットとは独立し、一時参照は明示的に保存した場合だけ保管します。韓国語・英語・日本語の案内をオフラインのヘルプセンターに同梱します。
 
-**自分で作ったプロンプト・人物・衣装・作業結果を再利用し、生成と編集をつなぐローカル作業台です。** NovelAIアカウントで画像を生成し、Chaessi Presetで制作素材と次の作業を管理します。
+V5 Precise+Inpaint、V5 Vibe、新しい V4.5 Vibe UI・要求は非対応です。非対応のモデル・モードでは参照を保留し、既存 V4.5 資料の読み込みは維持します。Base/Character、設定、履歴、保存トークンの既存パスを維持します。実行ファイルとユーザーデータは別フォルダです。
 
-「AIにすべてを決めさせるのではなく、制作者がプロンプトと工程を自分で制御・修正し、結果を完成させる」。プリセット保存、生成文の確認、重みの手動補正、原本への復帰、履歴の再利用はこの方針のための機能です。
+Windows OS ファイルドロップの最終GUI試験は未確認で、ファイル選択・貼り付けを利用できます。開発環境の別計測は接続約14.35秒・プレビュー約6.97秒で、実際のPCの体感値ではありません。Chrome・Inspectの追加オンライン試験、ドロップ、性能は実使用後に確認します。繰り返す接続・転送失敗は修正が必要です。
 
-[v3.8.5リリースノート](.github/releases/v3.8.5.ja.md) · [カメラガイド](docs/CAMERA.ja.md)
+[한국어](README.ko.md) · [English](README.en.md) · [日本語](README.ja.md)
+
+## 従来の作業台機能
 
 ## ワイド横長とロング縦長の画像サイズ
 
-作業台の下にある **画像サイズ** を開き、**標準** または **大** を選びます。各ボタンに表示される幅 × 高さを確認し、**サイズを適用** を押してください。 新しいワイド横長とロング縦長のボタンは、V5のカスタム寸法を作業台で選ぶためのショートカットです。
+作業台の下にある **画像サイズ** を開き、**標準** または **大** を選びます。各ボタンの幅 × 高さを確認して **サイズを適用** を押してください。
 
 | サイズ | 標準横長 | ワイド横長 | 標準縦長 | ロング縦長 | 正方形 |
 | --- | --- | --- | --- | --- | --- |
 | 標準 | 1216 × 832 | 1344 × 768 | 832 × 1216 | 768 × 1344 | 1024 × 1024 |
 | 大 | 1536 × 1024 | 1664 × 960 | 1024 × 1536 | 960 × 1664 | 1472 × 1472 |
 
-複数人や広い背景にはワイド横長、全身を収める縦の余白が欲しいときはロング縦長を試してください。実際の構図はプロンプトと生成結果によって変わります。初期値は832 × 1216です。小・壁紙・カスタム・縦横の交換も利用できます。保存済みのサイズや、設定したプロンプト・カメラはそのままです。大きなサイズは画素数が増え、費用が変わる場合があります。生成前に見積もりを確認してください。 [画像サイズのヘルプ](https://doomokddonggae.github.io/Chaessi-Preset/v3.8.5/?lang=ja&chapter=settings)
+複数人や広い背景にはワイド横長、全身を収める縦の余白が欲しいときはロング縦長を試してください。実際の構図はプロンプトと生成結果によって変わります。初期値は832 × 1216です。小・壁紙・カスタム・縦横の交換も利用できます。保存済みのサイズや、設定したプロンプト・カメラはそのままです。大きなサイズは画素数が増え、費用が変わる場合があります。生成前に見積もりを確認してください。 [画像サイズのヘルプ](https://doomokddonggae.github.io/Chaessi-Preset/v3.9.0/?lang=ja&chapter=settings)
 
 <a id="reader-setup"></a>
 
-## メタデータリーダーの導入と接続
+## メタデータリーダーの設定と接続
 
-Windows x64で[リーダーv1.0.0のRelease](https://github.com/DooMokDdongGae/Chaessi-Metadata-Reader/releases/tag/v1.0.0)からインストーラーとChrome拡張機能のZIPを入手し、同じReleaseの `SHA256SUMS.txt` で両方を確認します。同じPCでPreset v3.8.5 Portableを使います。両方とも2026年11月23日の修正版を選んでください。
+公式 Reader 1.1.0 と署名ファイルが揃った Preset 3.9.0 Portable を使い、展開したファイルを同じフォルダに保管してください。
 
 ### 初回設定
 
@@ -47,7 +49,7 @@ Windows x64で[リーダーv1.0.0のRelease](https://github.com/DooMokDdongGae/C
 4. **プリセットに送る** を一度押して、選んだPreset画面のプレビューを確認します。リーダーの後ろにある場合はWindowsのタスクバーでその画面に切り替えます。既存のキャラクターが2人で5番だけに送る場合、3・4番は空の無効（Off）スロットとして表示されます。変更前後の文章と作成する番号を確認し、**下書きに適用** または **キャンセル** を選びます。空文字で上書きする場合のみ別途確認が必要です。
 5. **リーダー転送を元に戻す** で、新規スロットを含めて取り消せます。残したい場合は作業台上部の **保存** を押してください。転送にNovelAIトークンや有料の画像生成は不要です。
 
-[受信画面の選択・再試行・取り消しの手順](https://doomokddonggae.github.io/Chaessi-Preset/v3.8.5/?lang=ja&chapter=reader-transfer)
+[受信画面の選択・再試行・取り消しの手順](https://doomokddonggae.github.io/Chaessi-Preset/v3.9.0/?lang=ja&chapter=reader-transfer)
 
 ## v3.8.4 — 部分修正の拡大とキャンバス拡張の操作改善
 
@@ -85,7 +87,7 @@ Windows x64で[リーダーv1.0.0のRelease](https://github.com/DooMokDdongGae/C
 | 画像仕上げ | Upscale、Enhance / Max✨ Enhance、Remove Background、Line Art、Sketch、Colorize、Emotion、Declutter、Outpainting、Focused Inpaint |
 | ローカル編集 | Canvasのペン・消しゴム・塗りつぶし・切り抜き・サイズ変更・Undo/Redo、Pixel Snapの格子整理。どちらもローカル0 Anlas |
 | 再利用 | 履歴PNG・生成条件・処理記録、PNG/WebPメタデータ読み込み、比較・保存・I2I/Inpaintへの受け渡し |
-| ヘルプ | 韓国語・英語・日本語の41章。検索・目次・関連項目移動・画像拡大。アプリ内文書はオフラインで使用可能 |
+| ヘルプ | 韓国語・英語・日本語の45章。検索・目次・関連項目移動・画像拡大。アプリ内文書はオフラインで使用可能 |
 
 ![実際の作業画面](web/help/assets/manuals/ja/docs-workbench.png)
 
@@ -121,10 +123,10 @@ HighではV5設定を調整できます。Mediumは固定設定を使い、手�
 
 ## 開始・更新・バックアップ
 
-1. [公式リリース](https://github.com/DooMokDdongGae/Chaessi-Preset/releases)からWindows x64 Portable EXEと`Chaessi-Preset-v3.8.5-x64.exe.sha256`を取得します。
-2. EXEを実行して言語を選びます。Portableに別途Node.jsは不要です。オンライン処理には自分のNovelAIアカウント・トークン・生成権限が必要です。 設定のNovelAI接続で自分のトークンを入力・保存し、接続状態を確認します。トークンはパスワードと同じように扱い、共有しないでください。
+1. [公式リリース](https://github.com/DooMokDdongGae/Chaessi-Preset/releases)から`Chaessi-Preset-v3.9.0-x64.zip`とチェックサムを取得します。
+2. ZIPを展開し、ファイルを同じフォルダに保管してEXEを実行し、言語を選びます。Portableに別途Node.jsは不要です。オンライン処理には自分のNovelAIアカウント・トークン・生成権限が必要です。 設定のNovelAI接続で自分のトークンを入力・保存し、接続状態を確認します。トークンはパスワードと同じように扱い、共有しないでください。
 3. プリセットを読み込むか文章を書き、High/Medium・サイズ・費用を確認して1枚生成します。最新結果や履歴からカメラ・画像ツールへ進みます。アプリ情報 → ヘルプセンターで操作を確認できます。
-4. 更新前に編集を保存して終了し、実際のデータフォルダ全体を別途バックアップします。データを残してEXEを交換します。戻すときは旧EXEとその版に合うバックアップを組み合わせます。
+4. 更新前に編集を保存して終了し、実際のデータフォルダ全体を別途バックアップします。データを残してEXEと同梱ファイルをまとめて交換します。戻すときは旧EXEとその版に合うバックアップを組み合わせます。
 
 既存プリセット・分類・Wildcard・履歴を一括強制変換しません。V4.5資料は読み込み・編集・保存できますが、**V4.5の新規生成には非対応で、V5へ明示的に切り替える必要があります**。旧版が新しいカメラ・構図記録をすべて理解するとは限りません。自動更新と終了後の未保存編集の自動復旧はありません。
 
@@ -136,6 +138,6 @@ HighではV5設定を調整できます。Mediumは固定設定を使い、手�
 
 Customは64の倍数・合計3,145,728画素以下で、自動丸めはしません。Wallpaperに正方形はありません。構図編集は2D配置であり、3D復元・多層編集・遠近編集ではありません。Pixel Snapは既存格子の整理で、通常絵から新しいピクセルアートを創作しません。人数、継ぎ目、表情、マーカー位置、格子推定の精度は保証しません。
 
-V5 Precise Reference、Vibe Transfer、ControlNet、通常生成用V5 Curated選択、動画、複数枚バッチは非対応です。配布対象はWindows x64で、macOS/Linux配布・コード署名・自動更新はありません。未署名EXEの警告が出た場合は公式出所とチェックサムを確認し、保護機能を一括解除しないでください。
+このバージョンでは V5 Full High テキスト生成で V5 Precise Reference に対応します。Vibe Transfer、ControlNet、通常生成用V5 Curated選択、動画、複数枚バッチは非対応です。配布対象はWindows x64で、macOS/Linux配布・Windows Authenticode署名・自動更新はありません。未署名EXEの警告が出た場合は公式出所とチェックサムを確認し、保護機能を一括解除しないでください。
 
 公開用作品は原本と別のコピーにします。PNGの通常メタデータに加えアルファチャンネルに隠れた生成情報も確認してください。トークン、個人履歴、原文、データフォルダ全体を共有しないでください。

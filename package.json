@@ -1,7 +1,7 @@
 {
   "name": "chaessi-preset",
   "productName": "Chaessi Preset",
-  "version": "3.8.5",
+  "version": "3.9.0",
   "description": "Generate with NovelAI. Organize and finish with CHAESSI PRESET.",
   "author": "Chaessi Preset",
   "license": "MIT",
@@ -74,7 +74,11 @@
       "!test_*.js",
       "!*.py",
       "!*.txt",
-      "!rebuild_blueprint.md"
+      "!rebuild_blueprint.md",
+      "!**/*private*",
+      "!**/*PRIVATE*",
+      "!**/v5-quality-*.jpg",
+      "!**/v5-reference-provenance.json"
     ],
     "win": {
       "icon": "assets/branding/chaessi-preset.ico",
@@ -86,7 +90,9 @@
     },
     "portable": {
       "unpackDirName": true
-    }
+    },
+    "buildVersion": "3.9.0.1",
+    "afterPack": "scripts/package-dependencies.cjs"
   },
   "dependencies": {
     "@modelcontextprotocol/sdk": "1.32.1",

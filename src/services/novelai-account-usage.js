@@ -34,6 +34,8 @@ export function parseNovelAiAccountUsage(payload) {
     anlasBalance: normalizeAnlasBalance(subscription.trainingStepsLeft),
     staminaPercent: normalizeStaminaPercent(subscription.usage),
     opusAvailable: hasOpusAllowance(subscription),
+    opusV45Eligible: typeof subscription.active === "boolean" && Number.isInteger(subscription.tier)
+      ? subscription.active && subscription.tier >= 3 : null,
   };
 }
 
@@ -42,6 +44,7 @@ export function projectNovelAiAccountUsage(usage) {
     anlas_balance: usage?.anlasBalance ?? null,
     stamina_percent: usage?.staminaPercent ?? null,
     opus_available: usage?.opusAvailable ?? null,
+    opus_v45_eligible: usage?.opusV45Eligible ?? null,
   };
 }
 

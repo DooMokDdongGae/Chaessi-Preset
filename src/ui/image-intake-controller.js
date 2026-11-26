@@ -26,12 +26,14 @@ export function createImageIntakeController({
       i2i: byId("imageIntakeI2IButton"),
       inpaint: byId("imageIntakeInpaintButton"),
       precise: byId("imageIntakePreciseButton"),
+      vibe: byId("imageIntakeVibeButton"),
       metadata: byId("imageIntakeMetadata"),
       applyMetadata: byId("imageIntakeApplyMetadataButton"),
     });
     elements.i2i.addEventListener("click", () => routeSingleSource("image-to-image"));
     elements.inpaint.addEventListener("click", () => routeSingleSource("inpaint"));
-    elements.precise.addEventListener("click", routeReferences);
+    elements.precise.addEventListener("click", () => routeReferences("precise"));
+    elements.vibe.addEventListener("click", () => routeReferences("vibe"));
     elements.applyMetadata.addEventListener("click", applySelectedMetadata);
     elements.dialog.addEventListener("close", clear);
   }
@@ -74,17 +76,16 @@ export function createImageIntakeController({
       : `${state.items.length} images · ${sourceLabel(state.items[0]?.source)}`;
     setRouteButton(elements.i2i, availability.imageToImage, "Image to Image accepts one source image.");
     setRouteButton(elements.inpaint, availability.inpaint, "Inpaint accepts one source image.");
-    setRouteButton(elements.precise, availability.preciseReference,
-      state.items.length > capacity
-        ? `Only ${capacity} Precise Reference slot${capacity === 1 ? " is" : "s are"} available.`
-        : "");
+    const capacityMessage = state.items.length > capacity ? `${capacity} reference slots available.` : "";
+    setRouteButton(elements.precise, availability.preciseReference, capacityMessage);
+    setRouteButton(elements.vibe, availability.preciseReference, capacityMessage);
     const metadataAvailable = state.items.length === 1 && hasImportableNovelAiMetadata(state.items[0].metadata);
     elements.metadata.hidden = !metadataAvailable;
     elements.applyMetadata.disabled = state.metadataApplied;
     setStatus(state.items.length > capacity
-      ? state.items.length + " images exceed the " + capacity + " remaining Precise Reference slots."
+      ? capacityMessage
       : state.items.length > 1
-        ? "Multiple images can be added to Precise Reference. Image to Image and Inpaint require one image."
+        ? "Choose Precise Reference or Vibe Transfer for multiple images."
         : metadataAvailable
           ? "NovelAI metadata detected. Import is optional and separate from image routing."
           : "No importable NovelAI metadata detected.");
@@ -103,10 +104,10 @@ export function createImageIntakeController({
     });
   }
 
-  async function routeReferences() {
+  async function routeReferences(kind) {
     if (state.processing || !state.items.length) return;
     await runAction(async () => {
-      await routeToReferences(state.items);
+      await routeToReferences(state.items, kind);
       elements.dialog.close("routed");
     });
   }
@@ -146,7 +147,7 @@ export function createImageIntakeController({
   }
 
   function setButtonsDisabled(disabled) {
-    [elements.i2i, elements.inpaint, elements.precise, elements.applyMetadata].forEach((button) => {
+    [elements.i2i, elements.inpaint, elements.precise, elements.vibe, elements.applyMetadata].forEach((button) => {
       if (button) button.disabled = disabled;
     });
     if (!disabled) render();

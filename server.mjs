@@ -40,6 +40,8 @@ import {
   PROVIDER_ENV_KEYS,
 } from "./src/security/secret-store.js";
 import { createPresetStore } from "./src/services/preset-store.js";
+import { createReferenceLibrary } from "./src/services/reference-library.js";
+import { handleReferenceLibraryRoute } from "./src/services/reference-library-route.js";
 import { createCharacterPresetStore } from "./src/services/character-preset-store.js";
 import { createCharacterPresetCategoryStore } from "./src/services/character-preset-category-store.js";
 import { createGenerationStore } from "./src/services/generation-store.js";
@@ -55,6 +57,7 @@ import { resolveGenerationPrompts, createPreparedPromptStore, usedSequentialChoi
 import { fetchNovelAiAccountUsage, projectNovelAiAccountUsage } from "./src/services/novelai-account-usage.js";
 import { extractFinalNovelAiImage } from "./src/services/novelai-msgpack-stream.js";
 import { createNovelAiMultipartBody } from "./src/services/novelai-multipart-request.js";
+import { attachV5Precise } from "./src/adapters/novelai-v5-precise.js";
 import {
   assertMaskHasPaintedPixels,
   assertMatchingDimensions,
@@ -99,6 +102,7 @@ const tokenProvider = createTokenProvider({
   secretStore: new EnvSecretStore(),
 });
 const presetStore = createPresetStore({ rootDir: DATA_ROOT });
+const referenceLibrary = createReferenceLibrary({ rootDir: DATA_ROOT });
 const characterPresetStore = createCharacterPresetStore({ rootDir: DATA_ROOT });
 const characterPresetCategoryStore = createCharacterPresetCategoryStore({ rootDir: DATA_ROOT });
 const generationStore = createGenerationStore({ rootDir: DATA_ROOT });
@@ -115,6 +119,11 @@ const server = http.createServer(async (req, res) => {
   try {
     const url = new URL(req.url || "/", `http://127.0.0.1:${PORT}`);
 
+    if (url.pathname === '/api/reference-library' || url.pathname.startsWith('/api/reference-library/')) {
+      await handleReferenceLibraryRoute({ req, res, url, library: referenceLibrary, readJsonBody, sendJson });
+      return;
+    }
+
     if (req.method === "GET" && url.pathname === "/api/health") {
       sendJson(res, 200, {
         ok: true,
@@ -122,6 +131,7 @@ const server = http.createServer(async (req, res) => {
         version: APP_VERSION,
         channel: "public",
         accountRefreshOnStartup: !isolatedProfile,
+        referenceCapabilities: { v5HighPrecise: true, v45Vibe: false },
       });
       return;
     }
@@ -180,8 +190,14 @@ const server = http.createServer(async (req, res) => {
       return;
     }
 
+    if (req.method === "POST" && url.pathname === "/api/novelai/vibe/encode") {
+      assertLocalReferenceRequest(req);
+      throw httpError(400, "vibe_transfer_unavailable", "New Vibe Transfer requests are unavailable in this build. Saved references are kept.");
+    }
+
     if (req.method === "POST" && url.pathname === "/api/novelai/generate") {
       const body = await readJsonBody(req);
+      if (body?.precise_references?.length || body?.vibe_references?.length) assertLocalReferenceRequest(req);
       if (imageRequestBusy || imageTools.isBusy()) throw httpError(409, "image_request_busy", "An image operation is already running.");
       imageRequestBusy = true;
       let result;
@@ -217,16 +233,22 @@ const server = http.createServer(async (req, res) => {
     }
     if (req.method === "POST" && url.pathname === "/api/novelai/prepare") {
       const body = await readJsonBody(req);
+      rejectNewVibeRequest(body);
       const preset = stripPresetUiState(body?.preset);
       const validation = validatePreset(preset);
       if (!validation.ok || validation.warnings.length) throw httpError(400, "invalid_preset", "Invalid preset.", [...validation.errors, ...validation.warnings].join("; "));
-      assertGeneratablePreset(preset);
       const mode = normalizeGenerationMode(body?.mode);
+      assertGeneratablePreset(preset);
       if(mode===GENERATION_MODES.TEXT_TO_IMAGE)assertT2IResolution(preset);
       const wildcardChoices = [];
       const resolved = resolveGenerationPrompts(preset, await wildcardStore.all(), undefined, { mode, sequentialChoices: wildcardChoices });
       const staged = prepareCameraInput(preset, resolved, body.camera_input, mode);
-      const preview = staged.context ? buildV5GeneratePayload(staged.preset, {policy: mode === 'inpaint' ? 'chaessi-inpaint-strategy' : 'official'}) : null;
+      let preview = null;
+      if (staged.context) {
+        preview = staged.preset.params.model === NOVELAI_V5_FULL_MODEL
+          ? buildV5GeneratePayload(staged.preset, {policy: mode === 'inpaint' ? 'chaessi-inpaint-strategy' : 'official'})
+          : buildGeneratePayload(staged.preset);
+      }
       if (preview) staged.preset.params.seed = preview.parameters.seed;
       const id = randomUUID();
       preparedPrompts.put(id, staged.preset, mode, staged.context, wildcardChoices);
@@ -592,6 +614,13 @@ function requestElectronTokenStorage(payload) {
   });
 }
 
+function rejectNewVibeRequest(body) {
+  if ((body?.vibe_count !== undefined && body.vibe_count !== 0) ||
+      (body?.vibe_references !== undefined && (!Array.isArray(body.vibe_references) || body.vibe_references.length))) {
+    throw httpError(400, "vibe_transfer_unavailable", "New Vibe Transfer requests are unavailable in this build. Saved references are kept.");
+  }
+}
+
 function assertGeneratablePreset(preset) {
   if (preset?.params?.model !== NOVELAI_V5_FULL_MODEL) throw httpError(400, "legacy_model_read_only", "V4.5 presets and History are preserved. Switch to V5 Full before generating.");
   if (preset.params.n_samples !== undefined && preset.params.n_samples !== 1) throw httpError(400, "one_image_only", "Generate one image at a time.");
@@ -603,7 +632,18 @@ function assertT2IResolution(preset) {
   if(error)throw httpError(400,'invalid_resolution',error);
 }
 
+function assertLocalReferenceRequest(req) {
+  const port = server.address().port;
+  const host = req.headers.host;
+  if (![`127.0.0.1:${port}`, `localhost:${port}`].includes(host)
+      || (req.headers.origin && req.headers.origin !== `http://${host}`)
+      || req.headers["content-type"]?.split(";")[0] !== "application/json") {
+    throw httpError(403, "reference_local_only", "Use reference images in this app.");
+  }
+}
+
 async function handleGenerate(body) {
+  rejectNewVibeRequest(body);
   const mode = normalizeGenerationMode(body?.mode);
   const prepared = body?.prepared_id ? preparedPrompts.takeSnapshot(body.prepared_id, mode) : null;
   const preset = prepared ? prepared.preset : stripPresetUiState(body?.preset);
@@ -668,10 +708,9 @@ async function handleGenerate(body) {
     assertMatchingDimensions(source, mask, payload.parameters.width, payload.parameters.height);
   }
 
-  if (!getModelProfile(preset.params?.model).capabilities.preciseReference && body?.precise_references?.length) {
-    throw httpError(400, "unsupported_precise_reference", "Precise Reference is not supported by the selected model.");
-  }
-  const preparedReferences = preparePreciseReferences(body?.precise_references);
+  const v5References = isV5Request ? await attachV5Precise(payload, body?.precise_references) : null;
+  if (v5References?.images.length) multipartAssets.directorReferences = v5References.images;
+  const preparedReferences = isV5Request ? [] : preparePreciseReferences(body?.precise_references);
   referenceAssets = preparedReferences.map((reference) => ({
     bytes: reference.image_bytes,
     ...reference.source_info,
@@ -680,7 +719,7 @@ async function handleGenerate(body) {
     fidelity: reference.fidelity,
   }));
   payload = applyPreciseReferences(payload, preparedReferences.map(({ image_bytes, ...reference }) => reference));
-  const preciseReferenceValidation = validatePreciseReferencePayload(payload, preparedReferences);
+  const preciseReferenceValidation = isV5Request ? { ok: true } : validatePreciseReferencePayload(payload, preparedReferences);
   if (!preciseReferenceValidation.ok) {
     throw httpError(400, "invalid_precise_reference_payload", "Precise Reference validation failed.", preciseReferenceValidation.errors.join("; "));
   }
@@ -693,7 +732,7 @@ async function handleGenerate(body) {
       naiResponse.status,
       "novelai_request_failed",
       "Request failed",
-      naiResponse.body.toString("utf8").slice(0, 2000),
+      v5References?.images.length || body?.vibe_references?.length ? `NovelAI HTTP ${naiResponse.status}` : naiResponse.body.toString("utf8").slice(0, 2000),
     );
   }
 
@@ -729,6 +768,7 @@ async function handleGenerate(body) {
       generation_padding: generationPadding,
     },
     sourceAssets: {
+      preciseUsage: v5References?.summary,
       sourceBytes: source?.bytes,
       maskBytes: mask?.bytes,
       generationMaskBytes: generationMask,
@@ -738,8 +778,8 @@ async function handleGenerate(body) {
       created_at: wildcardSelection?.created_at || createdAt.toISOString(),
       ...(wildcardSelection ? {generation_id: wildcardSelection.id} : {}),
       received_image_format: converted.format,
-      actual_generation_params: outputMetadata.parsed?.params || null,
-      metadata_source: outputMetadata.metadata_source || null,
+      actual_generation_params: converted.requestMetadataOnly ? null : outputMetadata.parsed?.params || null,
+      metadata_source: converted.requestMetadataOnly ? "chaessi-request" : outputMetadata.metadata_source || null,
       response_container: isV5 ? "msgpack" : "zip",
       response_image_entry: isV5 ? "final.image" : extracted.entryName,
       response_content_type: naiResponse.headers.get("content-type") || "",
@@ -762,7 +802,7 @@ async function handleGenerate(body) {
     summary: {
       mode,
       model: payload.model,
-      logical_model: NOVELAI_V5_FULL_MODEL,
+      logical_model: resolvedPreset.params.model,
       effort: generationPreset.params.effort,
       width: payload.parameters.width,
       height: payload.parameters.height,
@@ -786,7 +826,7 @@ async function handleGenerate(body) {
       image_noise: mode === GENERATION_MODES.INPAINT ? payload.parameters.noise : undefined,
       add_original_image: mode === GENERATION_MODES.INPAINT ? payload.parameters.add_original_image : undefined,
       generation_padding: generationPadding,
-      precise_reference_count: referenceAssets.length,
+      precise_reference_count: v5References?.summary.length ?? referenceAssets.length,
     },
   };
   } catch (error) {
@@ -870,6 +910,7 @@ async function postNovelAiPayload({ token, payload, multipartAssets = {} }) {
       method: "POST",
       headers,
       body: requestBody,
+      ...(multipartAssets.directorReferences?.length || payload.parameters.reference_image_multiple?.length ? { redirect: "error" } : {}),
       signal: controller.signal,
     });
     return {
@@ -1232,6 +1273,9 @@ function isAllowedClientSource(pathname) {
   if (['/src/image-tools/contracts.js','/src/image-tools/composition-geometry.js','/src/image-tools/pixel-snap-core.js'].includes(pathname)) return true;
   return pathname === "/src/app.js"
     || pathname === "/src/services/prompt-random-resolver.js"
+    || pathname === "/src/services/vibe-import.js"
+    || pathname === "/src/services/vibe-cost.js"
+    || pathname === "/src/state/v5-reference-buckets.js"
     || pathname === "/src/state/character-preset-categories.js"
     || pathname === "/src/state/model-profiles.js"
     || pathname === "/src/state/resolutions.js"

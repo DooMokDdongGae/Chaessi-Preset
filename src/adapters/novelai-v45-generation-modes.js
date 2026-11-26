@@ -157,6 +157,12 @@ export function normalizeGenerationMode(value) {
 
 export function redactPayloadAssets(payload, assets = {}) {
   const copy = JSON.parse(JSON.stringify(payload));
+  if (Array.isArray(copy.parameters?.reference_image_multiple)) {
+    copy.parameters.reference_image_multiple = copy.parameters.reference_image_multiple.map(value => {
+      const bytes = Buffer.from(value, "base64");
+      return { storage: "encoding_digest", byte_length: bytes.length, sha256: createHash("sha256").update(bytes).digest("hex") };
+    });
+  }
   if (copy.parameters?.image) {
     copy.parameters.image = assetReference(assets.sourceBytes, assets.sourcePath);
   }

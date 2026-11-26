@@ -57,6 +57,7 @@ function categoryOption(value) { return `<option data-no-i18n ${builtInCategoryL
 let rawJsonImportTimer = null;
 let generationModeController = null;
 let preciseReferenceController = null;
+let referenceCapabilities = {};
 let imageIntakeController = null;
 let characterPositionPadController = null;
 let workbenchController = null;
@@ -215,7 +216,8 @@ async function init() {
     },
   });
   generationModeController.bind();
-  generationCostController = installGenerationCost({ getPreset: () => state.currentPreset, getMode: () => generationModeController.getMode() });
+  generationCostController = installGenerationCost({ getPreset: () => state.currentPreset, getMode: () => generationModeController.getMode(),
+    getReferencePlan: () => preciseReferenceController?.getPlan() });
   resolutionController = createResolutionController({
     getMode: () => generationModeController.getMode(),
     onChange: (width, height) => {
@@ -246,7 +248,17 @@ async function init() {
   $('openInpaintComposition').onclick=()=>{try{const source=generationModeController.getCompositionSource();void imageToolsController.openComposition(source);}catch(error){showToast(error.message,true);}};
   preciseReferenceController = createPreciseReferenceController({
     showToast,
-    getMode: () => generationModeController.getMode(),
+    getContext: () => ({
+      model: state.currentPreset?.params.model || NOVELAI_V5_FULL_MODEL,
+      effort: state.currentPreset?.params.effort || "high",
+      mode: generationModeController.getMode(),
+      capabilities: referenceCapabilities,
+    }),
+    onChange: plan => {
+      $("generateButton").disabled = !state.currentPreset || state.generationBusy || !plan.canGenerate || state.currentPreset.params.effort === "unknown";
+      generationCostController.render();
+    },
+    onEncoded: () => { void refreshAccountUsage(); },
   });
   preciseReferenceController.bind();
   imageIntakeController = createImageIntakeController({
@@ -256,10 +268,9 @@ async function init() {
       await generationModeController.loadSourceItem(item, mode);
       workbenchController.showWorkbench(); workbenchController.selectPane("result");
     },
-    routeToReferences: async (items) => {
-      await preciseReferenceController.addIntakeItems(items);
+    routeToReferences: async (items, kind) => {
+      await preciseReferenceController.addIntakeItems(items, kind);
       workbenchController.showWorkbench(); workbenchController.selectPane("result");
-      if (state.currentPreset?.params?.model === "nai-diffusion-5-full") showToast("Precise Reference is retained for legacy data only and is unavailable for V5 generation.", true);
     },
     applyMetadata: applyIntakeMetadata,
     getReferenceCapacity: () => preciseReferenceController.getCapacity(),
@@ -618,6 +629,8 @@ function bindImageIntake() {
 }
 async function refreshHealth() {
   const health = await getJson("/api/health");
+  referenceCapabilities = health.referenceCapabilities || {};
+  preciseReferenceController?.refreshWarnings();
   $("aboutChannel").textContent = t(health.version ? "PUBLIC build" : "Version unavailable");
   $("aboutVersion").textContent = `Chaessi Preset ${health.version || "—"}`;
   return health;
@@ -1508,22 +1521,23 @@ async function generateImage() {
     const sourcePreset = structuredClone(state.currentPreset);
     const cameraSnapshot = cameraInputController?.request();
     const modeRequest = generationModeController.getGenerateRequest();
+    const referenceRequest = await preciseReferenceController.getGenerateRequest();
+    const vibeCount = referenceRequest.vibe_references?.length || 0;
     const isV5 = sourcePreset.params?.model === "nai-diffusion-5-full";
     if (isV5) await refreshAccountUsage();
     setSummary($("generateStatus"), "Generating one image...", false);
-    const prepared = await postJson("/api/novelai/prepare", { preset: sourcePreset, mode: modeRequest.mode, ...(cameraSnapshot ? {camera_input:cameraSnapshot} : {}) });
+    const prepared = await postJson("/api/novelai/prepare", { preset: sourcePreset, mode: modeRequest.mode,
+      ...(vibeCount ? { vibe_count: vibeCount } : {}), ...(cameraSnapshot ? {camera_input:cameraSnapshot} : {}) });
     const resolvedPreset = prepared.preset;
     reportResolvedPromptLimits(resolvedPreset);
     showResolvedGenerationPrompt(resolvedPreset);
     if (!await cameraInputController.confirmPrepared(prepared)) { setSummary($('generateStatus'), 'Generation cancelled.', false); return; }
-    const profile = getModelProfile(sourcePreset.params?.model);
-    const preciseReferences = profile.capabilities.preciseReference ? preciseReferenceController.getGenerateRequest() : [];
     const requestBody = {
       preset: resolvedPreset,
       prepared_id: prepared.prepared_id,
       ...(prepared.camera_input ? {camera_ack: prepared.camera_input.review_key} : {}),
       ...(modeRequest.mode === "text-to-image" ? {} : modeRequest),
-      ...(preciseReferences.length ? { precise_references: preciseReferences } : {}),
+      ...referenceRequest,
     };
     const response = await postJson("/api/novelai/generate", requestBody);
     setSummary($("generateStatus"), "Generation saved.", true);
@@ -2502,7 +2516,6 @@ function applyModelCapabilities(profile) {
   $("effortNotice").hidden = !medium;
   fields.undesiredPrompt.closest("label").hidden = medium;
   for (const field of [fields.steps, fields.sampler, fields.cfgRescale, fields.ucPreset]) field.closest("label").hidden = medium;
-  $("generateButton").disabled = state.generationBusy === true || legacy || state.currentPreset.params.effort === "unknown";
   const modelBadge = $("headerModelLabel");
   modelBadge.textContent = `NovelAI Diffusion ${profile.label}`;
   modelBadge.dataset.model = profile.id;
@@ -2514,11 +2527,12 @@ function applyModelCapabilities(profile) {
   $("smDynField").hidden = !profile.capabilities.smea;
   $("dynamicThresholdField").hidden = profile.family === "v5";
   $("characterPositionModeField").hidden = profile.family !== "v5";
-  $("preciseReferencePanel").hidden = !profile.capabilities.preciseReference;
   $("addCharacterButton").disabled = (state.currentPreset.prompt_parts?.characters?.length || 0) >= profile.maxCharacters;
   const overflow = Math.max(0, (state.currentPreset.prompt_parts?.characters?.length || 0) - profile.maxCharacters);
   $("characterLimitNotice").textContent = overflow ? `${overflow} additional V5 character slots are preserved but excluded from ${profile.label} generation.` : `${profile.label}: up to ${profile.maxCharacters} Character Prompt slots.`;
-  $("modelCapabilityNotice").textContent = legacy ? "V4.5 presets and History are preserved. Switch to V5 Full before generating." : "V5 Full: generate one PNG at a time. Inpaint keeps the existing cost-saving strategy.";
+  $("modelCapabilityNotice").textContent = legacy
+    ? "V4.5 presets and History are preserved. Switch to V5 Full before generating."
+    : "V5 Full: generate one PNG at a time. Inpaint keeps the existing cost-saving strategy.";
   generationModeController.setSupportedModes(profile.modes, state.modeByModel[profile.id]);
   $("datasetField").hidden = legacy || generationModeController.getMode() === "inpaint";
 }

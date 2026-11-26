@@ -1,18 +1,20 @@
-# CHAESSI PRESET v3.8.5
+# CHAESSI PRESET v3.9.0
 
-자유 슬롯 배치를 쓰려면 프리셋과 리더 모두 2026-11-23 수정본을 다시 받으세요. 한쪽이 이전 빌드이면 앞 번호를 건너뛴 배치가 거부될 수 있습니다.
+V5 Precise Reference와 독립 레퍼런스 보관함을 제공하는 Windows x64 Portable입니다. V5 Full · High · 텍스트 생성에서 Character, Style, Character & Style, Outfit을 섞어 쓰고 같은 의상 선호·Strength·순서·활성 상태를 조절합니다. 참조당 출력 한 장에 5 Anlas가 추가되며 생성 전 적용 수와 총 예상 비용을 확인하세요.
 
-[v3.8.5 Windows Portable 및 SHA-256](https://github.com/DooMokDdongGae/Chaessi-Preset/releases/tag/v3.8.5) · [메타데이터 리더 v1.0.0 설치판 및 Chrome 확장](https://github.com/DooMokDdongGae/Chaessi-Metadata-Reader/releases/tag/v1.0.0). 연결·슬롯 수정본은 두 앱의 버전 번호가 그대로입니다. 다운로드할 때 Release의 수정일(2026-11-23), 빌드 커밋과 파일 체크섬을 확인하세요.
+[공식 v3.9.0 다운로드](https://github.com/DooMokDdongGae/Chaessi-Preset/releases/tag/v3.9.0) · [업데이트 안내](docs/UPDATING.md) · [변경사항](.github/releases/v3.9.0.ko.md) · [45장 온라인 도움말](https://doomokddonggae.github.io/Chaessi-Preset/v3.9.0/?lang=ko&chapter=v5-reference)
 
-[한국어](https://github.com/DooMokDdongGae/Chaessi-Preset/blob/main/README.ko.md) · [English](https://github.com/DooMokDdongGae/Chaessi-Preset/blob/main/README.en.md) · [日本語](https://github.com/DooMokDdongGae/Chaessi-Preset/blob/main/README.ja.md)
+공식 Portable ZIP을 풀고 `Chaessi-Preset-v3.9.0-x64.exe`를 실행합니다. 압축을 푼 파일들은 같은 폴더에 보관하세요. Reader 연결에는 [Reader 1.1.0](https://github.com/DooMokDdongGae/Chaessi-Metadata-Reader/releases/tag/v1.1.0)을 사용합니다. 연결이 거부되면 공식 ZIP을 다시 풀고 새 실행파일을 선택하세요.
 
-v3.8.5에서는 가로로 넓거나 세로로 긴 크기를 고르고, 메타데이터 리더에서 선택한 글을 현재 초안으로 가져올 수 있습니다. [전체 41장 온라인 도움말](https://doomokddonggae.github.io/Chaessi-Preset/v3.8.5/?lang=ko&chapter=start)
+개별 참조와 구성 전체를 저장·불러오기·이름 변경·다른 이름으로 저장·삭제할 수 있습니다. 보관함은 Base/Character 프리셋과 독립적이며 직접 저장하지 않은 임시 참조는 자동 보관하지 않습니다. 앱 안의 도움말 센터에는 한·영·일 안내가 오프라인으로 포함됩니다.
 
-**직접 만든 프롬프트·캐릭터·의상·작업 결과를 재사용하면서 생성과 편집을 이어가는 로컬 작업대입니다.** NovelAI 계정으로 그림을 만들고, Chaessi Preset에서 제작 재료와 다음 작업을 관리합니다.
+V5 Precise+Inpaint, V5 Vibe와 신규 V4.5 Vibe UI·요청은 제공하지 않습니다. 미지원 모델·모드에서는 참조를 보류하며 기존 V4.5 데이터 읽기는 유지합니다. Base/Character, 설정, History와 저장 토큰의 기존 경로를 유지합니다. 실행파일 폴더와 사용자 데이터 폴더는 별도입니다.
 
-“AI가 모든 것을 자동으로 결정하는 것이 아니라, 창작자가 프롬프트와 작업 과정을 직접 통제하고 수정하면서 결과를 완성한다.” 프리셋 저장, 생성 전 문구 확인, 수동 가중치 보정, 원본 복귀와 History 재사용은 이 방향을 위한 기능입니다.
+Windows OS 파일 드롭의 마지막 GUI 시험은 미검증이며 파일 선택·붙여넣기를 이용할 수 있습니다. 개발 환경의 별도 계측은 연결 약 14.35초·미리보기 약 6.97초였고 사용자 PC 체감값은 아닙니다. Chrome·Inspect 온라인 추가시험과 드롭·성능 확인은 실사용 후 진행합니다. 반복 연결 실패·전송 실패는 정상 동작으로 간주하지 않습니다.
 
-[v3.8.5 변경사항](.github/releases/v3.8.5.ko.md) · [카메라 안내](docs/CAMERA.ko.md)
+[한국어](README.ko.md) · [English](README.en.md) · [日本語](README.ja.md)
+
+## 기존 작업대 기능
 
 ## 와이드·롱 이미지 크기
 
@@ -23,13 +25,13 @@ v3.8.5에서는 가로로 넓거나 세로로 긴 크기를 고르고, 메타데
 | 보통 | 1216 × 832 | 1344 × 768 | 832 × 1216 | 768 × 1344 | 1024 × 1024 |
 | 크게 | 1536 × 1024 | 1664 × 960 | 1024 × 1536 | 960 × 1664 | 1472 × 1472 |
 
-여러 인물과 넓은 배경에는 와이드 가로, 전신을 세로로 담을 공간이 필요할 때는 롱 세로를 써 보세요. 실제 구도는 프롬프트와 생성 결과에 따라 달라집니다. 초기값은 832 × 1216이며 작게·배경화면·직접 입력과 가로·세로 교환도 사용할 수 있습니다. 저장된 프리셋의 치수와 카메라·프롬프트는 자동으로 바뀌지 않습니다. 크게는 픽셀 수가 많아 비용이 달라질 수 있으니 생성 전 예상치를 확인하세요. [이미지 크기 도움말](https://doomokddonggae.github.io/Chaessi-Preset/v3.8.5/?lang=ko&chapter=settings)
+여러 인물과 넓은 배경에는 와이드 가로, 전신을 세로로 담을 공간이 필요할 때는 롱 세로를 써 보세요. 실제 구도는 프롬프트와 생성 결과에 따라 달라집니다. 초기값은 832 × 1216이며 작게·배경화면·직접 입력과 가로·세로 교환도 사용할 수 있습니다. 저장된 프리셋의 치수와 카메라·프롬프트는 자동으로 바뀌지 않습니다. 크게는 픽셀 수가 많아 비용이 달라질 수 있으니 생성 전 예상치를 확인하세요. [이미지 크기 도움말](https://doomokddonggae.github.io/Chaessi-Preset/v3.9.0/?lang=ko&chapter=settings)
 
 <a id="reader-setup"></a>
 
 ## 메타데이터 리더 설치와 연결
 
-Windows x64용 [리더 v1.0.0 Release](https://github.com/DooMokDdongGae/Chaessi-Metadata-Reader/releases/tag/v1.0.0)에서 설치판과 Chrome 확장 ZIP을 받아 같은 Release의 `SHA256SUMS.txt`와 대조하세요. Preset은 같은 PC에서 v3.8.5 Portable을 사용합니다. 두 앱 모두 2026-11-23 수정본을 선택하세요.
+공식 Reader 1.1.0과 서명 파일이 함께 있는 Preset 3.9.0 Portable을 사용하세요. ZIP을 풀어 모든 파일을 같은 폴더에 보관합니다.
 
 ### 처음 한 번 설정하기
 
@@ -47,7 +49,7 @@ Windows x64용 [리더 v1.0.0 Release](https://github.com/DooMokDdongGae/Chaessi
 4. **프리셋으로 보내기**를 한 번 누르고 선택했던 Preset 창의 미리보기를 보세요. 리더 뒤에 있으면 작업 표시줄에서 그 창으로 전환하세요. 캐릭터가 2개일 때 5번으로만 보내면 3·4번은 빈 비활성(Off) 슬롯으로 표시됩니다. 전후 문구와 생성될 번호를 확인해 **초안에 적용**하거나 **취소**하세요. 빈 문구로 덮어쓸 때만 별도 확인이 필요합니다.
 5. **리더 전송 되돌리기**는 적용 내용과 새 슬롯을 함께 복구합니다. 보관하려면 작업대 위쪽의 **저장**을 직접 누르세요. 전송에 NovelAI 토큰이나 유료 생성은 필요하지 않습니다.
 
-[받을 창 선택, 재시도 및 되돌리기 안내](https://doomokddonggae.github.io/Chaessi-Preset/v3.8.5/?lang=ko&chapter=reader-transfer)
+[받을 창 선택, 재시도 및 되돌리기 안내](https://doomokddonggae.github.io/Chaessi-Preset/v3.9.0/?lang=ko&chapter=reader-transfer)
 
 ## v3.8.4 — 부분수정과 아웃페인팅 조작 개선
 
@@ -85,7 +87,7 @@ Wildcard 관리에서 무작위(Random) 또는 순차(Sequential)를 선택할 �
 | 이미지 완성 | Upscale, Enhance / Max✨ Enhance, Remove Background, Line Art, Sketch, Colorize, Emotion, Declutter, Outpainting, Focused Inpaint |
 | 로컬 편집 | Canvas 펜·지우개·채우기·자르기·크기 변경·Undo/Redo, Pixel Snap 격자 정돈. 두 기능은 로컬 0 Anlas |
 | 결과 재사용 | History PNG·생성 조건·이미지 도구 기록, PNG/WebP 메타데이터 읽기, 결과 비교·저장·I2I/Inpaint 연결 |
-| 도움말 | 한국어·영어·일본어 41장, 검색·목차·문맥 이동·그림 확대. 앱 내 문서는 오프라인 사용 가능 |
+| 도움말 | 한국어·영어·일본어 45장, 검색·목차·문맥 이동·그림 확대. 앱 내 문서는 오프라인 사용 가능 |
 
 ![실제 작업대](web/help/assets/manuals/ko/docs-workbench.png)
 
@@ -121,10 +123,10 @@ High에서는 V5 설정을 조절할 수 있습니다. Medium은 정해진 설�
 
 ## 시작·업데이트·백업
 
-1. [공식 배포 목록](https://github.com/DooMokDdongGae/Chaessi-Preset/releases)에서 Windows x64 Portable EXE와 `Chaessi-Preset-v3.8.5-x64.exe.sha256`를 받습니다.
-2. EXE를 실행하고 언어를 고릅니다. Portable 실행에는 별도 Node.js 설치가 필요 없습니다. 온라인 생성에는 본인의 NovelAI 계정·토큰과 사용 권한이 필요합니다. 설정의 NovelAI 연결에서 본인 토큰을 입력하고 저장한 뒤 연결 상태를 확인합니다. 토큰은 비밀번호처럼 다루고 공유하지 마세요.
+1. [공식 배포 목록](https://github.com/DooMokDdongGae/Chaessi-Preset/releases)에서 `Chaessi-Preset-v3.9.0-x64.zip`과 체크섬를 받습니다.
+2. ZIP을 풀어 파일을 함께 보관한 뒤 EXE를 실행하고 언어를 고릅니다. Portable 실행에는 별도 Node.js 설치가 필요 없습니다. 온라인 생성에는 본인의 NovelAI 계정·토큰과 사용 권한이 필요합니다. 설정의 NovelAI 연결에서 본인 토큰을 입력하고 저장한 뒤 연결 상태를 확인합니다. 토큰은 비밀번호처럼 다루고 공유하지 마세요.
 3. 프리셋을 선택하거나 글을 쓰고 High/Medium·크기·비용을 확인해 한 장을 생성합니다. 최근 결과나 History에서 카메라 또는 이미지 도구로 이어갑니다. 앱 정보 → 도움말 센터에서 실제 조작을 확인하세요.
-4. 업데이트 전 필요한 편집을 저장하고 앱을 종료한 뒤 실제 데이터 폴더 전체를 별도 백업합니다. 데이터는 유지하고 EXE를 교체합니다. 되돌릴 때는 이전 EXE와 그 버전에 맞는 백업을 함께 사용합니다.
+4. 업데이트 전 필요한 편집을 저장하고 앱을 종료한 뒤 실제 데이터 폴더 전체를 별도 백업합니다. 데이터는 유지하고 EXE와 동봉 파일을 함께 교체합니다. 되돌릴 때는 이전 EXE와 그 버전에 맞는 백업을 함께 사용합니다.
 
 기존 프리셋·분류·Wildcard·History를 강제로 일괄 변환하지 않습니다. V4.5 자료는 읽기·편집·저장할 수 있지만 **신규 V4.5 생성은 지원하지 않으므로 V5로 명시적으로 전환**해야 합니다. 구버전이 새 카메라·구도 기록을 모두 이해한다고 가정하지 마세요. 자동 업데이트와 종료 후 미저장 편집 자동 복구는 제공하지 않습니다.
 
@@ -136,6 +138,6 @@ High에서는 V5 설정을 조절할 수 있습니다. Medium은 정해진 설�
 
 Custom 크기는 64의 배수·총 3,145,728픽셀 이하이고 자동 반올림하지 않습니다. Wallpaper Square는 없습니다. 구도 편집은 2D 이미지 배치이며 3D 복원·다중 레이어·원근 편집기가 아닙니다. Pixel Snap은 기존 격자 정돈이며 일반 그림을 새로운 픽셀아트로 창작하지 않습니다. 인원수·배경 연결·표정·마커 위치·자동 격자 추천의 정확도는 보장하지 않습니다.
 
-V5 Precise Reference, Vibe Transfer, ControlNet, 일반 생성용 V5 Curated 선택, 영상·다중 배치 생성은 지원하지 않습니다. 현재 배포 대상은 Windows x64이며 macOS/Linux 배포·코드 서명·자동 업데이트는 제공하지 않습니다. 미서명 EXE의 보안 경고가 나타나면 공식 출처와 체크섬을 확인하고 보안 기능을 일괄 해제하지 마세요.
+이 버전의 V5 Precise Reference는 V5 Full High 텍스트 생성에서 지원합니다. Vibe Transfer, ControlNet, 일반 생성용 V5 Curated 선택, 영상·다중 배치 생성은 지원하지 않습니다. 현재 배포 대상은 Windows x64이며 macOS/Linux 배포·Windows Authenticode 서명·자동 업데이트는 제공하지 않습니다. 미서명 EXE의 보안 경고가 나타나면 공식 출처와 체크섬을 확인하고 보안 기능을 일괄 해제하지 마세요.
 
 공개용 작품은 원본과 별도 사본으로 보관하세요. PNG의 일반 메타데이터뿐 아니라 알파 채널에 숨겨진 생성 정보도 확인해야 합니다. 토큰·개인 History·원본 프롬프트·전체 데이터 폴더를 공유하지 마세요.

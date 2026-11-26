@@ -8,7 +8,7 @@ export const readerTransferChapter = {
   },
   ko: [
     '메타데이터 리더에서 프롬프트 받기',
-    '같은 PC에서 채씨 메타데이터 리더 1.0.0의 편집 문구를 CHAESSI PRESET 3.8.5 초안으로 보냅니다. 두 앱 모두 2026-11-23 연결·슬롯 수정 빌드를 사용하세요. 리더 설치판과 Chrome 확장은 리더의 공식 Release에서 별도로 받습니다. 전송에는 NovelAI 토큰이나 유료 생성이 필요하지 않습니다.',
+    '같은 PC에서 채씨 메타데이터 리더 1.1.0의 편집 문구를 CHAESSI PRESET 3.9.0 초안으로 보냅니다. 공식 서명 파일이 함께 있는 Preset 패키지를 사용하세요. 리더 설치판과 Chrome 확장은 리더의 공식 Release에서 별도로 받습니다. 전송에는 NovelAI 토큰이나 유료 생성이 필요하지 않습니다.',
     [
       'Chrome의 NovelAI Inspect에서 이미지를 고른 뒤 리더의 「NovelAI Inspect 가져오기」를 누르세요. 탭 선택창이 뜨면 그 이미지가 있는 탭을 고르세요.',
       '리더의 「가져온 이미지」에서 이미지를 고르고 「프롬프트 편집」에서 보낼 글을 고치세요.',
@@ -20,11 +20,11 @@ export const readerTransferChapter = {
       '프리셋에서 현재 문구와 적용 후 문구, 새로 만들 번호를 확인하세요. 예를 들어 캐릭터가 2개일 때 5번으로만 보내면 3·4번은 빈 비활성(Off) 슬롯이고 5번이 목적지입니다. 「초안에 적용」을 한 번 누르면 함께 반영됩니다. 빈 문구로 덮어쓸 때만 별도 확인이 필요합니다. 「취소」하면 초안은 그대로이고 항목은 리더 목록에 남습니다.',
       '되돌리려면 프리셋에서 「리더 전송 되돌리기」를 누르세요. 전송으로 만든 슬롯도 함께 되돌립니다. 보관하려면 작업대 위쪽 「저장」을 직접 누르세요. 전송 자체로 프리셋 저장·History 기록·이미지 생성이 시작되지 않습니다.',
     ],
-    '대상으로 고르지 않은 기존 칸은 그대로입니다. 초안이 바뀌어 전송이 거부되면 「받을 칸 새로고침」 후 대상을 다시 고르세요. 실패하거나 확인 시간이 지나면 보낼 문구는 리더에 남습니다. 결과가 불명확하면 다시 보내기 전에 같은 창에서 「적용 결과 확인」을 누르세요. 적용 후 초안을 편집하면 되돌리기가 충돌할 수 있습니다. 여러 줄의 문구는 LF 줄바꿈을 사용하세요. CR·CRLF가 거부되어도 편집본은 리더에 남습니다.',
+    '대상으로 고르지 않은 기존 칸은 그대로입니다. 초안이 바뀌어 전송이 거부되면 「받을 칸 새로고침」 후 대상을 다시 고르세요. 실패하거나 확인 시간이 지나면 보낼 문구는 리더에 남습니다. 결과가 불명확하면 다시 보내기 전에 같은 창에서 「적용 결과 확인」을 누르세요. 적용 후 초안을 편집하면 되돌리기가 충돌할 수 있습니다. 여러 줄의 문구는 LF 줄바꿈을 사용하세요. CR·CRLF가 거부되어도 편집본은 리더에 남습니다. 서명 검증으로 연결에 시간이 걸릴 수 있습니다. 개발 환경 별도 계측은 연결 약 14.35초, 미리보기 약 6.97초였으며 실제 PC 체감값은 아닙니다. Chrome·Inspect 온라인 재시험은 실사용 후 확인합니다. 연결·전송 실패가 반복되면 공식 패키지를 확인하세요.',
   ],
   en: [
     'Receive prompts from Metadata Reader',
-    'Send edited text from Chaessi Metadata Reader 1.0.0 to a CHAESSI PRESET 3.8.5 draft on the same PC. Use the November 23, 2026 connection and slot revision of both apps. Get the separate Reader installer and Chrome extension from the official Reader release. Prompt transfer needs no NovelAI token or paid generation.',
+    'Send edited text from Chaessi Metadata Reader 1.1.0 to a CHAESSI PRESET 3.9.0 draft on the same PC. Keep the official signature files with the Preset package. Get the separate Reader installer and Chrome extension from the official Reader release. Prompt transfer needs no NovelAI token or paid generation.',
     [
       'Select an image in NovelAI Inspect in Chrome. In Reader, choose “Import from NovelAI Inspect”. If asked to choose a tab, select the one showing your image.',
       'Select the image in “Imported images” and edit the text in “Edit prompts”.',
@@ -36,11 +36,11 @@ export const readerTransferChapter = {
       'In Preset, review the current text, final text and slots to be created. If you have two Characters and send only to Character 5, the preview shows empty, disabled (Off) slots 3 and 4 and the new destination, 5. Choose “Apply to draft” once to apply the batch. Sending an empty string in Replace mode requires separate confirmation. “Cancel” keeps the draft intact and the items in Reader.',
       'Choose “Undo Reader transfer” to reverse the transfer, including newly created slots. To keep the edits, choose “Save” at the top of the workbench. Transfer does not automatically save, write History or generate an image.',
     ],
-    'Existing fields you leave unassigned keep their contents. If changes to the draft invalidate the request, choose “Refresh fields” in Reader and select the destinations again. If sending fails or the preview expires, your items stay in Reader. If the result is uncertain, use “Check transfer status” for the same window before retrying. Later edits can prevent Undo. Use LF line endings for multiline text. If CR or CRLF is rejected, the text remains in Reader.',
+    'Existing fields you leave unassigned keep their contents. If changes to the draft invalidate the request, choose “Refresh fields” in Reader and select the destinations again. If sending fails or the preview expires, your items stay in Reader. If the result is uncertain, use “Check transfer status” for the same window before retrying. Later edits can prevent Undo. Use LF line endings for multiline text. If CR or CRLF is rejected, the text remains in Reader. Signature verification can take time. Separate development measurements were about 14.35 s for connection and 6.97 s for preview, not final user-PC timings. Chrome/Inspect online rechecks remain for practical use. If connection or transfer repeatedly fails, check the official package.',
   ],
   ja: [
     'メタデータリーダーからプロンプトを受け取る',
-    '同じPCで、Chaessi Metadata Reader 1.0.0で編集した文章をCHAESSI PRESET 3.8.5の下書きに送ります。両方とも2026年11月23日の接続・スロット修正版を使用してください。リーダーのインストーラーとChrome拡張機能は、リーダーの公式Releaseから別途入手します。転送にNovelAIトークンや有料の画像生成は不要です。',
+    '同じPCで、Chaessi Metadata Reader 1.1.0で編集した文章をCHAESSI PRESET 3.9.0の下書きに送ります。公式署名ファイルが揃った Preset パッケージを使ってください。リーダーのインストーラーとChrome拡張機能は、リーダーの公式Releaseから別途入手します。転送にNovelAIトークンや有料の画像生成は不要です。',
     [
       'ChromeのNovelAI Inspectで画像を選び、リーダーの「NovelAI Inspect から取り込む」を押します。タブの選択画面が出たら、その画像があるタブを選んでください。',
       '「取り込んだ画像」で画像を選び、「プロンプトを編集」で送る文章を整えます。',
@@ -52,6 +52,6 @@ export const readerTransferChapter = {
       'Presetで変更前後の文章と作成するスロットの番号を確認します。たとえばキャラクターが2人いて5番だけに送る場合、3・4番は空の無効（Off）スロット、5番は新しい送信先として表示されます。「下書きに適用」を一度押すとまとめて反映します。空文字で上書きする場合のみ別途確認が必要です。「キャンセル」すると下書きはそのまま、項目はリーダーに残ります。',
       '「リーダー転送を元に戻す」で、新しく作成したスロットを含めて取り消せます。残したい場合は作業台上部の「保存」を自分で押してください。転送による自動保存、履歴への記録、画像生成はありません。',
     ],
-    '指定しなかった既存の欄はそのまま残ります。下書きが変わって送信が拒否された場合は、リーダーの「送信先を更新」で指定し直してください。送信失敗や確認期限切れでも項目はリーダーに残ります。結果が不明なときは再送の前に同じ画面で「反映状況を確認」を選びます。転送後に別の編集を行うと取り消せない場合があります。複数行の改行はLFを使用します。CRやCRLFが拒否された場合も文章はリーダーに残ります。',
+    '指定しなかった既存の欄はそのまま残ります。下書きが変わって送信が拒否された場合は、リーダーの「送信先を更新」で指定し直してください。送信失敗や確認期限切れでも項目はリーダーに残ります。結果が不明なときは再送の前に同じ画面で「反映状況を確認」を選びます。転送後に別の編集を行うと取り消せない場合があります。複数行の改行はLFを使用します。CRやCRLFが拒否された場合も文章はリーダーに残ります。 署名検証には時間がかかる場合があります。開発環境の別計測では接続約14.35秒、プレビュー約6.97秒でしたが、実際のPCの体感値ではありません。Chrome・Inspect のオンライン再試験は実使用後に確認します。接続・転送が繰り返し失敗するときは公式パッケージを確認してください。',
   ],
 };

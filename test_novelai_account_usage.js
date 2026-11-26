@@ -22,11 +22,12 @@ assert.deepEqual(parseNovelAiAccountUsage({
     trainingStepsLeft: { fixedTrainingStepsLeft: 6000, purchasedTrainingSteps: 4000 },
     usage: { percent: 99.5, isNegative: false, timeUntilNextPercent: 600 },
   },
-}), { anlasBalance: 10000, staminaPercent: 99.5, opusAvailable: false });
+}), { anlasBalance: 10000, staminaPercent: 99.5, opusAvailable: false, opusV45Eligible: null });
 assert.deepEqual(projectNovelAiAccountUsage({ anlasBalance: 10000, staminaPercent: 99.5, privateField: "must-not-leak" }), {
   anlas_balance: 10000,
   stamina_percent: 99.5,
   opus_available: null,
+  opus_v45_eligible: null,
 });
 
 for (const [active, tier, isNegative, expected] of [
@@ -39,6 +40,7 @@ for (const [active, tier, isNegative, expected] of [
   assert.equal(usage.opusAvailable, expected);
   assert.deepEqual(projectNovelAiAccountUsage({ ...usage, privateField: "must-not-leak" }), {
     anlas_balance: null, stamina_percent: null, opus_available: expected,
+    opus_v45_eligible: active && tier >= 3,
   });
 }
 assert.equal(projectNovelAiAccountUsage({ opusAvailable: null }).opus_available, null);
@@ -62,6 +64,6 @@ const fetched = await fetchNovelAiAccountUsage({
   },
 });
 assert.equal(observedAuthorization, "Bearer test-secret-token");
-assert.deepEqual(fetched, { anlasBalance: 1234, staminaPercent: 88, opusAvailable: true });
+assert.deepEqual(fetched, { anlasBalance: 1234, staminaPercent: 88, opusAvailable: true, opusV45Eligible: true });
 
 console.log("NovelAI account usage tests passed.");

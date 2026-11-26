@@ -1,3 +1,11 @@
+# v3.9.0
+
+- V5 Full High T2I Precise Reference: Character, Style, Character & Style, Outfit, outfit preference, Strength, mixed references and cost preview.
+- Independent single/set Reference library; explicit saving, load, rename, Save as and delete.
+- Official signed Portable packaging for Reader 1.1.0, preserving public profile and token storage contracts.
+- Updated Korean, English and Japanese help; new reference illustrations use synthetic input only.
+- Known follow-ups: final Windows OS drop GUI check, practical verification latency and Chrome/Inspect online recheck. V5 Vibe, new V4.5 Vibe and Precise+Inpaint remain unavailable.
+
 # Changelog
 
 ## v3.8.5

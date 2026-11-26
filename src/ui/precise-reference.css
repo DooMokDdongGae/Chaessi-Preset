@@ -26,6 +26,30 @@
   gap: 8px;
 }
 
+.reference-tabs [aria-pressed="true"] {
+  border-color: var(--cyan);
+  color: var(--cyan);
+}
+
+.reference-encoding-icon {
+  display: grid;
+  place-items: center;
+  min-height: 86px;
+  background: var(--surface);
+}
+
+.precise-reference-card [data-reference-dimensions]:empty {
+  display: none;
+}
+
+.reference-card-actions button:last-child {
+  margin-inline-start: auto;
+}
+
+.precise-reference-card[data-enabled="false"] > img {
+  opacity: 0.5;
+}
+
 .precise-reference-card {
   display: grid;
   grid-template-columns: 86px minmax(0, 1fr);
