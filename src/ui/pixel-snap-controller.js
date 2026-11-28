@@ -1,6 +1,7 @@
 import {postJson} from '../api/client.js';
 import {inspectPixelPng,pixelGeometry,normalizePixelSettings} from '../image-tools/pixel-snap-core.js';
 import {t} from './i18n.js';
+import {protectWindowClose} from './window-close-guard.js';
 
 export function createPixelSnapController({onSaved,onUseSource,onUseNext}){
   const dialog=document.createElement('dialog');dialog.id='pixelSnapDialog';dialog.className='pixel-snap-dialog';
@@ -109,7 +110,7 @@ export function createPixelSnapController({onSaved,onUseSource,onUseNext}){
   $('pixelHelp').onclick=()=>document.dispatchEvent(new CustomEvent('chaessi:open-manual',{detail:{chapter:'tool-pixel-snap'}}));
   for(const [id,mode]of [['pixelInpaint','inpaint'],['pixelI2I','image-to-image']])$(id).onclick=async()=>{try{if(!saved)return;const s=saved.operation.actual_output_size;if(s.width*s.height>3_145_728)throw new Error('The result exceeds the generation size limit. Use Canvas resize or Focused Inpaint.');await onUseSource('/'+saved.generation.image_path,mode);close();}catch(error){status(error.message,true);}};
   document.addEventListener('chaessi:language-change',render);
-  window.addEventListener('beforeunload',e=>{if(saving){e.preventDefault();e.returnValue='';}});
+  protectWindowClose({isBusy:()=>saving,isDirty:()=>false,discard:()=>{}},message=>status(message,true));
   return {async open(item){if(saving)return;dialog.showModal();if(item)await load(item);else render();},isBusy:()=>saving||Boolean(worker)};
 }
 function base64(bytes){let str='';for(let i=0;i<bytes.length;i+=8192)str+=String.fromCharCode(...bytes.subarray(i,i+8192));return btoa(str);}

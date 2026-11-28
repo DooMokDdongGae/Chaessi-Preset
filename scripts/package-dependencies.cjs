@@ -3,6 +3,8 @@ const path = require("node:path");
 const os = require("node:os");
 const { createRequire } = require("node:module");
 const { spawnSync } = require("node:child_process");
+const { createHash } = require("node:crypto");
+const { excludedDependencyPath, assertDependencyPolicy } = require("./dependency-layout-policy.cjs");
 
 const readJson = file => JSON.parse(fs.readFileSync(file, "utf8"));
 function inside(root, file) {
@@ -50,9 +52,17 @@ function collectDependencies(appRoot, { lock, platform = process.platform, arch 
 }
 
 function copyDependencies(sourceRoot, appRoot) {
+  sourceRoot = fs.realpathSync(sourceRoot);
+  appRoot = fs.realpathSync(appRoot);
+  const sourceModules = fs.realpathSync(path.join(sourceRoot, "node_modules"));
+  // The standard dist/ output is inside the checkout. Only the selected input
+  // modules and source root must be protected from being overwritten.
+  if (sourceRoot === appRoot || inside(appRoot, sourceRoot) || inside(sourceModules, appRoot) || inside(appRoot, sourceModules)) throw new Error("Source dependencies and packaged app must be separate trees");
+  if (fs.existsSync(path.join(appRoot, "node_modules"))) throw new Error("Packaged node_modules must be absent before copying dependencies");
   const lock = readJson(path.join(sourceRoot, "package-lock.json"));
   const packages = collectDependencies(sourceRoot, { lock });
   for (const [relative, pkg] of packages) {
+    assertDependencyPolicy(pkg.directory, readJson(path.join(pkg.directory, "package.json")));
     const target = path.join(appRoot, relative);
     fs.mkdirSync(path.dirname(target), { recursive: true });
     fs.cpSync(pkg.directory, target, {
@@ -60,11 +70,64 @@ function copyDependencies(sourceRoot, appRoot) {
       filter(file) {
         if (file !== pkg.directory && path.basename(file) === "node_modules") return false;
         if (fs.lstatSync(file).isSymbolicLink()) throw new Error(`Unexpected package symlink: ${file}`);
-        return true;
+        return !excludedDependencyPath(pkg, path.relative(pkg.directory, file));
       },
     });
   }
+  verifyCopiedDependencies(appRoot, packages);
   return packages;
+}
+
+// electron-builder may collect a different hoisted dependency layout. Preserve
+// it outside the runtime instead of overlaying incompatible versions in place.
+function preserveCollectedDependencies(runtimeRoot) {
+  runtimeRoot = fs.realpathSync(runtimeRoot);
+  const appRoot = path.join(runtimeRoot, "resources/app");
+  if (fs.realpathSync(appRoot) !== appRoot) throw new Error("Packaged app must not be a linked directory");
+  const modules = path.join(appRoot, "node_modules");
+  if (!fs.existsSync(modules)) return null;
+  if (fs.lstatSync(modules).isSymbolicLink() || fs.realpathSync(modules) !== modules) throw new Error("Collected node_modules must not be linked");
+  const preserved = path.join(path.dirname(runtimeRoot), `builder-collected-${path.basename(runtimeRoot)}-node_modules`);
+  if (inside(runtimeRoot, preserved) || fs.existsSync(preserved)) throw new Error("Collected dependency preservation path must be fresh and outside the runtime");
+  fs.renameSync(modules, preserved);
+  return preserved;
+}
+
+function dependencyFiles(directory, relative = "", skipNestedModules = false, files = new Map(), include = () => true) {
+  for (const entry of fs.readdirSync(directory, { withFileTypes: true })) {
+    if (skipNestedModules && entry.name === "node_modules" && entry.isDirectory()) continue;
+    const file = path.join(directory, entry.name);
+    const name = relative ? `${relative}/${entry.name}` : entry.name;
+    if (entry.isSymbolicLink()) throw new Error(`Unexpected dependency symlink: ${name}`);
+    if (!include(name)) continue;
+    if (entry.isDirectory()) dependencyFiles(file, name, skipNestedModules, files, include);
+    else if (entry.isFile()) files.set(name, createHash("sha256").update(fs.readFileSync(file)).digest("hex"));
+    else throw new Error(`Unexpected dependency entry: ${name}`);
+  }
+  return files;
+}
+
+// A working sharp probe alone does not detect extra files or mixed versions.
+// Compare every packaged dependency file with its selected source package.
+function verifyCopiedDependencies(appRoot, packages) {
+  const expected = new Map();
+  for (const [relative, pkg] of packages) {
+    assertDependencyPolicy(pkg.directory, readJson(path.join(pkg.directory, "package.json")));
+    for (const [name, digest] of dependencyFiles(pkg.directory, "", true, new Map(), name => !excludedDependencyPath(pkg, name))) {
+      const target = `${relative.replace(/^node_modules\//, "")}/${name}`;
+      if (expected.has(target)) throw new Error(`Duplicate dependency target: ${target}`);
+      expected.set(target, digest);
+    }
+  }
+  const actual = dependencyFiles(path.join(appRoot, "node_modules"));
+  for (const [name, digest] of expected) {
+    if (!actual.has(name)) throw new Error(`Missing packaged dependency file: ${name}`);
+    if (actual.get(name) !== digest) throw new Error(`Changed packaged dependency file: ${name}`);
+  }
+  for (const name of actual.keys()) {
+    if (!expected.has(name)) throw new Error(`Unexpected packaged dependency file: ${name}`);
+  }
+  return { packageCount: packages.size, fileCount: actual.size, exactSourceBytes: true };
 }
 
 function checkPackage(appRoot) {
@@ -124,12 +187,13 @@ async function afterPack(context) {
   if (process.platform !== "win32" || process.arch !== "x64") throw new Error("Use a Windows x64 host with installed Windows x64 dependencies");
   const appRoot = path.join(context.appOutDir, "resources/app");
   if (!fs.existsSync(path.join(appRoot, "package.json"))) throw new Error("Expected unpacked app");
+  preserveCollectedDependencies(context.appOutDir);
   copyDependencies(context.packager.projectDir, appRoot);
   const result = checkPackage(appRoot);
   console.log(`Packaged dependencies verified: ${result.packageCount} packages, sharp ${result.probe.sharp}`);
 }
 
-module.exports = { collectDependencies, copyDependencies, checkPackage, afterPack };
+module.exports = { collectDependencies, copyDependencies, preserveCollectedDependencies, verifyCopiedDependencies, checkPackage, afterPack };
 if (require.main === module) {
   try {
     if (process.argv.length !== 3) throw new Error("Usage: node scripts/package-dependencies.cjs <resources/app>");

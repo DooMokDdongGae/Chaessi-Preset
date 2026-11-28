@@ -1,3 +1,13 @@
+# v3.9.1 — 2026-11-28
+
+- PNG metadata preservation and verified Inspect compatibility for supported saved samples.
+- Explicit unsaved-image-edit close confirmation, preserving busy protection.
+- Packaging excludes 365 unnecessary upstream test/development files; required dependencies, licenses and help remain.
+- Reader v1.1.1 compatibility uses the same production trust root and prompt-transfer/1.
+- Original Precise/Character PNG sample gaps and selected save-time busy/external-image paths remain documented limitations.
+
+[한국어](.github/releases/v3.9.1.ko.md) · [English](.github/releases/v3.9.1.en.md) · [日本語](.github/releases/v3.9.1.ja.md)
+
 # v3.9.0
 
 - V5 Full High T2I Precise Reference: Character, Style, Character & Style, Outfit, outfit preference, Strength, mixed references and cost preview.

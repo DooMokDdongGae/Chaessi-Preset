@@ -1,16 +1,16 @@
-# CHAESSI PRESET v3.9.0
+# CHAESSI PRESET v3.9.1
 
 V5 Precise Reference と独立した参照ライブラリを備えた Windows x64 Portable です。V5 Full・High・テキスト生成で Character、Style、Character & Style、Outfit を組み合わせ、同じ衣装を優先・Strength・順序・有効状態を調整します。適用参照1枚につき出力画像1枚あたり5 Anlasが加算されます。生成前に適用数と推定総費用を確認してください。
 
-[公式 v3.9.0 ダウンロード](https://github.com/DooMokDdongGae/Chaessi-Preset/releases/tag/v3.9.0) · [更新方法](docs/UPDATING.md) · [変更点](.github/releases/v3.9.0.ja.md) · [全45章オンラインヘルプ](https://doomokddonggae.github.io/Chaessi-Preset/v3.9.0/?lang=ja&chapter=v5-reference)
+[公式 v3.9.1 ダウンロード](https://github.com/DooMokDdongGae/Chaessi-Preset/releases/tag/v3.9.1) · [更新方法](docs/UPDATING.md) · [変更点](.github/releases/v3.9.1.ja.md) · [全45章オンラインヘルプ](https://doomokddonggae.github.io/Chaessi-Preset/v3.9.1/?lang=ja&chapter=v5-reference)
 
-公式 Portable ZIP を展開して `Chaessi-Preset-v3.9.0-x64.exe` を起動します。展開したファイルは同じフォルダに保管してください。転送には [Reader 1.1.0](https://github.com/DooMokDdongGae/Chaessi-Metadata-Reader/releases/tag/v1.1.0) を使います。検証に失敗するときは公式ZIPを再展開し、その実行ファイルを選び直してください。
+公式 Portable ZIP を展開して `Chaessi-Preset-v3.9.1-x64.exe` を起動します。展開したファイルは同じフォルダに保管してください。転送には [Reader 1.1.1](https://github.com/DooMokDdongGae/Chaessi-Metadata-Reader/releases/tag/v1.1.1) を使います。検証に失敗するときは公式ZIPを再展開し、その実行ファイルを選び直してください。
 
 単体参照・構成全体の保存、読み込み、名前変更、名前を付けて保存、削除に対応します。Base/Character プリセットとは独立し、一時参照は明示的に保存した場合だけ保管します。韓国語・英語・日本語の案内をオフラインのヘルプセンターに同梱します。
 
 V5 Precise+Inpaint、V5 Vibe、新しい V4.5 Vibe UI・要求は非対応です。非対応のモデル・モードでは参照を保留し、既存 V4.5 資料の読み込みは維持します。Base/Character、設定、履歴、保存トークンの既存パスを維持します。実行ファイルとユーザーデータは別フォルダです。
 
-Windows OS ファイルドロップの最終GUI試験は未確認で、ファイル選択・貼り付けを利用できます。開発環境の別計測は接続約14.35秒・プレビュー約6.97秒で、実際のPCの体感値ではありません。Chrome・Inspectの追加オンライン試験、ドロップ、性能は実使用後に確認します。繰り返す接続・転送失敗は修正が必要です。
+生成PNGのメタデータ保持と終了時の未保存編集確認を改善し、不要な開発用配布ファイルを整理しました。保存したPNG 4件は公式Inspect画面で認識を確認しました。原本Precise/Character PNGがない種類、一部の保存中busyタイミング、限定的な外部画像経路には既知の制限があります。過去の履歴の一括修復や、不明な生成情報の推測は行いません。
 
 [한국어](README.ko.md) · [English](README.en.md) · [日本語](README.ja.md)
 
@@ -25,13 +25,13 @@ Windows OS ファイルドロップの最終GUI試験は未確認で、ファイ
 | 標準 | 1216 × 832 | 1344 × 768 | 832 × 1216 | 768 × 1344 | 1024 × 1024 |
 | 大 | 1536 × 1024 | 1664 × 960 | 1024 × 1536 | 960 × 1664 | 1472 × 1472 |
 
-複数人や広い背景にはワイド横長、全身を収める縦の余白が欲しいときはロング縦長を試してください。実際の構図はプロンプトと生成結果によって変わります。初期値は832 × 1216です。小・壁紙・カスタム・縦横の交換も利用できます。保存済みのサイズや、設定したプロンプト・カメラはそのままです。大きなサイズは画素数が増え、費用が変わる場合があります。生成前に見積もりを確認してください。 [画像サイズのヘルプ](https://doomokddonggae.github.io/Chaessi-Preset/v3.9.0/?lang=ja&chapter=settings)
+複数人や広い背景にはワイド横長、全身を収める縦の余白が欲しいときはロング縦長を試してください。実際の構図はプロンプトと生成結果によって変わります。初期値は832 × 1216です。小・壁紙・カスタム・縦横の交換も利用できます。保存済みのサイズや、設定したプロンプト・カメラはそのままです。大きなサイズは画素数が増え、費用が変わる場合があります。生成前に見積もりを確認してください。 [画像サイズのヘルプ](https://doomokddonggae.github.io/Chaessi-Preset/v3.9.1/?lang=ja&chapter=settings)
 
 <a id="reader-setup"></a>
 
 ## メタデータリーダーの設定と接続
 
-公式 Reader 1.1.0 と署名ファイルが揃った Preset 3.9.0 Portable を使い、展開したファイルを同じフォルダに保管してください。
+公式 Reader 1.1.1 と署名ファイルが揃った Preset 3.9.1 Portable を使い、展開したファイルを同じフォルダに保管してください。
 
 ### 初回設定
 
@@ -49,7 +49,7 @@ Windows OS ファイルドロップの最終GUI試験は未確認で、ファイ
 4. **プリセットに送る** を一度押して、選んだPreset画面のプレビューを確認します。リーダーの後ろにある場合はWindowsのタスクバーでその画面に切り替えます。既存のキャラクターが2人で5番だけに送る場合、3・4番は空の無効（Off）スロットとして表示されます。変更前後の文章と作成する番号を確認し、**下書きに適用** または **キャンセル** を選びます。空文字で上書きする場合のみ別途確認が必要です。
 5. **リーダー転送を元に戻す** で、新規スロットを含めて取り消せます。残したい場合は作業台上部の **保存** を押してください。転送にNovelAIトークンや有料の画像生成は不要です。
 
-[受信画面の選択・再試行・取り消しの手順](https://doomokddonggae.github.io/Chaessi-Preset/v3.9.0/?lang=ja&chapter=reader-transfer)
+[受信画面の選択・再試行・取り消しの手順](https://doomokddonggae.github.io/Chaessi-Preset/v3.9.1/?lang=ja&chapter=reader-transfer)
 
 ## v3.8.4 — 部分修正の拡大とキャンバス拡張の操作改善
 
@@ -123,7 +123,7 @@ HighではV5設定を調整できます。Mediumは固定設定を使い、手�
 
 ## 開始・更新・バックアップ
 
-1. [公式リリース](https://github.com/DooMokDdongGae/Chaessi-Preset/releases)から`Chaessi-Preset-v3.9.0-x64.zip`とチェックサムを取得します。
+1. [公式リリース](https://github.com/DooMokDdongGae/Chaessi-Preset/releases)から`Chaessi-Preset-v3.9.1-x64.zip`とチェックサムを取得します。
 2. ZIPを展開し、ファイルを同じフォルダに保管してEXEを実行し、言語を選びます。Portableに別途Node.jsは不要です。オンライン処理には自分のNovelAIアカウント・トークン・生成権限が必要です。 設定のNovelAI接続で自分のトークンを入力・保存し、接続状態を確認します。トークンはパスワードと同じように扱い、共有しないでください。
 3. プリセットを読み込むか文章を書き、High/Medium・サイズ・費用を確認して1枚生成します。最新結果や履歴からカメラ・画像ツールへ進みます。アプリ情報 → ヘルプセンターで操作を確認できます。
 4. 更新前に編集を保存して終了し、実際のデータフォルダ全体を別途バックアップします。データを残してEXEと同梱ファイルをまとめて交換します。戻すときは旧EXEとその版に合うバックアップを組み合わせます。

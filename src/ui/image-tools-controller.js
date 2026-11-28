@@ -1,4 +1,5 @@
 import {confirmAction} from './confirmation.js';
+import {protectWindowClose} from './window-close-guard.js';
 import {getJson,postJson} from '../api/client.js';
 import {t} from './i18n.js';
 import {createToolCanvas} from './image-tools-canvas.js';
@@ -101,8 +102,9 @@ export function createImageToolsController({getLatest,getViewed,getPreset,onSave
   }
   async function run(){if(!prepared||busy)return;const id=prepared.prepared_id;setBusy(true);try{const response=await postJson('/api/image-tools/run',{prepared_id:id});prepared=null;await display(response);}catch(e){prepared=null;status(e.message,true);}finally{setBusy(false);}}
   async function select(index){if(!result||busy)return;setBusy(true);try{await display(await postJson('/api/image-tools/variant',{id:result.generation.id,index}));}catch(e){status(e.message,true);}finally{setBusy(false);}}
-  async function close(){if(!busy&&await canDiscard())dialog.close();}
-  $('toolClose').onclick=close;dialog.addEventListener('cancel',e=>{e.preventDefault();close();});window.addEventListener('beforeunload',e=>{if(editor.isDirty()||busy){e.preventDefault();e.returnValue='';}});
+  async function close(){if(!busy&&await canDiscard()){editor.markSaved();dialog.close();}}
+  $('toolClose').onclick=close;dialog.addEventListener('cancel',e=>{e.preventDefault();close();});
+  protectWindowClose({isBusy:()=>busy,isDirty:()=>editor.isDirty(),discard:()=>editor.markSaved()},message=>showToast(message,true));
   dialog.addEventListener('change',e=>{if(e.target.closest('aside')){invalidate();render();if(e.target.id==='toolKind')dialog.querySelector('.tool-image-stage').scrollTop=0;}});$('toolDirectorPrompt').addEventListener('input',invalidate);
   $('toolReview').onclick=review;$('toolRun').onclick=run;$('toolUpload').onclick=()=>$('toolFile').click();$('toolFile').onchange=()=>{const file=$('toolFile').files[0];if(file)void load({file}).catch(e=>status(e.message,true));$('toolFile').value='';};
   $('toolMagnitude').addEventListener('change',()=>{const value=MAGNITUDES[num('toolMagnitude')];$('toolStrength').value=value.strength;$('toolNoise').value=value.noise;});

@@ -7,6 +7,10 @@ export const RELEASE_SCHEMA = 'chaessi.preset.release/1';
 export const KEYSET_SCHEMA = 'chaessi.preset.keys/1';
 const SPKI_PREFIX = Buffer.from('302a300506032b6570032100', 'hex');
 const MAX_INTEGER = Number.MAX_SAFE_INTEGER;
+// Match Reader preset_release.py consumer bounds before producing any sidecar.
+export const CONSUMER_LIMITS = Object.freeze({jsonBytes:8*1024*1024,files:50000,
+  fileBytes:16*1024**3,totalBytes:128*1024**3,keys:256,revokedKeys:4096,
+  depth:16,stringLength:4096,keyLength:128,treeEntries:100000});
 const FIELDS = {
   release: ['schema','issuer','product','channel','releaseId','version','sequence','issuedAt','expiresAt','keyId','minKeysetSequence','protocols','layout','launcher','receiver','files'],
   keyset: ['schema','issuer','product','channel','sequence','issuedAt','expiresAt','keys','revokedKeyIds'],
@@ -40,10 +44,30 @@ export function canonicalBytes(value) {
 }
 
 export function parseCanonical(bytes) {
+  if (!Buffer.isBuffer(bytes) || !bytes.length || bytes.length > CONSUMER_LIMITS.jsonBytes) fail('Consumer JSON byte limit');
   const decoded = new TextDecoder('utf-8', {fatal: true}).decode(bytes);
   const value = JSON.parse(decoded);
   if (!canonicalBytes(value).equals(bytes)) fail('Noncanonical JSON');
   return value;
+}
+
+function consumerDocument(value) {
+  function visit(item,depth=0) {
+    if (depth > CONSUMER_LIMITS.depth) fail('Consumer JSON depth limit');
+    if (typeof item === 'string') {
+      if (!item.length || item.length > CONSUMER_LIMITS.stringLength) fail('Consumer string limit');
+    } else if (Array.isArray(item)) {
+      if (item.length > CONSUMER_LIMITS.files) fail('Consumer array limit');
+      item.forEach(child=>visit(child,depth+1));
+    } else if (item && Object.getPrototypeOf(item) === Object.prototype) {
+      for (const [key,child] of Object.entries(item)) {
+        if (!key.length || key.length > CONSUMER_LIMITS.keyLength) fail('Consumer key limit');
+        visit(child,depth+1);
+      }
+    }
+  }
+  visit(value);
+  if (canonicalBytes(value).length > CONSUMER_LIMITS.jsonBytes) fail('Consumer JSON byte limit');
 }
 
 function exact(value, fields) {
@@ -84,7 +108,7 @@ export function validateRelativePath(value) {
 function fileEntry(entry) {
   exact(entry,['path','size','sha256']);
   validateRelativePath(entry.path);
-  if (!Number.isSafeInteger(entry.size) || entry.size < 0) fail('Invalid file size');
+  if (!Number.isSafeInteger(entry.size) || entry.size < 0 || entry.size > CONSUMER_LIMITS.fileBytes) fail('Invalid file size or consumer file byte limit');
   hash(entry.sha256);
 }
 function sortedUnique(values) {
@@ -94,7 +118,7 @@ function sortedUnique(values) {
 export function validateRelease(release, {channel='private'}={}) {
   exact(release,FIELDS.release);
   identity(release,RELEASE_SCHEMA,channel);
-  canonicalBytes(release);
+  consumerDocument(release);
   if (!/^[A-Za-z0-9][A-Za-z0-9._-]{0,127}$/.test(release.releaseId)) fail('Invalid release ID');
   const semver=/^(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)(?:-((?:0|[1-9][0-9]*|[0-9]*[A-Za-z-][0-9A-Za-z-]*)(?:\.(?:0|[1-9][0-9]*|[0-9]*[A-Za-z-][0-9A-Za-z-]*))*))?(?:\+[0-9A-Za-z-]+(?:\.[0-9A-Za-z-]+)*)?$/;
   if (!semver.test(release.version)) fail('Invalid SemVer');
@@ -106,6 +130,7 @@ export function validateRelease(release, {channel='private'}={}) {
   validateRelativePath(release.receiver);
   if (!Array.isArray(release.files) || !release.files.length) fail('Empty runtime inventory');
   release.files.forEach(fileEntry);
+  if (release.files.reduce((total,file)=>total+file.size,0) > CONSUMER_LIMITS.totalBytes) fail('Consumer runtime total byte limit');
   if (!sortedUnique(release.files.map(file => file.path))) fail('Unsorted inventory');
   checkCaseAndPrefixes(release.files.map(file => file.path));
   const receiver = release.files.find(file => file.path === release.receiver);
@@ -138,8 +163,9 @@ export function keyRecord(key,notBefore,notAfter) {
 export function validateKeyset(keyset, {channel='private'}={}) {
   exact(keyset,FIELDS.keyset);
   identity(keyset,KEYSET_SCHEMA,channel);
-  canonicalBytes(keyset);
+  consumerDocument(keyset);
   if (!Array.isArray(keyset.keys) || !keyset.keys.length || !Array.isArray(keyset.revokedKeyIds)) fail('Invalid key lists');
+  if (keyset.keys.length > CONSUMER_LIMITS.keys || keyset.revokedKeyIds.length > CONSUMER_LIMITS.revokedKeys) fail('Consumer key list limit');
   for (const record of keyset.keys) {
     exact(record,['keyId','publicKey','notBefore','notAfter']);
     hash(record.keyId);
@@ -243,14 +269,21 @@ export async function inventoryTree(root, {excluded=[]}={}) {
         continue;
       }
       paths.push(relative);
+      if (paths.length > CONSUMER_LIMITS.treeEntries) fail('Consumer tree entry limit');
       if (stat.isSymbolicLink()) fail('Links cannot be packaged');
       if (stat.isDirectory()) await visit(file,relative+'/');
       else {
         await regularStat(file);
-        files.push({path:relative,...await hashFile(file)});
+        if (files.length >= CONSUMER_LIMITS.files) fail('Consumer runtime file count limit');
+        if (stat.size > CONSUMER_LIMITS.fileBytes) fail('Consumer file byte limit');
+        const entry={path:relative,...await hashFile(file)};
+        files.push(entry);
+        totalBytes+=entry.size;
+        if (totalBytes > CONSUMER_LIMITS.totalBytes) fail('Consumer runtime total byte limit');
       }
     }
   }
+  let totalBytes=0;
   await visit(root,'');
   if (new Set(paths.map(name => name.toLowerCase())).size !== paths.length) fail('Windows case collision');
   checkCaseAndPrefixes(files.map(file => file.path));

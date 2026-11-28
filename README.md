@@ -1,16 +1,16 @@
-# CHAESSI PRESET v3.9.0
+# CHAESSI PRESET v3.9.1
 
 V5 Precise Reference와 독립 레퍼런스 보관함을 제공하는 Windows x64 Portable입니다. V5 Full · High · 텍스트 생성에서 Character, Style, Character & Style, Outfit을 섞어 쓰고 같은 의상 선호·Strength·순서·활성 상태를 조절합니다. 참조당 출력 한 장에 5 Anlas가 추가되며 생성 전 적용 수와 총 예상 비용을 확인하세요.
 
-[공식 v3.9.0 다운로드](https://github.com/DooMokDdongGae/Chaessi-Preset/releases/tag/v3.9.0) · [업데이트 안내](docs/UPDATING.md) · [변경사항](.github/releases/v3.9.0.ko.md) · [45장 온라인 도움말](https://doomokddonggae.github.io/Chaessi-Preset/v3.9.0/?lang=ko&chapter=v5-reference)
+[공식 v3.9.1 다운로드](https://github.com/DooMokDdongGae/Chaessi-Preset/releases/tag/v3.9.1) · [업데이트 안내](docs/UPDATING.md) · [변경사항](.github/releases/v3.9.1.ko.md) · [45장 온라인 도움말](https://doomokddonggae.github.io/Chaessi-Preset/v3.9.1/?lang=ko&chapter=v5-reference)
 
-공식 Portable ZIP을 풀고 `Chaessi-Preset-v3.9.0-x64.exe`를 실행합니다. 압축을 푼 파일들은 같은 폴더에 보관하세요. Reader 연결에는 [Reader 1.1.0](https://github.com/DooMokDdongGae/Chaessi-Metadata-Reader/releases/tag/v1.1.0)을 사용합니다. 연결이 거부되면 공식 ZIP을 다시 풀고 새 실행파일을 선택하세요.
+공식 Portable ZIP을 풀고 `Chaessi-Preset-v3.9.1-x64.exe`를 실행합니다. 압축을 푼 파일들은 같은 폴더에 보관하세요. Reader 연결에는 [Reader 1.1.1](https://github.com/DooMokDdongGae/Chaessi-Metadata-Reader/releases/tag/v1.1.1)을 사용합니다. 연결이 거부되면 공식 ZIP을 다시 풀고 새 실행파일을 선택하세요.
 
 개별 참조와 구성 전체를 저장·불러오기·이름 변경·다른 이름으로 저장·삭제할 수 있습니다. 보관함은 Base/Character 프리셋과 독립적이며 직접 저장하지 않은 임시 참조는 자동 보관하지 않습니다. 앱 안의 도움말 센터에는 한·영·일 안내가 오프라인으로 포함됩니다.
 
 V5 Precise+Inpaint, V5 Vibe와 신규 V4.5 Vibe UI·요청은 제공하지 않습니다. 미지원 모델·모드에서는 참조를 보류하며 기존 V4.5 데이터 읽기는 유지합니다. Base/Character, 설정, History와 저장 토큰의 기존 경로를 유지합니다. 실행파일 폴더와 사용자 데이터 폴더는 별도입니다.
 
-Windows OS 파일 드롭의 마지막 GUI 시험은 미검증이며 파일 선택·붙여넣기를 이용할 수 있습니다. 개발 환경의 별도 계측은 연결 약 14.35초·미리보기 약 6.97초였고 사용자 PC 체감값은 아닙니다. Chrome·Inspect 온라인 추가시험과 드롭·성능 확인은 실사용 후 진행합니다. 반복 연결 실패·전송 실패는 정상 동작으로 간주하지 않습니다.
+이번 수정판은 생성 PNG의 메타데이터 보존과 종료 시 미저장 편집 확인을 개선하고, 불필요한 배포용 개발 자료를 정리했습니다. 다운로드 PNG 4건의 공식 Inspect 인식은 확인했으나 원본 Precise/Character PNG가 없는 유형, 일부 저장 중 busy 타이밍과 제한된 외부 이미지 경로는 알려진 제한입니다. 기존 History를 일괄 복구하거나 없는 생성정보를 추측하지 않습니다.
 
 [한국어](README.ko.md) · [English](README.en.md) · [日本語](README.ja.md)
 
@@ -25,13 +25,13 @@ Windows OS 파일 드롭의 마지막 GUI 시험은 미검증이며 파일 선�
 | 보통 | 1216 × 832 | 1344 × 768 | 832 × 1216 | 768 × 1344 | 1024 × 1024 |
 | 크게 | 1536 × 1024 | 1664 × 960 | 1024 × 1536 | 960 × 1664 | 1472 × 1472 |
 
-여러 인물과 넓은 배경에는 와이드 가로, 전신을 세로로 담을 공간이 필요할 때는 롱 세로를 써 보세요. 실제 구도는 프롬프트와 생성 결과에 따라 달라집니다. 초기값은 832 × 1216이며 작게·배경화면·직접 입력과 가로·세로 교환도 사용할 수 있습니다. 저장된 프리셋의 치수와 카메라·프롬프트는 자동으로 바뀌지 않습니다. 크게는 픽셀 수가 많아 비용이 달라질 수 있으니 생성 전 예상치를 확인하세요. [이미지 크기 도움말](https://doomokddonggae.github.io/Chaessi-Preset/v3.9.0/?lang=ko&chapter=settings)
+여러 인물과 넓은 배경에는 와이드 가로, 전신을 세로로 담을 공간이 필요할 때는 롱 세로를 써 보세요. 실제 구도는 프롬프트와 생성 결과에 따라 달라집니다. 초기값은 832 × 1216이며 작게·배경화면·직접 입력과 가로·세로 교환도 사용할 수 있습니다. 저장된 프리셋의 치수와 카메라·프롬프트는 자동으로 바뀌지 않습니다. 크게는 픽셀 수가 많아 비용이 달라질 수 있으니 생성 전 예상치를 확인하세요. [이미지 크기 도움말](https://doomokddonggae.github.io/Chaessi-Preset/v3.9.1/?lang=ko&chapter=settings)
 
 <a id="reader-setup"></a>
 
 ## 메타데이터 리더 설치와 연결
 
-공식 Reader 1.1.0과 서명 파일이 함께 있는 Preset 3.9.0 Portable을 사용하세요. ZIP을 풀어 모든 파일을 같은 폴더에 보관합니다.
+공식 Reader 1.1.1과 서명 파일이 함께 있는 Preset 3.9.1 Portable을 사용하세요. ZIP을 풀어 모든 파일을 같은 폴더에 보관합니다.
 
 ### 처음 한 번 설정하기
 
@@ -49,7 +49,7 @@ Windows OS 파일 드롭의 마지막 GUI 시험은 미검증이며 파일 선�
 4. **프리셋으로 보내기**를 한 번 누르고 선택했던 Preset 창의 미리보기를 보세요. 리더 뒤에 있으면 작업 표시줄에서 그 창으로 전환하세요. 캐릭터가 2개일 때 5번으로만 보내면 3·4번은 빈 비활성(Off) 슬롯으로 표시됩니다. 전후 문구와 생성될 번호를 확인해 **초안에 적용**하거나 **취소**하세요. 빈 문구로 덮어쓸 때만 별도 확인이 필요합니다.
 5. **리더 전송 되돌리기**는 적용 내용과 새 슬롯을 함께 복구합니다. 보관하려면 작업대 위쪽의 **저장**을 직접 누르세요. 전송에 NovelAI 토큰이나 유료 생성은 필요하지 않습니다.
 
-[받을 창 선택, 재시도 및 되돌리기 안내](https://doomokddonggae.github.io/Chaessi-Preset/v3.9.0/?lang=ko&chapter=reader-transfer)
+[받을 창 선택, 재시도 및 되돌리기 안내](https://doomokddonggae.github.io/Chaessi-Preset/v3.9.1/?lang=ko&chapter=reader-transfer)
 
 ## v3.8.4 — 부분수정과 아웃페인팅 조작 개선
 
@@ -123,7 +123,7 @@ High에서는 V5 설정을 조절할 수 있습니다. Medium은 정해진 설�
 
 ## 시작·업데이트·백업
 
-1. [공식 배포 목록](https://github.com/DooMokDdongGae/Chaessi-Preset/releases)에서 `Chaessi-Preset-v3.9.0-x64.zip`과 체크섬를 받습니다.
+1. [공식 배포 목록](https://github.com/DooMokDdongGae/Chaessi-Preset/releases)에서 `Chaessi-Preset-v3.9.1-x64.zip`과 체크섬를 받습니다.
 2. ZIP을 풀어 파일을 함께 보관한 뒤 EXE를 실행하고 언어를 고릅니다. Portable 실행에는 별도 Node.js 설치가 필요 없습니다. 온라인 생성에는 본인의 NovelAI 계정·토큰과 사용 권한이 필요합니다. 설정의 NovelAI 연결에서 본인 토큰을 입력하고 저장한 뒤 연결 상태를 확인합니다. 토큰은 비밀번호처럼 다루고 공유하지 마세요.
 3. 프리셋을 선택하거나 글을 쓰고 High/Medium·크기·비용을 확인해 한 장을 생성합니다. 최근 결과나 History에서 카메라 또는 이미지 도구로 이어갑니다. 앱 정보 → 도움말 센터에서 실제 조작을 확인하세요.
 4. 업데이트 전 필요한 편집을 저장하고 앱을 종료한 뒤 실제 데이터 폴더 전체를 별도 백업합니다. 데이터는 유지하고 EXE와 동봉 파일을 함께 교체합니다. 되돌릴 때는 이전 EXE와 그 버전에 맞는 백업을 함께 사용합니다.

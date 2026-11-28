@@ -130,3 +130,12 @@ for (const id of ['settings','tool-canvas','composition','composition-restore','
   for (const locale of ['ko','en','ja']) c[locale][3] += ' ' + confirmationHelpNotes[id==='settings'?'settings':'discard'][locale];
 }
 manualChapters.push(...referenceChapters);
+
+const pngOriginalNotes = {
+  ko: '생성 원본은 최근 결과의 저장 또는 History의 Save로 내려받으세요. NovelAI가 PNG로 반환한 결과는 원본 바이트를 보존합니다. 화면 캡처나 클립보드 복사는 생성정보가 달라질 수 있습니다. 로컬 편집·합성 결과는 생성 원본과 다르며, 이미 정보가 사라진 예전 History를 자동 복구하거나 덮어쓰지 않습니다.',
+  en: 'Download a generation through Save on the latest result or Save in History. PNG responses from NovelAI retain their original bytes. Screenshots or clipboard copies may change generation metadata. Locally edited or composited images differ from generation originals; older History with missing information is not automatically repaired or overwritten.',
+  ja: '最新結果の保存、または履歴の Save から生成画像を保存してください。NovelAI の PNG 応答は元のバイトを保持します。画面撮影やクリップボードコピーでは生成情報が変わる場合があります。ローカル編集・合成結果は生成原本とは異なり、情報を失った過去の履歴を自動修復・上書きしません。',
+};
+for (const locale of ['ko', 'en', 'ja']) {
+  manualChapters.find(c => c.id === 'history')[locale][3] += ' ' + pngOriginalNotes[locale];
+}

@@ -1,4 +1,5 @@
 import {confirmAction} from './confirmation.js';
+import {protectWindowClose} from './window-close-guard.js';
 import {getJson,postJson} from '../api/client.js';
 import {createCompositionEditor} from './composition-editor.js';
 import {t} from './i18n.js';
@@ -99,7 +100,7 @@ export function createCompositionController({getPreset,onSaved,onUseSource,showT
   async function variant(index){if(!result||busy||result.operation.selected_variant===index)return;locked(true);try{await display(await postJson('/api/image-tools/variant',{id:result.generation.id,index}));}catch(e){status(e.message,true);}finally{locked(false);}}
   function close(){if(!busy)dialog.close();}
   $('compositionClose').onclick=close;dialog.addEventListener('cancel',e=>{e.preventDefault();close();});
-  window.addEventListener('beforeunload',e=>{if(editor.isDirty()||busy){e.preventDefault();e.returnValue='';}});
+  protectWindowClose({isBusy:()=>busy,isDirty:()=>editor.isDirty(),discard:()=>editor.markSaved()},message=>showToast(message,true));
   $('compositionReview').onclick=review;$('compositionRun').onclick=run;
   $('compositionUpload').onclick=()=>$('compositionFile').click();$('compositionFile').onchange=async()=>{const file=$('compositionFile').files[0];$('compositionFile').value='';if(file)await open({file});};
   $('compositionImport').onclick=()=>$('compositionDraftFile').click();$('compositionDraftFile').onchange=async()=>{const file=$('compositionDraftFile').files[0];$('compositionDraftFile').value='';if(!file||busy)return;locked(true);try{if(file.size>48*1024*1024)throw new Error('Session file is too large.');const session=JSON.parse(await file.text());if(editor.isDirty()&&!await confirmAction(t('Replace the current composition? Save the editing session to keep it.')))return;await loadSession({...session,parent_id:null});}catch(e){status(e.message,true);}finally{locked(false);}};

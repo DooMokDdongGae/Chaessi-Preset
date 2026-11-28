@@ -9,6 +9,7 @@ import {
   sha256, rawPublicKey, publicKeyFromRaw, keyRecord, signDocument,
   verifyDocument, validateRelease, validateKeyset, verifyReleaseBundle,
   validateRelativePath, inventoryTree, hashFile, createRelease, verifyPackage,
+  CONSUMER_LIMITS,
 } from '../scripts/signed-release.mjs';
 
 // These are deliberately tiny synthetic byte files, not valid PE/runtime fixtures.
@@ -56,6 +57,37 @@ test('canonical JSON is ASCII sorted, compact UTF-8 with no BOM or trailing newl
   const bytes=canonicalBytes({z:['value',0,Number.MAX_SAFE_INTEGER],a:{b:'line\\n',a:'"quoted"'}});
   assert.equal(bytes.toString(),String.raw`{"a":{"a":"\"quoted\"","b":"line\\n"},"z":["value",0,9007199254740991]}`);
   assert.deepEqual(parseCanonical(bytes),{a:{a:'"quoted"',b:'line\\n'},z:['value',0,Number.MAX_SAFE_INTEGER]});
+});
+
+test('consumer bounds reject oversize JSON before parsing and file/key list limits before signing',()=>{
+  assert.throws(()=>parseCanonical(Buffer.alloc(CONSUMER_LIMITS.jsonBytes+1,32)),/JSON byte limit/);
+  const base=releaseFor();
+  const maxFile={...base,files:[{...base.files[0],size:CONSUMER_LIMITS.fileBytes}]};
+  assert.equal(validateRelease(maxFile),maxFile);
+  assert.throws(()=>validateRelease({...maxFile,launcher:{...base.launcher,size:CONSUMER_LIMITS.fileBytes+1}}),/file byte limit/);
+  assert.throws(()=>validateRelease({...maxFile,files:[{...maxFile.files[0],size:CONSUMER_LIMITS.fileBytes+1}]}),/file byte limit/);
+  const entries=Array.from({length:9},(_,i)=>({path:`f${i}.exe`,size:CONSUMER_LIMITS.fileBytes,sha256:'0'.repeat(64)}));
+  assert.throws(()=>validateRelease({...base,receiver:'f0.exe',files:entries}),/total byte limit/);
+  const maxTotal={...base,receiver:'f0.exe',files:entries.slice(0,8)};
+  assert.equal(validateRelease(maxTotal),maxTotal);
+  const many=Array.from({length:CONSUMER_LIMITS.files+1},(_,i)=>({...base.files[0],path:`f${String(i).padStart(5,'0')}.exe`}));
+  assert.throws(()=>validateRelease({...base,files:many}),/array limit/);
+  const keys=keysetFor();
+  assert.throws(()=>validateKeyset({...keys,keys:Array(257).fill(keys.keys[0])}),/key list limit/);
+  assert.throws(()=>validateKeyset({...keys,revokedKeyIds:Array(4097).fill('0'.repeat(64))}),/key list limit/);
+  // Below file-count cap but above serialized byte cap: no filesystem-sized fixture.
+  const longFiles=Array.from({length:10000},(_,i)=>({...base.files[0],path:`${String(i).padStart(5,'0')}${'x'.repeat(900)}.exe`}));
+  assert.throws(()=>signDocument({...base,files:longFiles},signer.privateKey),/JSON byte limit/);
+});
+
+test('inventory refuses oversize stat before opening file bytes (no giant fixture allocated)',async t=>{
+  const x=await tempTree(t),oversize=path.join(x.runtime,'oversize.dll');
+  await fs.writeFile(oversize,'synthetic');
+  const originalStat=fs.lstat,originalOpen=fs.open;
+  fs.lstat=async(file,...args)=>{const stat=await originalStat(file,...args);if(file===oversize)stat.size=CONSUMER_LIMITS.fileBytes+1;return stat;};
+  fs.open=async(file,...args)=>{assert.notEqual(file,oversize,'oversize bytes must never be read');return originalOpen(file,...args);};
+  try{await assert.rejects(inventoryTree(x.runtime),/file byte limit/);}
+  finally{fs.lstat=originalStat;fs.open=originalOpen;}
 });
 
 test('canonical parser rejects byte variants including duplicate keys, BOM, and trailing newline',()=>{

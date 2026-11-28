@@ -1,15 +1,5 @@
 import sharp from "sharp";
 import { extractStealthPngMetadata } from "../importers/nai-metadata.js";
-import { NOVELAI_V5_FULL_MODEL } from "../state/model-profiles.js";
-
-const REFERENCE_METADATA_KEYS = [
-  "v4_prompt", "v4_negative_prompt", "negative_prompt", "characterPrompts", "use_coords", "width", "height",
-  "seed", "extra_noise_seed", "steps", "scale", "cfg_rescale", "sampler", "noise_schedule", "n_samples",
-  "qualityToggle", "ucPreset", "qualityPresetId", "ucPresetId", "tag_hint_qt", "tag_hint_uc_preset",
-  "sm", "sm_dyn", "dynamic_thresholding", "tag_hint_transparent_background", "straight_alpha",
-  "director_reference_descriptions", "director_reference_strength_values", "director_reference_information_extracted",
-  "director_reference_secondary_strength_values", "reference_strength_multiple", "normalize_reference_strength_multiple",
-];
 
 export function scrubReferenceStealth(pixels, { channels, width, height }) {
   // NovelAI PNG metadata may also be written bitwise in alpha, column first.
@@ -46,22 +36,11 @@ export async function referenceInputPng(bytes) {
   return (await referencePixels(bytes, true)).png;
 }
 
-async function referenceResultPng(bytes, payload) {
-  const { png, format } = await referencePixels(bytes, false);
-  const parameters = Object.fromEntries(REFERENCE_METADATA_KEYS.filter(key => Object.hasOwn(payload.parameters, key))
-    .map(key => [key, payload.parameters[key]]));
-  // Preserve standard prompt imports, without persisting the provider's raw metadata, embeddings or remote cache keys.
-  const metadata = { model: payload.model, prompt: payload.input, uc: payload.parameters.negative_prompt,
-    ...parameters, provenance: "chaessi-request" };
-  return { imageBytes: appendPngText(png, "Comment", JSON.stringify(metadata)), format, metadata, requestMetadataOnly: true };
-}
-
-// Inpaint's existing PNG bytes bypass conversion completely.
+// Generated server responses belong to the user. Reference input sanitizing is
+// intentionally separate: it must never scrub returned generation metadata or
+// alpha-channel packets/signatures. Preserve all provider PNG bytes, including
+// unknown chunks, for History and direct downloads in every generation mode.
 export async function receivedImageToPng(bytes, payload) {
-  if (payload.parameters?.reference_image_multiple?.length ||
-      (payload.model === NOVELAI_V5_FULL_MODEL && payload.parameters?.director_reference_descriptions?.length)) {
-    return referenceResultPng(bytes, payload);
-  }
   if (bytes.subarray(0, 8).toString("hex") === "89504e470d0a1a0a") return { imageBytes: bytes, format: "png" };
   const png = await sharp(bytes, { limitInputPixels: 16_777_216 }).keepMetadata().png().toBuffer();
   let actual = null;
@@ -72,8 +51,18 @@ export async function receivedImageToPng(bytes, payload) {
   for (const key of ["image", "mask", "signed_hash", "image_cache_secret_key"]) delete parameters[key];
   const metadata = { ...(actual || {}), model: payload.model, input: returned?.prompt ?? payload.input,
     parameters, provenance: actual ? "novelai-response-and-request" : "chaessi-request" };
+  // The independent NovelAI Inspect tool reads ordinary PNG text fields. Sharp
+  // retains WebP alpha/EXIF metadata, but does not expose alpha stealth as text.
+  // Copy only strings actually returned with this image. In particular, retain
+  // the exact Comment string: reserializing it can change signature semantics.
+  let inspectPng = png;
+  if (typeof actual?.Comment === "string" && returned && typeof returned === "object" && !Array.isArray(returned)) {
+    for (const keyword of ["Title", "Description", "Software", "Source", "Generation time", "Comment"]) {
+      if (typeof actual[keyword] === "string") inspectPng = appendPngText(inspectPng, keyword, actual[keyword]);
+    }
+  }
   // Explicit metadata survives alpha editing; original response metadata/alpha also remains in the PNG.
-  return { imageBytes: appendPngText(png, "Generation Data", JSON.stringify(metadata)), format: "webp", metadata };
+  return { imageBytes: appendPngText(inspectPng, "Generation Data", JSON.stringify(metadata)), format: "webp", metadata };
 }
 
 export function appendPngText(png, keyword, text) {

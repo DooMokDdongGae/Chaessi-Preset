@@ -1,16 +1,16 @@
-# CHAESSI PRESET v3.9.0
+# CHAESSI PRESET v3.9.1
 
 Windows x64 Portable with V5 Precise Reference and an independent Reference library. Use Character, Style, Character & Style and Outfit together in V5 Full · High · Text to Image. Adjust Prefer same outfit, Strength, order and enabled state. Each applied reference adds 5 Anlas per output image; review the ready count and total estimated cost before generation.
 
-[Official v3.9.0 download](https://github.com/DooMokDdongGae/Chaessi-Preset/releases/tag/v3.9.0) · [Updating](docs/UPDATING.md) · [Release notes](.github/releases/v3.9.0.en.md) · [45-chapter online guide](https://doomokddonggae.github.io/Chaessi-Preset/v3.9.0/?lang=en&chapter=v5-reference)
+[Official v3.9.1 download](https://github.com/DooMokDdongGae/Chaessi-Preset/releases/tag/v3.9.1) · [Updating](docs/UPDATING.md) · [Release notes](.github/releases/v3.9.1.en.md) · [45-chapter online guide](https://doomokddonggae.github.io/Chaessi-Preset/v3.9.1/?lang=en&chapter=v5-reference)
 
-Extract the official Portable ZIP and run `Chaessi-Preset-v3.9.0-x64.exe`. Keep the extracted files together. Use [Reader 1.1.0](https://github.com/DooMokDdongGae/Chaessi-Metadata-Reader/releases/tag/v1.1.0) for prompt transfers. If verification fails, extract the official ZIP again and select its executable.
+Extract the official Portable ZIP and run `Chaessi-Preset-v3.9.1-x64.exe`. Keep the extracted files together. Use [Reader 1.1.1](https://github.com/DooMokDdongGae/Chaessi-Metadata-Reader/releases/tag/v1.1.1) for prompt transfers. If verification fails, extract the official ZIP again and select its executable.
 
 Save, load, rename, Save as and delete individual references or complete sets. The library is independent of Base/Character presets; temporary references are archived only when explicitly saved. Korean, English and Japanese guidance is bundled in the offline Help Center.
 
 V5 Precise+Inpaint, V5 Vibe and new V4.5 Vibe controls/requests are unavailable. Unsupported model/mode combinations hold references, and legacy V4.5 records remain readable. Existing Base/Character, settings, History and saved-token paths are preserved. User data stays separate from the executable folder.
 
-The final Windows OS file-drop GUI check remains unverified; file selection and paste are available. Separate development measurements were about 14.35 s for connection and 6.97 s for preview, not final user-PC timings. Additional Chrome/Inspect online checks, drop and performance checks remain for practical use. Repeated connection or transfer failures require correction.
+This update improves generated-PNG metadata preservation and unsaved-edit confirmation when closing, and removes unnecessary development files from the package. Four downloaded PNGs were recognized by the official Inspect UI. Types without original Precise/Character PNG samples, some save-time busy timing and limited external-image paths remain known limitations. Existing History is not batch repaired and missing generation data is never inferred.
 
 [한국어](README.ko.md) · [English](README.en.md) · [日本語](README.ja.md)
 
@@ -25,13 +25,13 @@ Choose **Image size** at the bottom of the workbench, then **Normal** or **Large
 | Normal | 1216 × 832 | 1344 × 768 | 832 × 1216 | 768 × 1344 | 1024 × 1024 |
 | Large | 1536 × 1024 | 1664 × 960 | 1024 × 1536 | 960 × 1664 | 1472 × 1472 |
 
-Try Wide landscape for a group or a broad background. Tall portrait gives you more vertical space for a full-length figure. Framing depends on the prompt and the generated result. The starting size is 832 × 1216. Small, Wallpaper, Custom and width/height swap are still available. Your saved sizes, prompts and camera settings stay as you set them. Large uses more pixels and can change the cost. Check the estimate before generating. [Image size guide](https://doomokddonggae.github.io/Chaessi-Preset/v3.9.0/?lang=en&chapter=settings)
+Try Wide landscape for a group or a broad background. Tall portrait gives you more vertical space for a full-length figure. Framing depends on the prompt and the generated result. The starting size is 832 × 1216. Small, Wallpaper, Custom and width/height swap are still available. Your saved sizes, prompts and camera settings stay as you set them. Large uses more pixels and can change the cost. Check the estimate before generating. [Image size guide](https://doomokddonggae.github.io/Chaessi-Preset/v3.9.1/?lang=en&chapter=settings)
 
 <a id="reader-setup"></a>
 
 ## Metadata Reader setup and connection
 
-Use official Reader 1.1.0 and Preset 3.9.0 Portable with its signature files. Keep all extracted files together.
+Use official Reader 1.1.1 and Preset 3.9.1 Portable with its signature files. Keep all extracted files together.
 
 ### First-time setup
 
@@ -49,7 +49,7 @@ Use official Reader 1.1.0 and Preset 3.9.0 Portable with its signature files. Ke
 4. Choose **Send to Preset** once and check the preview in the Preset window you chose. If Reader covers it, switch to that window using the Windows taskbar. With two existing Characters, sending only to Character 5 shows empty, disabled (Off) slots 3 and 4. Review the current and final text and the slots to be created, then choose **Apply to draft** or **Cancel**. Sending an empty string in Replace mode requires separate confirmation.
 5. **Undo Reader transfer** reverses the edits and any new slots together. To keep the draft, choose **Save** at the top of the workbench. Transfer needs no NovelAI token or paid generation.
 
-[Window selection, retry and Undo guide](https://doomokddonggae.github.io/Chaessi-Preset/v3.9.0/?lang=en&chapter=reader-transfer)
+[Window selection, retry and Undo guide](https://doomokddonggae.github.io/Chaessi-Preset/v3.9.1/?lang=en&chapter=reader-transfer)
 
 ## v3.8.4 — Inpaint zoom and outpaint canvas controls
 
@@ -123,7 +123,7 @@ The app encrypts saved NovelAI tokens using operating-system protection. Generat
 
 ## Start, update and back up
 
-1. Download the `Chaessi-Preset-v3.9.0-x64.zip` and its checksum from [Official releases](https://github.com/DooMokDdongGae/Chaessi-Preset/releases).
+1. Download the `Chaessi-Preset-v3.9.1-x64.zip` and its checksum from [Official releases](https://github.com/DooMokDdongGae/Chaessi-Preset/releases).
 2. Extract the ZIP, keep all files together and run the EXE and choose a language. Portable users do not need Node.js. Online work requires your own NovelAI account, token and generation entitlement. In settings, open the NovelAI connection, enter and save your own token, then check the connection status. Treat the token like a password and never share it.
 3. Load or write a preset, review High/Medium, size and cost, and generate one image. Continue from the latest result or History with Camera or Image tools. Open App info → Help Center for the controls.
 4. Before updating, save edits, close the app and back up the complete actual data directory separately. Keep the data and replace the EXE and its companion files together. To roll back, use the earlier EXE together with a backup appropriate for that version.

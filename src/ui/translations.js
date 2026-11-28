@@ -134,6 +134,8 @@ Uses Opus allowance	Opus 사용량 적용	Opus 利用枠を使用
 PNG saved to History. Actual Anlas: {anlas}	PNG를 히스토리에 저장했습니다. 실제 Anlas: {anlas}	PNG を履歴に保存しました。実際の Anlas：{anlas}
 Completed result	완료된 결과	完了した結果
 Discard unsaved canvas edits?	저장하지 않은 캔버스 편집을 버릴까요?	未保存のキャンバス編集を破棄しますか？
+Discard unsaved image edits and close the application? Save the editing session first to keep it.	저장하지 않은 이미지 편집을 버리고 앱을 종료할까요? 보관하려면 먼저 편집 상태를 저장하세요.	未保存の画像編集を破棄してアプリを終了しますか？残す場合は先に編集状態を保存してください。
+An image operation is still running or saving. Wait before closing.	이미지 작업이나 저장이 진행 중입니다. 완료된 뒤 종료하세요.	画像処理または保存が進行中です。完了してから終了してください。
 Unsaved canvas edits.	저장하지 않은 캔버스 편집이 있습니다.	未保存のキャンバス編集があります。
 The result exceeds the generation size limit. Use Canvas resize or Focused Inpaint.	결과가 생성 크기 제한을 넘습니다. 캔버스 크기 변경이나 영역 집중 부분 수정을 사용하세요.	結果が生成サイズの上限を超えています。キャンバスのサイズ変更や範囲集中修正を使ってください。
 Error details: {details}	오류 내용: {details}	エラー詳細：{details}
